@@ -16,12 +16,16 @@ module Main ( main ) where
 
 import Control.Monad       ( liftM, when )
 import Control.Monad.State ( State, runState, evalState, get, put, modify )
-import Data.Char           ( isUpper, toUpper, isLower, toLower, isDigit, isHexDigit, isSpace )
+import Data.Char           ( isUpper, toUpper, isLower, toLower, isDigit,
+                             isHexDigit, isSpace )
 import Data.FiniteMap      ( FiniteMap, emptyFM, addToFM_C, lookupWithDefaultFM )
 import Data.List           ( mapAccumL, isPrefixOf, tails )
 import Data.Set            ( Set, mkSet, addToSet, elementOf )
 import Numeric             ( readHex, showHex )
-import Parsec              ( SourceName, Parser, (<|>), (<?>), try, eof, char, string, many, many1, satisfy, option, parse, sepBy, spaces )
+import Text.ParserCombinators.Parsec
+                           ( SourceName, Parser, (<|>), (<?>), try, eof, char,
+                             string, many, many1, satisfy, option, parse, sepBy,
+                             spaces )
 import System.Environment  ( getArgs )
 
 --------------------------------------------------------------------------------

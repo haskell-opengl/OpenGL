@@ -2,10 +2,12 @@ module Main ( main ) where
 
 import Control.Monad      ( liftM, when )
 import Data.Char          ( isSpace )
-import Data.FiniteMap     ( FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList, lookupWithDefaultFM )
+import Data.FiniteMap     ( FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList,
+                            lookupWithDefaultFM )
 import Data.List          ( isPrefixOf, tails, delete )
 import System.Environment ( getArgs )
-import Parsec             ( SourceName, Parser, parse, try, eof, oneOf, noneOf,
+import Text.ParserCombinators.Parsec
+                          ( SourceName, Parser, parse, try, eof, oneOf, noneOf,
                             string, (<|>), (<?>), option, skipMany, many, many1,
                             sepBy, between, chainl1 )
 
