@@ -28,8 +28,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetClipPlane,GetMaxClipPlanes),
    clipPlaneIndexToEnum, getDoublev, getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)),
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVarMaybe )
 
 --------------------------------------------------------------------------------
 
@@ -39,35 +38,15 @@ newtype ClipPlaneName = ClipPlaneName GLsizei
 --------------------------------------------------------------------------------
 
 clipPlane :: ClipPlaneName -> StateVar (Maybe (Plane GLdouble))
-clipPlane cpName = makeStateVar (getClipPlane cpName) (setClipPlane cpName)
-
---------------------------------------------------------------------------------
-
-getClipPlane :: ClipPlaneName -> IO (Maybe (Plane GLdouble))
-getClipPlane cpName@(ClipPlaneName i) = do
-   enabled <- get (clipPlaneStatus cpName)
-   if enabled
-      then alloca $ \buf -> do
-           getDoublev (GetClipPlane i) (castPtr buf)
-           peek1 Just (buf :: Ptr (Plane GLdouble))
-      else return Nothing
-
---------------------------------------------------------------------------------
-
-setClipPlane :: ClipPlaneName -> Maybe (Plane GLdouble) -> IO ()
-setClipPlane cpName Nothing =
-   clipPlaneStatus cpName $= False
-setClipPlane cpName@(ClipPlaneName i) (Just plane) = do
-   clipPlaneStatus cpName $= True
-   with plane $ glClipPlane (clipPlaneIndexToEnum i)
-
+clipPlane (ClipPlaneName i) =
+   makeStateVarMaybe
+      (makeCapability (CapClipPlane i))
+      (alloca $ \buf -> do
+          getDoublev (GetClipPlane i) (castPtr buf)
+          peek1 id (buf :: Ptr (Plane GLdouble)))
+      (\plane -> with plane $ glClipPlane (clipPlaneIndexToEnum i))
 foreign import CALLCONV unsafe "glClipPlane" glClipPlane ::
    GLenum -> Ptr (Plane GLdouble) -> IO ()
-
---------------------------------------------------------------------------------
-
-clipPlaneStatus :: ClipPlaneName -> StateVar Bool
-clipPlaneStatus (ClipPlaneName i) = makeCapability (CapClipPlane i)
 
 --------------------------------------------------------------------------------
 

@@ -37,6 +37,7 @@ module Graphics.Rendering.OpenGL.GL.Colors (
    ShadingModel(..), shadeModel
 ) where
 
+import Control.Monad ( liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Marshal.Utils ( with )
@@ -58,8 +59,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetColorMaterialFace,GetColorMaterialParameter),
    getBoolean1, getInteger1, getFloat4, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)),
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+   GettableStateVar, makeGettableStateVar,
+   StateVar, makeStateVar, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(..), Normal3(..), Vertex4(..), Index1(..) )
 
@@ -424,35 +425,18 @@ unmarshalColorMaterialParameter x
 --------------------------------------------------------------------------------
 
 colorMaterial :: StateVar (Maybe (Face, ColorMaterialParameter))
-colorMaterial = makeStateVar getColorMaterial setColorMaterial
-
-getColorMaterial :: IO (Maybe (Face, ColorMaterialParameter))
-getColorMaterial = do
-   enabled <- get colorMaterialEnabled
-   if enabled
-      then do face <-
-                 getInteger1 (unmarshalFace . fromIntegral) GetColorMaterialFace
-              colorMaterialParameter <-
-                 getInteger1 (unmarshalColorMaterialParameter . fromIntegral)
-                             GetColorMaterialParameter
-              return $ Just (face, colorMaterialParameter)
-      else return Nothing
-
-setColorMaterial :: Maybe (Face, ColorMaterialParameter) -> IO ()
-setColorMaterial Nothing =
-   colorMaterialEnabled $= False
-setColorMaterial (Just (face, colorMaterialParameter)) = do
-   colorMaterialEnabled $= True
-   glColorMaterial (marshalFace face)
-                   (marshalColorMaterialParameter colorMaterialParameter)
+colorMaterial =
+   makeStateVarMaybe
+      (makeCapability CapColorMaterial)
+      (liftM2 (,)
+              (getInteger1 (unmarshalFace . fromIntegral) GetColorMaterialFace)
+              (getInteger1 (unmarshalColorMaterialParameter . fromIntegral)
+                           GetColorMaterialParameter))
+      (\(face, param) -> glColorMaterial (marshalFace face)
+                                         (marshalColorMaterialParameter param))
 
 foreign import CALLCONV unsafe "glColorMaterial" glColorMaterial ::
    GLenum -> GLenum -> IO ()
-
---------------------------------------------------------------------------------
-
-colorMaterialEnabled :: StateVar Bool
-colorMaterialEnabled = makeCapability CapColorMaterial
 
 --------------------------------------------------------------------------------
 

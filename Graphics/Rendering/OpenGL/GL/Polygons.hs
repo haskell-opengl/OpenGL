@@ -19,6 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Polygons (
    polygonOffsetPoint, polygonOffsetLine, polygonOffsetFill
 ) where
 
+import Control.Monad ( liftM, liftM2 )
 import Foreign.Marshal.Array ( allocaArray, peekArray, withArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte, GLfloat )
@@ -33,7 +34,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetPolygonOffsetUnits),
    getInteger1, getInteger2, getFloat1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
+   StateVar, makeStateVar, makeStateVarMaybe )
 
 --------------------------------------------------------------------------------
 
@@ -43,25 +44,13 @@ polygonSmooth = makeCapability CapPolygonSmooth
 --------------------------------------------------------------------------------
 
 cullFace :: StateVar (Maybe Face)
-cullFace = makeStateVar getCullFace setCullFace
-
-getCullFace :: IO (Maybe Face)
-getCullFace = do
-   enabled <- get cullFaceEnabled
-   if enabled
-      then getInteger1 (Just . unmarshalFace . fromIntegral) GetCullFaceMode
-      else return Nothing
-
-setCullFace :: Maybe Face -> IO ()
-setCullFace Nothing = cullFaceEnabled $= False
-setCullFace (Just face) = do
-   cullFaceEnabled $= True
-   glCullFace (marshalFace face)
+cullFace =
+   makeStateVarMaybe
+      (makeCapability CapCullFace)
+      (getInteger1 (unmarshalFace . fromIntegral) GetCullFaceMode)
+      (glCullFace . marshalFace)
 
 foreign import CALLCONV unsafe "glCullFace" glCullFace :: GLenum -> IO ()
-
-cullFaceEnabled :: StateVar Bool
-cullFaceEnabled = makeCapability CapCullFace
 
 --------------------------------------------------------------------------------
 
@@ -84,32 +73,20 @@ getPolygonStippleBytes (PolygonStipple pattern) = pattern
 --------------------------------------------------------------------------------
 
 polygonStipple :: StateVar (Maybe PolygonStipple)
-polygonStipple = makeStateVar getPolygonStipple setPolygonStipple
-
-getPolygonStipple :: IO (Maybe PolygonStipple)
-getPolygonStipple = do
-   enabled <- get polygonStippleEnabled
-   if enabled
-      then do pattern <- allocaArray numPolygonStippleBytes $ \buf -> do
-                            glGetPolygonStipple buf
-                            peekArray numPolygonStippleBytes buf
-              return $ Just (PolygonStipple pattern)
-      else return Nothing
+polygonStipple =
+   makeStateVarMaybe
+      (makeCapability CapPolygonStipple)
+      (liftM PolygonStipple $
+       allocaArray numPolygonStippleBytes $ \buf -> do
+          glGetPolygonStipple buf
+          peekArray numPolygonStippleBytes buf)
+      (\(PolygonStipple pattern) -> withArray pattern $ glPolygonStipple)
 
 foreign import CALLCONV unsafe "glGetPolygonStipple" glGetPolygonStipple ::
    Ptr GLubyte -> IO ()
 
-setPolygonStipple :: Maybe PolygonStipple -> IO ()
-setPolygonStipple Nothing = polygonStippleEnabled $= False
-setPolygonStipple (Just (PolygonStipple pattern)) = do
-   polygonStippleEnabled $= True
-   withArray pattern $ glPolygonStipple
-
 foreign import CALLCONV unsafe "glPolygonStipple" glPolygonStipple ::
    Ptr GLubyte -> IO ()
-
-polygonStippleEnabled :: StateVar Bool
-polygonStippleEnabled = makeCapability CapPolygonStipple
 
 --------------------------------------------------------------------------------
 
@@ -152,16 +129,10 @@ foreign import CALLCONV unsafe "glPolygonMode" glPolygonMode ::
 --------------------------------------------------------------------------------
 
 polygonOffset :: StateVar (GLfloat, GLfloat)
-polygonOffset = makeStateVar getPolygonOffset setPolygonOffset
-
-getPolygonOffset :: IO (GLfloat, GLfloat)
-getPolygonOffset = do
-   factor <- getFloat1 id GetPolygonOffsetFactor
-   units  <- getFloat1 id GetPolygonOffsetUnits
-   return (factor, units)
-
-setPolygonOffset :: (GLfloat, GLfloat) -> IO ()
-setPolygonOffset (factor, units) = glPolygonOffset factor units
+polygonOffset =
+   makeStateVar (liftM2 (,) (getFloat1 id GetPolygonOffsetFactor)
+                            (getFloat1 id GetPolygonOffsetUnits))
+                (uncurry glPolygonOffset)
 
 foreign import CALLCONV unsafe "glPolygonOffset" glPolygonOffset ::
    GLfloat -> GLfloat -> IO ()

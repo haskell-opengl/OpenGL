@@ -41,6 +41,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 #ifndef __NHC__
 import Control.Exception ( finally )
 #endif
+import Control.Monad ( liftM )
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
@@ -67,9 +68,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetColorMatrixStackDepth,GetMaxColorMatrixStackDepth),
    getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)),
-   GettableStateVar, makeGettableStateVar,
-   StateVar, makeStateVar )
+   HasGetter(get), GettableStateVar, makeGettableStateVar,
+   StateVar, makeStateVar, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(TextureUnit) )
 
@@ -498,55 +498,30 @@ marshalTextureGenMode = marshalTextureGenMode' . convertMode
 
 textureGenMode :: TextureCoordName -> StateVar (Maybe TextureGenMode)
 textureGenMode coord =
-   makeStateVar (getTextureGenMode coord) (setTextureGenMode coord)
-
---------------------------------------------------------------------------------
-
-getTextureGenMode :: TextureCoordName -> IO (Maybe TextureGenMode)
-getTextureGenMode coord = do
-   enabled <- get (textureCoordNameToStateVar coord)
-   if enabled
-      then do
-         mode <- getMode coord
+   makeStateVarMaybe
+      (makeCapability (textureCoordNameToEnableCap coord))
+      (do mode <- getMode coord
+          case mode of
+             EyeLinear'     -> liftM EyeLinear $ getPlane coord EyePlane
+             ObjectLinear'  -> liftM ObjectLinear $ getPlane coord ObjectPlane
+             SphereMap'     -> return SphereMap
+             NormalMap'     -> return NormalMap
+             ReflectionMap' -> return ReflectionMap)
+      (\mode -> do
+         setMode coord mode
          case mode of
-            EyeLinear'     -> do
-               plane <- getPlane coord EyePlane
-               return $ Just (EyeLinear plane)
-            ObjectLinear'  -> do
-               plane <- getPlane coord ObjectPlane
-               return $ Just (ObjectLinear plane)
-            SphereMap'     -> return $ Just SphereMap
-            NormalMap'     -> return $ Just NormalMap
-            ReflectionMap' -> return $ Just ReflectionMap
-      else
-         return Nothing
+            EyeLinear    plane -> setPlane coord EyePlane    plane
+            ObjectLinear plane -> setPlane coord ObjectPlane plane
+            _ -> return ())
 
 --------------------------------------------------------------------------------
 
-setTextureGenMode :: TextureCoordName -> Maybe TextureGenMode -> IO ()
-setTextureGenMode coord Nothing =
-   textureCoordNameToStateVar coord $= False
-setTextureGenMode coord (Just mode) = do
-   textureCoordNameToStateVar coord $= True
-   setMode coord mode
-   case mode of
-      EyeLinear    plane -> setPlane coord EyePlane    plane
-      ObjectLinear plane -> setPlane coord ObjectPlane plane
-      _ -> return ()
-
---------------------------------------------------------------------------------
-
-textureCoordNameToStateVar :: TextureCoordName -> StateVar Bool
-textureCoordNameToStateVar S = textureGenS
-textureCoordNameToStateVar T = textureGenT
-textureCoordNameToStateVar R = textureGenR
-textureCoordNameToStateVar Q = textureGenQ
-
-textureGenS, textureGenT, textureGenR, textureGenQ :: StateVar Bool
-textureGenS = makeCapability CapTextureGenS
-textureGenT = makeCapability CapTextureGenT
-textureGenR = makeCapability CapTextureGenR
-textureGenQ = makeCapability CapTextureGenQ
+textureCoordNameToEnableCap :: TextureCoordName -> EnableCap
+textureCoordNameToEnableCap coord = case coord of
+   S -> CapTextureGenS
+   T -> CapTextureGenT
+   R -> CapTextureGenR
+   Q -> CapTextureGenQ
 
 --------------------------------------------------------------------------------
 

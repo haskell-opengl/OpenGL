@@ -17,6 +17,7 @@ module Graphics.Rendering.OpenGL.GL.LineSegments (
    lineWidth, lineSmooth, lineStipple
 ) where
 
+import Control.Monad ( liftM2 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLushort, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapLineSmooth,CapLineStipple), makeCapability )
@@ -24,7 +25,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetLineWidth,GetLineStippleRepeat,GetLineStipplePattern),
    getInteger1, getFloat1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
+   StateVar, makeStateVar, makeStateVarMaybe )
 
 --------------------------------------------------------------------------------
 
@@ -41,25 +42,12 @@ lineSmooth = makeCapability CapLineSmooth
 --------------------------------------------------------------------------------
 
 lineStipple :: StateVar (Maybe (GLint, GLushort))
-lineStipple = makeStateVar getLineStipple setLineStipple
-
-getLineStipple :: IO (Maybe (GLint, GLushort))
-getLineStipple = do
-   enabled <- get lineStippleEnabled
-   if enabled
-      then do factor <- getInteger1 id GetLineStippleRepeat
-              pattern <- getInteger1 fromIntegral GetLineStipplePattern
-              return $ Just (factor, pattern)
-      else return Nothing
-
-setLineStipple :: Maybe (GLint, GLushort) -> IO ()
-setLineStipple Nothing = lineStippleEnabled $= False
-setLineStipple (Just (factor, pattern)) = do
-   lineStippleEnabled $= True
-   glLineStipple factor pattern
+lineStipple =
+   makeStateVarMaybe
+      (makeCapability CapLineStipple)
+      (liftM2 (,) (getInteger1 id GetLineStippleRepeat)
+                  (getInteger1 fromIntegral GetLineStipplePattern))
+      (uncurry glLineStipple)
 
 foreign import CALLCONV unsafe "glLineStipple" glLineStipple ::
    GLint -> GLushort -> IO ()
-
-lineStippleEnabled :: StateVar Bool
-lineStippleEnabled = makeCapability CapLineStipple
