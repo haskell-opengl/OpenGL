@@ -55,16 +55,77 @@ import Graphics.Rendering.OpenGL.GLU.Errors (
 
 --------------------------------------------------------------------------------
 
-#define HOPENGL_IMPORT_TessCallback
-#define HOPENGL_IMPORT_marshalTessCallback
+data TessCallback =
+     TessBegin
+   | Begin
+   | TessVertex
+   | Vertex
+   | TessEnd
+   | End
+   | TessError
+   | Error'
+   | TessEdgeFlag
+   | EdgeFlag
+   | TessCombine
+   | TessBeginData
+   | TessVertexData
+   | TessEndData
+   | TessErrorData
+   | TessEdgeFlagData
+   | TessCombineData
+   deriving ( Eq, Ord, Show )
 
-#define HOPENGL_IMPORT_TessProperty
-#define HOPENGL_IMPORT_marshalTessProperty
+marshalTessCallback :: TessCallback -> GLenum
+marshalTessCallback x = case x of
+   TessBegin -> 0x18704
+   Begin -> 0x18704
+   TessVertex -> 0x18705
+   Vertex -> 0x18705
+   TessEnd -> 0x18706
+   End -> 0x18706
+   TessError -> 0x18707
+   Error' -> 0x18707
+   TessEdgeFlag -> 0x18708
+   EdgeFlag -> 0x18708
+   TessCombine -> 0x18709
+   TessBeginData -> 0x1870a
+   TessVertexData -> 0x1870b
+   TessEndData -> 0x1870c
+   TessErrorData -> 0x1870d
+   TessEdgeFlagData -> 0x1870e
+   TessCombineData -> 0x1870f
 
-#define HOPENGL_IMPORT_TessWinding
-#define HOPENGL_IMPORT_marshalTessWinding
+--------------------------------------------------------------------------------
 
-#include "Constants.incl"
+data TessProperty =
+     TessWindingRule
+   | TessBoundaryOnly
+   | TessTolerance
+   deriving ( Eq, Ord, Show )
+
+marshalTessProperty :: TessProperty -> GLenum
+marshalTessProperty x = case x of
+   TessWindingRule -> 0x1872c
+   TessBoundaryOnly -> 0x1872d
+   TessTolerance -> 0x1872e
+
+--------------------------------------------------------------------------------
+
+data TessWinding =
+     TessWindingOdd
+   | TessWindingNonzero
+   | TessWindingPositive
+   | TessWindingNegative
+   | TessWindingAbsGeqTwo
+   deriving ( Eq, Ord, Show )
+
+marshalTessWinding :: TessWinding -> GLenum
+marshalTessWinding x = case x of
+   TessWindingOdd -> 0x18722
+   TessWindingNonzero -> 0x18723
+   TessWindingPositive -> 0x18724
+   TessWindingNegative -> 0x18725
+   TessWindingAbsGeqTwo -> 0x18726
 
 --------------------------------------------------------------------------------
 

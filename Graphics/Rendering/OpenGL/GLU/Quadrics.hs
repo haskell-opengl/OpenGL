@@ -29,19 +29,55 @@ import Graphics.Rendering.OpenGL.GLU.Errors (
 
 --------------------------------------------------------------------------------
 
-#define HOPENGL_IMPORT_QuadricDrawStyle
-#define HOPENGL_IMPORT_marshalQuadricDrawStyle
+data QuadricDrawStyle =
+     Point
+   | Line
+   | Fill
+   | Silhouette
+   deriving ( Eq, Ord, Show )
 
-#define HOPENGL_IMPORT_QuadricCallback
-#define HOPENGL_IMPORT_marshalQuadricCallback
+marshalQuadricDrawStyle :: QuadricDrawStyle -> GLenum
+marshalQuadricDrawStyle x = case x of
+   Point -> 0x186aa
+   Line -> 0x186ab
+   Fill -> 0x186ac
+   Silhouette -> 0x186ad
 
-#define HOPENGL_IMPORT_QuadricNormal
-#define HOPENGL_IMPORT_marshalQuadricNormal
+--------------------------------------------------------------------------------
 
-#define HOPENGL_IMPORT_QuadricOrientation
-#define HOPENGL_IMPORT_marshalQuadricOrientation
+data QuadricCallback =
+     Error'2
+   deriving ( Eq, Ord, Show )
 
-#include "Constants.incl"
+marshalQuadricCallback :: QuadricCallback -> GLenum
+marshalQuadricCallback x = case x of
+   Error'2 -> 0x18707
+
+--------------------------------------------------------------------------------
+
+data QuadricNormal =
+     Smooth
+   | Flat
+   | None
+   deriving ( Eq, Ord, Show )
+
+marshalQuadricNormal :: QuadricNormal -> GLenum
+marshalQuadricNormal x = case x of
+   Smooth -> 0x186a0
+   Flat -> 0x186a1
+   None -> 0x186a2
+
+--------------------------------------------------------------------------------
+
+data QuadricOrientation =
+     Outside
+   | Inside
+   deriving ( Eq, Ord, Show )
+
+marshalQuadricOrientation :: QuadricOrientation -> GLenum
+marshalQuadricOrientation x = case x of
+   Outside -> 0x186b4
+   Inside -> 0x186b5
 
 --------------------------------------------------------------------------------
 

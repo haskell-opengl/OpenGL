@@ -26,10 +26,15 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 
 --------------------------------------------------------------------------------
 
-#define HOPENGL_IMPORT_StringName
-#define HOPENGL_IMPORT_marshalStringName
+data StringName =
+     Version
+   | Extensions
+   deriving ( Eq, Ord, Show )
 
-#include "Constants.incl"
+marshalStringName :: StringName -> GLenum
+marshalStringName x = case x of
+   Version -> 0x189c0
+   Extensions -> 0x189c1
 
 --------------------------------------------------------------------------------
 
