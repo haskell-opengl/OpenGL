@@ -56,7 +56,7 @@ secondaryID i = Identifier { nameOf = i, isPrimaryID = False }
 
 newtype Spec = Spec [TypeDefinition]
 
-data TypeDefinition = TypeDefinition TypeName Kind [Equation]
+data TypeDefinition = TypeDefinition String TypeName Kind [Equation]
 
 data Kind = Enum | Mask | Float | Define
 
@@ -86,7 +86,7 @@ instance Show Spec where
             showsDefs (d:ds) = shows d . showChar '\n'. showsDefs ds
 
 instance Show TypeDefinition where
-   showsPrec _ (TypeDefinition t k eqs) =
+   showsPrec _ (TypeDefinition _ t k eqs) =
       shows t . showChar ' ' . shows k . showChar '\n' .
       foldr (\e f -> shows e . showChar '\n'. f) id eqs
 
@@ -130,6 +130,22 @@ instance Num Number where
    abs (Number x) = Number (abs x)
    signum (Number x) = Number (signum x)
    fromInteger = Number
+
+--------------------------------------------------------------------------------
+--
+--------------------------------------------------------------------------------
+
+magicComment :: String
+magicComment = "# USE_PREFIX "
+
+handleSpecialComments :: String -> String
+handleSpecialComments = unlines . walk . lines
+   where walk [] = []
+         walk [l] = [l]
+         walk (l1:rest1@(l2:rest2))
+            | magicComment `isPrefixOf` l1 =
+                 l1 : ("=" ++ drop (length magicComment) l1 ++ " " ++ l2) : walk rest2
+            | otherwise = l1 : walk rest1
 
 --------------------------------------------------------------------------------
 -- Preprocessing of spec files, making it more amenable to "real" parsing
@@ -177,11 +193,12 @@ spec = do
 
 typeDefinition :: Parser TypeDefinition
 typeDefinition = do
+   p <- option "" (do symbol "=" ; word)
    t <- typeName
    k <- kind
    symbol ":"
    eqs <- equations
-   return (TypeDefinition t k eqs)
+   return (TypeDefinition p t k eqs)
 
 kind :: Parser Kind
 kind =   (do symbol "enum"  ; return Enum  )
@@ -261,8 +278,8 @@ parseSpec fileName content =
 
 expandSpec :: Spec -> Spec
 expandSpec (Spec defs) = Spec
-   [ TypeDefinition t k (snd (mapAccumL expandEquation (defaultValues k) eqs)) |
-     TypeDefinition t k eqs <- defs ]
+   [ TypeDefinition p t k (snd (mapAccumL expandEquation (defaultValues k) eqs)) |
+     TypeDefinition p t k eqs <- defs ]
 
 expandEquation :: [Number] -> Equation -> ([Number], Equation)
 expandEquation (d:ds) (Definition i NextValue) = (ds, Definition i (Value d))
@@ -292,8 +309,8 @@ evalSpec :: Evaluator Spec Spec
 evalSpec (Spec defs) = Spec `liftM` mapM evalTypeDefinition defs
 
 evalTypeDefinition :: Evaluator TypeDefinition TypeDefinition
-evalTypeDefinition (TypeDefinition t k eqs) =
-   TypeDefinition t k `liftM` mapM evalEquation eqs
+evalTypeDefinition (TypeDefinition p t k eqs) =
+   TypeDefinition p t k `liftM` mapM evalEquation eqs
 
 evalEquation :: Evaluator Equation Equation
 evalEquation (Definition ident rhs) = do
@@ -357,24 +374,24 @@ simplify :: (Spec, Environment) -> SimpleSpec
 simplify (Spec defs, env) = SimpleSpec (map (simplifyTypeDefinition env) defs)
 
 simplifyTypeDefinition :: Environment -> TypeDefinition -> SimpleTypeDefinition
-simplifyTypeDefinition env (TypeDefinition (TypeName t) k eqs) =
+simplifyTypeDefinition env (TypeDefinition prefix (TypeName t) k eqs) =
    SimpleTypeDefinition (TypeName (haskellize True t)) k
-                        (map (simplifyEquation (shouldBeCapitalized k) env) eqs)
+                        (map (simplifyEquation prefix (shouldBeCapitalized k) env) eqs)
 
-simplifyEquation :: Bool -> Environment -> Equation -> SimpleEquation
-simplifyEquation cap _ (Definition ident (Value n)) =
-   SimpleEquation (primaryID (haskellize cap (nameOf ident))) n
-simplifyEquation _ _ (Definition _ _) = error "Huh? Still non-value left?"
-simplifyEquation cap env (Use _ ident) =
+simplifyEquation :: String -> Bool -> Environment -> Equation -> SimpleEquation
+simplifyEquation prefix cap _ (Definition ident (Value n)) =
+   SimpleEquation (primaryID (prefix ++ haskellize cap (nameOf ident))) n
+simplifyEquation _ _ _ (Definition _ _) = error "Huh? Still non-value left?"
+simplifyEquation prefix cap env (Use _ ident) =
    let msg = "use: " ++ nameOf ident ++ " undefined"
-   in SimpleEquation (secondaryID (haskellize cap (nameOf ident)))
+   in SimpleEquation (secondaryID (prefix ++ (haskellize cap (nameOf ident))))
                      (lookupWithDefaultFM env (error msg) ident)
 
 shouldBeCapitalized :: Kind -> Bool
-shouldBeCapitalized Enum = True
-shouldBeCapitalized Mask        = True
-shouldBeCapitalized Float    = False
-shouldBeCapitalized Define      = False
+shouldBeCapitalized Enum   = True
+shouldBeCapitalized Mask   = True
+shouldBeCapitalized Float  = False
+shouldBeCapitalized Define = False
 
 --------------------------------------------------------------------------------
 -- Identifier conversion a.k.a. "haskellization"
@@ -593,13 +610,14 @@ mainWithArgs :: [String] -> IO ()
 mainWithArgs args = do
    let (verbose, fileName, getInput) = parseArguments args
        exec = execute verbose
-   getInput                                                  >>=
-      exec "preprocessing" id           preprocess           >>=
-      exec "parsing"       show         (parseSpec fileName) >>=
-      exec "expansion"     show         expandSpec           >>=
-      exec "evaluation"    (show . fst) evaluate             >>=
-      exec "simplify"      show         simplify             >>=
-      exec "renaming"      show         rename               >>=
+   getInput                                                      >>=
+      exec "special comments" id           handleSpecialComments >>=
+      exec "preprocessing"    id           preprocess            >>=
+      exec "parsing"          show         (parseSpec fileName)  >>=
+      exec "expansion"        show         expandSpec            >>=
+      exec "evaluation"       (show . fst) evaluate              >>=
+      exec "simplify"         show         simplify              >>=
+      exec "renaming"         show         rename                >>=
       putStr . codeGen
 
 main :: IO ()
