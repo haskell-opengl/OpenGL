@@ -1,7 +1,7 @@
 module Main ( main ) where
 
 import Control.Monad      ( liftM, when )
-import Data.Char          ( isSpace, isDigit )
+import Data.Char          ( isSpace )
 import Data.FiniteMap     ( FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList, lookupWithDefaultFM )
 import Data.List          ( isPrefixOf, tails, delete )
 import System.Environment ( getArgs )
@@ -441,27 +441,27 @@ lookupProperty env name =
    lookupWithDefaultFM env (error ("unknow property '" ++ show name ++ "'")) name
 
 buildPropertyEnvironment :: Spec -> PropertyEnvironment
-buildPropertyEnvironment spec =
-   case noDupReqProps . noDupPropNames . noDupPropValues $ spec of
+buildPropertyEnvironment spec_ =
+   case noDupReqProps . noDupPropNames . noDupPropValues $ spec_ of
       Spec _ validProps _ ->
          addListToFM_C (\old _ -> error ("duplicate property name '"++ show old ++ "'"))
                        emptyFM
                        [(name,values) | ValidProperty name values <- validProps]
 
 noDupReqProps :: Spec -> Spec
-noDupReqProps spec@(Spec reqProps _ _) =
-   noDups spec "required property" reqProps
+noDupReqProps spec_@(Spec reqProps _ _) =
+   noDups spec_ "required property" reqProps
 
 noDupPropNames :: Spec -> Spec
-noDupPropNames spec@(Spec _ validProps _) =
-   noDups spec "property name" [ name | ValidProperty name _ <- validProps ]
+noDupPropNames spec_@(Spec _ validProps _) =
+   noDups spec_ "property name" [ name | ValidProperty name _ <- validProps ]
 
 noDupPropValues :: Spec -> Spec
-noDupPropValues spec@(Spec _ validProps _) =
+noDupPropValues spec_@(Spec _ validProps _) =
    foldl (\spc (ValidProperty name values) ->
               noDups spc ("property value for '" ++ show name ++ "'")
                      [ v | Values vs <- [values], v <- vs ])
-         spec
+         spec_
          validProps
 
 -- Simply return retVal if there are no duplicates in xs, otherwise complain.
@@ -478,7 +478,7 @@ noDups retVal what xs = check xs
 --------------------------------------------------------------------------------
 
 expandMetaProperties :: PropertyEnvironment -> Spec -> [FunctionDeclaration]
-expandMetaProperties env (Spec reqProps validProps categories) =
+expandMetaProperties env (Spec reqProps _ categories) =
    checkRequiredPropsDecl env reqProps .
    map (checkRequiredPropsUse reqProps) $
    [ expandMetaPropertiesFuncDecl env funcDecl
@@ -490,9 +490,9 @@ expandMetaPropertiesFuncDecl :: PropertyEnvironment
 expandMetaPropertiesFuncDecl env (FunctionDeclaration name params retType parmDecls props) =
    FunctionDeclaration
       name params retType parmDecls
-      [ FunctionProperty name (expandMetaPropertyValues values metaProps)
-      | FunctionProperty name metaProps <- props
-      , let values = lookupProperty env name ]
+      [ FunctionProperty pName (expandMetaPropertyValues values metaProps)
+      | FunctionProperty pName metaProps <- props
+      , let values = lookupProperty env pName ]
 
 expandMetaPropertyValues :: PropertyValues -> [MetaPropertyValue] -> [MetaPropertyValue]
 expandMetaPropertyValues values = foldl (go values) []
@@ -545,9 +545,9 @@ mainWithArgs args = do
        exec = execute verbose
    input        <- getInput
    preprocInput <- exec "preprocessing" id preprocess input
-   spec         <- exec "parsing" show (parseSpec fileName) preprocInput
-   propEnv      <- exec "building property environment" (unlines . map show . fmToList) buildPropertyEnvironment spec
-   expandedSpec <- exec "expanding properties" (unlines . map show) (expandMetaProperties propEnv) spec
+   spec_        <- exec "parsing" show (parseSpec fileName) preprocInput
+   propEnv      <- exec "building property environment" (unlines . map show . fmToList) buildPropertyEnvironment spec_
+   expandedSpec <- exec "expanding properties" (unlines . map show) (expandMetaProperties propEnv) spec_
    return ()
 
 main :: IO ()
