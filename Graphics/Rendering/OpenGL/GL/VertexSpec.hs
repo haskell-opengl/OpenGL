@@ -281,7 +281,7 @@ instance Storable a => Storable (Vertex4 a) where
 --------------------------------------------------------------------------------
 
 -- | The current texture coordinates (/s/, /t/, /r/, /q/) for the current
--- texture unit (see 'Graphics.Rendering.OpenGL.GL.ToDo.currentTextureUnit').
+-- texture unit (see 'Graphics.Rendering.OpenGL.GL.CoordTrans.activeTexture').
 -- The initial value is (0,0,0,1) for all texture units.
 
 currentTextureCoords :: StateVar (TexCoord4 GLfloat)
