@@ -14,16 +14,31 @@
 
 module Graphics.Rendering.OpenGL.GL.Evaluators (
    maxEvalOrder, autoNormal,
+
+   map1Vertex, map1Index, map1Color, map1Normal, map1TexCoord,
+   map2Vertex, map2Index, map2Color, map2Normal, map2TexCoord,
+
    EvalCoord1(..), EvalCoord2(..),
    map1Gridf, map1Gridd, map2Gridf, map2Gridd,
    evalPoint1, evalPoint2, evalMesh1, evalMesh2
 ) where
 
-import Foreign.Ptr ( Ptr )
+import Control.Monad ( liftM )
+import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( allocaArray, withArray, peekArray, pokeArray )
+import Foreign.Ptr ( Ptr, castPtr, plusPtr )
+import Foreign.Storable ( Storable(peek,sizeOf) )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapAutoNormal), makeCapability )
+   EnableCap(CapAutoNormal,CapMap1Color4,CapMap1Index,CapMap1Normal,
+             CapMap1TextureCoord1,CapMap1TextureCoord2,CapMap1TextureCoord3,
+             CapMap1TextureCoord4,CapMap1Vertex3,CapMap1Vertex4,CapMap2Color4,
+             CapMap2Index,CapMap2Normal,CapMap2TextureCoord1,
+             CapMap2TextureCoord2,CapMap2TextureCoord3,CapMap2TextureCoord4,
+             CapMap2Vertex3,CapMap2Vertex4),
+   makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat, GLdouble, Capability )
+import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek2, peek4 )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( marshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -34,6 +49,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getDouble4 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.VertexSpec (
+   Vertex4(..), TexCoord4(..), Normal3(..), Color4(..), Index1(..) )
 
 --------------------------------------------------------------------------------
 
@@ -49,15 +66,193 @@ autoNormal = makeCapability CapAutoNormal
 
 --------------------------------------------------------------------------------
 
+data MapTarget =
+     Map1Color4
+   | Map1Index
+   | Map1Normal
+   | Map1TextureCoord1
+   | Map1TextureCoord2
+   | Map1TextureCoord3
+   | Map1TextureCoord4
+   | Map1Vertex3
+   | Map1Vertex4
+   | Map2Color4
+   | Map2Index
+   | Map2Normal
+   | Map2TextureCoord1
+   | Map2TextureCoord2
+   | Map2TextureCoord3
+   | Map2TextureCoord4
+   | Map2Vertex3
+   | Map2Vertex4
+
+marshalMapTarget :: MapTarget -> GLenum
+marshalMapTarget x = case x of
+   Map1Color4 -> 0xd90
+   Map1Index -> 0xd91
+   Map1Normal -> 0xd92
+   Map1TextureCoord1 -> 0xd93
+   Map1TextureCoord2 -> 0xd94
+   Map1TextureCoord3 -> 0xd95
+   Map1TextureCoord4 -> 0xd96
+   Map1Vertex3 -> 0xd97
+   Map1Vertex4 -> 0xd98
+   Map2Color4 -> 0xdb0
+   Map2Index -> 0xdb1
+   Map2Normal -> 0xdb2
+   Map2TextureCoord1 -> 0xdb3
+   Map2TextureCoord2 -> 0xdb4
+   Map2TextureCoord3 -> 0xdb5
+   Map2TextureCoord4 -> 0xdb6
+   Map2Vertex3 -> 0xdb7
+   Map2Vertex4 -> 0xdb8
+
+mapTargetToEnableCap :: MapTarget -> EnableCap
+mapTargetToEnableCap x = case x of
+   Map1Color4 -> CapMap1Color4
+   Map1Index -> CapMap1Index
+   Map1Normal -> CapMap1Normal
+   Map1TextureCoord1 -> CapMap1TextureCoord1
+   Map1TextureCoord2 -> CapMap1TextureCoord2
+   Map1TextureCoord3 -> CapMap1TextureCoord3
+   Map1TextureCoord4 -> CapMap1TextureCoord4
+   Map1Vertex3 -> CapMap1Vertex3
+   Map1Vertex4 -> CapMap1Vertex4
+   Map2Color4 -> CapMap2Color4
+   Map2Index -> CapMap2Index
+   Map2Normal -> CapMap2Normal
+   Map2TextureCoord1 -> CapMap2TextureCoord1
+   Map2TextureCoord2 -> CapMap2TextureCoord2
+   Map2TextureCoord3 -> CapMap2TextureCoord3
+   Map2TextureCoord4 -> CapMap2TextureCoord4
+   Map2Vertex3 -> CapMap2Vertex3
+   Map2Vertex4 -> CapMap2Vertex4
+
+--------------------------------------------------------------------------------
+
+map1Vertex :: StateVar (Maybe ((GLfloat, GLfloat), [Vertex4 GLfloat]))
+map1Vertex = makeMap1 Map1Vertex4
+
+map1TexCoord :: StateVar (Maybe ((GLfloat, GLfloat), [TexCoord4 GLfloat]))
+map1TexCoord = makeMap1 Map1TextureCoord4
+
+map1Normal :: StateVar (Maybe ((GLfloat, GLfloat), [Normal3 GLfloat]))
+map1Normal = makeMap1 Map1Normal
+
+map1Color :: StateVar (Maybe ((GLfloat, GLfloat), [Color4 GLfloat]))
+map1Color = makeMap1 Map1Color4
+
+map1Index :: StateVar (Maybe ((GLfloat, GLfloat), [Index1 GLint]))
+map1Index = makeMap1 Map1Index
+
+--------------------------------------------------------------------------------
+
+makeMap1 ::
+   Storable a => MapTarget -> StateVar (Maybe ((GLfloat, GLfloat), [a]))
+makeMap1 target =
+   makeStateVarMaybe
+      (return (mapTargetToEnableCap target))
+      (getMap1 target)
+      (setMap1 target)
+
+getMap1 :: Storable a => MapTarget -> IO ((GLfloat, GLfloat), [a])
+getMap1 target = do
+   domain <- allocaArray 2 $ \buf -> do
+      getMapf target Domain buf
+      peek2 (,) buf
+   order <- alloca $ \buf -> do
+      getMapi target Order buf
+      liftM fromIntegral $ peek buf
+   elements <- allocaArray order $ \buf -> do
+      getMapf target Coeff (castPtr buf)
+      peekArray order buf
+   return (domain, elements)
+
+setMap1 :: Storable a => MapTarget -> ((GLfloat, GLfloat), [a]) ->  IO ()
+setMap1 target ((u1, u2), elements) = do
+   let uOrder = fromIntegral (length elements)
+   withArray elements $
+      glMap1f (marshalMapTarget target) u1 u2 uOrder uOrder . castPtr
+
 foreign import CALLCONV unsafe "glMap1f" glMap1f ::
       GLenum
    -> GLfloat -> GLfloat -> GLint -> GLint
    -> Ptr GLfloat -> IO ()
 
-foreign import CALLCONV unsafe "glMap1d" glMap1d ::
-      GLenum
-   -> GLdouble -> GLdouble -> GLint -> GLint
-   -> Ptr GLdouble -> IO ()
+--------------------------------------------------------------------------------
+
+map2Vertex ::
+   StateVar (Maybe ((GLfloat, GLfloat), (GLfloat, GLfloat), [[Vertex4 GLfloat]]))
+map2Vertex = makeMap2 Map2Vertex4
+
+map2TexCoord ::
+   StateVar (Maybe ((GLfloat, GLfloat), (GLfloat, GLfloat), [[TexCoord4 GLfloat]]))
+map2TexCoord = makeMap2 Map2TextureCoord4
+
+map2Normal ::
+   StateVar (Maybe ((GLfloat, GLfloat), (GLfloat, GLfloat), [[Normal3 GLfloat]]))
+map2Normal = makeMap2 Map2Normal
+
+map2Color ::
+   StateVar (Maybe ((GLfloat, GLfloat), (GLfloat, GLfloat), [[Color4 GLfloat]]))
+map2Color = makeMap2 Map2Color4
+
+map2Index ::
+   StateVar (Maybe ((GLfloat, GLfloat), (GLfloat, GLfloat), [[Index1 GLint]]))
+map2Index = makeMap2 Map2Index
+
+--------------------------------------------------------------------------------
+
+makeMap2 ::
+      Storable a
+   => MapTarget -> StateVar (Maybe ((GLfloat, GLfloat), (GLfloat, GLfloat), [[a]]))
+makeMap2 target =
+   makeStateVarMaybe
+      (return (mapTargetToEnableCap target))
+      (getMap2 target)
+      (setMap2 target)
+
+getMap2 ::
+      Storable a
+   => MapTarget -> IO ((GLfloat, GLfloat), (GLfloat, GLfloat), [[a]])
+getMap2 target = do
+   (uDomain, vDomain) <- allocaArray 4 $ \buf -> do
+      getMapf target Domain buf
+      peek4 (\u1 u2 v1 v2 -> ((u1, u2), (v1, v2))) buf
+   (uOrder, vOrder) <- allocaArray 2 $ \buf -> do
+      getMapi target Order buf
+      peek2 (\uo vo -> ((fromIntegral :: GLint -> Int) uo,
+                        (fromIntegral :: GLint -> Int) vo))
+            buf
+   elements <- allocaArray (uOrder * vOrder) $ \buf -> do
+      getMapf target Coeff (castPtr buf)
+      peekArray2 uOrder vOrder buf
+   return (uDomain, vDomain, elements)
+
+peekArray2 :: Storable a => Int -> Int -> Ptr a -> IO [[a]]
+peekArray2 numRows numColumns ptr | numRows <= 0 = return []
+                                  | otherwise  = f (numRows - 1) []
+  where f 0 acc = do e <- peekArray numColumns ptr
+                     return (e:acc)
+        f n acc = do e <- peekArray numColumns (ptr `addPtr` (n * numColumns))
+                     f (n - 1) (e:acc)
+
+addPtr :: Storable a => Ptr a -> Int -> Ptr a
+addPtr = doAddPtr undefined
+   where doAddPtr :: Storable a => a -> Ptr a -> Int -> Ptr a
+         doAddPtr dummy ptr n = plusPtr ptr (n * sizeOf dummy)
+setMap2 ::
+      Storable a
+   => MapTarget -> ((GLfloat, GLfloat), (GLfloat, GLfloat), [[a]]) ->  IO ()
+setMap2 target ((u1, u2), (v1, v2), elements) = do
+   let uOrder = length elements
+       vOrder = maximum $ map length elements
+   allocaArray (uOrder * vOrder) $ \buf -> do
+      pokeArray buf (concat elements)
+      glMap2f (marshalMapTarget target)
+              u1 u2 (fromIntegral (uOrder * vOrder)) (fromIntegral uOrder)
+              v1 v2 (fromIntegral vOrder)            (fromIntegral vOrder) $
+              (castPtr buf)
 
 foreign import CALLCONV unsafe "glMap2f" glMap2f ::
       GLenum
@@ -65,17 +260,29 @@ foreign import CALLCONV unsafe "glMap2f" glMap2f ::
    -> GLfloat -> GLfloat -> GLint -> GLint
    -> Ptr GLfloat -> IO ()
 
-foreign import CALLCONV unsafe "glMap2d" glMap2d ::
-      GLenum
-   -> GLdouble -> GLdouble -> GLint -> GLint
-   -> GLdouble -> GLdouble -> GLint -> GLint
-   -> Ptr GLdouble -> IO ()
+--------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glGetMapdv" glGetMapdv ::
-   GLenum -> GLenum -> Ptr GLdouble -> IO ()
+data GetMapQuery =
+     Coeff
+   | Order
+   | Domain
+
+marshalGetMapQuery :: GetMapQuery -> GLenum
+marshalGetMapQuery x = case x of
+   Coeff -> 0xa00
+   Order -> 0xa01
+   Domain -> 0xa02
+
+--------------------------------------------------------------------------------
+
+getMapf :: MapTarget -> GetMapQuery -> Ptr GLfloat -> IO ()
+getMapf target = glGetMapfv (marshalMapTarget target) . marshalGetMapQuery
 
 foreign import CALLCONV unsafe "glGetMapfv" glGetMapfv ::
    GLenum -> GLenum -> Ptr GLfloat -> IO ()
+
+getMapi :: MapTarget -> GetMapQuery -> Ptr GLint -> IO ()
+getMapi target = glGetMapiv (marshalMapTarget target) . marshalGetMapQuery
 
 foreign import CALLCONV unsafe "glGetMapiv" glGetMapiv ::
    GLenum -> GLenum -> Ptr GLint -> IO ()
