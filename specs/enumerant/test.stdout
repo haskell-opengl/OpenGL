@@ -1,0 +1,301 @@
+-- preprocessing----------------------------------------
+TypeMask mask:
+	MASK_A,
+	MASK_B,
+	MASK_C,
+	MASK_D,
+	MASK_E,
+	use TypeEnum ENUM_C,
+	use TypeEnum LEFT,
+	RIGHT;
+
+TypeEnum enum:
+	ENUM_A,
+	ENUM_B,
+	ENUM_C = 42,
+	ENUM_D,
+	use TypeDefine DEFINE_C,
+	ENUM_F,
+	use TypeMask MASK_D,
+	ENUM_H,
+	ENUM_I = $MASK_E,
+	ENUM_J = $ENUM_F + 42,
+	LEFT,
+	use TypeMask RIGHT;
+
+TypeDefine define:
+	DEFINE_A,
+	DEFINE_B,
+	DEFINE_C = 128,
+	DEFINE_D,
+	DEFINE_E,
+	use TypeEnum ENUM_C,
+	use TypeEnum ENUM_H;
+
+
+-- parsing----------------------------------------
+TypeMask mask:
+	MASK_A
+	MASK_B
+	MASK_C
+	MASK_D
+	MASK_E
+	use TypeEnum ENUM_C
+	use TypeEnum LEFT
+	RIGHT
+
+TypeEnum enum:
+	ENUM_A
+	ENUM_B
+	ENUM_C = 42
+	ENUM_D
+	use TypeDefine DEFINE_C
+	ENUM_F
+	use TypeMask MASK_D
+	ENUM_H
+	ENUM_I = $MASK_E
+	ENUM_J = $ENUM_F + 42
+	LEFT
+	use TypeMask RIGHT
+
+TypeDefine define:
+	DEFINE_A
+	DEFINE_B
+	DEFINE_C = 128
+	DEFINE_D
+	DEFINE_E
+	use TypeEnum ENUM_C
+	use TypeEnum ENUM_H
+
+-- expansion----------------------------------------
+TypeMask mask:
+	MASK_A = 1
+	MASK_B = 2
+	MASK_C = 4
+	MASK_D = 8
+	MASK_E = 16
+	use TypeEnum ENUM_C
+	use TypeEnum LEFT
+	RIGHT = 32
+
+TypeEnum enum:
+	ENUM_A = 0
+	ENUM_B = 1
+	ENUM_C = 42
+	ENUM_D = 2
+	use TypeDefine DEFINE_C
+	ENUM_F = 3
+	use TypeMask MASK_D
+	ENUM_H = 4
+	ENUM_I = $MASK_E
+	ENUM_J = $ENUM_F + 42
+	LEFT = 5
+	use TypeMask RIGHT
+
+TypeDefine define:
+	DEFINE_A = 0
+	DEFINE_B = 0
+	DEFINE_C = 128
+	DEFINE_D = 0
+	DEFINE_E = 0
+	use TypeEnum ENUM_C
+	use TypeEnum ENUM_H
+
+-- evaluation----------------------------------------
+TypeMask mask:
+	MASK_A = 1
+	MASK_B = 2
+	MASK_C = 4
+	MASK_D = 8
+	MASK_E = 16
+	use TypeEnum ENUM_C
+	use TypeEnum LEFT
+	RIGHT = 32
+
+TypeEnum enum:
+	ENUM_A = 0
+	ENUM_B = 1
+	ENUM_C = 42
+	ENUM_D = 2
+	use TypeDefine DEFINE_C
+	ENUM_F = 3
+	use TypeMask MASK_D
+	ENUM_H = 4
+	ENUM_I = 16
+	ENUM_J = 45
+	LEFT = 5
+	use TypeMask RIGHT
+
+TypeDefine define:
+	DEFINE_A = 0
+	DEFINE_B = 0
+	DEFINE_C = 128
+	DEFINE_D = 0
+	DEFINE_E = 0
+	use TypeEnum ENUM_C
+	use TypeEnum ENUM_H
+
+-- simplify----------------------------------------
+TypeMask mask:
+	MaskA = 1
+	MaskB = 2
+	MaskC = 4
+	MaskD = 8
+	MaskE = 16
+	EnumC = 42
+	Left = 5
+	Right = 32
+
+TypeEnum enum:
+	EnumA = 0
+	EnumB = 1
+	EnumC = 42
+	EnumD = 2
+	DefineC = 128
+	EnumF = 3
+	MaskD = 8
+	EnumH = 4
+	EnumI = 16
+	EnumJ = 45
+	Left = 5
+	Right = 32
+
+TypeDefine define:
+	defineA = 0
+	defineB = 0
+	defineC = 128
+	defineD = 0
+	defineE = 0
+	enumC = 42
+	enumH = 4
+
+-- renaming----------------------------------------
+TypeMask mask:
+	MaskA = 1
+	MaskB = 2
+	MaskC = 4
+	MaskD = 8
+	MaskE = 16
+	EnumC' = 42
+	Left'2 = 5
+	Right' = 32
+
+TypeEnum enum:
+	EnumA = 0
+	EnumB = 1
+	EnumC = 42
+	EnumD = 2
+	DefineC = 128
+	EnumF = 3
+	MaskD' = 8
+	EnumH = 4
+	EnumI = 16
+	EnumJ = 45
+	Left' = 5
+	Right'2 = 32
+
+TypeDefine define:
+	defineA = 0
+	defineB = 0
+	defineC = 128
+	defineD = 0
+	defineE = 0
+	enumC = 42
+	enumH = 4
+
+--------------------------------------------------
+data TypeMask =
+     MaskA
+   | MaskB
+   | MaskC
+   | MaskD
+   | MaskE
+   | EnumC'
+   | Left'2
+   | Right'
+
+marshalTypeMask :: TypeMask -> GLbitfield
+marshalTypeMask x = case x of
+   MaskA -> 0x1
+   MaskB -> 0x2
+   MaskC -> 0x4
+   MaskD -> 0x8
+   MaskE -> 0x10
+   EnumC' -> 0x2a
+   Left'2 -> 0x5
+   Right' -> 0x20
+
+unmarshalTypeMask :: GLbitfield -> TypeMask
+unmarshalTypeMask x
+   | x == 0x1 = MaskA
+   | x == 0x2 = MaskB
+   | x == 0x4 = MaskC
+   | x == 0x8 = MaskD
+   | x == 0x10 = MaskE
+   | x == 0x2a = EnumC'
+   | x == 0x5 = Left'2
+   | x == 0x20 = Right'
+   | otherwise = error ("unmarshalTypeMask: illegal value " ++ show x)
+
+--------------------------------------------------
+data TypeEnum =
+     EnumA
+   | EnumB
+   | EnumC
+   | EnumD
+   | DefineC
+   | EnumF
+   | MaskD'
+   | EnumH
+   | EnumI
+   | EnumJ
+   | Left'
+   | Right'2
+
+marshalTypeEnum :: TypeEnum -> GLenum
+marshalTypeEnum x = case x of
+   EnumA -> 0x0
+   EnumB -> 0x1
+   EnumC -> 0x2a
+   EnumD -> 0x2
+   DefineC -> 0x80
+   EnumF -> 0x3
+   MaskD' -> 0x8
+   EnumH -> 0x4
+   EnumI -> 0x10
+   EnumJ -> 0x2d
+   Left' -> 0x5
+   Right'2 -> 0x20
+
+unmarshalTypeEnum :: GLenum -> TypeEnum
+unmarshalTypeEnum x
+   | x == 0x0 = EnumA
+   | x == 0x1 = EnumB
+   | x == 0x2a = EnumC
+   | x == 0x2 = EnumD
+   | x == 0x80 = DefineC
+   | x == 0x3 = EnumF
+   | x == 0x8 = MaskD'
+   | x == 0x4 = EnumH
+   | x == 0x10 = EnumI
+   | x == 0x2d = EnumJ
+   | x == 0x5 = Left'
+   | x == 0x20 = Right'2
+   | otherwise = error ("unmarshalTypeEnum: illegal value " ++ show x)
+
+--------------------------------------------------
+-- TypeDefine
+defineA :: GLenum
+defineA = 0
+defineB :: GLenum
+defineB = 0
+defineC :: GLenum
+defineC = 128
+defineD :: GLenum
+defineD = 0
+defineE :: GLenum
+defineE = 0
+enumC :: GLenum
+enumC = 42
+enumH :: GLenum
+enumH = 4
