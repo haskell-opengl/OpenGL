@@ -29,6 +29,7 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3(..), Vertex4(..) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
 --------------------------------------------------------------------------------
 
@@ -68,7 +69,7 @@ foreign import CALLCONV unsafe "gluPickMatrix" gluPickMatrix ::
 project ::
       Matrix m
    => Vertex3 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
-   -> IO (Maybe (Vertex3 GLdouble))
+   -> IO (Vertex3 GLdouble)
 project (Vertex3 objX objY objZ) model proj viewport =
    withColumnMajor model $ \modelBuf ->
    withColumnMajor proj $ \projBuf ->
@@ -83,7 +84,7 @@ foreign import CALLCONV unsafe "gluProject" gluProject ::
 unProject ::
       Matrix m
    => Vertex3 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
-   -> IO (Maybe (Vertex3 GLdouble))
+   -> IO (Vertex3 GLdouble)
 unProject (Vertex3 objX objY objZ) model proj viewport =
    withColumnMajor model $ \modelBuf ->
    withColumnMajor proj $ \projBuf ->
@@ -99,7 +100,7 @@ unProject4 ::
       Matrix m
    => Vertex4 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
    -> GLclampd -> GLclampd
-   -> IO (Maybe (Vertex4 GLdouble))
+   -> IO (Vertex4 GLdouble)
 unProject4 (Vertex4 objX objY objZ clipW) model proj viewport near far =
    withColumnMajor model $ \modelBuf ->
    withColumnMajor proj $ \projBuf ->
@@ -126,7 +127,8 @@ withColumnMajor mat act = withMatrix mat juggle
             withArray transposedElems act
 
 getVertex3 ::
-   Storable a => (Ptr a -> Ptr a -> Ptr a -> IO GLint) -> IO (Maybe (Vertex3 a))
+      (Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint)
+   -> IO (Vertex3 GLdouble)
 getVertex3 act =
    alloca $ \xBuf ->
    alloca $ \yBuf ->
@@ -136,11 +138,13 @@ getVertex3 act =
       then do x <- peek xBuf
               y <- peek yBuf
               z <- peek zBuf
-              return $ Just (Vertex3 x y z)
-      else return Nothing
+              return $ Vertex3 x y z
+      else do recordInvalidValue
+              return $ Vertex3 0 0 0
 
 getVertex4 ::
-   Storable a => (Ptr a -> Ptr a -> Ptr a -> Ptr a -> IO GLint) -> IO (Maybe (Vertex4 a))
+      (Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint)
+   -> IO (Vertex4 GLdouble)
 getVertex4 act =
    alloca $ \xBuf ->
    alloca $ \yBuf ->
@@ -152,5 +156,6 @@ getVertex4 act =
               y <- peek yBuf
               z <- peek zBuf
               w <- peek wBuf
-              return $ Just (Vertex4 x y z w)
-      else return Nothing
+              return $ Vertex4 x y z w
+      else do recordInvalidValue
+              return $ Vertex4 0 0 0 0
