@@ -67,7 +67,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoordinate,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits,GetRGBAMode),
-   getBoolean1, getInteger1, getEnum1, getFloat1, getFloat3, getFloat4 )
+   getBoolean1, getInteger1, getFloat1, getFloat3, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
@@ -303,15 +303,15 @@ class TexCoordComponent a where
    texCoord3v :: Ptr a -> IO ()
    texCoord4v :: Ptr a -> IO ()
 
-   multiTexCoord1 :: TextureUnit -> a -> IO ()
-   multiTexCoord2 :: TextureUnit -> a -> a -> IO ()
-   multiTexCoord3 :: TextureUnit -> a -> a -> a -> IO ()
-   multiTexCoord4 :: TextureUnit -> a -> a -> a -> a -> IO ()
+   multiTexCoord1 :: GLenum -> a -> IO ()
+   multiTexCoord2 :: GLenum -> a -> a -> IO ()
+   multiTexCoord3 :: GLenum -> a -> a -> a -> IO ()
+   multiTexCoord4 :: GLenum -> a -> a -> a -> a -> IO ()
 
-   multiTexCoord1v :: TextureUnit -> Ptr a -> IO ()
-   multiTexCoord2v :: TextureUnit -> Ptr a -> IO ()
-   multiTexCoord3v :: TextureUnit -> Ptr a -> IO ()
-   multiTexCoord4v :: TextureUnit -> Ptr a -> IO ()
+   multiTexCoord1v :: GLenum -> Ptr a -> IO ()
+   multiTexCoord2v :: GLenum -> Ptr a -> IO ()
+   multiTexCoord3v :: GLenum -> Ptr a -> IO ()
+   multiTexCoord4v :: GLenum -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -339,15 +339,15 @@ foreign import CALLCONV unsafe "glTexCoord3sv" glTexCoord3sv ::
 foreign import CALLCONV unsafe "glTexCoord4sv" glTexCoord4sv ::
    Ptr GLshort -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1sARB,TextureUnit -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2sARB,TextureUnit -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3sARB,TextureUnit -> GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4sARB,TextureUnit -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1sARB,GLenum -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2sARB,GLenum -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3sARB,GLenum -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4sARB,GLenum -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1svARB,TextureUnit -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2svARB,TextureUnit -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3svARB,TextureUnit -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4svARB,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1svARB,GLenum -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2svARB,GLenum -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3svARB,GLenum -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4svARB,GLenum -> Ptr GLshort -> IO ())
 
 instance TexCoordComponent GLshort where
    texCoord1 = glTexCoord1s
@@ -396,15 +396,15 @@ foreign import CALLCONV unsafe "glTexCoord3iv" glTexCoord3iv ::
 foreign import CALLCONV unsafe "glTexCoord4iv" glTexCoord4iv ::
    Ptr GLint -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1iARB,TextureUnit -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2iARB,TextureUnit -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3iARB,TextureUnit -> GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4iARB,TextureUnit -> GLint -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1iARB,GLenum -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2iARB,GLenum -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3iARB,GLenum -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4iARB,GLenum -> GLint -> GLint -> GLint -> GLint -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1ivARB,TextureUnit -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2ivARB,TextureUnit -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3ivARB,TextureUnit -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4ivARB,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1ivARB,GLenum -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2ivARB,GLenum -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3ivARB,GLenum -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4ivARB,GLenum -> Ptr GLint -> IO ())
 
 instance TexCoordComponent GLint where
    texCoord1 = glTexCoord1i
@@ -453,15 +453,15 @@ foreign import CALLCONV unsafe "glTexCoord3fv" glTexCoord3fv ::
 foreign import CALLCONV unsafe "glTexCoord4fv" glTexCoord4fv ::
    Ptr GLfloat -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fARB,TextureUnit -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fARB,TextureUnit -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fARB,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fARB,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fARB,GLenum -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fARB,GLenum -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fARB,GLenum -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fARB,GLenum -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fvARB,TextureUnit -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fvARB,TextureUnit -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fvARB,TextureUnit -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fvARB,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fvARB,GLenum -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fvARB,GLenum -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fvARB,GLenum -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fvARB,GLenum -> Ptr GLfloat -> IO ())
 
 instance TexCoordComponent GLfloat where
    texCoord1 = glTexCoord1f
@@ -510,15 +510,15 @@ foreign import CALLCONV unsafe "glTexCoord3dv" glTexCoord3dv ::
 foreign import CALLCONV unsafe "glTexCoord4dv" glTexCoord4dv ::
    Ptr GLdouble -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dARB,TextureUnit -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dARB,TextureUnit -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dARB,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dARB,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dARB,GLenum -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dARB,GLenum -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dARB,GLenum -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dARB,GLenum -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dvARB,TextureUnit -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dvARB,TextureUnit -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dvARB,TextureUnit -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dvARB,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dvARB,GLenum -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dvARB,GLenum -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dvARB,GLenum -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dvARB,GLenum -> Ptr GLdouble -> IO ())
 
 instance TexCoordComponent GLdouble where
    texCoord1 = glTexCoord1d
@@ -560,8 +560,10 @@ data TexCoord1 a = TexCoord1 a
 instance TexCoordComponent a => TexCoord (TexCoord1 a) where
    texCoord (TexCoord1 s) = texCoord1 s
    texCoordv = texCoord1v . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
-   multiTexCoord u (TexCoord1 s) = multiTexCoord1 u s
-   multiTexCoordv u = multiTexCoord1v u . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
+   multiTexCoord (TextureUnit u) (TexCoord1 s) =
+      multiTexCoord1 (fromIntegral u) s
+   multiTexCoordv (TextureUnit u) =
+      multiTexCoord1v (fromIntegral u) . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord1 a) where
    sizeOf    ~(TexCoord1 s) = sizeOf s
@@ -577,8 +579,10 @@ data TexCoord2 a = TexCoord2 a a
 instance TexCoordComponent a => TexCoord (TexCoord2 a) where
    texCoord (TexCoord2 s t) = texCoord2 s t
    texCoordv = texCoord2v . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
-   multiTexCoord u (TexCoord2 s t) = multiTexCoord2 u s t
-   multiTexCoordv u = multiTexCoord2v u . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
+   multiTexCoord (TextureUnit u) (TexCoord2 s t) =
+      multiTexCoord2 (fromIntegral u) s t
+   multiTexCoordv (TextureUnit u) =
+      multiTexCoord2v (fromIntegral u) . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord2 a) where
    sizeOf    ~(TexCoord2 s _) = 2 * sizeOf s
@@ -594,8 +598,10 @@ data TexCoord3 a = TexCoord3 a a a
 instance TexCoordComponent a => TexCoord (TexCoord3 a) where
    texCoord (TexCoord3 s t r) = texCoord3 s t r
    texCoordv = texCoord3v . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
-   multiTexCoord u (TexCoord3 s t r) = multiTexCoord3 u s t r
-   multiTexCoordv u = multiTexCoord3v u . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
+   multiTexCoord (TextureUnit u) (TexCoord3 s t r) =
+      multiTexCoord3 (fromIntegral u) s t r
+   multiTexCoordv (TextureUnit u) =
+      multiTexCoord3v (fromIntegral u) . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord3 a) where
    sizeOf    ~(TexCoord3 s _ _) = 3 * sizeOf s
@@ -611,8 +617,10 @@ data TexCoord4 a = TexCoord4 a a a a
 instance TexCoordComponent a => TexCoord (TexCoord4 a) where
    texCoord (TexCoord4 s t r q) = texCoord4 s t r q
    texCoordv = texCoord4v . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
-   multiTexCoord u (TexCoord4 s t r q) = multiTexCoord4 u s t r q
-   multiTexCoordv u = multiTexCoord4v u . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
+   multiTexCoord (TextureUnit u) (TexCoord4 s t r q) =
+      multiTexCoord4 (fromIntegral u) s t r q
+   multiTexCoordv (TextureUnit u) =
+      multiTexCoord4v (fromIntegral u) . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord4 a) where
    sizeOf    ~(TexCoord4 s _ _ _) = 4 * sizeOf s
@@ -1189,12 +1197,14 @@ instance IndexComponent a => Index (Index1 a) where
 -- | Identifies a texture unit via its number, which must be in the range of
 -- (0 .. 'maxTextureUnit').
 
-newtype TextureUnit = TextureUnit GLenum
-   deriving ( Eq, Ord, Show, Enum )
+newtype TextureUnit = TextureUnit GLuint
+   deriving ( Eq, Ord, Show )
 
 -- | An implementation must support at least 2 texture units, but it may
 -- support up to 32 ones. This state variable can be used to query the actual
 -- implementation limit.
 
 maxTextureUnit :: GettableStateVar TextureUnit
-maxTextureUnit = makeGettableStateVar (getEnum1 TextureUnit GetMaxTextureUnits)
+maxTextureUnit =
+    makeGettableStateVar
+      (getInteger1 (TextureUnit . fromIntegral) GetMaxTextureUnits)
