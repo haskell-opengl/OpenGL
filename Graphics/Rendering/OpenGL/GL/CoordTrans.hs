@@ -26,6 +26,8 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    ortho, frustum,
    activeTexture,
    matrixExcursion, unsafeMatrixExcursion,
+   modelviewStackDepth, projectionStackDepth,
+   textureStackDepth, colorMatrixStackDepth,
 
    -- * Normal Transformation
    rescaleNormal, normalize,
@@ -56,7 +58,9 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
             GetModelviewMatrix,GetProjectionMatrix,GetTextureMatrix,
-            GetColorMatrix,GetMatrixPalette,GetActiveTexture),
+            GetColorMatrix,GetMatrixPalette,GetActiveTexture,
+            GetModelviewStackDepth,GetProjectionStackDepth,
+            GetTextureStackDepth,GetColorMatrixStackDepth),
    getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)),
@@ -353,6 +357,24 @@ unsafeMatrixExcursion action = do
    ret <- action
    glPopMatrix
    return ret
+
+--------------------------------------------------------------------------------
+
+modelviewStackDepth :: GettableStateVar GLsizei
+modelviewStackDepth =
+   makeGettableStateVar (getInteger1 fromIntegral GetModelviewStackDepth)
+
+projectionStackDepth :: GettableStateVar GLsizei
+projectionStackDepth =
+   makeGettableStateVar (getInteger1 fromIntegral GetProjectionStackDepth)
+
+textureStackDepth :: GettableStateVar GLsizei
+textureStackDepth =
+   makeGettableStateVar (getInteger1 fromIntegral GetTextureStackDepth)
+
+colorMatrixStackDepth :: GettableStateVar GLsizei
+colorMatrixStackDepth =
+   makeGettableStateVar (getInteger1 fromIntegral GetColorMatrixStackDepth)
 
 --------------------------------------------------------------------------------
 
