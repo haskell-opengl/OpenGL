@@ -22,7 +22,7 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
 import Graphics.Rendering.OpenGL.GL.PixelInternalFormat (
    PixelInternalFormat, marshalPixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.Texturing (
+import Graphics.Rendering.OpenGL.GL.TextureTarget (
    TextureTarget, marshalTextureTarget )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
