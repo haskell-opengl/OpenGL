@@ -39,5 +39,10 @@ throwIfNull msg act = do
       then ioError (userError msg)
       else return res
 
-foreign import CALLCONV unsafe GET_PROC_ADDRESS glXGetProcAddressARB ::
-   CString -> IO (FunPtr a)
+foreign import CALLCONV unsafe 
+#if USE_GLXGETPROCADDRESSARB
+   "glXGetProcAddressARB"
+#else
+   "wglGetProcAddress"
+#endif
+   glXGetProcAddressARB :: CString -> IO (FunPtr a)
