@@ -51,9 +51,9 @@ smoothLineWidthRange :: GettableStateVar (GLfloat, GLfloat)
 smoothLineWidthRange =
    makeGettableStateVar $ getFloat2 (,) GetSmoothLineWidthRange
 
-smoothLineWidthGranularity :: GettableStateVar (GLfloat, GLfloat)
+smoothLineWidthGranularity :: GettableStateVar GLfloat
 smoothLineWidthGranularity =
-   makeGettableStateVar $ getFloat2 (,) GetSmoothLineWidthGranularity
+   makeGettableStateVar $ getFloat1 id GetSmoothLineWidthGranularity
 
 --------------------------------------------------------------------------------
 
