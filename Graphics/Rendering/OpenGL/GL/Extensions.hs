@@ -34,7 +34,7 @@ type Invoker a = FunPtr a -> a
 getProcAddress :: String -> String -> IO (FunPtr a)
 getProcAddress ext call =
    throwIfNull ("unknown OpenGL call " ++ call ++ ", check for " ++ ext) $
-      withCString call hOpenGL_getProcAddress
+      withCString call hs_OpenGL_getProcAddress
 
 throwIfNull :: String -> IO (FunPtr a) -> IO (FunPtr a)
 throwIfNull msg act = do
@@ -43,5 +43,5 @@ throwIfNull msg act = do
       then ioError (userError msg)
       else return res
 
-foreign import CALLCONV unsafe "hOpenGL_getProcAddress" hOpenGL_getProcAddress
+foreign import CALLCONV unsafe "hs_OpenGL_getProcAddress" hs_OpenGL_getProcAddress
    :: CString -> IO (FunPtr a)

@@ -14,14 +14,14 @@
 #include <string.h>
 
 #if defined(_WIN32)
-#define hOpenGL_gpa(x) wglGetProcAddress((LPCSTR)(x))
+#define hs_OpenGL_gpa(x) wglGetProcAddress((LPCSTR)(x))
 #elif defined(USE_QUARTZ_OPENGL)
 #include <mach-o/dyld.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 static void*
-hOpenGL_gpa(const char *name)
+hs_OpenGL_gpa(const char *name)
 {
   NSSymbol symbol;
 
@@ -58,7 +58,7 @@ static const char* gpaNames[] = {
 };
 
 static void*
-hOpenGL_gpa(const char *name)
+hs_OpenGL_gpa(const char *name)
 {
   static int firstTime = 1;
   static void *handle = NULL;
@@ -97,16 +97,16 @@ hOpenGL_gpa(const char *name)
 }
 
 #else
-#define hOpenGL_gpa(x) glXGetProcAddressARB((const GLubyte*)(x))
+#define hs_OpenGL_gpa(x) glXGetProcAddressARB((const GLubyte*)(x))
 #endif
 
 
 /* procName is really a const char*, but currently we can't specify this in
    Haskell's FFI and consequently get a warning from the C compiler. */
 void*
-hOpenGL_getProcAddress(char *procName)
+hs_OpenGL_getProcAddress(char *procName)
 {
-  void* addr = hOpenGL_gpa(procName);
+  void* addr = hs_OpenGL_gpa(procName);
   if (addr) {
     return addr;
   }
