@@ -40,7 +40,7 @@ module Graphics.Rendering.OpenGL.GL.Colors (
 
 import Control.Monad ( liftM2, liftM3 )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( withArray )
+import Foreign.Marshal.Array ( allocaArray, withArray )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
@@ -201,7 +201,7 @@ materialColorIndexes face =
 
 getMaterialColorIndexes :: Face -> IO (Index1 GLint, Index1 GLint, Index1 GLint)
 getMaterialColorIndexes face =
-   alloca $ \buf -> do
+   allocaArray 3 $ \buf -> do
       glGetMaterialiv (marshalFace face)
                       (marshalMaterialParameter MaterialColorIndexes)
                       buf

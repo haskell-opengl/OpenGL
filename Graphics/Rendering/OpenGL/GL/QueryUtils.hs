@@ -827,7 +827,7 @@ getBoolean1 f n = alloca $ \buf -> do
 
 getBoolean4 :: (GLboolean -> GLboolean -> GLboolean -> GLboolean -> a)
             -> GetPName -> IO a
-getBoolean4 f n = alloca $ \buf -> do
+getBoolean4 f n = allocaArray 4 $ \buf -> do
    getBooleanv n buf
    peek4 f buf
 
@@ -845,12 +845,12 @@ getInteger1 f n = alloca $ \buf -> do
    peek1 f buf
 
 getInteger2 :: (GLint -> GLint -> a) -> GetPName -> IO a
-getInteger2 f n = alloca $ \buf -> do
+getInteger2 f n = allocaArray 2 $ \buf -> do
    getIntegerv n buf
    peek2 f buf
 
 getInteger4 :: (GLint -> GLint -> GLint -> GLint -> a) -> GetPName -> IO a
-getInteger4 f n = alloca $ \buf -> do
+getInteger4 f n = allocaArray 4 $ \buf -> do
    getIntegerv n buf
    peek4 f buf
 
@@ -876,18 +876,18 @@ getFloat1 f n = alloca $ \buf -> do
    peek1 f buf
 
 getFloat2 :: (GLfloat -> GLfloat -> a) -> GetPName -> IO a
-getFloat2 f n = alloca $ \buf -> do
+getFloat2 f n = allocaArray 2 $ \buf -> do
    getFloatv n buf
    peek2 f buf
 
 getFloat3 :: (GLfloat -> GLfloat -> GLfloat -> a) -> GetPName -> IO a
-getFloat3 f n = alloca $ \buf -> do
+getFloat3 f n = allocaArray 3 $ \buf -> do
    getFloatv n buf
    peek3 f buf
 
 getFloat4 ::
    (GLfloat -> GLfloat -> GLfloat -> GLfloat -> a) -> GetPName -> IO a
-getFloat4 f n = alloca $ \buf -> do
+getFloat4 f n = allocaArray 4 $ \buf -> do
    getFloatv n buf
    peek4 f buf
 
@@ -905,13 +905,13 @@ getDouble1 f n = alloca $ \buf -> do
    peek1 f buf
 
 getDouble2 :: (GLdouble -> GLdouble -> a) -> GetPName -> IO a
-getDouble2 f n = alloca $ \buf -> do
+getDouble2 f n = allocaArray 2 $ \buf -> do
    getDoublev n buf
    peek2 f buf
 
 getDouble4 ::
    (GLdouble -> GLdouble -> GLdouble -> GLdouble -> a) -> GetPName -> IO a
-getDouble4 f n = alloca $ \buf -> do
+getDouble4 f n = allocaArray 4 $ \buf -> do
    getDoublev n buf
    peek4 f buf
 
