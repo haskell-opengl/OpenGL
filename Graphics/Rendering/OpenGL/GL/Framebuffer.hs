@@ -110,8 +110,8 @@ accumBits =
 -- include only front buffers, and double-buffered contexts include both front
 -- and back buffers. The context is selected at GL initialization.
 --
--- The initial value is 'DrawBufferFront' for single-buffered contexts, and
--- 'DrawBufferBack' for double-buffered contexts.
+-- The initial value is 'FrontBuffers' for single-buffered contexts, and
+-- 'BackBuffers' for double-buffered contexts.
 
 drawBuffer :: StateVar BufferMode
 drawBuffer = makeStateVar (getEnum1 unmarshalBufferMode GetDrawBuffer)
