@@ -46,7 +46,7 @@ import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, marshalGLboolean, GLclampf, GLdouble, GLenum )
-import Graphics.Rendering.OpenGL.GL.BeginEnd (
+import Graphics.Rendering.OpenGL.GL.BeginEndInternal (
    PrimitiveMode, unmarshalPrimitiveMode,
    EdgeFlag(BeginsInteriorEdge), unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
