@@ -23,7 +23,8 @@ import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLint, GLsizei, GLuint, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
-import Graphics.Rendering.OpenGL.GL.IOState
+import Graphics.Rendering.OpenGL.GL.IOState (
+   IOState, peekIOState, evalIOState, nTimes )
 import Graphics.Rendering.OpenGL.GL.RenderMode (
    RenderMode(..), withRenderMode, renderMode )
 
@@ -56,10 +57,7 @@ parseSelectionBuffer numHits buf
    | numHits < 0 = return Nothing
    | otherwise = liftM Just $ evalIOState (nTimes numHits parseSelectionHit) buf
 
-type Parser a = IOState (Ptr GLuint) a
-
-nTimes :: Integral a => a -> Parser b -> Parser [b]
-nTimes n = sequence . replicate (fromIntegral n)
+type Parser a = IOState GLuint a
 
 parseSelectionHit :: Parser HitRecord
 parseSelectionHit = do

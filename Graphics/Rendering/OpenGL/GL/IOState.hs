@@ -9,13 +9,13 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for an IO monad with an additional state.
+-- This is a purely internal module for an IO monad with a pointer as an
+-- additional state, basically a /StateT (Ptr s) IO a/.
 --
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.IOState (
-   IOState(..), getIOState, putIOState, modifyIOState, peekIOState, liftIOState,
-   evalIOState, execIOState, mapIOState, withIOState
+   IOState(..), getIOState, peekIOState, evalIOState, nTimes
 ) where
 
 import Foreign.Ptr ( Ptr, plusPtr )
@@ -23,7 +23,7 @@ import Foreign.Storable ( Storable(sizeOf,peek) )
 
 --------------------------------------------------------------------------------
 
-newtype IOState s a = IOState { runIOState :: s -> IO (a, s) }
+newtype IOState s a = IOState { runIOState :: Ptr s -> IO (a, Ptr s) }
 
 instance Functor (IOState s) where
    fmap f m = IOState $ \s -> do (x, s') <- runIOState m s ; return (f x, s')
@@ -33,16 +33,13 @@ instance Monad (IOState s) where
    m >>= k  = IOState $ \s -> do (a, s') <- runIOState m s ; runIOState (k a) s'
    fail str = IOState $ \_ -> fail str
 
-getIOState :: IOState s s
+getIOState :: IOState s (Ptr s)
 getIOState = IOState $ \s -> return (s, s)
 
-putIOState :: s -> IOState s ()
+putIOState :: Ptr s -> IOState s ()
 putIOState s = IOState $ \_ -> return ((), s)
 
-modifyIOState :: (s -> s) -> IOState s ()
-modifyIOState f = do s <- getIOState ; putIOState (f s)
-
-peekIOState :: Storable a => IOState (Ptr a) a
+peekIOState :: Storable a => IOState a a
 peekIOState = do
    ptr <- getIOState
    x <- liftIOState $ peek ptr
@@ -52,14 +49,8 @@ peekIOState = do
 liftIOState :: IO a -> IOState s a
 liftIOState m = IOState $ \s -> do a <- m ; return (a, s)
 
-evalIOState :: IOState s a -> s -> IO a
+evalIOState :: IOState s a -> Ptr s -> IO a
 evalIOState m s = do (a, _) <- runIOState m s ; return a
 
-execIOState :: IOState s a -> s -> IO s
-execIOState m s = do (_, s') <- runIOState m s ; return s'
-
-mapIOState :: (IO (a, s) -> IO (b, s)) -> IOState s a -> IOState s b
-mapIOState f m = IOState $ f . runIOState m
-
-withIOState :: (s -> s) -> IOState s a -> IOState s a
-withIOState f m = IOState $ runIOState m . f
+nTimes :: Integral a => a -> IOState b c -> IOState b [c]
+nTimes n = sequence . replicate (fromIntegral n)
