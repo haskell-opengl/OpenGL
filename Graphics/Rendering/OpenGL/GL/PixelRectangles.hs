@@ -36,7 +36,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    postConvolutionColorTableScale, postConvolutionColorTableBias,
    postColorMatrixColorTableScale, postColorMatrixColorTableBias,
 
-   PixelFormat(..), PixelType(..), drawPixels
+   PixelFormat(..), drawPixels
 ) where
 
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
@@ -51,12 +51,13 @@ import Graphics.Rendering.OpenGL.GL.Capability (
              CapPostColorMatrixColorTable),
    makeCapability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
+import Graphics.Rendering.OpenGL.GL.DataType ( DataType(..), marshalDataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PixelTypes (
-   PixelFormat(..), marshalPixelFormat, PixelType(..), marshalPixelType )
+import Graphics.Rendering.OpenGL.GL.PixelFormat (
+   PixelFormat(..), marshalPixelFormat )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetUnpackSwapBytes,GetUnpackLSBFirst,GetUnpackRowLength,
             GetUnpackSkipRows,GetUnpackSkipPixels,GetUnpackAlignment,
@@ -667,9 +668,9 @@ EXTENSION_ENTRY("GL_ARB_imaging",glGetSeparableFilter,GLenum -> GLenum -> GLenum
 
 --------------------------------------------------------------------------------
 
-drawPixels :: Size -> PixelFormat -> PixelType -> Ptr a -> IO ()
+drawPixels :: Size -> PixelFormat -> DataType -> Ptr a -> IO ()
 drawPixels (Size w h) f t =
-   glDrawPixels w h (marshalPixelFormat f) (marshalPixelType t)
+   glDrawPixels w h (marshalPixelFormat f) (marshalDataType t)
 
 foreign import CALLCONV unsafe "glDrawPixels" glDrawPixels ::
    GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()

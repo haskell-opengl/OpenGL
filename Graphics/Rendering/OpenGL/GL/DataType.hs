@@ -33,6 +33,21 @@ data DataType =
    | ThreeBytes
    | FourBytes
    | Double
+   | Bitmap
+   | UnsignedByte332
+   | UnsignedShort4444
+   | UnsignedShort5551
+   | UnsignedInt8888
+   | UnsignedInt1010102
+   | UnsignedByte233Rev
+   | UnsignedShort565
+   | UnsignedShort565Rev
+   | UnsignedShort4444Rev
+   | UnsignedShort1555Rev
+   | UnsignedInt8888Rev
+   | UnsignedInt2101010Rev
+   | UnsignedShort88
+   | UnsignedShort88Rev
    deriving ( Eq, Ord, Show )
 
 marshalDataType :: DataType -> GLenum
@@ -48,6 +63,21 @@ marshalDataType x = case x of
    ThreeBytes -> 0x1408
    FourBytes -> 0x1409
    Double -> 0x140a
+   Bitmap -> 0x1a00
+   UnsignedByte332 -> 0x8032
+   UnsignedShort4444 -> 0x8033
+   UnsignedShort5551 -> 0x8034
+   UnsignedInt8888 -> 0x8035
+   UnsignedInt1010102 -> 0x8036
+   UnsignedByte233Rev -> 0x8362
+   UnsignedShort565 -> 0x8363
+   UnsignedShort565Rev -> 0x8364
+   UnsignedShort4444Rev -> 0x8365
+   UnsignedShort1555Rev -> 0x8366
+   UnsignedInt8888Rev -> 0x8367
+   UnsignedInt2101010Rev -> 0x8368
+   UnsignedShort88 -> 0x85ba
+   UnsignedShort88Rev -> 0x85bb
 
 unmarshalDataType :: GLenum -> DataType
 unmarshalDataType x
@@ -62,4 +92,19 @@ unmarshalDataType x
    | x == 0x1408 = ThreeBytes
    | x == 0x1409 = FourBytes
    | x == 0x140a = Double
+   | x == 0x1a00 = Bitmap
+   | x == 0x8032 = UnsignedByte332
+   | x == 0x8033 = UnsignedShort4444
+   | x == 0x8034 = UnsignedShort5551
+   | x == 0x8035 = UnsignedInt8888
+   | x == 0x8036 = UnsignedInt1010102
+   | x == 0x8362 = UnsignedByte233Rev
+   | x == 0x8363 = UnsignedShort565
+   | x == 0x8364 = UnsignedShort565Rev
+   | x == 0x8365 = UnsignedShort4444Rev
+   | x == 0x8366 = UnsignedShort1555Rev
+   | x == 0x8367 = UnsignedInt8888Rev
+   | x == 0x8368 = UnsignedInt2101010Rev
+   | x == 0x85ba = UnsignedShort88
+   | x == 0x85bb = UnsignedShort88Rev
    | otherwise = error ("unmarshalDataType: illegal value " ++ show x)

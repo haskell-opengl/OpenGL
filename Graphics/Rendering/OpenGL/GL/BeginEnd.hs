@@ -24,10 +24,11 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLboolean )
-import Graphics.Rendering.OpenGL.GL.BeginEndInternal (
-   PrimitiveMode(..), marshalPrimitiveMode,
+import Graphics.Rendering.OpenGL.GL.EdgeFlag (
    EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
+   PrimitiveMode(..), marshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, GetPName(GetEdgeFlag) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )

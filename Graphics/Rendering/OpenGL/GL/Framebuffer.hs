@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
    auxBuffers, doublebuffer, stereo,
 
    -- * Selecting a Buffer for Writing
-   DrawBufferMode(..), drawBuffer,
+   BufferMode(..), drawBuffer,
 
    -- * Fine Control of Buffer Updates
    indexMask, colorMask, depthMask, stencilMask,
@@ -33,6 +33,8 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd )
+import Graphics.Rendering.OpenGL.GL.BufferMode (
+   BufferMode(..), marshalBufferMode, unmarshalBufferMode )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -68,80 +70,6 @@ stereo =
 
 --------------------------------------------------------------------------------
 
--- | The buffers into which colors are written.
-
-data DrawBufferMode =
-     DrawBufferNone
-     -- ^ No color buffers are written.
-   | DrawBufferFrontLeft
-     -- ^ Only the front left color buffer is written.
-   | DrawBufferFrontRight
-     -- ^ Only the front right color buffer is written.
-   | DrawBufferBackLeft
-     -- ^ Only the  back left color buffer is written.
-   | DrawBufferBackRight
-     -- ^ Only the back right color buffer is written.
-   | DrawBufferFront
-     -- ^ Only the front left and front right color buffers are written. If
-     -- there is no front right color buffer, only the front left color buffer
-     -- is written.
-   | DrawBufferBack
-     -- ^ Only the back left and back right color buffers are written. If there
-     -- is no back right color buffer, only the back left color buffer is
-     -- written.
-   | DrawBufferLeft
-     -- ^ Only the front left and back left color buffers are written. If there
-     -- is no back left color buffer, only the front left color buffer is
-     -- written.
-   | DrawBufferRight
-     -- ^ Only the front right and back right color buffers are written. If
-     -- there is no back right color buffer, only the front right color buffer
-     -- is written.
-   | DrawBufferFrontAndBack
-     -- ^ All the front and back color buffers (front left, front right, back
-     -- left, back right) are written. If there are no back color buffers, only
-     -- the front left and front right color buffers are written. If there are
-     -- no right color buffers, only the front left and back left color buffers
-     -- are written. If there are no right or back color buffers, only the front
-     -- left color buffer is written.
-   | DrawBufferAux GLsizei
-     -- ^ Only the givem auxiliary color buffer no. /i/ is written.
-   deriving ( Eq, Ord, Show )
-
-marshalDrawBufferMode :: DrawBufferMode -> GLenum
-marshalDrawBufferMode x = case x of
-   DrawBufferNone -> 0x0
-   DrawBufferFrontLeft -> 0x400
-   DrawBufferFrontRight -> 0x401
-   DrawBufferBackLeft -> 0x402
-   DrawBufferBackRight -> 0x403
-   DrawBufferFront -> 0x404
-   DrawBufferBack -> 0x405
-   DrawBufferLeft -> 0x406
-   DrawBufferRight -> 0x407
-   DrawBufferFrontAndBack -> 0x408
-   DrawBufferAux i
-      | i <= 246  -> 0x409 + fromIntegral i
-      | otherwise -> error ("marshalDrawBufferMode: illegal value " ++ show i)
-
-unmarshalDrawBufferMode :: GLenum -> DrawBufferMode
-unmarshalDrawBufferMode x
-   | x == 0x0 = DrawBufferNone
-   | x == 0x400 = DrawBufferFrontLeft
-   | x == 0x401 = DrawBufferFrontRight
-   | x == 0x402 = DrawBufferBackLeft
-   | x == 0x403 = DrawBufferBackRight
-   | x == 0x404 = DrawBufferFront
-   | x == 0x405 = DrawBufferBack
-   | x == 0x406 = DrawBufferLeft
-   | x == 0x407 = DrawBufferRight
-   | x == 0x408 = DrawBufferFrontAndBack
-   | 0x409 <= x && x <= 0x4ff = DrawBufferAux (fromIntegral x - 0x409)
-   | otherwise = error ("unmarshalDrawBufferMode: illegal value " ++ show x)
-
---------------------------------------------------------------------------------
-
-
 -- | When colors are written to the framebuffer, they are written into the color
 -- buffers specified by 'drawBuffer'.
 -- 
@@ -157,9 +85,9 @@ unmarshalDrawBufferMode x
 -- The initial value is 'DrawBufferFront' for single-buffered contexts, and
 -- 'DrawBufferBack' for double-buffered contexts.
 
-drawBuffer :: StateVar DrawBufferMode
-drawBuffer = makeStateVar (getEnum1 unmarshalDrawBufferMode GetDrawBuffer)
-                          (glDrawBuffer . marshalDrawBufferMode)
+drawBuffer :: StateVar BufferMode
+drawBuffer = makeStateVar (getEnum1 unmarshalBufferMode GetDrawBuffer)
+                          (glDrawBuffer . marshalBufferMode)
 
 foreign import CALLCONV unsafe "glDrawBuffer" glDrawBuffer ::
    GLenum -> IO ()

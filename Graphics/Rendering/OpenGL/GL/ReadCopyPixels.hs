@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
    -- * Reading Pixels
-   readPixels, ReadBufferMode(..), readBuffer,
+   readPixels, readBuffer,
 
    -- * Copying Pixels
    PixelCopyType(..), copyPixels
@@ -23,68 +23,30 @@ module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
 
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLsizei )
+import Graphics.Rendering.OpenGL.GL.BufferMode (
+   BufferMode(..), marshalBufferMode, unmarshalBufferMode )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.PixelTypes (
-   PixelFormat(..), marshalPixelFormat, PixelType(..), marshalPixelType )
+import Graphics.Rendering.OpenGL.GL.DataType ( DataType(..), marshalDataType )
+import Graphics.Rendering.OpenGL.GL.PixelFormat (
+   PixelFormat(..), marshalPixelFormat )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetReadBuffer), getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
-readPixels :: Position -> Size -> PixelFormat -> PixelType -> Ptr a -> IO ()
+readPixels :: Position -> Size -> PixelFormat -> DataType -> Ptr a -> IO ()
 readPixels (Position x y) (Size w h) f t =
-   glReadPixels x y w h (marshalPixelFormat f) (marshalPixelType t)
+   glReadPixels x y w h (marshalPixelFormat f) (marshalDataType t)
 
 foreign import CALLCONV unsafe "glReadPixels" glReadPixels ::
    GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
-data ReadBufferMode =
-     ReadBufferFrontLeft
-   | ReadBufferFrontRight
-   | ReadBufferBackLeft
-   | ReadBufferBackRight
-   | ReadBufferFront
-   | ReadBufferBack
-   | ReadBufferLeft
-   | ReadBufferRight
-   | ReadBufferAux GLsizei
-   deriving ( Eq, Ord, Show )
-
-marshalReadBufferMode :: ReadBufferMode -> GLenum
-marshalReadBufferMode x = case x of
-   ReadBufferFrontLeft -> 0x400
-   ReadBufferFrontRight -> 0x401
-   ReadBufferBackLeft -> 0x402
-   ReadBufferBackRight -> 0x403
-   ReadBufferFront -> 0x404
-   ReadBufferBack -> 0x405
-   ReadBufferLeft -> 0x406
-   ReadBufferRight -> 0x407
-   ReadBufferAux i
-      | i <= 246  -> 0x409 + fromIntegral i
-      | otherwise -> error ("marshalReadBufferMode: illegal value " ++ show i)
-
-unmarshalReadBufferMode :: GLenum -> ReadBufferMode
-unmarshalReadBufferMode x
-   | x == 0x400 = ReadBufferFrontLeft
-   | x == 0x401 = ReadBufferFrontRight
-   | x == 0x402 = ReadBufferBackLeft
-   | x == 0x403 = ReadBufferBackRight
-   | x == 0x404 = ReadBufferFront
-   | x == 0x405 = ReadBufferBack
-   | x == 0x406 = ReadBufferLeft
-   | x == 0x407 = ReadBufferRight
-   | 0x409 <= x && x <= 0x4ff = ReadBufferAux (fromIntegral x - 0x409)
-   | otherwise = error ("unmarshalReadBufferMode: illegal value " ++ show x)
-
---------------------------------------------------------------------------------
-
-readBuffer :: StateVar ReadBufferMode
-readBuffer = makeStateVar (getEnum1 unmarshalReadBufferMode GetReadBuffer)
-                          (glReadBuffer . marshalReadBufferMode)
+readBuffer :: StateVar BufferMode
+readBuffer = makeStateVar (getEnum1 unmarshalBufferMode GetReadBuffer)
+                          (glReadBuffer . marshalBufferMode)
 
 foreign import CALLCONV unsafe "glReadBuffer" glReadBuffer :: GLenum -> IO ()
 

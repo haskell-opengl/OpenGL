@@ -1,7 +1,7 @@
 -- #hide
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.BeginEndInternal
+-- Module      :  Graphics.Rendering.OpenGL.GL.PrimitiveMode
 -- Copyright   :  (c) Sven Panne 2003
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -9,19 +9,15 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module related to section 2.6 (Begin\/End Paradigm)
--- of the OpenGL 1.4 specs.
+-- This is a purely internal module for (un-)marshaling PrimitiveMode.
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.BeginEndInternal (
-   PrimitiveMode(..), marshalPrimitiveMode, unmarshalPrimitiveMode,
-   EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag
+module Graphics.Rendering.OpenGL.GL.PrimitiveMode (
+   PrimitiveMode(..), marshalPrimitiveMode, unmarshalPrimitiveMode
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   GLboolean, marshalGLboolean, unmarshalGLboolean )
 
 --------------------------------------------------------------------------------
 
@@ -98,20 +94,3 @@ unmarshalPrimitiveMode x
    | x == 0x8 = QuadStrip
    | x == 0x9 = Polygon
    | otherwise = error ("unmarshalPrimitiveMode: illegal value " ++ show x)
-
---------------------------------------------------------------------------------
-
--- | A vertex can begin an edge which lies in the interior of its polygon or on
--- the polygon\'s boundary.
-
-data EdgeFlag = BeginsInteriorEdge | BeginsBoundaryEdge
-   deriving ( Eq, Ord, Show )
-
-marshalEdgeFlag :: EdgeFlag -> GLboolean
-marshalEdgeFlag BeginsInteriorEdge = marshalGLboolean False
-marshalEdgeFlag BeginsBoundaryEdge = marshalGLboolean True
-
-unmarshalEdgeFlag :: GLboolean -> EdgeFlag
-unmarshalEdgeFlag f
-   | unmarshalGLboolean f = BeginsBoundaryEdge
-   | otherwise            = BeginsInteriorEdge
