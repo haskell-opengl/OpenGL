@@ -9,7 +9,7 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- This is a purely internal module with utilities to OpenGL state.
+-- This is a purely internal module with utilities to query OpenGL state.
 --
 --------------------------------------------------------------------------------
 
