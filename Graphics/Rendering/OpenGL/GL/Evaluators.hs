@@ -37,6 +37,10 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 
 --------------------------------------------------------------------------------
 
+#include "HsOpenGLTypes.h"
+
+--------------------------------------------------------------------------------
+
 maxEvalOrder :: GettableStateVar GLsizei
 maxEvalOrder = makeGettableStateVar (getSizei1 id GetMaxEvalOrder)
 
@@ -82,7 +86,7 @@ class EvalCoord1 c where
     evalCoord1  :: c -> IO ()
     evalCoord1v :: Ptr c -> IO ()
 
-instance EvalCoord1 GLfloat where
+instance EvalCoord1 GLfloat_ where
     evalCoord1  = glEvalCoord1f
     evalCoord1v = glEvalCoord1fv
 
@@ -92,7 +96,7 @@ foreign import CALLCONV unsafe "glEvalCoord1f" glEvalCoord1f ::
 foreign import CALLCONV unsafe "glEvalCoord1fv" glEvalCoord1fv ::
    Ptr GLfloat -> IO ()
 
-instance EvalCoord1 GLdouble where
+instance EvalCoord1 GLdouble_ where
     evalCoord1  = glEvalCoord1d
     evalCoord1v = glEvalCoord1dv
 
@@ -108,7 +112,7 @@ class EvalCoord2 c where
     evalCoord2  :: c -> c -> IO ()
     evalCoord2v :: Ptr c -> IO ()
 
-instance EvalCoord2 GLfloat where
+instance EvalCoord2 GLfloat_ where
     evalCoord2  = glEvalCoord2f
     evalCoord2v = glEvalCoord2fv
 
@@ -118,7 +122,7 @@ foreign import CALLCONV unsafe "glEvalCoord2f" glEvalCoord2f ::
 foreign import CALLCONV unsafe "glEvalCoord2fv" glEvalCoord2fv ::
    Ptr GLfloat -> IO ()
 
-instance EvalCoord2 GLdouble where
+instance EvalCoord2 GLdouble_ where
     evalCoord2  = glEvalCoord2d
     evalCoord2v = glEvalCoord2dv
 
