@@ -55,9 +55,9 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 -- point sprites are enabled (see 'pointSprite'). Both are initially disabled.
 --
 -- The specified point size is multiplied with a distance attenuation factor
--- and clamped to the specified point size range (see 'pointSizeRange'), and
--- further clamped to the implementation-dependent point size range to produce
--- the derived point size using
+-- and clamped to the specified 'pointSizeRange', and further clamped to the
+-- implementation-dependent point size range to produce the derived point size
+-- using
 --
 -- @   /derivedSize/ = /clamp/ (/size/ * /sqrt/ (1 \/ (/a/ + /b/ * /d/ + /c/ * /d/^2)))@
 --
@@ -70,8 +70,8 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 --
 -- If multisampling is enabled, the point may be faded by modifying the point
 -- alpha value (see 'Graphics.Rendering.OpenGL.GL.PerFragment.sampleCoverage')
--- instead of allowing the point width to go below a given threshold (see
--- 'pointFadeThresholdSize'). In this case, the width is further modified in
+-- instead of allowing the point width to go below a given
+-- 'pointFadeThresholdSize'. In this case, the width is further modified in
 -- the following manner:
 --
 -- @   /width/ = if /derivedSize/ >= /threshold/ then /derivedSize/ else /threshold/@
@@ -125,7 +125,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 -- maximum value for antialiased points, rounded to the nearest integer value.
 --
 -- An 'Graphics.Rendering.OpenGL.GLU.Errors.InvalidValue' is generated if
--- 'pointSize' is set to a value less than or equal to 0.
+-- 'pointSize' is set to a value less than or equal to zero.
 --
 -- An 'Graphics.Rendering.OpenGL.GLU.Errors.InvalidOperation' is generated if
 -- 'pointSize' is set during
@@ -140,7 +140,13 @@ foreign import CALLCONV unsafe "glPointSize" glPointSize :: GLfloat -> IO ()
 
 -- | The range to which the derived point size is clamped, see 'pointSize'. Note
 -- that the size is further clamped to the implementation-dependent limits, see
--- 'aliasedPointSizeRange' and 'smoothPointSizeRange'.
+-- 'aliasedPointSizeRange' and 'smoothPointSizeRange'. The initial range is
+-- (0, 1).
+--
+-- An 'Graphics.Rendering.OpenGL.GLU.Errors.InvalidValue' is generated if the
+-- lower or upper bound of the range is set to a value less than zero. If the
+-- lower bound is greater than the upper bound, the point size after clamping is
+-- undefined, but no error is generated.
 
 pointSizeRange :: StateVar (GLfloat, GLfloat)
 pointSizeRange =
@@ -152,7 +158,7 @@ pointSizeRange =
 --------------------------------------------------------------------------------
 
 -- | The  constant, linear, and quadratic distance attenuation coefficients, see
--- 'pointSize'.
+-- 'pointSize'. The initial coefficients are (1, 0, 0).
 
 pointDistanceAttenuation :: StateVar (GLfloat, GLfloat, GLfloat)
 pointDistanceAttenuation =
@@ -164,7 +170,10 @@ pointDistanceAttenuation =
 --------------------------------------------------------------------------------
 
 -- | The threshold for alpha attenuation of points when multisampling is used,
--- see 'pointSize'.
+-- see 'pointSize'. The initial threshold is 1.
+--
+-- An 'Graphics.Rendering.OpenGL.GLU.Errors.InvalidValue' is generated if the
+-- threshold is set to a value less than zero.
 
 pointFadeThresholdSize :: StateVar GLfloat
 pointFadeThresholdSize =
@@ -191,13 +200,13 @@ pointSprite = makeCapability CapPointSprite
 
 --------------------------------------------------------------------------------
 
--- | The smallest and largest size of aliased points.
+-- | The smallest and largest supported size of aliased points.
 
 aliasedPointSizeRange :: GettableStateVar (GLfloat, GLfloat)
 aliasedPointSizeRange =
    makeGettableStateVar $ getFloat2 (,) GetAliasedPointSizeRange
 
--- | The smallest and largest size of antialiased points.
+-- | The smallest and largest supported size of antialiased points.
 
 smoothPointSizeRange :: GettableStateVar (GLfloat, GLfloat)
 smoothPointSizeRange =
