@@ -20,8 +20,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
 ) where
 
 import Control.Monad ( liftM )
-import Data.List ( partition, genericLength )
-import Foreign.Marshal.Array ( withArray, peekArray, allocaArray )
+import Data.List ( partition )
+import Foreign.Marshal.Array ( withArray, withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLuint, GLsizei, GLenum, GLclampf )
@@ -52,9 +52,9 @@ instance ObjectName TextureObject where
         glGenTextures (fromIntegral n) buf
         liftM (map TextureObject) $ peekArray n buf
 
-   deleteObjectNames textureObjects = do
-      withArray (map textureID textureObjects) $
-         glDeleteTextures (genericLength textureObjects)
+   deleteObjectNames textureObjects =
+      withArrayLen (map textureID textureObjects) $
+         glDeleteTextures . fromIntegral
 
    isObjectName = liftM unmarshalGLboolean . glIsTexture . textureID
 
@@ -99,8 +99,7 @@ textureResident t =
 
 areTexturesResident :: [TextureObject] -> IO ([TextureObject],[TextureObject])
 areTexturesResident texObjs = do
-   let len = length texObjs
-   withArray (map textureID texObjs) $ \texObjsBuf ->
+   withArrayLen (map textureID texObjs) $ \len texObjsBuf ->
       allocaArray len $ \residentBuf -> do
          allResident <-
             glAreTexturesResident (fromIntegral len) texObjsBuf residentBuf
@@ -123,9 +122,9 @@ texturePriority = texParamf id id TexturePriority
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()
 prioritizeTextures tps =
-   withArray (map (textureID . fst) tps) $ \texObjsBuf ->
+   withArrayLen (map (textureID . fst) tps) $ \len texObjsBuf ->
       withArray (map snd tps) $
-         glPrioritizeTextures (genericLength tps) texObjsBuf
+         glPrioritizeTextures (fromIntegral len) texObjsBuf
 
 foreign import CALLCONV unsafe "glPrioritizeTextures"
    glPrioritizeTextures :: GLsizei -> Ptr GLuint -> Ptr GLclampf -> IO ()

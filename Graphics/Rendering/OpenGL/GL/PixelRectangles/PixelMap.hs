@@ -21,7 +21,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap (
 import Data.List ( zipWith4 )
 import Data.Word
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
-import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
+import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArrayLen )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -126,31 +126,31 @@ foreign import CALLCONV unsafe "glPixelMapfv" glPixelMapfv ::
 
 class PixelMap m where
    withNewPixelMap ::
-      PixelMapComponent c => GLsizei -> (Ptr c -> IO ()) -> IO (m c)
+      PixelMapComponent c => Int -> (Ptr c -> IO ()) -> IO (m c)
    withPixelMap ::
-      PixelMapComponent c => m c -> (GLsizei -> Ptr c -> IO a) -> IO a
+      PixelMapComponent c => m c -> (Int -> Ptr c -> IO a) -> IO a
    newPixelMap :: PixelMapComponent c => [c] -> IO (m c)
    getPixelMapComponents :: PixelMapComponent c => m c -> IO [c]
 
    withNewPixelMap size act =
-      allocaArray (fromIntegral size) $ \p -> do
+      allocaArray size $ \p -> do
          act p
-         components <- peekArray (fromIntegral size) p
+         components <- peekArray size p
          newPixelMap components
 
    withPixelMap m act = do
       components <- getPixelMapComponents m
-      withArray components $ act (fromIntegral (length components))
+      withArrayLen components act
 
    newPixelMap elements =
-      withNewPixelMap (fromIntegral (length elements)) $ flip pokeArray elements
+      withNewPixelMap (length elements) $ flip pokeArray elements
 
    getPixelMapComponents m =
-      withPixelMap m $ (peekArray . fromIntegral)
+      withPixelMap m peekArray
 
 --------------------------------------------------------------------------------
 
-data GLpixelmap a = GLpixelmap GLsizei (ForeignPtr a)
+data GLpixelmap a = GLpixelmap Int (ForeignPtr a)
 #ifdef __HADDOCK__
 -- Help Haddock a bit, because it doesn't do any instance inference.
 instance Eq (GLpixelmap a)
@@ -162,7 +162,7 @@ instance Show (GLpixelmap a)
 
 instance PixelMap GLpixelmap where
    withNewPixelMap size f = do
-      fp <- mallocForeignPtrArray (fromIntegral size)
+      fp <- mallocForeignPtrArray size
       withForeignPtr fp f
       return $ GLpixelmap size fp
 
@@ -175,9 +175,9 @@ pixelMap pm =
    makeStateVar
       (do size <- pixelMapSize pm
           withNewPixelMap size $ getPixelMapv (marshalPixelMapTarget pm))
-      (\theMap -> withPixelMap theMap $ pixelMapv (marshalPixelMapTarget pm))
+      (\theMap -> withPixelMap theMap $ pixelMapv (marshalPixelMapTarget pm) . fromIntegral)
 
-pixelMapSize :: PixelMapTarget -> IO GLsizei
+pixelMapSize :: PixelMapTarget -> IO Int
 pixelMapSize = getInteger1 fromIntegral . pixelMapTargetToGetPName
 
 --------------------------------------------------------------------------------
@@ -207,24 +207,24 @@ getPixelMapXToY (toR, toG, toB, toA) = do
          withPixelMapFor toB $ \sizeB bufB ->
             withPixelMapFor toA $ \sizeA bufA -> do
                let maxSize = sizeR `max` sizeG `max` sizeB `max` sizeA
-               r <- sample bufR sizeR maxSize
-               g <- sample bufG sizeR maxSize
-               b <- sample bufB sizeR maxSize
-               a <- sample bufA sizeR maxSize
+               r <- sample sizeR bufR maxSize
+               g <- sample sizeR bufG maxSize
+               b <- sample sizeR bufB maxSize
+               a <- sample sizeR bufA maxSize
                return $ zipWith4 Color4 r g b a
 
 withPixelMapFor ::
-    PixelMapComponent c => PixelMapTarget -> (GLsizei -> Ptr c -> IO a) -> IO a
+    PixelMapComponent c => PixelMapTarget -> (Int -> Ptr c -> IO a) -> IO a
 withPixelMapFor target f = do
     theMap <- get (pixelMap target)
     withGLpixelmap theMap f
 
 withGLpixelmap :: PixelMapComponent c
-               => GLpixelmap c -> (GLsizei -> Ptr c -> IO a) -> IO a
+               => GLpixelmap c -> (Int -> Ptr c -> IO a) -> IO a
 withGLpixelmap = withPixelMap
 
-sample :: Storable a => Ptr a -> GLsizei -> GLsizei -> IO [a]
-sample ptr len newLen = f (fromIntegral (newLen - 1)) []
+sample :: Storable a => Int -> Ptr a -> Int -> IO [a]
+sample len ptr newLen = f (fromIntegral (newLen - 1)) []
    where scale :: Float
          scale = fromIntegral len / fromIntegral newLen
          f l acc | l < 0     = return acc

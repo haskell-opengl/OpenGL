@@ -32,9 +32,8 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
 ) where
 
 import Control.Monad ( liftM )
-import Data.List ( genericLength )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( withArray, peekArray, allocaArray )
+import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr, nullPtr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -84,9 +83,9 @@ instance ObjectName BufferObject where
         glGenBuffersARB (fromIntegral n) buf
         liftM (map BufferObject) $ peekArray n buf
 
-   deleteObjectNames bufferObjects = do
-      withArray (map bufferID bufferObjects) $
-         glDeleteBuffersARB (genericLength bufferObjects)
+   deleteObjectNames bufferObjects =
+      withArrayLen (map bufferID bufferObjects) $
+         glDeleteBuffersARB . fromIntegral
 
    isObjectName = liftM unmarshalGLboolean . glIsBufferARB . bufferID
 

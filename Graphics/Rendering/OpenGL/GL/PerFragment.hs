@@ -49,9 +49,8 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 ) where
 
 import Control.Monad ( liftM, liftM2, liftM3 )
-import Data.List ( genericLength )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( withArray, peekArray, allocaArray )
+import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
@@ -250,9 +249,9 @@ instance ObjectName QueryObject where
         glGenQueriesARB (fromIntegral n) buf
         liftM (map QueryObject) $ peekArray n buf
 
-   deleteObjectNames queryObjects = do
-      withArray (map queryID queryObjects) $
-         glDeleteQueriesARB (genericLength queryObjects)
+   deleteObjectNames queryObjects =
+      withArrayLen (map queryID queryObjects) $
+         glDeleteQueriesARB . fromIntegral
 
    isObjectName = liftM unmarshalGLboolean . glIsQueryARB . queryID
 
