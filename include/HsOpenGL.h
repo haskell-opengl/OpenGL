@@ -13,11 +13,17 @@
 #ifndef HSOPENGL_H
 #define HSOPENGL_H
 
+#include "config.h"
+
 #ifdef _WIN32
 
 /* for the prototype of wglGetProcAddress */
 #include <windows.h>
 #include <GL/glu.h>
+
+#elif defined(USE_QUARTZ_OPENGL)
+
+#include <OpenGL/glu.h>
 
 #else
 

@@ -26,5 +26,8 @@ Package {
 	package_deps	= [ "base" ],
 	extra_ghc_opts	= [],
 	extra_cc_opts	= [ "" GL_CFLAGS ],
+#ifdef USE_QUARTZ_OPENGL
+	extra_frameworks = [ "OpenGL" ],
+#endif
 	extra_ld_opts	= [ "" GL_LIBS ]
 }
