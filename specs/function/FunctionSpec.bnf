@@ -5,8 +5,8 @@ spec                 ::= [ requiredProperties ] { validProperty } { category }.
 
 requiredProperties   ::= ':required-props' { propertyName } ';'.
 
-validProperty        ::= ':' validProperyName validPropertyValues ';'.
-validProperyName     ::= 'param' | propertyName.
+validProperty        ::= ':' validPropertyName validPropertyValues ';'.
+validPropertyName    ::= 'param' | propertyName.
 validPropertyValues  ::= [ '*' | propertyValue { propertyValue } ] .
 
 category             ::= functionDeclaration
