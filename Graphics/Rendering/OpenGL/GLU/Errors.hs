@@ -18,11 +18,10 @@ module Graphics.Rendering.OpenGL.GLU.Errors (
    Error(..), ErrorCategory(..), errors
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   Error(..), ErrorCategory(..), makeError, isError )
+   Error(..), ErrorCategory(..), getErrors )
 
 --------------------------------------------------------------------------------
 
@@ -34,11 +33,4 @@ import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
 -- the last time 'errors' was read, or since the GL was initialized.
 
 errors :: GettableStateVar [Error]
-errors = makeGettableStateVar $ getErrors []
-   where getErrors acc = do
-            errorCode <- glGetError
-            if isError errorCode
-               then getErrors (errorCode:acc)
-               else mapM makeError (reverse acc)
-
-foreign import CALLCONV unsafe "glGetError" glGetError :: IO GLenum
+errors = makeGettableStateVar getErrors

@@ -51,9 +51,8 @@ import Graphics.Rendering.OpenGL.GL.BeginEnd (
    PrimitiveMode, EdgeFlag(BeginsInteriorEdge) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( makeError )
-import Graphics.Rendering.OpenGL.GLU.Errors (
-   Error(Error), ErrorCategory(OutOfMemory) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
+   recordErrorCode, recordOutOfMemory )
 
 --------------------------------------------------------------------------------
 
@@ -278,7 +277,7 @@ type Tessellator p v
   -> Normal3 GLdouble
   -> Combiner v
   -> ComplexPolygon v
-  -> IO (Either Error (p v))
+  -> IO (p v)
 
 --------------------------------------------------------------------------------
 
@@ -319,7 +318,7 @@ extractContours windingRule tolerance normal combiner complexPoly = do
 
        getContours = liftM (PolygonContours . reverse) (readIORef contours)
 
-   withTessellatorObj $ \tessObj -> do
+   withTessellatorObj (PolygonContours [])$ \tessObj -> do
       setTessellatorProperties tessObj windingRule tolerance normal True
       withVertexCallback tessObj addVertex $
          withEndCallback tessObj finishContour $
@@ -372,7 +371,7 @@ triangulate windingRule tolerance normal combiner complexPoly = do
           vs <- readIORef vertices
           return $ Triangulation (collectTriangles (reverse vs))
 
-   withTessellatorObj $ \tessObj -> do
+   withTessellatorObj (Triangulation []) $ \tessObj -> do
       setTessellatorProperties tessObj windingRule tolerance normal False
       withEdgeFlagCallback tessObj registerEdgeFlag $
          withVertexCallback tessObj addVertex $
@@ -424,7 +423,7 @@ tessellate windingRule tolerance normal combiner complexPoly = do
 
        getSimplePolygon = liftM (SimplePolygon . reverse) (readIORef primitives)
 
-   withTessellatorObj $ \tessObj -> do
+   withTessellatorObj (SimplePolygon []) $ \tessObj -> do
       setTessellatorProperties tessObj windingRule tolerance normal False
       withBeginCallback tessObj setPrimitiveMode $
          withVertexCallback tessObj addVertex $
@@ -444,12 +443,12 @@ newtype TessellatorObj = TessellatorObj (Ptr Char)
 isNullTesselatorObj :: TessellatorObj -> Bool
 isNullTesselatorObj = (TessellatorObj nullPtr ==)
 
-withTessellatorObj ::
-   (TessellatorObj -> IO (Either Error a)) -> IO (Either Error a)
-withTessellatorObj action =
+withTessellatorObj :: a -> (TessellatorObj -> IO a) -> IO a
+withTessellatorObj failureValue action =
    bracket gluNewTess safeDeleteTess
            (\tessObj -> if isNullTesselatorObj tessObj
-                           then return $ Left (Error OutOfMemory "out of memory")
+                           then do recordOutOfMemory
+                                   return failureValue
                            else action tessObj)
 
 foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO (TessellatorObj)
@@ -603,30 +602,23 @@ foreign import CALLCONV unsafe "gluTessCallback" setEndCallback ::
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (error)
 
-type ErrorCallback  = Error -> IO ()
-
-type ErrorCallback' = GLenum -> IO ()
+type ErrorCallback = GLenum -> IO ()
 
 withErrorCallback :: TessellatorObj -> ErrorCallback -> IO a -> IO a
 withErrorCallback tessObj errorCallback action =
-   bracket (makeErrorCallback (\e -> makeError e >>= errorCallback))
+   bracket (makeErrorCallback errorCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
       setErrorCallback tessObj (marshalTessCallback TessError) callbackPtr
       action
 
 foreign import ccall "wrapper" makeErrorCallback ::
-   ErrorCallback' -> IO (FunPtr ErrorCallback')
+   ErrorCallback -> IO (FunPtr ErrorCallback)
 
 foreign import CALLCONV unsafe "gluTessCallback" setErrorCallback ::
-   TessellatorObj -> GLenum -> FunPtr ErrorCallback' -> IO ()
+   TessellatorObj -> GLenum -> FunPtr ErrorCallback -> IO ()
 
-checkForError :: TessellatorObj -> IO a -> IO (Either Error a)
-checkForError tessObj action = do
-   maybeErrorRef <- newIORef Nothing
-   withErrorCallback tessObj (writeIORef maybeErrorRef . Just) $ do
-      res <- action
-      maybeError <- readIORef maybeErrorRef
-      return $ maybe (Right res) Left maybeError
+checkForError :: TessellatorObj -> IO a -> IO a
+checkForError tessObj = withErrorCallback tessObj recordErrorCode
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (combine)

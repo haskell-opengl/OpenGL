@@ -15,11 +15,13 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   Error(..), ErrorCategory(..), makeError, isError
+   Error(..), ErrorCategory(..), getErrors, recordErrorCode, recordOutOfMemory
 ) where
 
 import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.C.String ( peekCString )
+import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
+import System.IO.Unsafe ( unsafePerformIO )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
 
 --------------------------------------------------------------------------------
@@ -183,5 +185,55 @@ foreign import CALLCONV unsafe "gluErrorString" gluErrorString ::
 
 --------------------------------------------------------------------------------
 
+-- This seems to be a common Haskell hack nowadays: A plain old global variable
+-- with an associated getter and mutator. Perhaps some language/library support
+-- is needed?
+
+{-# NOINLINE theRecordedErrors #-}
+theRecordedErrors :: IORef ([GLenum],Bool)
+theRecordedErrors = unsafePerformIO (newIORef ([], True))
+
+getRecordedErrors :: IO ([GLenum],Bool)
+getRecordedErrors =  readIORef theRecordedErrors
+
+setRecordedErrors :: ([GLenum],Bool) -> IO ()
+setRecordedErrors = writeIORef theRecordedErrors
+
+--------------------------------------------------------------------------------
+
+getGLErrors :: IO [GLenum]
+getGLErrors = getGLErrorsAux []
+   where getGLErrorsAux acc = do
+            errorCode <- glGetError
+            if isError errorCode
+               then getGLErrorsAux (errorCode : acc)
+               else return $ reverse acc
+
 isError :: GLenum -> Bool
 isError = (/= gl_marshalErrorCode GL_NoError)
+
+foreign import CALLCONV unsafe "glGetError" glGetError :: IO GLenum
+
+--------------------------------------------------------------------------------
+
+getErrors :: IO [Error]
+getErrors = do
+   es <- getErrorCodesAux (const ([], True))
+   mapM makeError es
+
+recordErrorCode :: GLenum -> IO ()
+recordErrorCode e = do
+   getErrorCodesAux (\es -> (if null es then [e] else [], False))
+   return ()
+
+recordOutOfMemory :: IO ()
+recordOutOfMemory = recordErrorCode (glu_marshalErrorCode GLU_OutOfMemory)
+
+-- ToDo: Make this thread-safe
+getErrorCodesAux :: ([GLenum] -> ([GLenum],Bool)) -> IO [GLenum]
+getErrorCodesAux f = do
+   (recordedErrors, useGLErrors) <- getRecordedErrors
+   glErrors <- getGLErrors
+   let es = if useGLErrors then recordedErrors ++ glErrors else recordedErrors
+   setRecordedErrors (f es)
+   return es

@@ -20,15 +20,13 @@ module Graphics.Rendering.OpenGL.GLU.Quadrics (
 ) where
 
 import Control.Monad ( unless )
-import Data.IORef ( newIORef, readIORef, modifyIORef )
 import Foreign.Ptr ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLdouble )
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( makeError )
-import Graphics.Rendering.OpenGL.GLU.Errors (
-   Error(Error), ErrorCategory(OutOfMemory) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
+   recordErrorCode, recordOutOfMemory )
 
 --------------------------------------------------------------------------------
 
@@ -117,21 +115,12 @@ data QuadricPrimitive
 
 --------------------------------------------------------------------------------
 
-renderQuadric :: QuadricStyle -> QuadricPrimitive -> IO (Maybe Error)
-renderQuadric style prim =
-   withState Nothing $ \modify -> do
-      let registerError = modify . const . Just
-          outOfMemoryError = Error OutOfMemory "out of memory"
-      withQuadricObj (registerError outOfMemoryError) $ \quadricObj ->
-         withErrorCallback quadricObj (\e -> makeError e >>= registerError) $ do
-            setStyle quadricObj style
-            renderPrimitive quadricObj prim
-
-withState :: a -> (((a -> a) -> IO ()) -> IO ()) -> IO a
-withState initialValue action = do
-   ref <- newIORef initialValue
-   action (modifyIORef ref)
-   readIORef ref
+renderQuadric :: QuadricStyle -> QuadricPrimitive -> IO ()
+renderQuadric style prim = do
+   withQuadricObj recordOutOfMemory $ \quadricObj ->
+      withErrorCallback quadricObj recordErrorCode $ do
+         setStyle quadricObj style
+         renderPrimitive quadricObj prim
 
 withQuadricObj :: IO a -> (QuadricObj -> IO a) -> IO a
 withQuadricObj failure success =
