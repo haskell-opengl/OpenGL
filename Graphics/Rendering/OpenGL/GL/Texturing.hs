@@ -58,7 +58,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing (
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapTexture1D,CapTexture2D,CapTexture3D,CapTextureCubeMap),
    Capability, makeCapability )
-import Graphics.Rendering.OpenGL.GL.PixelInternalFormat (
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt (
    PixelInternalFormat(..) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Environments (

@@ -26,7 +26,7 @@ import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLsizei, GLenum )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.PixelInternalFormat (
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt (
    PixelInternalFormat(..), unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles ( Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.StateVar (

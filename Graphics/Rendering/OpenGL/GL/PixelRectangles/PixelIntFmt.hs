@@ -1,7 +1,7 @@
 -- #hide
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.PixelInternalFormat
+-- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt
 -- Copyright   :  (c) Sven Panne 2002-2004
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -13,12 +13,12 @@
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.PixelInternalFormat (
+module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt (
    PixelInternalFormat(..), marshalPixelInternalFormat,
-   unmarshalPixelInternalFormat
+   unmarshalPixelInternalFormat, unmarshalPixelInternalFormat'
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum )
 
 --------------------------------------------------------------------------------
 
@@ -175,3 +175,6 @@ unmarshalPixelInternalFormat x
    | x == 0x84ed = CompressedRGB
    | x == 0x84ee = CompressedRGBA
    | otherwise = error ("unmarshalPixelInternalFormat: illegal value " ++ show x)
+
+unmarshalPixelInternalFormat' :: GLint -> PixelInternalFormat
+unmarshalPixelInternalFormat' = unmarshalPixelInternalFormat . fromIntegral
