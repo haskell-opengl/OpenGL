@@ -19,11 +19,11 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
    -- * Combining vertices
    WeightedProperties(..), Combiner,
 
-   -- * Tesselation parameters
+   -- * Tessellation parameters
    TessWinding(..), Tolerance,
 
-   -- * Tesselator type
-   Tesselator,
+   -- * Tessellator type
+   Tessellator,
 
    -- * Contour extraction
    SimpleContour(..), PolygonContours(..), extractContours,
@@ -31,8 +31,8 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
    -- * Triangulation
    EdgeFlag(..), TriangleVertex, Triangle(..), Triangulation(..), triangulate,
 
-   -- * Tesselation into primitives
-   Primitive(..), SimplePolygon(..), tesselate
+   -- * Tessellation into primitives
+   Primitive(..), SimplePolygon(..), tessellate
 ) where
 
 import Control.Exception ( finally )
@@ -59,7 +59,7 @@ import Graphics.Rendering.OpenGL.GLU.Constants (
 
 --------------------------------------------------------------------------------
 
--- | The basic building block in tesselation is a 3D vertex with an associated
+-- | The basic building block in tessellation is a 3D vertex with an associated
 -- property, e.g. color, texture coordinates, etc.
 
 data AnnotatedVertex v = AnnotatedVertex (Vertex3 GLdouble) v
@@ -172,13 +172,13 @@ type Tolerance = GLdouble
 
 --------------------------------------------------------------------------------
 
--- | A general tesselator type.
+-- | A general tessellator type.
 --
--- Before tesselation of a complex polygon, all its vertices are projected into
+-- Before tessellation of a complex polygon, all its vertices are projected into
 -- a plane perpendicular to the given normal. If the given normal is
 -- @Normal3 0 0 0@, a fitting plane of all vertices is used.
 
-type Tesselator p v
+type Tessellator p v
    = TessWinding
   -> Tolerance
   -> Normal3 GLdouble
@@ -199,7 +199,7 @@ newtype SimpleContour v = SimpleContour [AnnotatedVertex v]
 newtype PolygonContours v = PolygonContours [SimpleContour v]
    deriving ( Eq, Ord )
 
-extractContours :: Storable v => Tesselator PolygonContours v
+extractContours :: Storable v => Tessellator PolygonContours v
 extractContours windingRule tolerance normal combiner complexPoly = do
 
    vertices <- newIORef []
@@ -213,8 +213,8 @@ extractContours windingRule tolerance normal combiner complexPoly = do
 
        getContours = liftM (PolygonContours . reverse) (readIORef contours)
 
-   withTesselatorObj $ \tessObj -> do
-      setTesselatorProperties tessObj windingRule tolerance normal True
+   withTessellatorObj $ \tessObj -> do
+      setTessellatorProperties tessObj windingRule tolerance normal True
       withVertexCallback tessObj addVertex $
          withEndCallback tessObj finishContour $
             checkForError tessObj $
@@ -250,7 +250,7 @@ data Triangle v
 newtype Triangulation v = Triangulation [Triangle v]
    deriving ( Eq, Ord )
 
-triangulate :: Storable v => Tesselator Triangulation v
+triangulate :: Storable v => Tessellator Triangulation v
 triangulate windingRule tolerance normal combiner complexPoly = do
 
    edgeFlagState <- newIORef BeginsInteriorEdge
@@ -265,8 +265,8 @@ triangulate windingRule tolerance normal combiner complexPoly = do
           vs <- readIORef vertices
           return $ Triangulation (collectTriangles (reverse vs))
 
-   withTesselatorObj $ \tessObj -> do
-      setTesselatorProperties tessObj windingRule tolerance normal False
+   withTessellatorObj $ \tessObj -> do
+      setTessellatorProperties tessObj windingRule tolerance normal False
       withEdgeFlagCallback tessObj registerEdgeFlag $
          withVertexCallback tessObj addVertex $
             checkForError tessObj $
@@ -287,8 +287,8 @@ data Primitive v = Primitive BeginMode [AnnotatedVertex v]
 newtype SimplePolygon v = SimplePolygon [Primitive v]
    deriving ( Eq, Ord )
 
-tesselate :: Storable v => Tesselator SimplePolygon v
-tesselate windingRule tolerance normal combiner complexPoly = do
+tessellate :: Storable v => Tessellator SimplePolygon v
+tessellate windingRule tolerance normal combiner complexPoly = do
 
    beginModeState <- newIORef undefined
    let setBeginMode = writeIORef beginModeState
@@ -305,8 +305,8 @@ tesselate windingRule tolerance normal combiner complexPoly = do
 
        getSimplePolygon = liftM (SimplePolygon . reverse) (readIORef primitives)
 
-   withTesselatorObj $ \tessObj -> do
-      setTesselatorProperties tessObj windingRule tolerance normal False
+   withTessellatorObj $ \tessObj -> do
+      setTessellatorProperties tessObj windingRule tolerance normal False
       withBeginCallback tessObj setBeginMode $
          withVertexCallback tessObj addVertex $
             withEndCallback tessObj finishPrimitive $
@@ -316,30 +316,30 @@ tesselate windingRule tolerance normal combiner complexPoly = do
                      getSimplePolygon
 
 --------------------------------------------------------------------------------
--- chapter 5.1: The Tesselation Object
+-- chapter 5.1: The Tessellation Object
 
 -- 'Char' is a fake here, any marshalable type would do
-newtype TesselatorObj v = TesselatorObj (Ptr Char)
+newtype TessellatorObj v = TessellatorObj (Ptr Char)
    deriving ( Eq )
 
-withTesselatorObj ::
-   (TesselatorObj v -> IO (Either Error a)) -> IO (Either Error a)
-withTesselatorObj action = do
+withTessellatorObj ::
+   (TessellatorObj v -> IO (Either Error a)) -> IO (Either Error a)
+withTessellatorObj action = do
    tessObj <- gluNewTess
-   if tessObj == TesselatorObj nullPtr
+   if tessObj == TessellatorObj nullPtr
       then return $ Left outOfMemoryError
       else action tessObj `finally` gluDeleteTess tessObj
 
-foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO (TesselatorObj v)
+foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO (TessellatorObj v)
 
 foreign import CALLCONV unsafe "gluDeleteTess" gluDeleteTess ::
-   TesselatorObj v -> IO ()
+   TessellatorObj v -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.2: Polygon Definition (polygons)
 
 defineComplexPolygon ::
-   Storable v => TesselatorObj v -> ComplexPolygon v -> IO ()
+   Storable v => TessellatorObj v -> ComplexPolygon v -> IO ()
 defineComplexPolygon tessObj cp@(ComplexPolygon complexContours) =
    withComplexPolygon cp $ \ptr ->
       tessBeginEndPolygon tessObj nullPtr $
@@ -348,7 +348,7 @@ defineComplexPolygon tessObj cp@(ComplexPolygon complexContours) =
                                 loop (p `plusPtr` sizeOfComplexContour c) cs
          in loop ptr complexContours
 
-tessBeginEndPolygon :: TesselatorObj v -> Ptr p -> IO a -> IO a
+tessBeginEndPolygon :: TessellatorObj v -> Ptr p -> IO a -> IO a
 tessBeginEndPolygon tessObj ptr f = do
    gluTessBeginPolygon tessObj ptr
    res <- f
@@ -356,17 +356,17 @@ tessBeginEndPolygon tessObj ptr f = do
    return res
 
 foreign import CALLCONV safe "gluTessBeginPolygon" gluTessBeginPolygon ::
-   TesselatorObj v -> Ptr p -> IO ()
+   TessellatorObj v -> Ptr p -> IO ()
 
 foreign import CALLCONV safe "gluTessEndPolygon" gluTessEndPolygon ::
-   TesselatorObj v -> IO ()
+   TessellatorObj v -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.2: Polygon Definition (contours)
 
 defineComplexContour ::
    Storable v =>
-   TesselatorObj v -> Ptr (ComplexContour v) -> ComplexContour v -> IO ()
+   TessellatorObj v -> Ptr (ComplexContour v) -> ComplexContour v -> IO ()
 defineComplexContour tessObj ptr (ComplexContour annotatedVertices) =
    tessBeginEndContour tessObj $
          let loop _ []     = return ()
@@ -374,7 +374,7 @@ defineComplexContour tessObj ptr (ComplexContour annotatedVertices) =
                                 loop (p `plusPtr` sizeOf v) vs
          in loop ptr annotatedVertices
 
-tessBeginEndContour :: TesselatorObj v -> IO a -> IO a
+tessBeginEndContour :: TessellatorObj v -> IO a -> IO a
 tessBeginEndContour tessObj f = do
    gluTessBeginContour tessObj
    res <- f
@@ -382,19 +382,19 @@ tessBeginEndContour tessObj f = do
    return res
 
 foreign import CALLCONV safe "gluTessBeginContour" gluTessBeginContour ::
-   TesselatorObj v -> IO ()
+   TessellatorObj v -> IO ()
 
 foreign import CALLCONV safe "gluTessEndContour" gluTessEndContour ::
-   TesselatorObj v -> IO ()
+   TessellatorObj v -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.2: Polygon Definition (vertices)
 
-defineVertex :: TesselatorObj v -> Ptr (AnnotatedVertex v) -> IO ()
+defineVertex :: TessellatorObj v -> Ptr (AnnotatedVertex v) -> IO ()
 defineVertex tessObj ptr = gluTessVertex tessObj (castPtr ptr) ptr
 
 foreign import CALLCONV safe "gluTessVertex" gluTessVertex ::
-   TesselatorObj v -> Ptr (Vertex3 GLdouble) -> Ptr (AnnotatedVertex v) -> IO ()
+   TessellatorObj v -> Ptr (Vertex3 GLdouble) -> Ptr (AnnotatedVertex v) -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (begin)
@@ -403,7 +403,7 @@ type BeginCallback  = BeginMode -> IO ()
 
 type BeginCallback' = GLenum -> IO ()
 
-withBeginCallback :: TesselatorObj v -> BeginCallback -> IO a -> IO a
+withBeginCallback :: TessellatorObj v -> BeginCallback -> IO a -> IO a
 withBeginCallback tessObj beginCallback action = do
    callbackPtr <- makeBeginCallback (beginCallback . unmarshalBeginMode)
    setBeginCallback tessObj (marshalTessCallback TessBegin) callbackPtr
@@ -413,7 +413,7 @@ foreign import ccall "wrapper" makeBeginCallback ::
    BeginCallback' -> IO (FunPtr BeginCallback')
 
 foreign import CALLCONV unsafe "gluTessCallback" setBeginCallback ::
-   TesselatorObj v -> GLenum -> FunPtr BeginCallback' -> IO ()
+   TessellatorObj v -> GLenum -> FunPtr BeginCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (edgeFlag)
@@ -422,7 +422,7 @@ type EdgeFlagCallback  = EdgeFlag -> IO ()
 
 type EdgeFlagCallback' = GLboolean -> IO ()
 
-withEdgeFlagCallback :: TesselatorObj v -> EdgeFlagCallback -> IO a -> IO a
+withEdgeFlagCallback :: TessellatorObj v -> EdgeFlagCallback -> IO a -> IO a
 withEdgeFlagCallback tessObj edgeFlagCallback action = do
    callbackPtr <- makeEdgeFlagCallback (edgeFlagCallback . unmarshalEdgeFlag)
    setEdgeFlagCallback tessObj (marshalTessCallback TessEdgeFlag) callbackPtr
@@ -432,7 +432,7 @@ foreign import ccall "wrapper" makeEdgeFlagCallback ::
    EdgeFlagCallback' -> IO (FunPtr EdgeFlagCallback')
 
 foreign import CALLCONV unsafe "gluTessCallback" setEdgeFlagCallback ::
-   TesselatorObj v -> GLenum -> FunPtr EdgeFlagCallback' -> IO ()
+   TessellatorObj v -> GLenum -> FunPtr EdgeFlagCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (vertex)
@@ -442,7 +442,7 @@ type VertexCallback v = AnnotatedVertex v -> IO ()
 type VertexCallback' v = Ptr (AnnotatedVertex v) -> IO ()
 
 withVertexCallback ::
-   Storable v => TesselatorObj v -> VertexCallback v -> IO a -> IO a
+   Storable v => TessellatorObj v -> VertexCallback v -> IO a -> IO a
 withVertexCallback tessObj vertexCallback action = do
    callbackPtr <- makeVertexCallback (\p -> peek p >>= vertexCallback)
    setVertexCallback tessObj (marshalTessCallback TessVertex) callbackPtr
@@ -452,14 +452,14 @@ foreign import ccall "wrapper" makeVertexCallback ::
    VertexCallback' v -> IO (FunPtr (VertexCallback' v))
 
 foreign import CALLCONV unsafe "gluTessCallback" setVertexCallback ::
-   TesselatorObj v -> GLenum -> FunPtr (VertexCallback' v) -> IO ()
+   TessellatorObj v -> GLenum -> FunPtr (VertexCallback' v) -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (end)
 
 type EndCallback  = IO ()
 
-withEndCallback :: TesselatorObj v -> EndCallback -> IO a -> IO a
+withEndCallback :: TessellatorObj v -> EndCallback -> IO a -> IO a
 withEndCallback tessObj endCallback action = do
    callbackPtr <- makeEndCallback endCallback
    setEndCallback tessObj (marshalTessCallback TessEnd) callbackPtr
@@ -469,7 +469,7 @@ foreign import ccall "wrapper" makeEndCallback ::
    EndCallback -> IO (FunPtr EndCallback)
 
 foreign import CALLCONV unsafe "gluTessCallback" setEndCallback ::
-   TesselatorObj v -> GLenum -> FunPtr EndCallback -> IO ()
+   TessellatorObj v -> GLenum -> FunPtr EndCallback -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (error)
@@ -478,7 +478,7 @@ type ErrorCallback  = Error -> IO ()
 
 type ErrorCallback' = GLenum -> IO ()
 
-withErrorCallback :: TesselatorObj v -> ErrorCallback -> IO a -> IO a
+withErrorCallback :: TessellatorObj v -> ErrorCallback -> IO a -> IO a
 withErrorCallback tessObj errorCallback action = do
    callbackPtr <- makeErrorCallback (\e -> makeError e >>= errorCallback)
    setErrorCallback tessObj (marshalTessCallback TessError) callbackPtr
@@ -488,9 +488,9 @@ foreign import ccall "wrapper" makeErrorCallback ::
    ErrorCallback' -> IO (FunPtr ErrorCallback')
 
 foreign import CALLCONV unsafe "gluTessCallback" setErrorCallback ::
-   TesselatorObj v -> GLenum -> FunPtr ErrorCallback' -> IO ()
+   TessellatorObj v -> GLenum -> FunPtr ErrorCallback' -> IO ()
 
-checkForError :: TesselatorObj v -> IO a -> IO (Either Error a)
+checkForError :: TessellatorObj v -> IO a -> IO (Either Error a)
 checkForError tessObj action = do
    maybeErrorRef <- newIORef Nothing
    withErrorCallback tessObj (writeIORef maybeErrorRef . Just) $ do
@@ -509,7 +509,7 @@ type CombineCallback v =
    -> IO ()
 
 withCombineCallback ::
-   Storable v => TesselatorObj v -> Combiner v -> IO a -> IO a
+   Storable v => TessellatorObj v -> Combiner v -> IO a -> IO a
 withCombineCallback tessObj combiner action =
    withPool $ \vertexPool -> do
       let callback = combineProperties vertexPool combiner
@@ -535,41 +535,41 @@ foreign import ccall "wrapper" makeCombineCallback ::
    CombineCallback v -> IO (FunPtr (CombineCallback v))
 
 foreign import CALLCONV unsafe "gluTessCallback" setCombineCallback ::
-   TesselatorObj v -> GLenum -> FunPtr (CombineCallback v) -> IO ()
+   TessellatorObj v -> GLenum -> FunPtr (CombineCallback v) -> IO ()
 
 --------------------------------------------------------------------------------
--- chapter 5.4: Control over Tesselation
+-- chapter 5.4: Control over Tessellation
 
-setTesselatorProperties ::
-    TesselatorObj v -> TessWinding -> Tolerance -> Normal3 GLdouble -> Bool
+setTessellatorProperties ::
+    TessellatorObj v -> TessWinding -> Tolerance -> Normal3 GLdouble -> Bool
  -> IO ()
-setTesselatorProperties tessObj windingRule tolerance normal boundaryOnly = do
+setTessellatorProperties tessObj windingRule tolerance normal boundaryOnly = do
    setWindingRule tessObj windingRule
    setTolerance tessObj tolerance
    setNormal tessObj normal
    setBoundaryOnly tessObj boundaryOnly
 
-setWindingRule :: TesselatorObj v -> TessWinding -> IO ()
+setWindingRule :: TessellatorObj v -> TessWinding -> IO ()
 setWindingRule tessObj =
    tessProperty tessObj TessWindingRule . fromIntegral . marshalTessWinding
 
-setBoundaryOnly :: TesselatorObj v -> Bool -> IO ()
+setBoundaryOnly :: TessellatorObj v -> Bool -> IO ()
 setBoundaryOnly tessObj =
    tessProperty tessObj TessBoundaryOnly . fromIntegral . marshalGLboolean
 
-setTolerance :: TesselatorObj v -> Tolerance -> IO ()
+setTolerance :: TessellatorObj v -> Tolerance -> IO ()
 setTolerance tessObj =
    tessProperty tessObj TessTolerance
 
-tessProperty :: TesselatorObj v -> TessProperty -> GLdouble -> IO ()
+tessProperty :: TessellatorObj v -> TessProperty -> GLdouble -> IO ()
 tessProperty tessObj =
    gluTessProperty tessObj . marshalTessProperty
 
 foreign import CALLCONV unsafe "gluTessProperty" gluTessProperty ::
-   TesselatorObj v -> GLenum -> GLdouble -> IO ()
+   TessellatorObj v -> GLenum -> GLdouble -> IO ()
 
-setNormal :: TesselatorObj v -> Normal3 GLdouble -> IO ()
+setNormal :: TessellatorObj v -> Normal3 GLdouble -> IO ()
 setNormal tessObj (Normal3 x y z) = gluTessNormal tessObj x y z
 
 foreign import CALLCONV unsafe "gluTessNormal" gluTessNormal ::
-   TesselatorObj v -> GLdouble -> GLdouble -> GLdouble -> IO ()
+   TessellatorObj v -> GLdouble -> GLdouble -> GLdouble -> IO ()
