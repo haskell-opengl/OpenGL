@@ -19,11 +19,13 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4,
    getFloat1, getFloat3, getFloat4, getFloatv,
-   getDouble1, getDouble2, getDoublev
+   getDouble1, getDouble2, getDoublev,
+   GetPointervPName(..), getPointer
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Ptr ( Ptr )
+import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLenum, GLint, GLsizei, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
@@ -863,3 +865,44 @@ getDoublev = glGetDoublev . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
    GLenum -> Ptr GLdouble -> IO ()
+
+--------------------------------------------------------------------------------
+
+data GetPointervPName =
+     VertexArrayPointer
+   | NormalArrayPointer
+   | ColorArrayPointer
+   | IndexArrayPointer
+   | TextureCoordArrayPointer
+   | EdgeFlagArrayPointer
+   | FogCoordinateArrayPointer
+   | SecondaryColorArrayPointer
+   | FeedbackBufferPointer
+   | SelectionBufferPointer
+   | WeightArrayPointer
+   | MatrixIndexArrayPointer
+   deriving ( Eq, Ord, Show )
+
+marshalGetPointervPName :: GetPointervPName -> GLenum
+marshalGetPointervPName x = case x of
+   VertexArrayPointer -> 0x808e
+   NormalArrayPointer -> 0x808f
+   ColorArrayPointer -> 0x8090
+   IndexArrayPointer -> 0x8091
+   TextureCoordArrayPointer -> 0x8092
+   EdgeFlagArrayPointer -> 0x8093
+   FogCoordinateArrayPointer -> 0x8456
+   SecondaryColorArrayPointer -> 0x845d
+   FeedbackBufferPointer -> 0xdf0
+   SelectionBufferPointer -> 0xdf3
+   WeightArrayPointer -> 0x86ac
+   MatrixIndexArrayPointer -> 0x8849
+--------------------------------------------------------------------------------
+
+getPointer :: GetPointervPName -> IO (Ptr a)
+getPointer n = alloca $ \buf -> do
+   glGetPointerv (marshalGetPointervPName n) buf
+   peek buf
+
+foreign import CALLCONV unsafe "glGetPointerv" glGetPointerv ::
+   GLenum -> Ptr (Ptr a) -> IO ()
