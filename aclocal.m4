@@ -224,7 +224,10 @@ AC_REQUIRE([FP_CHECK_QUARTZ_OPENGL])
 AC_REQUIRE([FP_CHECK_WIN32])
 
 if test x"$use_quartz_opengl" = xno; then
-  AC_CHECK_LIB([m], [atan], [GL_LIBS="-lm $GL_LIBS"])
+  AC_CHECK_FUNC(atan,[fp_libm_not_needed=yes],[fp_libm_not_needed=dunno])
+  if test x"$fp_libm_not_needed" = xdunno; then
+     AC_CHECK_LIB([m], [atan], [GL_LIBS="-lm $GL_LIBS"])
+  fi
 
   if test x"$no_x" != xyes; then
     test -n "$x_includes" && GL_CFLAGS="-I$x_includes $GL_CFLAGS"
