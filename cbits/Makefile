@@ -5,7 +5,7 @@ include $(TOP)/mk/boilerplate.mk
 
 # -----------------------------------------------------------------------------
 
-SRC_CC_OPTS += -Wall -I$(GHC_INCLUDE_DIR) -I../include $(GL_CFLAGS)
+SRC_CC_OPTS += -Wall -I$(GHC_INCLUDE_DIR) -I../include $(GLU_CFLAGS)
 
 LIBRARY = libHSOpenGL_cbits.a
 LIBOBJS = $(C_OBJS)

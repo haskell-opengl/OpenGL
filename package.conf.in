@@ -25,9 +25,9 @@ Package {
 	c_includes	= [ "HsOpenGL.h" ],
 	package_deps	= [ "base" ],
 	extra_ghc_opts	= [],
-	extra_cc_opts	= [ "" GL_CFLAGS ],
+	extra_cc_opts	= [ "" GLU_CFLAGS ],
 #ifdef USE_QUARTZ_OPENGL
 	extra_frameworks = [ "OpenGL" ],
 #endif
-	extra_ld_opts	= [ "" GL_LIBS ]
+	extra_ld_opts	= [ "" GLU_LIBS ]
 }
