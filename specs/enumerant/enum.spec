@@ -9,9 +9,10 @@
 # 2) Apply some bug fixes, see http://haskell.org/HOpenGL/spec_bugs.html.
 # 3) Inline the 1.1, 1.2, and 1.2.1 changes.
 # 4) Make OpenGL 1.3 changes according to Appendix F of the 1.3 specs.
-# 5) Remove the extensions part.
-# 6) Rearrange definitions and declarations to get a better naming.
-# 7) Merge the extension registry's enumext.spec (ongoing).
+# 5) Make OpenGL 1.4 changes according to Appendix G of the 1.4 specs.
+# 6) Remove the extensions part.
+# 7) Rearrange definitions and declarations to get a better naming.
+# 8) Merge the extension registry's enumext.spec (ongoing).
 #
 # For the original files, see SGI's OpenGL sample implementation at:
 #
@@ -128,6 +129,8 @@ ClientArrayType enum:
 	INDEX_ARRAY					= 0x8077
 	TEXTURE_COORD_ARRAY				= 0x8078
 	EDGE_FLAG_ARRAY					= 0x8079
+	FOG_COORDINATE_ARRAY				= 0x8457
+	SECONDARY_COLOR_ARRAY				= 0x845E
 	MATRIX_INDEX_ARRAY				= 0x8844	# ARB Extension #16: ARB_matrix_palette
 
 # it's an enum: in the registry, not a mask:
@@ -181,7 +184,6 @@ ColorTableTarget enum:
 
 ConvolutionBorderMode enum:
 	REDUCE						= 0x8016
-	IGNORE_BORDER					= 0x8150
 	CONSTANT_BORDER					= 0x8151
 	REPLICATE_BORDER				= 0x8153
 	CONVOLUTION_BORDER_COLOR			= 0x8154
@@ -308,6 +310,8 @@ EnableCap enum:
 	use ClientArrayType INDEX_ARRAY
 	use ClientArrayType TEXTURE_COORD_ARRAY
 	use ClientArrayType EDGE_FLAG_ARRAY
+	use ClientArrayType FOG_COORDINATE_ARRAY
+	use ClientArrayType SECONDARY_COLOR_ARRAY
 	use ClientArrayType MATRIX_INDEX_ARRAY				# ARB Extension #16: ARB_matrix_palette
 
 	use ConvolutionTarget CONVOLUTION_1D
@@ -331,6 +335,8 @@ EnableCap enum:
 	use ColorTableTarget COLOR_TABLE
 	use ColorTableTarget POST_CONVOLUTION_COLOR_TABLE
 	use ColorTableTarget POST_COLOR_MATRIX_COLOR_TABLE
+
+	use GetPName COLOR_SUM
 
 	use TextureTarget TEXTURE_CUBE_MAP				# ARB Extension #7: ARB_texture_cube_map
 
@@ -367,6 +373,10 @@ FeedBackToken enum:
 	COPY_PIXEL_TOKEN				= 0x0706
 	LINE_RESET_TOKEN				= 0x0707
 
+FogCoordinate enum:
+	FOG_COORDINATE					= 0x8451
+	FRAGMENT_DEPTH					= 0x8452
+
 FogMode enum:
 	use TextureMinFilter LINEAR
 	EXP						= 0x0800
@@ -379,6 +389,7 @@ FogParameter enum:
 	FOG_END						= 0x0B64
 	FOG_MODE					= 0x0B65
 	FOG_COLOR					= 0x0B66
+	FOG_COORDINATE_SOURCE				= 0x8450
 
 FrontFaceDirection enum:
 	CW						= 0x0900
@@ -445,6 +456,8 @@ GetPointervPName enum:
 	INDEX_ARRAY_POINTER				= 0x8091
 	TEXTURE_COORD_ARRAY_POINTER			= 0x8092
 	EDGE_FLAG_ARRAY_POINTER				= 0x8093
+	FOG_COORDINATE_ARRAY_POINTER			= 0x8456
+	SECONDARY_COLOR_ARRAY_POINTER			= 0x845D
 	FEEDBACK_BUFFER_POINTER				= 0x0DF0
 	SELECTION_BUFFER_POINTER			= 0x0DF3
 	WEIGHT_ARRAY_POINTER				= 0x86AC	# ARB Extension #15: ARB_vertex_blend
@@ -511,6 +524,8 @@ GetPName enum:
 	use FogParameter FOG_END					# 1 F
 	use FogParameter FOG_MODE					# 1 I
 	use FogParameter FOG_COLOR					# 4 F
+	use FogParameter FOG_COORDINATE_SOURCE				# 1 I
+	CURRENT_FOG_COORDINATE				= 0x8453	# 1 F
 
 	DEPTH_RANGE					= 0x0B70	# 2 F
 	use Enable DEPTH_TEST						# 1 I
@@ -582,6 +597,7 @@ GetPName enum:
 	use HintTarget LINE_SMOOTH_HINT					# 1 I
 	use HintTarget POLYGON_SMOOTH_HINT				# 1 I
 	use HintTarget FOG_HINT						# 1 I
+	use HintTarget GENERATE_MIPMAP_HINT				# 1 I
 	use HintTarget TEXTURE_COMPRESSION_HINT				# 1 I, ARB Extension #12: ARB_texture_compression
 
 	use Enable TEXTURE_GEN_S					# 1 I
@@ -710,6 +726,8 @@ GetPName enum:
 	use ClientArrayType INDEX_ARRAY					# 1 I
 	use ClientArrayType TEXTURE_COORD_ARRAY				# 1 I
 	use ClientArrayType EDGE_FLAG_ARRAY				# 1 I
+	use ClientArrayType FOG_COORDINATE_ARRAY			# 1 I
+	use ClientArrayType SECONDARY_COLOR_ARRAY			# 1 I
 	use ClientArrayType MATRIX_INDEX_ARRAY				# 1 I, ARB Extension #16: ARB_matrix_palette
 
 	VERTEX_ARRAY_SIZE				= 0x807A	# 1 I
@@ -731,6 +749,13 @@ GetPName enum:
 	TEXTURE_COORD_ARRAY_STRIDE			= 0x808A	# 1 I
 
 	EDGE_FLAG_ARRAY_STRIDE				= 0x808C	# 1 I
+
+	FOG_COORDINATE_ARRAY_TYPE			= 0x8454	# 1 I
+	FOG_COORDINATE_ARRAY_STRIDE			= 0x8455	# 1 I
+
+	SECONDARY_COLOR_ARRAY_SIZE			= 0x845A	# 1 I
+	SECONDARY_COLOR_ARRAY_TYPE			= 0x845B	# 1 I
+	SECONDARY_COLOR_ARRAY_STRIDE			= 0x845C	# 1 I
 
 	MATRIX_INDEX_ARRAY_SIZE				= 0x8846	# 1 I, ARB Extension #16: ARB_matrix_palette
 	MATRIX_INDEX_ARRAY_TYPE				= 0x8847	# 1 I, ARB Extension #16: ARB_matrix_palette
@@ -782,6 +807,9 @@ GetPName enum:
 	use HistogramTarget HISTOGRAM					# 1 I
 	use MinMaxTarget MINMAX						# 1 I
 
+	COLOR_SUM					= 0x8458	# 1 I
+	CURRENT_SECONDARY_COLOR				= 0x8459	# 3 F
+
 	use Enable RESCALE_NORMAL					# 1 I
 
 	use EnableCap SHARED_TEXTURE_PALETTE				# 1 I
@@ -796,6 +824,9 @@ GetPName enum:
 	use TextureTarget TEXTURE_3D					# 1 I
 	MAX_3D_TEXTURE_SIZE				= 0x8073	# 1 I
 
+	MAX_TEXTURE_LOD_BIAS				= 0x84FD	# 1 F
+	MAX_TEXTURE_MAX_ANISOTROPY			= 0x84FF	# 1 F
+
 	use EnableCap MULTISAMPLE					# 1 I, ARB Extension #5: ARB_multisample
 	use EnableCap SAMPLE_ALPHA_TO_COVERAGE				# 1 I, ARB Extension #5: ARB_multisample
 	use EnableCap SAMPLE_ALPHA_TO_ONE				# 1 I, ARB Extension #5: ARB_multisample
@@ -805,10 +836,10 @@ GetPName enum:
 	SAMPLE_COVERAGE_VALUE				= 0x80AA	# 1 F, ARB Extension #5: ARB_multisample
 	SAMPLE_COVERAGE_INVERT				= 0x80AB	# 1 I, ARB Extension #5: ARB_multisample
 
-	use PointParameterName POINT_SIZE_MIN				# 1 F, ARB Extension #14: ARB_point_parameters
-	use PointParameterName POINT_SIZE_MAX				# 1 F, ARB Extension #14: ARB_point_parameters
-	use PointParameterName POINT_FADE_THRESHOLD_SIZE		# 1 F, ARB Extension #14: ARB_point_parameters
-	use PointParameterName POINT_DISTANCE_ATTENUATION		# 3 F, ARB Extension #14: ARB_point_parameters
+	use PointParameterName POINT_SIZE_MIN				# 1 F, ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
+	use PointParameterName POINT_SIZE_MAX				# 1 F, ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
+	use PointParameterName POINT_FADE_THRESHOLD_SIZE		# 1 F, ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
+	use PointParameterName POINT_DISTANCE_ATTENUATION		# 3 F, ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
 
 	COLOR_MATRIX					= 0x80B1	# 16 F
 	COLOR_MATRIX_STACK_DEPTH			= 0x80B2	# 1 I
@@ -904,7 +935,7 @@ GetTextureParameter enum:
 	TEXTURE_ALPHA_SIZE				= 0x805F
 	TEXTURE_LUMINANCE_SIZE				= 0x8060
 	TEXTURE_INTENSITY_SIZE				= 0x8061
-	TEXTURE_DEPTH_SIZE				= 0x884A	# ARB Extension #22: ARB_depth_texture
+	TEXTURE_DEPTH_SIZE				= 0x884A	# ARB Extension #22: ARB_depth_texture (promoted to core in 1.4)
 	TEXTURE_COMPRESSED_IMAGE_SIZE			= 0x86A0	# ARB Extension #12: ARB_texture_compression
 	TEXTURE_COMPRESSED				= 0x86A1	# ARB Extension #12: ARB_texture_compression
 
@@ -916,10 +947,14 @@ GetTextureParameter enum:
 	use TextureParameterName TEXTURE_BASE_LEVEL
 	use TextureParameterName TEXTURE_MAX_LEVEL
 
-	use TextureParameterName DEPTH_TEXTURE_MODE			# ARB Extension #22: ARB_depth_texture
+	use TextureParameterName GENERATE_MIPMAP
 
-	use TextureParameterName TEXTURE_COMPARE_MODE			# ARB Extension #23: ARB_shadow
-	use TextureParameterName TEXTURE_COMPARE_FUNC			# ARB Extension #23: ARB_shadow
+	use TextureParameterName TEXTURE_MAX_ANISOTROPY
+
+	use TextureParameterName DEPTH_TEXTURE_MODE			# ARB Extension #22: ARB_depth_texture (promoted to core in 1.4)
+
+	use TextureParameterName TEXTURE_COMPARE_MODE			# ARB Extension #23: ARB_shadow (promoted to core in 1.4)
+	use TextureParameterName TEXTURE_COMPARE_FUNC			# ARB Extension #23: ARB_shadow (promoted to core in 1.4)
 
 	use TextureParameterName TEXTURE_COMPARE_FAIL_VALUE		# ARB Extension #24: ARB_shadow_ambient
 
@@ -934,6 +969,7 @@ HintTarget enum:
 	LINE_SMOOTH_HINT				= 0x0C52
 	POLYGON_SMOOTH_HINT				= 0x0C53
 	FOG_HINT					= 0x0C54
+	GENERATE_MIPMAP_HINT				= 0x8192
 	TEXTURE_COMPRESSION_HINT			= 0x84EF	# ARB Extension #12: ARB_texture_compression
 
 HistogramTarget enum:
@@ -1145,6 +1181,9 @@ PixelInternalFormat enum:
 	ALPHA8						= 0x803C
 	ALPHA12						= 0x803D
 	ALPHA16						= 0x803E
+	DEPTH_COMPONENT16				= 0x81A5	# ARB Extension #22: ARB_depth_texture (promoted to core in 1.4)
+	DEPTH_COMPONENT24				= 0x81A6	# ARB Extension #22: ARB_depth_texture (promoted to core in 1.4)
+	DEPTH_COMPONENT32				= 0x81A7	# ARB Extension #22: ARB_depth_texture (promoted to core in 1.4)
 	LUMINANCE4					= 0x803F
 	LUMINANCE8					= 0x8040
 	LUMINANCE12					= 0x8041
@@ -1180,9 +1219,6 @@ PixelInternalFormat enum:
 	COMPRESSED_INTENSITY				= 0x84EC	# ARB Extension #12: ARB_texture_compression
 	COMPRESSED_RGB					= 0x84ED	# ARB Extension #12: ARB_texture_compression
 	COMPRESSED_RGBA					= 0x84EE	# ARB Extension #12: ARB_texture_compression
-	DEPTH_COMPONENT16				= 0x81A5	# ARB Extension #22: ARB_depth_texture
-	DEPTH_COMPONENT24				= 0x81A6	# ARB Extension #22: ARB_depth_texture
-	DEPTH_COMPONENT32				= 0x81A7	# ARB Extension #22: ARB_depth_texture
 
 PixelMap enum:
 	PIXEL_MAP_I_TO_I				= 0x0C70
@@ -1275,10 +1311,10 @@ PixelType enum:
 	UNSIGNED_INT_2_10_10_10_REV			= 0x8368
 
 PointParameterName enum:
-	POINT_SIZE_MIN					= 0x8126	# ARB Extension #14: ARB_point_parameters
-	POINT_SIZE_MAX					= 0x8127	# ARB Extension #14: ARB_point_parameters
-	POINT_FADE_THRESHOLD_SIZE			= 0x8128	# ARB Extension #14: ARB_point_parameters
-	POINT_DISTANCE_ATTENUATION			= 0x8129	# ARB Extension #14: ARB_point_parameters
+	POINT_SIZE_MIN					= 0x8126	# ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
+	POINT_SIZE_MAX					= 0x8127	# ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
+	POINT_FADE_THRESHOLD_SIZE			= 0x8128	# ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
+	POINT_DISTANCE_ATTENUATION			= 0x8129	# ARB Extension #14: ARB_point_parameters (promoted to core in 1.4)
 
 PolygonMode enum:
 	POINT						= 0x1B00
@@ -1326,7 +1362,9 @@ StencilOp enum:
 	KEEP						= 0x1E00
 	use TextureEnvMode REPLACE
 	INCR						= 0x1E02
+	INCR_WRAP					= 0x8507
 	DECR						= 0x1E03
+	DECR_WRAP					= 0x8508
 	use LogicOp INVERT
 
 StringName enum:
@@ -1336,7 +1374,7 @@ StringName enum:
 	EXTENSIONS					= 0x1F03
 
 TextureCompareMode enum:
-	COMPARE_R_TO_TEXTURE				= 0x884E	# ARB Extension #23: ARB_shadow
+	COMPARE_R_TO_TEXTURE				= 0x884E	# ARB Extension #23: ARB_shadow (promoted to core in 1.4)
 
 TexCoordPointerType enum:
 	use DataType SHORT
@@ -1434,6 +1472,10 @@ TextureEnvSource enum:
 
 TextureEnvTarget enum:
 	TEXTURE_ENV					= 0x2300
+	TEXTURE_FILTER_CONTROL				= 0x8500
+
+TextureFilterParameter enum:
+	TEXTURE_LOD_BIAS				= 0x8501
 
 TextureGenMode enum:
 	EYE_LINEAR					= 0x2400
@@ -1476,10 +1518,14 @@ TextureParameterName enum:
 	TEXTURE_BASE_LEVEL				= 0x813C
 	TEXTURE_MAX_LEVEL				= 0x813D
 
-	DEPTH_TEXTURE_MODE				= 0x884B	# ARB Extension #22: ARB_depth_texture
+	GENERATE_MIPMAP					= 0x8191
 
-	TEXTURE_COMPARE_MODE				= 0x884C	# ARB Extension #23: ARB_shadow
-	TEXTURE_COMPARE_FUNC				= 0x884D	# ARB Extension #23: ARB_shadow
+	TEXTURE_MAX_ANISOTROPY				= 0x84FE
+
+	DEPTH_TEXTURE_MODE				= 0x884B	# ARB Extension #22: ARB_depth_texture (promoted to core in 1.4)
+
+	TEXTURE_COMPARE_MODE				= 0x884C	# ARB Extension #23: ARB_shadow (promoted to core in 1.4)
+	TEXTURE_COMPARE_FUNC				= 0x884D	# ARB Extension #23: ARB_shadow (promoted to core in 1.4)
 
 	TEXTURE_COMPARE_FAIL_VALUE			= 0x80BF	# ARB Extension #24: ARB_shadow_ambient
 
@@ -1538,7 +1584,7 @@ TextureWrapMode enum:
 	REPEAT						= 0x2901
 	CLAMP_TO_EDGE					= 0x812F
 	CLAMP_TO_BORDER					= 0x812D	# ARB Extension #13: ARB_texture_border_clamp
-	MIRRORED_REPEAT					= 0x8370	# ARB Extension #21: ARB_texture_mirrored_repeat
+	MIRRORED_REPEAT					= 0x8370	# ARB Extension #21: ARB_texture_mirrored_repeat (promoted to core in 1.4)
 
 VertexPointerType enum:
 	use DataType SHORT
