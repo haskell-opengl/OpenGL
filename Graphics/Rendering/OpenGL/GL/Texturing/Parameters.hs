@@ -17,7 +17,7 @@
 module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    TextureFilter(..), MinificationFilter, MagnificationFilter, textureFilter,
    Repetition(..), Clamping(..), textureWrapMode,
-   textureBorderColor, textureLODRange, textureLevelRange,
+   textureBorderColor, LOD, textureLODRange, textureLevelRange,
    textureMaxAnisotropy, maxTextureMaxAnisotropy
 ) where
 
@@ -148,8 +148,10 @@ textureBorderColor t =
 
 --------------------------------------------------------------------------------
 
+type LOD = GLfloat
+
 -- ToDo: cube maps
-textureLODRange :: TextureTarget -> StateVar (GLfloat,GLfloat)
+textureLODRange :: TextureTarget -> StateVar (LOD,LOD)
 textureLODRange t =
    makeStateVar
        (liftM2 (,) (getTexParameterf t TextureMinLOD)
