@@ -204,6 +204,7 @@ TypeDefine define:
 	enumH = 4
 
 --------------------------------------------------
+
 data TypeMask =
      MaskA
    | MaskB
@@ -213,6 +214,7 @@ data TypeMask =
    | EnumC'
    | Left'2
    | Right'
+   deriving ( Eq, Ord, Show )
 
 marshalTypeMask :: TypeMask -> GLbitfield
 marshalTypeMask x = case x of
@@ -238,6 +240,7 @@ unmarshalTypeMask x
    | otherwise = error ("unmarshalTypeMask: illegal value " ++ show x)
 
 --------------------------------------------------
+
 data TypeEnum =
      EnumA
    | EnumB
@@ -251,6 +254,7 @@ data TypeEnum =
    | EnumJ
    | Left'
    | Right'2
+   deriving ( Eq, Ord, Show )
 
 marshalTypeEnum :: TypeEnum -> GLenum
 marshalTypeEnum x = case x of
@@ -284,6 +288,7 @@ unmarshalTypeEnum x
    | otherwise = error ("unmarshalTypeEnum: illegal value " ++ show x)
 
 --------------------------------------------------
+
 -- TypeDefine
 defineA :: GLenum
 defineA = 0
@@ -299,3 +304,4 @@ enumC :: GLenum
 enumC = 42
 enumH :: GLenum
 enumH = 4
+
