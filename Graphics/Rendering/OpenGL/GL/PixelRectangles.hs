@@ -84,6 +84,9 @@ import Graphics.Rendering.OpenGL.GL.GLboolean (
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
 import Graphics.Rendering.OpenGL.GL.PixelFormat ( PixelFormat(..) )
+import Graphics.Rendering.OpenGL.GL.PixelInternalFormat (
+   PixelInternalFormat, marshalPixelInternalFormat,
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetUnpackSwapBytes,GetUnpackLSBFirst,GetUnpackRowLength,
             GetUnpackSkipRows,GetUnpackSkipPixels,GetUnpackAlignment,
@@ -110,9 +113,6 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasSetter(($=)), HasGetter(get), GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing (
-   PixelInternalFormat, marshalPixelInternalFormat,
-   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum, recordInvalidValue )
