@@ -35,6 +35,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    -- ** Fog Coordinate
    currentFogCoordinate, FogCoord(..),
    FogCoordComponent,
+   FogCoord1(..),
 
    -- ** Color and Secondary Color
    currentColor, Color(..),
