@@ -13,13 +13,30 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing (
-   -- * Texture Image Specification
+   -- * Texture-related Data Types
    TextureTarget(..), Level, PixelInternalFormat(..), Border,
+   TexturePosition1D(..), TexturePosition2D(..), TexturePosition3D(..),
+   TextureSize1D(..), TextureSize2D(..), TextureSize3D(..),
+
+   -- * Texture Image Specification
    texImage1D, texImage2D, texImage3D,
+
+   -- * Alternate Texture Image Specification Commands
+   copyTexImage1D, copyTexImage2D,
+   texSubImage1D, texSubImage2D, texSubImage3D,
+   copyTexSubImage1D, copyTexSubImage2D, copyTexSubImage3D,
+
+   -- * Compressed Texture Images
+
+   -- * Texture Parameters
+
    -- * Texture Objects
    TextureObject, defaultTextureObject, textureBinding,
    textureResident, areTexturesResident,
    texturePriority, prioritizeTextures
+
+   -- * Texture Environment and Texture Functions
+
 ) where
 
 import Control.Monad ( liftM )
@@ -31,7 +48,7 @@ import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLint, GLuint, GLsizei, GLenum, GLfloat, GLclampf, GLdouble )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
+import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
@@ -70,10 +87,28 @@ type Level = GLint
 
 type Border = GLint
 
+newtype TexturePosition1D = TexturePosition1D GLint
+   deriving ( Eq, Ord, Show )
+
+data TexturePosition2D = TexturePosition2D GLint GLint
+   deriving ( Eq, Ord, Show )
+
+data TexturePosition3D = TexturePosition3D GLint GLint GLint
+   deriving ( Eq, Ord, Show )
+
+newtype TextureSize1D = TextureSize1D GLsizei
+   deriving ( Eq, Ord, Show )
+
+data TextureSize2D = TextureSize2D GLsizei GLsizei
+   deriving ( Eq, Ord, Show )
+
+data TextureSize3D = TextureSize3D GLsizei GLsizei GLsizei
+   deriving ( Eq, Ord, Show )
+
 --------------------------------------------------------------------------------
 
-texImage1D :: Proxy -> Level -> PixelInternalFormat -> GLsizei -> Border -> PixelData a -> IO ()
-texImage1D proxy level int w border pd =
+texImage1D :: Proxy -> Level -> PixelInternalFormat -> TextureSize1D -> Border -> PixelData a -> IO ()
+texImage1D proxy level int (TextureSize1D w) border pd =
    withPixelData pd $
       glTexImage1D
          (marshalProxyTextureTarget proxy Texture1D)
@@ -85,8 +120,8 @@ foreign import CALLCONV unsafe "glTexImage1D"
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
-texImage2D :: Proxy -> Level -> PixelInternalFormat -> Size -> Border -> PixelData a -> IO ()
-texImage2D proxy level int (Size w h) border pd =
+texImage2D :: Proxy -> Level -> PixelInternalFormat -> TextureSize2D -> Border -> PixelData a -> IO ()
+texImage2D proxy level int (TextureSize2D w h) border pd =
    withPixelData pd $
       glTexImage2D
          (marshalProxyTextureTarget proxy Texture2D)
@@ -97,8 +132,8 @@ foreign import CALLCONV unsafe "glTexImage2D"
 
 --------------------------------------------------------------------------------
 
-texImage3D :: Proxy -> Level -> PixelInternalFormat -> (GLsizei, GLsizei, GLsizei) -> Border -> PixelData a -> IO ()
-texImage3D proxy level int (w,h,d) border pd =
+texImage3D :: Proxy -> Level -> PixelInternalFormat -> TextureSize3D -> Border -> PixelData a -> IO ()
+texImage3D proxy level int (TextureSize3D w h d) border pd =
    withPixelData pd $
       glTexImage3DEXT
          (marshalProxyTextureTarget proxy Texture3D)
@@ -106,34 +141,88 @@ texImage3D proxy level int (w,h,d) border pd =
 
 EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexImage3DEXT,GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLint -> GLenum -> GLenum -> Ptr a -> IO ())
 
+--------------------------------------------------------------------------------
+
 foreign import CALLCONV unsafe "glGetTexImage"
    glGetTexImage :: GLenum -> GLint -> GLenum -> GLenum -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
+copyTexImage1D :: Level -> PixelInternalFormat -> Position -> TextureSize1D -> Border -> IO ()
+copyTexImage1D level int (Position x y) (TextureSize1D w) border =
+   glCopyTexImage1D
+      (marshalTextureTarget Texture1D) level
+      (marshalPixelInternalFormat int) x y w border
+
 foreign import CALLCONV unsafe "glCopyTexImage1D"
    glCopyTexImage1D :: GLenum -> GLint -> GLenum -> GLint -> GLint -> GLsizei -> GLint -> IO ()
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+copyTexImage2D :: Level -> PixelInternalFormat -> Position -> TextureSize2D -> Border -> IO ()
+copyTexImage2D level int (Position x y) (TextureSize2D w h) border =
+   glCopyTexImage2D
+      (marshalTextureTarget Texture2D) level
+      (marshalPixelInternalFormat int) x y w h border
 
 foreign import CALLCONV unsafe "glCopyTexImage2D"
    glCopyTexImage2D :: GLenum -> GLint -> GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
+texSubImage1D :: Level -> TexturePosition1D -> TextureSize1D -> PixelData a -> IO ()
+texSubImage1D level (TexturePosition1D xOff) (TextureSize1D w) pd =
+   withPixelData pd $
+      glTexSubImage1D (marshalTextureTarget Texture1D) level xOff w
+
 foreign import CALLCONV unsafe "glTexSubImage1D"
    glTexSubImage1D :: GLenum -> GLint -> GLint -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()
 
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+texSubImage2D :: Level -> TexturePosition2D -> TextureSize2D -> PixelData a -> IO ()
+texSubImage2D level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd =
+   withPixelData pd $
+      glTexSubImage2D (marshalTextureTarget Texture2D) level xOff yOff w h
+
 foreign import CALLCONV unsafe "glTexSubImage2D"
    glTexSubImage2D :: GLenum -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()
+
+--------------------------------------------------------------------------------
+
+texSubImage3D :: Level -> TexturePosition3D -> TextureSize3D -> PixelData a -> IO ()
+texSubImage3D level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) pd =
+   withPixelData pd $
+      glTexSubImage3DEXT (marshalTextureTarget Texture3D) level xOff yOff zOff w h d
 
 EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexSubImage3DEXT,GLenum -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
+copyTexSubImage1D :: Level -> TexturePosition1D -> Position -> TextureSize1D -> IO ()
+copyTexSubImage1D level (TexturePosition1D xOff) (Position x y) (TextureSize1D w) =
+   glCopyTexSubImage1D (marshalTextureTarget Texture1D) level xOff x y w
+
 foreign import CALLCONV unsafe "glCopyTexSubImage1D"
    glCopyTexSubImage1D :: GLenum -> GLint -> GLint -> GLint -> GLint -> GLsizei -> IO ()
 
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+copyTexSubImage2D :: Level -> TexturePosition2D -> Position -> TextureSize2D -> IO ()
+copyTexSubImage2D level (TexturePosition2D xOff yOff) (Position x y) (TextureSize2D w h) =
+   glCopyTexSubImage2D (marshalTextureTarget Texture2D) level xOff yOff x y w h
+
 foreign import CALLCONV unsafe "glCopyTexSubImage2D"
    glCopyTexSubImage2D :: GLenum -> GLint -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> IO ()
+
+--------------------------------------------------------------------------------
+
+copyTexSubImage3D :: Level -> TexturePosition3D -> Position -> TextureSize2D -> IO ()
+copyTexSubImage3D level (TexturePosition3D xOff yOff zOff) (Position x y) (TextureSize2D w h) =
+   glCopyTexSubImage3DEXT (marshalTextureTarget Texture3D) level xOff yOff zOff x y w h
 
 EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glCopyTexSubImage3DEXT,GLenum -> GLint -> GLint -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> IO ())
 
