@@ -43,9 +43,11 @@ import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   marshalGLboolean, unmarshalGLboolean, GLenum, GLint, GLsizei, GLfloat )
+   GLenum, GLint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability )
+import Graphics.Rendering.OpenGL.GL.GLboolean (
+   marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek3 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetFrontFace,GetShadeModel,

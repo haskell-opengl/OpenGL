@@ -19,8 +19,9 @@ module Graphics.Rendering.OpenGL.GL.BeginEndInternal (
    EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, marshalGLboolean, unmarshalGLboolean, GLenum )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.GL.GLboolean (
+   GLboolean, marshalGLboolean, unmarshalGLboolean )
 
 --------------------------------------------------------------------------------
 

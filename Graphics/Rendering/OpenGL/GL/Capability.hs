@@ -19,13 +19,13 @@ module Graphics.Rendering.OpenGL.GL.Capability (
 ) where
 
 import Control.Monad ( liftM )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   unmarshalGLboolean, GLboolean, GLenum, GLsizei )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLsizei )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 data EnableCap =
      CapFog
@@ -189,12 +189,12 @@ marshalEnableCap x = case x of
    CapWeightArray -> 0x86ad
    CapMatrixPalette -> 0x8840
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 makeCapability :: EnableCap -> StateVar Bool
 makeCapability cap = makeStateVar (isEnabled cap) (enable cap)
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 isEnabled :: EnableCap -> IO Bool
 isEnabled = liftM unmarshalGLboolean . glIsEnabled . marshalEnableCap
@@ -202,7 +202,7 @@ isEnabled = liftM unmarshalGLboolean . glIsEnabled . marshalEnableCap
 foreign import CALLCONV unsafe "glIsEnabled" glIsEnabled ::
    GLenum -> IO GLboolean
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 enable :: EnableCap -> Bool -> IO ()
 enable cap False = glDisable (marshalEnableCap cap)

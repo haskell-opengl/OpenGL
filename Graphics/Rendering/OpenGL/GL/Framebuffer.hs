@@ -32,8 +32,9 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, marshalGLboolean, unmarshalGLboolean,
    GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd )
+import Graphics.Rendering.OpenGL.GL.GLboolean (
+   GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetDrawBuffer,
             GetIndexWritemask,GetColorWritemask,GetDepthWritemask,

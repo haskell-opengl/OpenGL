@@ -21,8 +21,8 @@ import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   unmarshalGLboolean, GLint, GLdouble, GLclampd )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLdouble, GLclampd )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
    MatrixOrder(ColumnMajor), Matrix, MatrixElement(getMatrixElements),
    Vector3(..), Position(..), Size(..) )

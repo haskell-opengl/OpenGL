@@ -1,4 +1,3 @@
--- #prune
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.BasicTypes
@@ -16,9 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLboolean, GLbitfield, GLbyte, GLshort, GLint, GLubyte, GLushort,
-   GLuint, GLsizei, GLfloat, GLclampf, GLdouble, GLclampd,
-
-   marshalGLboolean, unmarshalGLboolean -- used only internally
+   GLuint, GLsizei, GLfloat, GLclampf, GLdouble, GLclampd
 ) where
 
 --------------------------------------------------------------------------------
@@ -71,12 +68,3 @@ type GLdouble = HTYPE_GLDOUBLE
 
 -- | Floating-point value clamped to [0,1] (min. 64 bits)
 type GLclampd = HTYPE_GLCLAMPD
-
---------------------------------------------------------------------------------
-
-marshalGLboolean :: Bool -> GLboolean
-marshalGLboolean False = 0
-marshalGLboolean True  = 1
-
-unmarshalGLboolean :: GLboolean -> Bool
-unmarshalGLboolean = (/= 0)
