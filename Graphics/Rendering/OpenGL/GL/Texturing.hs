@@ -33,8 +33,10 @@ module Graphics.Rendering.OpenGL.GL.Texturing (
    compressedTexSubImage1D, compressedTexSubImage2D, compressedTexSubImage3D,
 
    -- * Texture Parameters
+   TextureFilter(..), textureFilter,
    Repetition(..), Clamping(..), textureWrapMode,
-   textureBorderColor,
+   textureBorderColor, textureLODRange, textureLevelRange,
+   textureMaxAnisotropy, maxTextureMaxAnisotropy,
 
    -- * Texture Objects
    TextureObject, defaultTextureObject, textureBinding,
@@ -42,6 +44,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing (
    texturePriority, prioritizeTextures,
 
    -- * Texture Environment and Texture Functions
+   TextureEnvMode(..), textureEnvMode,
+   texture,
 
    -- * Texture Queries
    getTexImage, getCompressedTexImage,
@@ -61,6 +65,9 @@ import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLint, GLuint, GLsizei, GLenum, GLfloat, GLclampf )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
+import Graphics.Rendering.OpenGL.GL.Capability (
+   EnableCap(CapTexture1D,CapTexture2D,CapTexture3D,CapTextureCubeMap),
+   Capability, makeCapability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
    Position(..), TextureCoordName(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -76,8 +83,9 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData, Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetTextureBinding1D,GetTextureBinding2D,GetTextureBinding3D,
             GetTextureBindingCubeMap,GetTextureBindingRectangle,
-            GetNumCompressedTextureFormats,GetCompressedTextureFormats),
-   getInteger1,getIntegerv,getEnum1)
+            GetNumCompressedTextureFormats,GetCompressedTextureFormats,
+            GetMaxTextureMaxAnisotropy),
+   getInteger1, getIntegerv, getEnum1, getFloat1)
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.TextureTarget (
@@ -98,6 +106,14 @@ textureTargetToGetPName x = case x of
     Texture3D -> GetTextureBinding3D
     TextureCubeMap -> GetTextureBindingCubeMap
     TextureRectangle -> GetTextureBindingRectangle
+
+textureTargetToEnableCap :: TextureTarget -> EnableCap
+textureTargetToEnableCap x = case x of
+    Texture1D -> CapTexture1D
+    Texture2D -> CapTexture2D
+    Texture3D -> CapTexture3D
+    TextureCubeMap -> CapTextureCubeMap
+    TextureRectangle -> error "ToDo: TextureRectangle"
 
 --------------------------------------------------------------------------------
 
@@ -400,6 +416,45 @@ marshalTexParameter x = case x of
 
 --------------------------------------------------------------------------------
 
+data TextureFilter =
+     Nearest
+   | Linear'
+   deriving ( Eq, Ord, Show )
+
+marshalTextureFilter :: (TextureFilter, Maybe TextureFilter) -> GLint
+marshalTextureFilter x = case x of
+   (Nearest, Nothing     ) -> 0x2600
+   (Linear', Nothing     ) -> 0x2601
+   (Nearest, Just Nearest) -> 0x2700
+   (Linear', Just Nearest) -> 0x2701
+   (Nearest, Just Linear') -> 0x2702
+   (Linear', Just Linear') -> 0x2703
+
+unmarshalTextureFilter :: GLint -> (TextureFilter, Maybe TextureFilter)
+unmarshalTextureFilter x
+   | x ==  0x2600 = (Nearest, Nothing     )
+   | x ==  0x2601 = (Linear', Nothing     )
+   | x ==  0x2700 = (Nearest, Just Nearest)
+   | x ==  0x2701 = (Linear', Just Nearest)
+   | x ==  0x2702 = (Nearest, Just Linear')
+   | x ==  0x2703 = (Linear', Just Linear')
+   | otherwise = error ("unmarshalTextureFilter: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+textureFilter :: TextureTarget -> StateVar ((TextureFilter, Maybe TextureFilter), TextureFilter)
+textureFilter t =
+   makeStateVar
+      (do minFilter      <- getTexParameteri unmarshalTextureFilter t TextureMinFilter
+          (magFilter, _) <- getTexParameteri unmarshalTextureFilter t TextureMagFilter
+          return (minFilter, magFilter))
+      (\(minFilter, magFilter) -> do
+         texParameteri marshalTextureFilter t TextureMinFilter minFilter
+         texParameteri marshalTextureFilter t TextureMagFilter (magFilter, Nothing))
+
+--------------------------------------------------------------------------------
+
 data Repetition =
      Repeated
    | Mirrored
@@ -443,7 +498,7 @@ textureWrapMode t coord =
    let mp = textureCoordNameToTexParameter coord
    in makeStateVar
       (maybe (do recordInvalidEnum; return (Repeated, Repeat)) (getTexParameteri unmarshalTextureWrapMode t) mp)
-      (\m -> maybe recordInvalidEnum (\p -> texParameteri t p (marshalTextureWrapMode m)) mp)
+      (\m -> maybe recordInvalidEnum (\p -> texParameteri marshalTextureWrapMode t p m) mp)
 
 textureCoordNameToTexParameter :: TextureCoordName -> Maybe TexParameter
 textureCoordNameToTexParameter x = case x of
@@ -452,6 +507,8 @@ textureCoordNameToTexParameter x = case x of
    R -> Just TextureWrapR
    Q -> Nothing
 
+--------------------------------------------------------------------------------
+
 -- ToDo: cube maps
 textureBorderColor :: TextureTarget -> StateVar (Color4 GLfloat)
 textureBorderColor t =
@@ -459,28 +516,76 @@ textureBorderColor t =
        (getTexParameterC4f t TextureBorderColor)
        (texParameterC4f t TextureBorderColor)
 
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+textureLODRange :: TextureTarget -> StateVar (GLfloat,GLfloat)
+textureLODRange t =
+   makeStateVar
+       (liftM2 (,) (getTexParameterf t TextureMinLod)
+                   (getTexParameterf t TextureMaxLod))
+       (\(minLOD,maxLOD) -> do
+          texParameterf t TextureMinLod minLOD
+          texParameterf t TextureMaxLod maxLOD)
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+textureLevelRange :: TextureTarget -> StateVar (Level,Level)
+textureLevelRange t =
+   makeStateVar
+       (liftM2 (,) (getTexParameteri id t TextureBaseLevel)
+                   (getTexParameteri id t TextureMaxLevel))
+       (\(baseLevel,maxLevel) -> do
+          texParameteri id t TextureBaseLevel baseLevel
+          texParameteri id t TextureMaxLevel  maxLevel)
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+textureMaxAnisotropy :: TextureTarget -> StateVar GLfloat
+textureMaxAnisotropy t =
+   makeStateVar
+      (getTexParameterf t TextureMaxAnisotropy)
+      (texParameterf t TextureMaxAnisotropy)
+
+maxTextureMaxAnisotropy :: GettableStateVar GLfloat
+maxTextureMaxAnisotropy =
+   makeGettableStateVar (getFloat1 id GetMaxTextureMaxAnisotropy)
+
+--------------------------------------------------------------------------------
+
+texParameteri :: (a -> GLint) -> TextureTarget -> TexParameter -> a -> IO ()
+texParameteri f t p =
+   glTexParameteri (marshalTextureTarget t) (marshalTexParameter p) . f
+
+foreign import CALLCONV unsafe "glTexParameteri"
+   glTexParameteri :: GLenum -> GLenum ->  GLint -> IO ()
+
+texParameterf :: TextureTarget -> TexParameter -> GLfloat -> IO ()
+texParameterf t = glTexParameterf (marshalTextureTarget t) . marshalTexParameter
+
+foreign import CALLCONV unsafe "glTexParameterf"
+   glTexParameterf :: GLenum -> GLenum ->  GLfloat -> IO ()
+
 texParameterC4f :: TextureTarget -> TexParameter -> Color4 GLfloat -> IO ()
 texParameterC4f t p c =
    with c $
       glTexParameterC4f (marshalTextureTarget t) (marshalTexParameter p)
 
-foreign import CALLCONV unsafe "glTexParameterf"
-   glTexParameterf :: GLenum -> GLenum ->  GLfloat -> IO ()
-
-texParameteri :: TextureTarget -> TexParameter -> GLint -> IO ()
-texParameteri t = glTexParameteri (marshalTextureTarget t) . marshalTexParameter
-
-foreign import CALLCONV unsafe "glTexParameteri"
-   glTexParameteri :: GLenum -> GLenum ->  GLint -> IO ()
-
 foreign import CALLCONV unsafe "glTexParameterfv"
    glTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 
-foreign import CALLCONV unsafe "glTexParameterfv"
-   glTexParameterfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
+--------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glTexParameteriv"
-   glTexParameteriv :: GLenum -> GLenum -> Ptr GLint -> IO ()
+getTexParameteri :: (GLint -> a) -> TextureTarget -> TexParameter -> IO a
+getTexParameteri f t p =
+   alloca $ \buf -> do
+     glGetTexParameteriv (marshalTextureTarget t) (marshalTexParameter p) buf
+     peek1 f buf
+
+foreign import CALLCONV unsafe "glGetTexParameteriv"
+   glGetTexParameteriv :: GLenum -> GLenum -> Ptr GLint -> IO ()
 
 getTexParameterf :: TextureTarget -> TexParameter -> IO GLfloat
 getTexParameterf t p =
@@ -499,15 +604,6 @@ getTexParameterC4f t p =
 
 foreign import CALLCONV unsafe "glGetTexParameterfv"
    glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
-
-getTexParameteri :: (GLint -> a) -> TextureTarget -> TexParameter -> IO a
-getTexParameteri f t p =
-   alloca $ \buf -> do
-     glGetTexParameteriv (marshalTextureTarget t) (marshalTexParameter p) buf
-     peek1 f buf
-
-foreign import CALLCONV unsafe "glGetTexParameteriv"
-   glGetTexParameteriv :: GLenum -> GLenum -> Ptr GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -714,7 +810,7 @@ texturePriority :: TextureTarget -> StateVar GLclampf
 texturePriority t =
    makeStateVar
       (getTexParameterf t TexturePriority)
-      (glTexParameterf (marshalTextureTarget t) (marshalTexParameter TexturePriority))
+      (texParameterf t TexturePriority)
 
 prioritizeTextures :: [(TextureObject,GLclampf)] -> IO ()
 prioritizeTextures tps =
@@ -727,8 +823,106 @@ foreign import CALLCONV unsafe "glPrioritizeTextures"
 
 --------------------------------------------------------------------------------
 
+data TextureEnvTarget =
+     TextureEnv
+   | TextureFilterControl   -- GL_TEXTURE_LOD_BIAS_EXT
+   | PointSprite            -- GL_COORD_REPLACE_NV
+
+marshalTextureEnvTarget :: TextureEnvTarget -> GLenum
+marshalTextureEnvTarget x = case x of
+   TextureEnv -> 0x2300
+   TextureFilterControl -> 0x8500
+   PointSprite -> 0x8861
+
+--------------------------------------------------------------------------------
+
+data TextureEnvParameter =
+     TexEnvParamTextureEnvMode
+   | TexEnvParamTextureEnvColor
+   | TexEnvParamCombineRGB
+   | TexEnvParamCombineAlpha
+   | TexEnvParamSrc0RGB
+   | TexEnvParamSrc1RGB
+   | TexEnvParamSrc2RGB
+   | TexEnvParamSrc0Alpha
+   | TexEnvParamSrc1Alpha
+   | TexEnvParamSrc2Alpha
+   | TexEnvParamOperand0RGB
+   | TexEnvParamOperand1RGB
+   | TexEnvParamOperand2RGB
+   | TexEnvParamOperand0Alpha
+   | TexEnvParamOperand1Alpha
+   | TexEnvParamOperand2Alpha
+   | TexEnvParamRGBScale
+   | TexEnvParamAlphaScale
+
+marshalTextureEnvParameter :: TextureEnvParameter -> GLenum
+marshalTextureEnvParameter x = case x of
+   TexEnvParamTextureEnvMode -> 0x2200
+   TexEnvParamTextureEnvColor -> 0x2201
+   TexEnvParamCombineRGB -> 0x8571
+   TexEnvParamCombineAlpha -> 0x8572
+   TexEnvParamSrc0RGB -> 0x8580
+   TexEnvParamSrc1RGB -> 0x8581
+   TexEnvParamSrc2RGB -> 0x8582
+   TexEnvParamSrc0Alpha -> 0x8588
+   TexEnvParamSrc1Alpha -> 0x8589
+   TexEnvParamSrc2Alpha -> 0x858a
+   TexEnvParamOperand0RGB -> 0x8590
+   TexEnvParamOperand1RGB -> 0x8591
+   TexEnvParamOperand2RGB -> 0x8592
+   TexEnvParamOperand0Alpha -> 0x8598
+   TexEnvParamOperand1Alpha -> 0x8599
+   TexEnvParamOperand2Alpha -> 0x859a
+   TexEnvParamRGBScale -> 0x8573
+   TexEnvParamAlphaScale -> 0xd1c
+
+--------------------------------------------------------------------------------
+
+data TextureEnvMode =
+     Modulate
+   | Decal
+   | Blend
+   | Replace
+   | Add'
+   | Combine
+   deriving ( Eq, Ord, Show )
+
+marshalTextureEnvMode :: TextureEnvMode -> GLint
+marshalTextureEnvMode x = case x of
+   Modulate -> 0x2100
+   Decal -> 0x2101
+   Blend -> 0xbe2
+   Replace -> 0x1e01
+   Add' -> 0x104
+   Combine -> 0x8570
+
+unmarshalTextureEnvMode :: GLint -> TextureEnvMode
+unmarshalTextureEnvMode x
+   | x == 0x2100 = Modulate
+   | x == 0x2101 = Decal
+   | x == 0xbe2 = Blend
+   | x == 0x1e01 = Replace
+   | x == 0x104 = Add'
+   | x == 0x8570 = Combine
+   | otherwise = error ("unmarshalTextureEnvMode: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+textureEnvMode :: StateVar TextureEnvMode
+textureEnvMode =
+   makeStateVar
+      (getTexEnvi unmarshalTextureEnvMode TextureEnv TexEnvParamTextureEnvMode)
+      (texEnvi    marshalTextureEnvMode   TextureEnv TexEnvParamTextureEnvMode)
+
+--------------------------------------------------------------------------------
+
 foreign import CALLCONV unsafe "glTexEnvf"
    glTexEnvf :: GLenum -> GLenum ->  GLfloat -> IO ()
+
+texEnvi :: (a -> GLint) -> TextureEnvTarget -> TextureEnvParameter -> a -> IO ()
+texEnvi f t p =
+   glTexEnvi (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) . f
 
 foreign import CALLCONV unsafe "glTexEnvi"
    glTexEnvi :: GLenum -> GLenum ->  GLint -> IO ()
@@ -739,8 +933,22 @@ foreign import CALLCONV unsafe "glTexEnvfv"
 foreign import CALLCONV unsafe "glTexEnviv"
    glTexEnviv :: GLenum -> GLenum -> Ptr GLint -> IO ()
 
+--------------------------------------------------------------------------------
+
 foreign import CALLCONV unsafe "glGetTexEnvfv"
    glGetTexEnvfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
 
+getTexEnvi :: (GLint -> a) -> TextureEnvTarget -> TextureEnvParameter -> IO a
+getTexEnvi f t p =
+   alloca $ \buf -> do
+     glGetTexEnviv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) buf
+     peek1 f buf
+
 foreign import CALLCONV unsafe "glGetTexEnviv"
    glGetTexEnviv :: GLenum -> GLenum -> Ptr GLint -> IO ()
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+texture :: TextureTarget -> StateVar Capability
+texture = makeCapability . textureTargetToEnableCap
