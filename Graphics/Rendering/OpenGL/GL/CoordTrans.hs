@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 
    -- * Matrices
    MatrixMode(..), matrixMode,
-   MatrixOrder(..), Matrix, MatrixElement(..),
+   Vector3(..), MatrixOrder(..), Matrix, MatrixElement(..),
    loadIdentity,
    ortho, frustum,
    activeTexture,
