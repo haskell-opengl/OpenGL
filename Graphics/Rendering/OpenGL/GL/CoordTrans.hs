@@ -69,7 +69,8 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, HasSetter(($=)),
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
-   TextureUnit, marshalTextureUnit, unmarshalTextureUnit )
+   marshalTextureUnit, unmarshalTextureUnit )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( TextureUnit )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum, recordInvalidValue )
 
