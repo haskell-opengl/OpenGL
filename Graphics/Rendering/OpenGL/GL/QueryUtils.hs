@@ -409,6 +409,8 @@ data GetPName =
    | GetBlendSrcAlpha
    | GetPackCMYKHint
    | GetUnpackCMYKHint
+   | GetArrayElementLockFirst
+   | GetArrayElementLockCount
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -783,6 +785,8 @@ marshalGetPName x = case x of
    GetBlendSrcAlpha -> 0x80cb
    GetPackCMYKHint -> 0x800e
    GetUnpackCMYKHint -> 0x800f
+   GetArrayElementLockFirst -> 0x81a8
+   GetArrayElementLockCount -> 0x81a9
 
 --------------------------------------------------------------------------------
 

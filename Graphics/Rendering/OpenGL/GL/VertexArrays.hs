@@ -27,8 +27,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
 
    -- * Dereferencing and Rendering
    arrayElement, drawArrays, multiDrawArrays, drawElements, multiDrawElements,
-   drawRangeElements, maxElementsVertices, maxElementsIndices
- 
+   drawRangeElements, maxElementsVertices, maxElementsIndices, lockArrays
 ) where
 
 import Foreign.Ptr ( Ptr )
@@ -53,7 +52,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetTextureCoordArraySize,GetTextureCoordArrayType,
             GetTextureCoordArrayStride,GetEdgeFlagArrayStride,
             GetMaxElementsVertices,GetMaxElementsIndices,
-            GetClientActiveTexture),
+            GetClientActiveTexture,GetArrayElementLockFirst,
+            GetArrayElementLockCount),
    getInteger1, getEnum1, getSizei1,
    GetPointervPName(VertexArrayPointer,NormalArrayPointer,ColorArrayPointer,
                     SecondaryColorArrayPointer,IndexArrayPointer,
@@ -379,3 +379,22 @@ maxElementsVertices = makeGettableStateVar (getSizei1 id GetMaxElementsVertices)
 
 maxElementsIndices :: GettableStateVar GLsizei
 maxElementsIndices = makeGettableStateVar (getSizei1 id GetMaxElementsIndices)
+
+--------------------------------------------------------------------------------
+
+lockArrays :: StateVar (Maybe (GLint, GLsizei))
+lockArrays = makeStateVar getLockArrays setLockArrays
+
+getLockArrays :: IO (Maybe (GLint, GLsizei))
+getLockArrays = do
+   count <- getInteger1 fromIntegral GetArrayElementLockCount
+   if count > 0
+      then do first <- getInteger1 id GetArrayElementLockFirst
+              return $ Just (first, count)
+      else return Nothing
+
+setLockArrays :: Maybe (GLint, GLsizei) -> IO ()
+setLockArrays = maybe glUnlockArraysEXT (uncurry glLockArraysEXT)
+
+EXTENSION_ENTRY("GL_EXT_compiled_vertex_array.2",glLockArraysEXT,GLint -> GLsizei -> IO ())
+EXTENSION_ENTRY("GL_EXT_compiled_vertex_array.2",glUnlockArraysEXT,IO ())

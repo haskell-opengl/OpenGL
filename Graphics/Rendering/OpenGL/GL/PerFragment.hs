@@ -265,7 +265,7 @@ blendEquation =
       (getEnum1 unmarshalBlendEquationMode GetBlendEquation)
       (glBlendEquationEXT . marshalBlendEquationMode)
 
-EXTENSION_ENTRY("GL_EXT_blend_minmax or OpenGL 1.2",glBlendEquationEXT,GLenum -> IO ())
+EXTENSION_ENTRY("GL_EXT_blend_minmax or GL_EXT_blend_subtract or OpenGL 1.4",glBlendEquationEXT,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -330,16 +330,16 @@ blendFuncSeparate ::
    StateVar ((BlendingFactor, BlendingFactor), (BlendingFactor, BlendingFactor))
 blendFuncSeparate =
    makeStateVar
-      (do srcRGB <- getEnum1 unmarshalBlendingFactor GetBlendSrcRGB
-          srcA   <- getEnum1 unmarshalBlendingFactor GetBlendSrcAlpha
-          dstRGB <- getEnum1 unmarshalBlendingFactor GetBlendDstRGB
-          dstA   <- getEnum1 unmarshalBlendingFactor GetBlendDstAlpha
-          return ((srcRGB, srcA), (dstRGB, dstA)))
-      (\((srcRGB, srcA), (dstRGB, dstA)) ->
+      (do srcRGB   <- getEnum1 unmarshalBlendingFactor GetBlendSrcRGB
+          srcAlpha <- getEnum1 unmarshalBlendingFactor GetBlendSrcAlpha
+          dstRGB   <- getEnum1 unmarshalBlendingFactor GetBlendDstRGB
+          dstAlpha <- getEnum1 unmarshalBlendingFactor GetBlendDstAlpha
+          return ((srcRGB, srcAlpha), (dstRGB, dstAlpha)))
+      (\((srcRGB, srcAlpha), (dstRGB, dstAlpha)) ->
          glBlendFuncSeparateEXT (marshalBlendingFactor srcRGB)
-                                (marshalBlendingFactor srcA)
+                                (marshalBlendingFactor srcAlpha)
                                 (marshalBlendingFactor dstRGB)
-                                (marshalBlendingFactor dstA))
+                                (marshalBlendingFactor dstAlpha))
 
 EXTENSION_ENTRY("GL_EXT_blend_func_separate or OpenGL 1.4",glBlendFuncSeparateEXT,GLenum -> GLenum -> GLenum -> GLenum -> IO ())
 
