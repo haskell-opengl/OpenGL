@@ -93,22 +93,15 @@ hidden-modules:
 
 import-dirs:	IMPORT_DIR
 
-#ifdef INSTALLING
-library-dirs:	"$libdir"
-#else
-library-dirs:	"$libdir/libraries/OpenGL",
-	        "$libdir/libraries/OpenGL/cbits"
+library-dirs:	LIB_DIR
+#ifndef INSTALLING
+		, LIB_DIR"/cbits"
 #endif
 
 hs-libraries:   "HSOpenGL"
 extra-libs:	"HSOpenGL_cbits"
 
-#ifdef INSTALLING
-include-dirs:
-#else
-include-dirs:	"$libdir/libraries/OpenGL/include"
-#endif
-
+include-dirs: 	INCLUDE_DIR
 includes:	"HsOpenGL.h"
 depends:	base
 extra-hugs-opts:
@@ -117,5 +110,5 @@ extra-ld-opts:	GLU_LIBS
 framework-dirs:
 extra-frameworks: GLU_FRAMEWORKS
 
-haddock-interfaces:
-haddock-html:
+haddock-interfaces:	HADDOCK_IFACE
+haddock-html:		HTML_DIR
