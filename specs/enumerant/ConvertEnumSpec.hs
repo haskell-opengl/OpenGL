@@ -515,7 +515,7 @@ codeGen (SimpleSpec defs) = foldr (.) id (map gen defs) ""
 genType :: String -> SimpleTypeDefinition -> ShowS
 genType _           (SimpleTypeDefinition _ _ []) = id
 genType haskellType simpleDef =
-   showString "--------------------------------------------------" . showEOL .
+   showSeparator .
    genDataType simpleDef . showEOL .
    genMarshaler haskellType simpleDef . showEOL .
    genUnmarshaler haskellType simpleDef . showEOL
@@ -524,7 +524,8 @@ genDataType :: SimpleTypeDefinition -> ShowS
 genDataType (SimpleTypeDefinition t _ eqs) =
    showString "data " . shows t . showString " =" . showEOL .
    showString "     " . c . showEOL .
-   vcat [ showString "   | " . x | x <- cs ]
+   vcat [ showString "   | " . x | x <- cs ] .
+   showString "   deriving ( Eq, Ord, Show )" . showEOL
    where (c:cs) = [ shows i | SimpleEquation i _ <- eqs ]
 
 genMarshaler :: String -> SimpleTypeDefinition -> ShowS
@@ -548,12 +549,17 @@ genUnmarshaler haskellType (SimpleTypeDefinition t _ eqs) =
 genValues :: String -> SimpleTypeDefinition -> ShowS
 genValues _           (SimpleTypeDefinition _ _ [])  = id
 genValues haskellType (SimpleTypeDefinition t _ eqs) =
-   showString "--------------------------------------------------" . showEOL .
+   showSeparator .
    showString "-- " . shows t . showEOL .
    vcat [ showString ident . showString " :: " . showString haskellType . showEOL .
           showString ident . showString " = " . shows n |
           SimpleEquation i (Number n) <- eqs,
-          let ident = nameOf i ]
+          let ident = nameOf i ] . showEOL
+
+showSeparator :: ShowS
+showSeparator =
+   showString "--------------------------------------------------" . showEOL .
+   showEOL
 
 vcat :: [ShowS] -> ShowS
 vcat = foldr (\x -> (.) (x . showEOL)) id
