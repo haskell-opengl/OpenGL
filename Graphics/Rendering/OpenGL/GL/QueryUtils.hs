@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(..),
-   clipPlaneIndexToEnum,
+   clipPlaneIndexToEnum, lightIndexToEnum,
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4,
    getFloat1, getFloat3, getFloat4, getFloatv,
@@ -280,14 +280,7 @@ data GetPName =
    | GetMatrixIndexArrayType
    | GetMatrixIndexArrayStride
    | GetClipPlane GLsizei
-   | GetLight0
-   | GetLight1
-   | GetLight2
-   | GetLight3
-   | GetLight4
-   | GetLight5
-   | GetLight6
-   | GetLight7
+   | GetLight GLsizei
    | GetTransposeModelviewMatrix
    | GetTransposeProjectionMatrix
    | GetTransposeTextureMatrix
@@ -654,14 +647,7 @@ marshalGetPName x = case x of
    GetMatrixIndexArrayType -> 0x8847
    GetMatrixIndexArrayStride -> 0x8848
    GetClipPlane i -> clipPlaneIndexToEnum i
-   GetLight0 -> 0x4000
-   GetLight1 -> 0x4001
-   GetLight2 -> 0x4002
-   GetLight3 -> 0x4003
-   GetLight4 -> 0x4004
-   GetLight5 -> 0x4005
-   GetLight6 -> 0x4006
-   GetLight7 -> 0x4007
+   GetLight i -> lightIndexToEnum i
    GetTransposeModelviewMatrix -> 0x84e3
    GetTransposeProjectionMatrix -> 0x84e4
    GetTransposeTextureMatrix -> 0x84e5
@@ -783,6 +769,15 @@ marshalGetPName x = case x of
 clipPlaneIndexToEnum :: GLsizei -> GLenum
 clipPlaneIndexToEnum i
    | 0 <= i && i <= 0xFFF = 0x3000 + fromIntegral i
+   | otherwise = error ("clipPlaneIndexToEnum : illegal clip plane " ++ show i)
+
+--------------------------------------------------------------------------------
+
+-- 0x4000 through 0x4FFF are reserved for light numbers
+
+lightIndexToEnum :: GLsizei -> GLenum
+lightIndexToEnum i
+   | 0 <= i && i <= 0xFFF = 0x4000 + fromIntegral i
    | otherwise = error ("clipPlaneIndexToEnum : illegal clip plane " ++ show i)
 
 --------------------------------------------------------------------------------
