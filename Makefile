@@ -43,6 +43,10 @@ SRC_HADDOCK_OPTS += -t "HOpenGL Libraries ($(PACKAGE) package)"
 
 # -----------------------------------------------------------------------------
 
+OpenGL/Graphics/Rendering/OpenGL/GL/BasicTypes.$(way_)o : include/HsOpenGLConfig.h
+
+# -----------------------------------------------------------------------------
+
 STUBOBJS += \
    Graphics/Rendering/OpenGL/GLU/NURBS_stub.$(way_)o \
    Graphics/Rendering/OpenGL/GLU/Quadrics_stub.$(way_)o \
