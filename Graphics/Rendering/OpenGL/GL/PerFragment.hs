@@ -33,6 +33,9 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    depthFunc,
 
    -- * Occlusion Queries
+   QueryObject, QueryTarget(..), beginQuery, endQuery, withQuery,
+   queryCounterBits, currentQuery,
+   queryResult, queryResultAvailable,
 
    -- * Blending
    BlendEquationMode(..), blendEquation,
@@ -45,8 +48,12 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    LogicOp(..), logicOp
 ) where
 
-import Control.Monad ( liftM2, liftM3 )
+import Control.Monad ( liftM, liftM2, liftM3 )
+import Data.List ( genericLength )
+import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( withArray, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
+import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
              CapSampleCoverage,CapDepthBoundsTest,CapAlphaTest,CapStencilTest,
@@ -56,12 +63,14 @@ import Graphics.Rendering.OpenGL.GL.Capability (
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLint, GLuint, GLsizei, GLenum, GLclampf, GLclampd, Capability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.Colors ( Face )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetScissorBox,GetSampleCoverageValue,GetSampleCoverageInvert,
             GetDepthBounds,GetAlphaTestFunc,GetAlphaTestRef,GetStencilFunc,
@@ -73,7 +82,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getInteger1, getInteger4, getEnum1, getFloat1, getFloat4, getDouble2,
    getBoolean1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), StateVar, makeStateVar )
+   HasGetter(get), GettableStateVar, makeGettableStateVar,
+   StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), rgbaMode )
 
 --------------------------------------------------------------------------------
@@ -263,16 +273,113 @@ foreign import CALLCONV unsafe "glDepthFunc" glDepthFunc :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 
+newtype QueryObject = QueryObject { queryID :: GLuint }
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+instance ObjectName QueryObject where
+   genObjectNames n =
+      allocaArray n $ \buf -> do
+        glGenQueriesARB (fromIntegral n) buf
+        liftM (map QueryObject) $ peekArray n buf
+
+   deleteObjectNames queryObjects = do
+      withArray (map queryID queryObjects) $
+         glDeleteQueriesARB (genericLength queryObjects)
+
+   isObjectName = liftM unmarshalGLboolean . glIsQueryARB . queryID
+
+
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGenQueriesARB,GLsizei -> Ptr GLuint -> IO ())
+
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glDeleteQueriesARB,GLsizei -> Ptr GLuint -> IO ())
+
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glIsQueryARB,GLuint -> IO GLboolean)
 
+--------------------------------------------------------------------------------
+
+data QueryTarget =
+     SamplesPassed
+   deriving ( Eq, Ord, Show )
+
+marshalQueryTarget :: QueryTarget -> GLenum
+marshalQueryTarget x = case x of
+   SamplesPassed -> 0x8914
+
+--------------------------------------------------------------------------------
+
+beginQuery :: QueryTarget -> QueryObject -> IO ()
+beginQuery t = glBeginQueryARB (marshalQueryTarget t) . queryID
+
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glBeginQueryARB,GLenum -> GLuint -> IO ())
+
+endQuery :: QueryTarget -> IO ()
+endQuery = glEndQueryARB . marshalQueryTarget
+
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glEndQueryARB,GLenum -> IO ())
+
+-- | Convenience function
+
+withQuery :: QueryTarget -> QueryObject -> IO a -> IO a
+withQuery t q = bracket_ (beginQuery t q) (endQuery t)
+
+--------------------------------------------------------------------------------
+
+data GetQueryPName =
+     QueryCounterBits
+   | CurrentQuery
+
+marshalGetQueryPName :: GetQueryPName -> GLenum
+marshalGetQueryPName x = case x of
+   QueryCounterBits -> 0x8864
+   CurrentQuery -> 0x8865
+
+--------------------------------------------------------------------------------
+
+queryCounterBits :: QueryTarget -> GettableStateVar GLsizei
+queryCounterBits = getQueryi fromIntegral QueryCounterBits
+
+currentQuery :: QueryTarget -> GettableStateVar QueryObject
+currentQuery = getQueryi (QueryObject . fromIntegral) CurrentQuery
+
+getQueryi :: (GLint -> a) -> GetQueryPName -> QueryTarget -> GettableStateVar a
+getQueryi f p t =
+   makeGettableStateVar $
+      alloca $ \buf -> do
+         glGetQueryivARB (marshalQueryTarget t) (marshalGetQueryPName p) buf
+         peek1 f buf
 
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryivARB,GLenum -> GLenum -> Ptr GLint -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryObjectivARB,GLuint -> GLenum -> Ptr GLint -> IO ())
+--------------------------------------------------------------------------------
+
+data GetQueryObjectPName =
+     QueryResult
+   | QueryResultAvailable
+
+marshalGetQueryObjectPName :: GetQueryObjectPName -> GLenum
+marshalGetQueryObjectPName x = case x of
+   QueryResult -> 0x8866
+   QueryResultAvailable -> 0x8867
+
+--------------------------------------------------------------------------------
+
+queryResult :: QueryObject -> GettableStateVar GLuint
+queryResult = getQueryObjectui id QueryResult
+
+queryResultAvailable :: QueryObject -> GettableStateVar Bool
+queryResultAvailable =
+   getQueryObjectui (unmarshalGLboolean . fromIntegral) QueryResultAvailable
+
+getQueryObjectui ::
+   (GLuint -> a) -> GetQueryObjectPName -> QueryObject -> GettableStateVar a
+getQueryObjectui f p q =
+   makeGettableStateVar $
+      alloca $ \buf -> do
+         glGetQueryObjectuivARB (queryID q) (marshalGetQueryObjectPName p) buf
+         peek1 f buf
+
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryObjectuivARB,GLuint -> GLenum -> Ptr GLuint -> IO ())
 
 --------------------------------------------------------------------------------
