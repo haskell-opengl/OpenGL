@@ -203,7 +203,7 @@ TypeDefine define:
 	enumC = 42
 	enumH = 4
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 data TypeMask =
      MaskA
@@ -239,7 +239,7 @@ unmarshalTypeMask x
    | x == 0x20 = Right'
    | otherwise = error ("unmarshalTypeMask: illegal value " ++ show x)
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 data TypeEnum =
      EnumA
@@ -287,7 +287,7 @@ unmarshalTypeEnum x
    | x == 0x20 = Right'2
    | otherwise = error ("unmarshalTypeEnum: illegal value " ++ show x)
 
---------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- TypeDefine
 defineA :: GLenum

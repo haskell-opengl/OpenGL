@@ -558,7 +558,7 @@ genValues haskellType (SimpleTypeDefinition t _ eqs) =
 
 showSeparator :: ShowS
 showSeparator =
-   showString "--------------------------------------------------" . showEOL .
+   showString (replicate 80 '-') . showEOL .
    showEOL
 
 vcat :: [ShowS] -> ShowS
