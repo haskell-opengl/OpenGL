@@ -23,6 +23,7 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.Fog,
      module Graphics.Rendering.OpenGL.GL.Framebuffer,
      module Graphics.Rendering.OpenGL.GL.Hints,
+     module Graphics.Rendering.OpenGL.GL.PerFragment,
      module Graphics.Rendering.OpenGL.GL.PixelRect,
      module Graphics.Rendering.OpenGL.GL.RasterPos,
      module Graphics.Rendering.OpenGL.GL.Rectangles,
@@ -42,6 +43,7 @@ import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Fog
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.Hints
+import Graphics.Rendering.OpenGL.GL.PerFragment
 import Graphics.Rendering.OpenGL.GL.PixelRect
 import Graphics.Rendering.OpenGL.GL.RasterPos
 import Graphics.Rendering.OpenGL.GL.Rectangles
