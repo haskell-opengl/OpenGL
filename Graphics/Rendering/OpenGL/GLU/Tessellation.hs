@@ -35,7 +35,6 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
    Primitive(..), SimplePolygon(..), tessellate
 ) where
 
-import Control.Exception ( finally )
 import Control.Monad ( foldM, liftM )
 import Data.Either ( Either )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
@@ -53,6 +52,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    Error(..), ErrorCategory(..), makeError )
+import Graphics.Rendering.OpenGL.GLU.Exception ( finally )
 
 --------------------------------------------------------------------------------
 

@@ -19,7 +19,6 @@ module Graphics.Rendering.OpenGL.GLU.Quadrics (
    renderQuadric
 ) where
 
-import Control.Exception ( finally )
 import Data.IORef        ( newIORef, readIORef, modifyIORef )
 import Foreign.Ptr       ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLdouble )
@@ -27,22 +26,23 @@ import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    Error(..), ErrorCategory(..), makeError )
+import Graphics.Rendering.OpenGL.GLU.Exception ( finally )
 
 --------------------------------------------------------------------------------
 
 data QuadricDrawStyle =
-     Point
-   | Line
-   | Fill
-   | Silhouette
+     PointStyle
+   | LineStyle
+   | FillStyle
+   | SilhouetteStyle
    deriving ( Eq, Ord, Show )
 
 marshalQuadricDrawStyle :: QuadricDrawStyle -> GLenum
 marshalQuadricDrawStyle x = case x of
-   Point -> 0x186aa
-   Line -> 0x186ab
-   Fill -> 0x186ac
-   Silhouette -> 0x186ad
+   PointStyle -> 0x186aa
+   LineStyle -> 0x186ab
+   FillStyle -> 0x186ac
+   SilhouetteStyle -> 0x186ad
 
 --------------------------------------------------------------------------------
 
