@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.11 2003/02/16 18:27:17 panne Exp $
+# $Id: Makefile,v 1.12 2003/02/23 22:56:03 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -21,9 +21,9 @@ SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp
 
 # WinDoze DLL hell
 ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
-SRC_HC_OPTS += -DCALLCONV=stdcall
+SRC_HC_OPTS += -DCALLCONV=stdcall '-DGET_PROC_ADDRESS"wglGetProcAddress"'
 else
-SRC_HC_OPTS += -DCALLCONV=ccall
+SRC_HC_OPTS += -DCALLCONV=ccall '-DGET_PROC_ADDRESS="glXGetProcAddressARB"'
 endif
 
 SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)"

@@ -24,8 +24,9 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.VertexSpec
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes
-import Graphics.Rendering.OpenGL.GL.BeginEnd
+import Graphics.Rendering.OpenGL.GL.BasicTypes  hiding ( marshalGLboolean,
+                                                         unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.BeginEnd    hiding ( unmarshalBeginMode )
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelRect
 import Graphics.Rendering.OpenGL.GL.Query

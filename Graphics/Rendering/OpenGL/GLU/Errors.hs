@@ -1,7 +1,8 @@
+-- #prune
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Errors
--- Copyright   :  (c) Sven Panne 2002
+-- Copyright   :  (c) Sven Panne 2003
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven_panne@yahoo.com
@@ -9,7 +10,8 @@
 -- Portability :  portable
 --
 -- This module corresponds to section 2.5 (GL Errors) of the OpenGL 1.4 specs
--- and chapter 8 (Errors) of the GLU specs.
+-- and chapter 8 (Errors) of the GLU specs, offering a generalized view of
+-- errors in GL and GLU.
 --
 --------------------------------------------------------------------------------
 
@@ -20,8 +22,8 @@ module Graphics.Rendering.OpenGL.GLU.Errors (
 
 import Foreign.C.String ( CString, peekCString )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
-import Graphics.Rendering.OpenGL.GL.StateVariable (
-   GettableStateVariable, makeGettableStateVariable )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar )
 
 --------------------------------------------------------------------------------
 -- Alas, GL and GLU define error enumerants with the same names, so we have to
@@ -82,10 +84,15 @@ import Graphics.Rendering.OpenGL.GL.StateVariable (
 
 --------------------------------------------------------------------------------
 
+-- | GL\/GLU errors consist of a general error category and a description of
+-- what went wrong.
+
 data Error = Error ErrorCategory String
    deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
+
+-- | General GL\/GLU error categories
 
 data ErrorCategory
    = InvalidEnum
@@ -170,8 +177,15 @@ foreign import CALLCONV unsafe "gluErrorString" gluErrorString ::
 
 --------------------------------------------------------------------------------
 
-errors :: GettableStateVariable [Error]
-errors = makeGettableStateVariable $ getErrors []
+-- | When an error occurs, it is recorded in this state variable and no other
+-- errors are recorded. Reading 'errors' returns the currently recorded errors
+-- (there may be more than one due to a possibly distributed implementation) and
+-- resets the state variable to @[]@, re-enabling the recording of future
+-- errors. The value @[]@ means that there has been no detectable error since
+-- the last time 'errors' was read, or since the GL was initialized.
+
+errors :: GettableStateVar [Error]
+errors = makeGettableStateVar $ getErrors []
    where getErrors acc = do
             errorCode <- glGetError
             if errorCode == gl_marshalErrorCode NoError

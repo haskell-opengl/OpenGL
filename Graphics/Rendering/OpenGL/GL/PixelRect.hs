@@ -5,7 +5,7 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
 import Graphics.Rendering.OpenGL.GL.VertexArray ( PixelType )
 
 data PixelFormat =
-     ColorIndex'   -- TODO: Resolve the conflict with VertexSpec's ColorIndex differently?
+     ColorIndex
    | StencilIndex
    | DepthComponent
    | Red
@@ -20,7 +20,7 @@ data PixelFormat =
 
 marshalPixelFormat :: PixelFormat -> GLenum
 marshalPixelFormat x = case x of
-   ColorIndex' -> 0x1900
+   ColorIndex -> 0x1900
    StencilIndex -> 0x1901
    DepthComponent -> 0x1902
    Red -> 0x1903

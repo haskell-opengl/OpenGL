@@ -21,8 +21,8 @@ import Foreign.C.String ( CString, peekCString )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
 import Graphics.Rendering.OpenGL.GL.Query (
    VersionInfo, parseVersionString, ExtensionsInfo(..) )
-import Graphics.Rendering.OpenGL.GL.StateVariable (
-   GettableStateVariable, makeGettableStateVariable )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -33,14 +33,14 @@ import Graphics.Rendering.OpenGL.GL.StateVariable (
 
 --------------------------------------------------------------------------------
 
-gluVersion :: GettableStateVariable VersionInfo
+gluVersion :: GettableStateVar VersionInfo
 gluVersion =
-   makeGettableStateVariable $
+   makeGettableStateVar $
       liftM (parseVersionString "queryGLUVersion") (getString Version)
 
-gluExtensions :: GettableStateVariable ExtensionsInfo
+gluExtensions :: GettableStateVar ExtensionsInfo
 gluExtensions =
-   makeGettableStateVariable $
+   makeGettableStateVar $
       liftM (ExtensionsInfo . words) (getString Extensions)
 
 getString :: StringName -> IO String

@@ -15,4 +15,21 @@
 
 #include <GL/glu.h>
 
+#ifdef _WIN32
+
+/* for the prototype of wglGetProcAddress */
+#include <wingdi.h>
+
+#else
+
+/* Hmmm, this seems to be necessary to get a prototype for glXGetProcAddressARB
+   when Mesa is used. Strange... */
+#ifndef GLX_GLXEXT_PROTOTYPES
+#define GLX_GLXEXT_PROTOTYPES
+#endif
+
+#include <GL/glx.h>
+
+#endif
+
 #endif

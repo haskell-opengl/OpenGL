@@ -8,29 +8,44 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
+-- This module corresponds to section 2.7 (Vertex Specification) of the
+-- OpenGL 1.4 specs.
+--
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.VertexSpec (
-   VertexComponent(..), Vertex(..),
+   -- * Vertex coordinates
+   VertexComponent, Vertex(..),
    Vertex2(..), Vertex3(..), Vertex4(..),
 
-   TexCoordComponent(..), TexCoord(..),
+   -- * Texture coordinates
+   TextureUnit(..), TexCoordComponent, TexCoord(..),
    TexCoord1(..), TexCoord2(..), TexCoord3(..), TexCoord4(..),
 
-   Normal(..), NormalComponent(..),
+   -- * Normal
+   NormalComponent, Normal(..),
    Normal3(..),
 
-   ColorComponent(..), Color(..),
+   -- * Fog coordinate
+   FogCoordComponent, FogCoord(..),
+
+   -- * Color
+   ColorComponent, Color(..), SecondaryColor(..),
    Color3(..), Color4(..),
 
-   IndexComponent(..), Index(..),
-   ColorIndex(..),
+   IndexComponent, Index(..),
+   Index1(..),
 ) where
 
 import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLbyte, GLshort, GLint, GLubyte, GLushort, GLuint, GLfloat, GLdouble )
+   GLenum, GLbyte, GLshort, GLint, GLubyte, GLushort, GLuint, GLfloat,
+   GLdouble )
+import Graphics.Rendering.OpenGL.GL.Extensions (
+   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+
+#include "HsOpenGLExt.h"
 
 ---------------------------------------------------------------------------
 
@@ -38,6 +53,7 @@ class VertexComponent a where
    vertex2 :: a -> a -> IO ()
    vertex3 :: a -> a -> a -> IO ()
    vertex4 :: a -> a -> a -> a -> IO ()
+
    vertex2v :: Ptr a -> IO ()
    vertex3v :: Ptr a -> IO ()
    vertex4v :: Ptr a -> IO ()
@@ -66,6 +82,7 @@ instance VertexComponent GLshort where
    vertex2 = glVertex2s
    vertex3 = glVertex3s
    vertex4 = glVertex4s
+
    vertex2v = glVertex2sv
    vertex3v = glVertex3sv
    vertex4v = glVertex4sv
@@ -94,6 +111,7 @@ instance VertexComponent GLint where
    vertex2 = glVertex2i
    vertex3 = glVertex3i
    vertex4 = glVertex4i
+
    vertex2v = glVertex2iv
    vertex3v = glVertex3iv
    vertex4v = glVertex4iv
@@ -122,6 +140,7 @@ instance VertexComponent GLfloat where
    vertex2 = glVertex2f
    vertex3 = glVertex3f
    vertex4 = glVertex4f
+
    vertex2v = glVertex2fv
    vertex3v = glVertex3fv
    vertex4v = glVertex4fv
@@ -150,6 +169,7 @@ instance VertexComponent GLdouble where
    vertex2 = glVertex2d
    vertex3 = glVertex3d
    vertex4 = glVertex4d
+
    vertex2v = glVertex2dv
    vertex3v = glVertex3dv
    vertex4v = glVertex4dv
@@ -201,15 +221,31 @@ instance Storable a => Storable (Vertex4 a) where
 
 ---------------------------------------------------------------------------
 
+newtype TextureUnit = TextureUnit GLenum
+   deriving ( Eq, Ord, Show )
+
+---------------------------------------------------------------------------
+
 class TexCoordComponent a where
    texCoord1 :: a -> IO ()
    texCoord2 :: a -> a -> IO ()
    texCoord3 :: a -> a -> a -> IO ()
    texCoord4 :: a -> a -> a -> a -> IO ()
+
    texCoord1v :: Ptr a -> IO ()
    texCoord2v :: Ptr a -> IO ()
    texCoord3v :: Ptr a -> IO ()
    texCoord4v :: Ptr a -> IO ()
+
+   multiTexCoord1 :: TextureUnit -> a -> IO ()
+   multiTexCoord2 :: TextureUnit -> a -> a -> IO ()
+   multiTexCoord3 :: TextureUnit -> a -> a -> a -> IO ()
+   multiTexCoord4 :: TextureUnit -> a -> a -> a -> a -> IO ()
+
+   multiTexCoord1v :: TextureUnit -> Ptr a -> IO ()
+   multiTexCoord2v :: TextureUnit -> Ptr a -> IO ()
+   multiTexCoord3v :: TextureUnit -> Ptr a -> IO ()
+   multiTexCoord4v :: TextureUnit -> Ptr a -> IO ()
 
 ---------------------------------------------------------------------------
 
@@ -237,15 +273,36 @@ foreign import CALLCONV unsafe "glTexCoord3sv" glTexCoord3sv ::
 foreign import CALLCONV unsafe "glTexCoord4sv" glTexCoord4sv ::
    Ptr GLshort -> IO ()
 
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1sARB",dynMultiTexCoord1s,ptrMultiTexCoord1s,TextureUnit -> GLshort -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2sARB",dynMultiTexCoord2s,ptrMultiTexCoord2s,TextureUnit -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3sARB",dynMultiTexCoord3s,ptrMultiTexCoord3s,TextureUnit -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4sARB",dynMultiTexCoord4s,ptrMultiTexCoord4s,TextureUnit -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
+
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1svARB",dynMultiTexCoord1sv,ptrMultiTexCoord1sv,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2svARB",dynMultiTexCoord2sv,ptrMultiTexCoord2sv,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3svARB",dynMultiTexCoord3sv,ptrMultiTexCoord3sv,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4svARB",dynMultiTexCoord4sv,ptrMultiTexCoord4sv,TextureUnit -> Ptr GLshort -> IO ())
+
 instance TexCoordComponent GLshort where
    texCoord1 = glTexCoord1s
    texCoord2 = glTexCoord2s
    texCoord3 = glTexCoord3s
    texCoord4 = glTexCoord4s
+
    texCoord1v = glTexCoord1sv
    texCoord2v = glTexCoord2sv
    texCoord3v = glTexCoord3sv
    texCoord4v = glTexCoord4sv
+
+   multiTexCoord1 = dynMultiTexCoord1s ptrMultiTexCoord1s
+   multiTexCoord2 = dynMultiTexCoord2s ptrMultiTexCoord2s
+   multiTexCoord3 = dynMultiTexCoord3s ptrMultiTexCoord3s
+   multiTexCoord4 = dynMultiTexCoord4s ptrMultiTexCoord4s
+
+   multiTexCoord1v = dynMultiTexCoord1sv ptrMultiTexCoord1sv
+   multiTexCoord2v = dynMultiTexCoord2sv ptrMultiTexCoord2sv
+   multiTexCoord3v = dynMultiTexCoord3sv ptrMultiTexCoord3sv
+   multiTexCoord4v = dynMultiTexCoord4sv ptrMultiTexCoord4sv
 
 ---------------------------------------------------------------------------
 
@@ -273,15 +330,36 @@ foreign import CALLCONV unsafe "glTexCoord3iv" glTexCoord3iv ::
 foreign import CALLCONV unsafe "glTexCoord4iv" glTexCoord4iv ::
    Ptr GLint -> IO ()
 
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1sARB",dynMultiTexCoord1i,ptrMultiTexCoord1i,TextureUnit -> GLint -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2sARB",dynMultiTexCoord2i,ptrMultiTexCoord2i,TextureUnit -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3sARB",dynMultiTexCoord3i,ptrMultiTexCoord3i,TextureUnit -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4sARB",dynMultiTexCoord4i,ptrMultiTexCoord4i,TextureUnit -> GLint -> GLint -> GLint -> GLint -> IO ())
+
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1svARB",dynMultiTexCoord1iv,ptrMultiTexCoord1iv,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2svARB",dynMultiTexCoord2iv,ptrMultiTexCoord2iv,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3svARB",dynMultiTexCoord3iv,ptrMultiTexCoord3iv,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4svARB",dynMultiTexCoord4iv,ptrMultiTexCoord4iv,TextureUnit -> Ptr GLint -> IO ())
+
 instance TexCoordComponent GLint where
    texCoord1 = glTexCoord1i
    texCoord2 = glTexCoord2i
    texCoord3 = glTexCoord3i
    texCoord4 = glTexCoord4i
+
    texCoord1v = glTexCoord1iv
    texCoord2v = glTexCoord2iv
    texCoord3v = glTexCoord3iv
    texCoord4v = glTexCoord4iv
+
+   multiTexCoord1 = dynMultiTexCoord1i ptrMultiTexCoord1i
+   multiTexCoord2 = dynMultiTexCoord2i ptrMultiTexCoord2i
+   multiTexCoord3 = dynMultiTexCoord3i ptrMultiTexCoord3i
+   multiTexCoord4 = dynMultiTexCoord4i ptrMultiTexCoord4i
+
+   multiTexCoord1v = dynMultiTexCoord1iv ptrMultiTexCoord1iv
+   multiTexCoord2v = dynMultiTexCoord2iv ptrMultiTexCoord2iv
+   multiTexCoord3v = dynMultiTexCoord3iv ptrMultiTexCoord3iv
+   multiTexCoord4v = dynMultiTexCoord4iv ptrMultiTexCoord4iv
 
 ---------------------------------------------------------------------------
 
@@ -309,6 +387,16 @@ foreign import CALLCONV unsafe "glTexCoord3fv" glTexCoord3fv ::
 foreign import CALLCONV unsafe "glTexCoord4fv" glTexCoord4fv ::
    Ptr GLfloat -> IO ()
 
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1sARB",dynMultiTexCoord1f,ptrMultiTexCoord1f,TextureUnit -> GLfloat -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2sARB",dynMultiTexCoord2f,ptrMultiTexCoord2f,TextureUnit -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3sARB",dynMultiTexCoord3f,ptrMultiTexCoord3f,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4sARB",dynMultiTexCoord4f,ptrMultiTexCoord4f,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1svARB",dynMultiTexCoord1fv,ptrMultiTexCoord1fv,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2svARB",dynMultiTexCoord2fv,ptrMultiTexCoord2fv,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3svARB",dynMultiTexCoord3fv,ptrMultiTexCoord3fv,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4svARB",dynMultiTexCoord4fv,ptrMultiTexCoord4fv,TextureUnit -> Ptr GLfloat -> IO ())
+
 instance TexCoordComponent GLfloat where
    texCoord1 = glTexCoord1f
    texCoord2 = glTexCoord2f
@@ -319,6 +407,16 @@ instance TexCoordComponent GLfloat where
    texCoord2v = glTexCoord2fv
    texCoord3v = glTexCoord3fv
    texCoord4v = glTexCoord4fv
+
+   multiTexCoord1 = dynMultiTexCoord1f ptrMultiTexCoord1f
+   multiTexCoord2 = dynMultiTexCoord2f ptrMultiTexCoord2f
+   multiTexCoord3 = dynMultiTexCoord3f ptrMultiTexCoord3f
+   multiTexCoord4 = dynMultiTexCoord4f ptrMultiTexCoord4f
+
+   multiTexCoord1v = dynMultiTexCoord1fv ptrMultiTexCoord1fv
+   multiTexCoord2v = dynMultiTexCoord2fv ptrMultiTexCoord2fv
+   multiTexCoord3v = dynMultiTexCoord3fv ptrMultiTexCoord3fv
+   multiTexCoord4v = dynMultiTexCoord4fv ptrMultiTexCoord4fv
 
 ---------------------------------------------------------------------------
 
@@ -346,21 +444,44 @@ foreign import CALLCONV unsafe "glTexCoord3dv" glTexCoord3dv ::
 foreign import CALLCONV unsafe "glTexCoord4dv" glTexCoord4dv ::
    Ptr GLdouble -> IO ()
 
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1sARB",dynMultiTexCoord1d,ptrMultiTexCoord1d,TextureUnit -> GLdouble -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2sARB",dynMultiTexCoord2d,ptrMultiTexCoord2d,TextureUnit -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3sARB",dynMultiTexCoord3d,ptrMultiTexCoord3d,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4sARB",dynMultiTexCoord4d,ptrMultiTexCoord4d,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
+
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord1svARB",dynMultiTexCoord1dv,ptrMultiTexCoord1dv,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord2svARB",dynMultiTexCoord2dv,ptrMultiTexCoord2dv,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord3svARB",dynMultiTexCoord3dv,ptrMultiTexCoord3dv,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glMultiTexCoord4svARB",dynMultiTexCoord4dv,ptrMultiTexCoord4dv,TextureUnit -> Ptr GLdouble -> IO ())
+
 instance TexCoordComponent GLdouble where
    texCoord1 = glTexCoord1d
    texCoord2 = glTexCoord2d
    texCoord3 = glTexCoord3d
    texCoord4 = glTexCoord4d
+
    texCoord1v = glTexCoord1dv
    texCoord2v = glTexCoord2dv
    texCoord3v = glTexCoord3dv
    texCoord4v = glTexCoord4dv
 
+   multiTexCoord1 = dynMultiTexCoord1d ptrMultiTexCoord1d
+   multiTexCoord2 = dynMultiTexCoord2d ptrMultiTexCoord2d
+   multiTexCoord3 = dynMultiTexCoord3d ptrMultiTexCoord3d
+   multiTexCoord4 = dynMultiTexCoord4d ptrMultiTexCoord4d
+
+   multiTexCoord1v = dynMultiTexCoord1dv ptrMultiTexCoord1dv
+   multiTexCoord2v = dynMultiTexCoord2dv ptrMultiTexCoord2dv
+   multiTexCoord3v = dynMultiTexCoord3dv ptrMultiTexCoord3dv
+   multiTexCoord4v = dynMultiTexCoord4dv ptrMultiTexCoord4dv
+
 ---------------------------------------------------------------------------
 
 class TexCoord a where
-   texCoord  ::     a -> IO ()
-   texCoordv :: Ptr a -> IO ()
+   texCoord       ::                    a -> IO ()
+   texCoordv      ::                Ptr a -> IO ()
+   multiTexCoord  :: TextureUnit ->     a -> IO ()
+   multiTexCoordv :: TextureUnit -> Ptr a -> IO ()
 
 data TexCoord1 a = TexCoord1 a
    deriving ( Eq, Ord, Show )
@@ -368,12 +489,14 @@ data TexCoord1 a = TexCoord1 a
 instance TexCoordComponent a => TexCoord (TexCoord1 a) where
    texCoord (TexCoord1 s) = texCoord1 s
    texCoordv = texCoord1v . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
+   multiTexCoord u (TexCoord1 s) = multiTexCoord1 u s
+   multiTexCoordv u = multiTexCoord1v u . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord1 a) where
-   sizeOf    ~(TexCoord1 x) = sizeOf x
-   alignment ~(TexCoord1 x) = alignment x
+   sizeOf    ~(TexCoord1 s) = sizeOf s
+   alignment ~(TexCoord1 s) = alignment s
    peek                     = peek1 TexCoord1
-   poke ptr   (TexCoord1 x) = poke1 ptr x
+   poke ptr   (TexCoord1 s) = poke1 ptr s
 
 data TexCoord2 a = TexCoord2 a a
    deriving ( Eq, Ord, Show )
@@ -381,12 +504,14 @@ data TexCoord2 a = TexCoord2 a a
 instance TexCoordComponent a => TexCoord (TexCoord2 a) where
    texCoord (TexCoord2 s t) = texCoord2 s t
    texCoordv = texCoord2v . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
+   multiTexCoord u (TexCoord2 s t) = multiTexCoord2 u s t
+   multiTexCoordv u = multiTexCoord2v u . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord2 a) where
-   sizeOf    ~(TexCoord2 x _) = 2 * sizeOf x
-   alignment ~(TexCoord2 x _) = alignment x
+   sizeOf    ~(TexCoord2 s _) = 2 * sizeOf s
+   alignment ~(TexCoord2 s _) = alignment s
    peek                       = peek2 TexCoord2
-   poke ptr   (TexCoord2 x y) = poke2 ptr x y
+   poke ptr   (TexCoord2 s t) = poke2 ptr s t
 
 data TexCoord3 a = TexCoord3 a a a
    deriving ( Eq, Ord, Show )
@@ -394,12 +519,14 @@ data TexCoord3 a = TexCoord3 a a a
 instance TexCoordComponent a => TexCoord (TexCoord3 a) where
    texCoord (TexCoord3 s t r) = texCoord3 s t r
    texCoordv = texCoord3v . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
+   multiTexCoord u (TexCoord3 s t r) = multiTexCoord3 u s t r
+   multiTexCoordv u = multiTexCoord3v u . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord3 a) where
-   sizeOf    ~(TexCoord3 x _ _) = 3 * sizeOf x
-   alignment ~(TexCoord3 x _ _) = alignment x
+   sizeOf    ~(TexCoord3 s _ _) = 3 * sizeOf s
+   alignment ~(TexCoord3 s _ _) = alignment s
    peek                         = peek3 TexCoord3
-   poke ptr   (TexCoord3 x y z) = poke3 ptr x y z
+   poke ptr   (TexCoord3 s t r) = poke3 ptr s t r
 
 data TexCoord4 a = TexCoord4 a a a a
    deriving ( Eq, Ord, Show )
@@ -407,12 +534,14 @@ data TexCoord4 a = TexCoord4 a a a a
 instance TexCoordComponent a => TexCoord (TexCoord4 a) where
    texCoord (TexCoord4 s t r q) = texCoord4 s t r q
    texCoordv = texCoord4v . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
+   multiTexCoord u (TexCoord4 s t r q) = multiTexCoord4 u s t r q
+   multiTexCoordv u = multiTexCoord4v u . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord4 a) where
-   sizeOf    ~(TexCoord4 x _ _ _) = 4 * sizeOf x
-   alignment ~(TexCoord4 x _ _ _) = alignment x
+   sizeOf    ~(TexCoord4 s _ _ _) = 4 * sizeOf s
+   alignment ~(TexCoord4 s _ _ _) = alignment s
    peek                           = peek4 TexCoord4
-   poke ptr   (TexCoord4 x y z w) = poke4 ptr x y z w
+   poke ptr   (TexCoord4 s t r q) = poke4 ptr s t r q
 
 ---------------------------------------------------------------------------
 
@@ -501,11 +630,52 @@ instance Storable a => Storable (Normal3 a) where
 
 ---------------------------------------------------------------------------
 
+class FogCoordComponent a where
+   fogCoord1 :: a -> IO ()
+   fogCoord1v :: Ptr a -> IO ()
+
+---------------------------------------------------------------------------
+
+EXTENSION_ENTRY("VERSION_1_3","glFogCoordfEXT",dynFogCoordf,ptrFogCoordf,GLfloat -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glFogCoordfvEXT",dynFogCoordfv,ptrFogCoordfv,Ptr GLfloat -> IO ())
+
+instance FogCoordComponent GLfloat where
+   fogCoord1 = dynFogCoordf ptrFogCoordf
+   fogCoord1v = dynFogCoordfv ptrFogCoordfv
+
+---------------------------------------------------------------------------
+
+EXTENSION_ENTRY("VERSION_1_3","glFogCoorddEXT",dynFogCoordd,ptrFogCoordd,GLdouble -> IO ())
+EXTENSION_ENTRY("VERSION_1_3","glFogCoorddvEXT",dynFogCoorddv,ptrFogCoorddv,Ptr GLdouble -> IO ())
+
+instance FogCoordComponent GLdouble where
+   fogCoord1 = dynFogCoordd ptrFogCoordd
+   fogCoord1v = dynFogCoorddv ptrFogCoorddv
+
+---------------------------------------------------------------------------
+
+class FogCoord a where
+   fogCoord  ::     a -> IO ()
+   fogCoordv :: Ptr a -> IO ()
+
+newtype FogCoord1 a = FogCoord1 a
+   deriving ( Eq, Ord, Show )
+
+instance FogCoordComponent a => FogCoord (FogCoord1 a) where
+   fogCoord (FogCoord1 c) = fogCoord1 c
+   fogCoordv = fogCoord1v . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
+
+---------------------------------------------------------------------------
+
 class ColorComponent a where
    color3 :: a -> a -> a -> IO ()
    color4 :: a -> a -> a -> a -> IO ()
+
    color3v :: Ptr a -> IO ()
    color4v :: Ptr a -> IO ()
+
+   secondaryColor3  :: a -> a -> a -> IO ()
+   secondaryColor3v :: Ptr a -> IO ()
 
 ---------------------------------------------------------------------------
 
@@ -521,11 +691,18 @@ foreign import CALLCONV unsafe "glColor3bv" glColor3bv ::
 foreign import CALLCONV unsafe "glColor4bv" glColor4bv ::
    Ptr GLbyte -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3bEXT",dynSecondaryColor3b,ptrSecondaryColor3b,GLbyte -> GLbyte -> GLbyte -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3bvEXT",dynSecondaryColor3bv,ptrSecondaryColor3bv,Ptr GLbyte -> IO ())
+
 instance ColorComponent GLbyte where
    color3 = glColor3b
    color4 = glColor4b
+
    color3v = glColor3bv
    color4v = glColor4bv
+
+   secondaryColor3 = dynSecondaryColor3b ptrSecondaryColor3b
+   secondaryColor3v = dynSecondaryColor3bv ptrSecondaryColor3bv
 
 ---------------------------------------------------------------------------
 
@@ -541,11 +718,18 @@ foreign import CALLCONV unsafe "glColor3sv" glColor3sv ::
 foreign import CALLCONV unsafe "glColor4sv" glColor4sv ::
    Ptr GLshort -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3sEXT",dynSecondaryColor3s,ptrSecondaryColor3s,GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3svEXT",dynSecondaryColor3sv,ptrSecondaryColor3sv,Ptr GLshort -> IO ())
+
 instance ColorComponent GLshort where
    color3 = glColor3s
    color4 = glColor4s
+
    color3v = glColor3sv
    color4v = glColor4sv
+
+   secondaryColor3 = dynSecondaryColor3s ptrSecondaryColor3s
+   secondaryColor3v = dynSecondaryColor3sv ptrSecondaryColor3sv
 
 ---------------------------------------------------------------------------
 
@@ -561,11 +745,18 @@ foreign import CALLCONV unsafe "glColor3iv" glColor3iv ::
 foreign import CALLCONV unsafe "glColor4iv" glColor4iv ::
    Ptr GLint -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3iEXT",dynSecondaryColor3i,ptrSecondaryColor3i,GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3ivEXT",dynSecondaryColor3iv,ptrSecondaryColor3iv,Ptr GLint -> IO ())
+
 instance ColorComponent GLint where
    color3 = glColor3i
    color4 = glColor4i
+
    color3v = glColor3iv
    color4v = glColor4iv
+
+   secondaryColor3 = dynSecondaryColor3i ptrSecondaryColor3i
+   secondaryColor3v = dynSecondaryColor3iv ptrSecondaryColor3iv
 
 ---------------------------------------------------------------------------
 
@@ -581,11 +772,18 @@ foreign import CALLCONV unsafe "glColor3fv" glColor3fv ::
 foreign import CALLCONV unsafe "glColor4fv" glColor4fv ::
    Ptr GLfloat -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3fEXT",dynSecondaryColor3f,ptrSecondaryColor3f,GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3fvEXT",dynSecondaryColor3fv,ptrSecondaryColor3fv,Ptr GLfloat -> IO ())
+
 instance ColorComponent GLfloat where
    color3 = glColor3f
    color4 = glColor4f
+
    color3v = glColor3fv
    color4v = glColor4fv
+
+   secondaryColor3 = dynSecondaryColor3f ptrSecondaryColor3f
+   secondaryColor3v = dynSecondaryColor3fv ptrSecondaryColor3fv
 
 ---------------------------------------------------------------------------
 
@@ -601,11 +799,18 @@ foreign import CALLCONV unsafe "glColor3dv" glColor3dv ::
 foreign import CALLCONV unsafe "glColor4dv" glColor4dv ::
    Ptr GLdouble -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3dEXT",dynSecondaryColor3d,ptrSecondaryColor3d,GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3dvEXT",dynSecondaryColor3dv,ptrSecondaryColor3dv,Ptr GLdouble -> IO ())
+
 instance ColorComponent GLdouble where
    color3 = glColor3d
    color4 = glColor4d
+
    color3v = glColor3dv
    color4v = glColor4dv
+
+   secondaryColor3 = dynSecondaryColor3d ptrSecondaryColor3d
+   secondaryColor3v = dynSecondaryColor3dv ptrSecondaryColor3dv
 
 ---------------------------------------------------------------------------
 
@@ -622,11 +827,18 @@ foreign import CALLCONV unsafe "glColor3ubv" glColor3ubv ::
 foreign import CALLCONV unsafe "glColor4ubv" glColor4ubv ::
    Ptr GLubyte -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3ubEXT",dynSecondaryColor3ub,ptrSecondaryColor3ub,GLubyte -> GLubyte -> GLubyte -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3ubvEXT",dynSecondaryColor3ubv,ptrSecondaryColor3ubv,Ptr GLubyte -> IO ())
+
 instance ColorComponent GLubyte where
    color3 = glColor3ub
    color4 = glColor4ub
+
    color3v = glColor3ubv
    color4v = glColor4ubv
+
+   secondaryColor3 = dynSecondaryColor3ub ptrSecondaryColor3ub
+   secondaryColor3v = dynSecondaryColor3ubv ptrSecondaryColor3ubv
 
 ---------------------------------------------------------------------------
 
@@ -642,11 +854,18 @@ foreign import CALLCONV unsafe "glColor3usv" glColor3usv ::
 foreign import CALLCONV unsafe "glColor4usv" glColor4usv ::
    Ptr GLushort -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3usEXT",dynSecondaryColor3us,ptrSecondaryColor3us,GLushort -> GLushort -> GLushort -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3usvEXT",dynSecondaryColor3usv,ptrSecondaryColor3usv,Ptr GLushort -> IO ())
+
 instance ColorComponent GLushort where
    color3 = glColor3us
    color4 = glColor4us
+
    color3v = glColor3usv
    color4v = glColor4usv
+
+   secondaryColor3 = dynSecondaryColor3us ptrSecondaryColor3us
+   secondaryColor3v = dynSecondaryColor3usv ptrSecondaryColor3usv
 
 ---------------------------------------------------------------------------
 
@@ -662,11 +881,18 @@ foreign import CALLCONV unsafe "glColor3uiv" glColor3uiv ::
 foreign import CALLCONV unsafe "glColor4uiv" glColor4uiv ::
    Ptr GLuint -> IO ()
 
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3uiEXT",dynSecondaryColor3ui,ptrSecondaryColor3ui,GLuint -> GLuint -> GLuint -> IO ())
+EXTENSION_ENTRY("EXT_secondary_color","glSecondaryColor3uivEXT",dynSecondaryColor3uiv,ptrSecondaryColor3uiv,Ptr GLuint -> IO ())
+
 instance ColorComponent GLuint where
    color3 = glColor3ui
    color4 = glColor4ui
+
    color3v = glColor3uiv
    color4v = glColor4uiv
+
+   secondaryColor3 = dynSecondaryColor3ui ptrSecondaryColor3ui
+   secondaryColor3v = dynSecondaryColor3uiv ptrSecondaryColor3uiv
 
 ---------------------------------------------------------------------------
 
@@ -699,6 +925,16 @@ instance Storable a => Storable (Color4 a) where
    alignment ~(Color4 r _ _ _) = alignment r
    peek                        = peek4 Color4
    poke ptr   (Color4 r g b a) = poke4 ptr r g b a
+
+---------------------------------------------------------------------------
+
+class SecondaryColor a where
+   secondaryColor  ::     a -> IO ()
+   secondaryColorv :: Ptr a -> IO ()
+
+instance ColorComponent a => SecondaryColor (Color3 a) where
+   secondaryColor (Color3 r g b) = secondaryColor3 r g b
+   secondaryColorv = secondaryColor3v . (castPtr :: Ptr (Color3 b) -> Ptr b)
 
 ---------------------------------------------------------------------------
 
@@ -773,12 +1009,12 @@ class Index a where
    index  ::     a -> IO ()
    indexv :: Ptr a -> IO ()
 
-newtype ColorIndex a = ColorIndex a
+newtype Index1 a = Index1 a
    deriving ( Eq, Ord, Show )
 
-instance IndexComponent a => Index (ColorIndex a) where
-   index (ColorIndex i) = index1 i
-   indexv = index1v . (castPtr :: Ptr (ColorIndex b) -> Ptr b)
+instance IndexComponent a => Index (Index1 a) where
+   index (Index1 i) = index1 i
+   indexv = index1v . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
 ---------------------------------------------------------------------------
 -- Utilities (a little bit verbose/redundant, but seems to generate better
