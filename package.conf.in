@@ -23,7 +23,7 @@ Package {
 	include_dirs	= [ "$libdir/libraries/OpenGL/include" ],
 #endif
 	c_includes	= [ "HsOpenGL.h" ],
-	package_deps	= [ "base", "mtl" ],
+	package_deps	= [ "base" ],
 	extra_ghc_opts	= [],
 	extra_cc_opts	= [ "" GLU_CFLAGS ],
 #ifdef USE_QUARTZ_OPENGL

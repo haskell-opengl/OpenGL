@@ -13,7 +13,9 @@ SRC_HC_OPTS += -cpp
 
 ghc_ge_504 = $(shell if (test $(GhcCanonVersion) -ge 504); then echo YES; else echo NO; fi)
 
-ifeq "$(ghc_ge_504)" "NO"
+ifeq "$(ghc_ge_504)" "YES"
+SRC_HC_OPTS += -package parsec -package mtl
+else
 SRC_HC_OPTS += -package data -package text
 endif
 
