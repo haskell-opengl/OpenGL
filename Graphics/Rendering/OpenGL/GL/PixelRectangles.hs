@@ -35,7 +35,14 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    colorTableRGBASizes, colorTableLuminanceSize, colorTableIntesitySize,
 
    -- * Convolution Filter
-   maxConvolutionSize,
+   ConvolutionTarget(..), convolution,
+   convolutionFilter1D, convolutionFilter2D, getConvolutionFilter,
+   separableFilter2D, getSeparableFilter,
+   copyConvolutionFilter1D, copyConvolutionFilter2D,
+   convolutionWidth, convolutionHeight,
+   maxConvolutionWidth, maxConvolutionHeight,
+   ConvolutionBorderMode(..), convolutionBorderMode, convolutionBorderColor,
+   convolutionFilterScale, convolutionFilterBias,
 
    -- * Drawing Pixels
    PixelFormat(..), drawPixels,
@@ -51,11 +58,12 @@ import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
 import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( Ptr, nullPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapColorTable,CapPostConvolutionColorTable,
-             CapPostColorMatrixColorTable,CapTextureColorTable),
+             CapPostColorMatrixColorTable,CapTextureColorTable,
+             CapConvolution1D, CapConvolution2D,CapSeparable2D),
    makeCapability, marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLushort, GLint, GLuint, GLsizei, GLfloat, Capability )
@@ -66,6 +74,7 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelFormat (
    PixelFormat(..), marshalPixelFormat )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -89,7 +98,6 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetPixelMapIToRSize,GetPixelMapIToGSize,GetPixelMapIToBSize,
             GetPixelMapIToASize,GetPixelMapRToRSize,GetPixelMapGToGSize,
             GetPixelMapBToBSize,GetPixelMapAToASize,
-            GetMaxConvolutionWidth, GetMaxConvolutionHeight,
             GetZoomX,GetZoomY),
    getBoolean1, getInteger1, getSizei1, getFloat1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -774,12 +782,12 @@ colorTableBias = colorTableScaleBias ColorTableBias
 colorTableScaleBias ::
    ColorTablePName -> ColorTableStage -> StateVar (Color4 GLfloat)
 colorTableScaleBias p s =
-   makeStateVar (getColorTableParameterC4 ct p) (colorTableParameterC4 ct p)
+   makeStateVar (getColorTableParameterC4f ct p) (colorTableParameterC4f ct p)
    where ct = colorTableStageToColorTable s
 
-getColorTableParameterC4 ::
+getColorTableParameterC4f ::
    ColorTable -> ColorTablePName -> IO (Color4 GLfloat) 
-getColorTableParameterC4 ct p =
+getColorTableParameterC4f ct p =
    alloca $ \buf -> do
       glGetColorTableParameterfv
          (marshalColorTable ct)
@@ -789,9 +797,9 @@ getColorTableParameterC4 ct p =
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
 
-colorTableParameterC4 ::
+colorTableParameterC4f ::
    ColorTable -> ColorTablePName -> Color4 GLfloat -> IO ()
-colorTableParameterC4 ct p c =
+colorTableParameterC4f ct p c =
    with c $
       glColorTableParameterfv (marshalColorTable ct) (marshalColorTablePName p)
 
@@ -843,37 +851,230 @@ colorTableIntesitySize ct =
 
 --------------------------------------------------------------------------------
 
-maxConvolutionSize :: GettableStateVar Size
-maxConvolutionSize =
-   makeGettableStateVar $
-      liftM2 Size (getSizei1 id GetMaxConvolutionWidth)
-                  (getSizei1 id GetMaxConvolutionHeight)
+data ConvolutionTarget =
+     Convolution1D
+   | Convolution2D
+   | Separable2D
+   deriving ( Eq, Ord, Show )
+
+marshalConvolutionTarget :: ConvolutionTarget -> GLenum
+marshalConvolutionTarget x = case x of
+   Convolution1D -> 0x8010
+   Convolution2D -> 0x8011
+   Separable2D -> 0x8012
+
+convolutionTargetToEnableCap :: ConvolutionTarget -> EnableCap
+convolutionTargetToEnableCap x = case x of
+   Convolution1D -> CapConvolution1D
+   Convolution2D -> CapConvolution2D
+   Separable2D -> CapSeparable2D
+
+--------------------------------------------------------------------------------
+
+convolution :: ConvolutionTarget -> StateVar Capability
+convolution = makeCapability . convolutionTargetToEnableCap
+
+--------------------------------------------------------------------------------
+
+convolutionFilter1D ::
+   PixelInternalFormat -> GLsizei -> PixelFormat -> DataType -> Ptr a -> IO ()
+convolutionFilter1D int w f d =
+   glConvolutionFilter1D
+      (marshalConvolutionTarget Convolution1D) (marshalPixelInternalFormat int)
+      w (marshalPixelFormat f) (marshalDataType d)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter1D,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
+--------------------------------------------------------------------------------
+
+convolutionFilter2D ::
+   PixelInternalFormat -> Size -> PixelFormat -> DataType -> Ptr a -> IO ()
+convolutionFilter2D int (Size w h) f d =
+   glConvolutionFilter2D
+      (marshalConvolutionTarget Convolution2D) (marshalPixelInternalFormat int)
+      w h (marshalPixelFormat f) (marshalDataType d)
+
 EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter2D,GLenum -> GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameterf,GLenum -> GLenum -> GLfloat -> IO ())
+--------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameteri,GLenum -> GLenum -> GLint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_imaging",glCopyConvolutionFilter1D,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_imaging",glCopyConvolutionFilter2D,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> IO ())
+getConvolutionFilter ::
+   ConvolutionTarget -> PixelFormat -> DataType -> Ptr a -> IO ()
+getConvolutionFilter t f d =
+   glGetConvolutionFilter
+      (marshalConvolutionTarget t) (marshalPixelFormat f) (marshalDataType d)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionFilter,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+--------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+separableFilter2D :: PixelInternalFormat -> Size -> PixelFormat -> DataType
+                  -> Ptr a -> Ptr a -> IO ()
+separableFilter2D int (Size w h) f d =
+   glSeparableFilter2D
+      (marshalConvolutionTarget Separable2D) (marshalPixelInternalFormat int)
+       w h (marshalPixelFormat f) (marshalDataType d)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glSeparableFilter2D,GLenum -> GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> Ptr a -> IO ())
 
+--------------------------------------------------------------------------------
+
+getSeparableFilter :: PixelFormat -> DataType -> Ptr a -> Ptr a -> IO ()
+getSeparableFilter f d rowPtr colPtr =
+   glGetSeparableFilter
+      (marshalConvolutionTarget Separable2D) (marshalPixelFormat f)
+      (marshalDataType d) rowPtr colPtr nullPtr
+
 EXTENSION_ENTRY("GL_ARB_imaging",glGetSeparableFilter,GLenum -> GLenum -> GLenum -> Ptr a -> Ptr a -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
+copyConvolutionFilter1D :: PixelInternalFormat -> Position -> GLsizei -> IO ()
+copyConvolutionFilter1D int (Position x y) =
+   glCopyConvolutionFilter1D
+      (marshalConvolutionTarget Convolution1D) (marshalPixelInternalFormat int)
+      x y
+
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyConvolutionFilter1D,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
+
+--------------------------------------------------------------------------------
+
+copyConvolutionFilter2D :: PixelInternalFormat -> Position -> Size -> IO ()
+copyConvolutionFilter2D int (Position x y) (Size w h) =
+   glCopyConvolutionFilter2D
+      (marshalConvolutionTarget Convolution2D) (marshalPixelInternalFormat int)
+      x y w h
+
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyConvolutionFilter2D,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> IO ())
+
+--------------------------------------------------------------------------------
+
+data ConvolutionParameter =
+     ConvolutionBorderColor
+   | ConvolutionBorderMode
+   | ConvolutionFilterScale
+   | ConvolutionFilterBias
+   | ConvolutionFormat
+   | ConvolutionWidth
+   | ConvolutionHeight
+   | MaxConvolutionWidth
+   | MaxConvolutionHeight
+   deriving ( Eq, Ord, Show )
+
+marshalConvolutionParameter :: ConvolutionParameter -> GLenum
+marshalConvolutionParameter x = case x of
+   ConvolutionBorderColor -> 0x8154
+   ConvolutionBorderMode -> 0x8013
+   ConvolutionFilterScale -> 0x8014
+   ConvolutionFilterBias -> 0x8015
+   ConvolutionFormat -> 0x8017
+   ConvolutionWidth -> 0x8018
+   ConvolutionHeight -> 0x8019
+   MaxConvolutionWidth -> 0x801a
+   MaxConvolutionHeight -> 0x801b
+
+--------------------------------------------------------------------------------
+
+convolutionWidth :: ConvolutionTarget -> GettableStateVar GLsizei
+convolutionWidth t = convolutionParameteri t ConvolutionWidth
+
+convolutionHeight :: ConvolutionTarget -> GettableStateVar GLsizei
+convolutionHeight t = convolutionParameteri t ConvolutionHeight
+
+maxConvolutionWidth :: ConvolutionTarget -> GettableStateVar GLsizei
+maxConvolutionWidth t = convolutionParameteri t MaxConvolutionWidth
+
+maxConvolutionHeight :: ConvolutionTarget -> GettableStateVar GLsizei
+maxConvolutionHeight t = convolutionParameteri t MaxConvolutionHeight
+
+convolutionParameteri ::
+   ConvolutionTarget -> ConvolutionParameter -> GettableStateVar GLsizei
+convolutionParameteri t p =
+   makeGettableStateVar (getConvolutionParameteri fromIntegral t p)
+
+getConvolutionParameteri ::
+   (GLint -> a) -> ConvolutionTarget -> ConvolutionParameter -> IO a
+getConvolutionParameteri f t p =
+   alloca $ \buf -> do
+      glGetConvolutionParameteriv
+         (marshalConvolutionTarget t) (marshalConvolutionParameter p) buf
+      peek1 f buf
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+--------------------------------------------------------------------------------
+
+data ConvolutionBorderMode =
+     Reduce
+   | ConstantBorder
+   | ReplicateBorder
+   deriving ( Eq, Ord, Show )
+
+marshalConvolutionBorderMode :: ConvolutionBorderMode -> GLint
+marshalConvolutionBorderMode x = case x of
+   Reduce -> 0x8016
+   ConstantBorder -> 0x8151
+   ReplicateBorder -> 0x8153
+
+unmarshalConvolutionBorderMode :: GLint -> ConvolutionBorderMode
+unmarshalConvolutionBorderMode x
+   | x == 0x8016 = Reduce
+   | x == 0x8151 = ConstantBorder
+   | x == 0x8153 = ReplicateBorder
+   | otherwise = error ("unmarshalConvolutionBorderMode: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+convolutionBorderMode :: ConvolutionTarget -> StateVar ConvolutionBorderMode
+convolutionBorderMode t =
+   makeStateVar
+      (getConvolutionParameteri
+          unmarshalConvolutionBorderMode t ConvolutionBorderMode)
+      (setConvolutionParameteri
+          marshalConvolutionBorderMode t ConvolutionBorderMode)
+
+setConvolutionParameteri ::
+   (a -> GLint) -> ConvolutionTarget -> ConvolutionParameter -> a -> IO ()
+setConvolutionParameteri f t p x =
+   glConvolutionParameteri
+      (marshalConvolutionTarget t) (marshalConvolutionParameter p) (f x)
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameteri,GLenum -> GLenum -> GLint -> IO ())
+
+--------------------------------------------------------------------------------
+
+convolutionFilterScale :: ConvolutionTarget -> StateVar (Color4 GLfloat)
+convolutionFilterScale = convolutionC4f ConvolutionFilterScale
+
+convolutionFilterBias :: ConvolutionTarget -> StateVar (Color4 GLfloat)
+convolutionFilterBias = convolutionC4f ConvolutionFilterBias
+
+convolutionBorderColor :: ConvolutionTarget -> StateVar (Color4 GLfloat)
+convolutionBorderColor = convolutionC4f ConvolutionBorderColor
+
+convolutionC4f ::
+   ConvolutionParameter -> ConvolutionTarget -> StateVar (Color4 GLfloat)
+convolutionC4f p t =
+   makeStateVar (getConvolutionParameterC4f t p) (convolutionParameterC4f t p)
+
+getConvolutionParameterC4f ::
+   ConvolutionTarget -> ConvolutionParameter -> IO (Color4 GLfloat)
+getConvolutionParameterC4f t p =
+   alloca $ \buf -> do
+      glGetConvolutionParameterfv
+         (marshalConvolutionTarget t) (marshalConvolutionParameter p) buf
+      peek buf
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
+
+convolutionParameterC4f ::
+   ConvolutionTarget -> ConvolutionParameter -> Color4 GLfloat -> IO ()
+convolutionParameterC4f t p c =
+   with c $
+      glConvolutionParameterfv
+         (marshalConvolutionTarget t) (marshalConvolutionParameter p)
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
 
 --------------------------------------------------------------------------------
 
