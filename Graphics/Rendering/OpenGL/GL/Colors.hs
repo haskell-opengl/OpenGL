@@ -24,8 +24,7 @@ module Graphics.Rendering.OpenGL.GL.Colors (
    materialSpecular, materialEmission, materialShininess, materialColorIndexes,
 
    ambient, diffuse, specular,
-   position, spotDirection, spotExponent, spotCutoff,
-   constantAttenuation, linearAttenuation, quadraticAttenuation,
+   position, spotDirection, spotExponent, spotCutoff, attenuation,
 
    lightModelAmbient, lightModelLocalViewer, lightModelTwoSide,
    LightModelColorControl(..), lightModelColorControl,
@@ -37,7 +36,7 @@ module Graphics.Rendering.OpenGL.GL.Colors (
    ShadingModel(..), shadeModel
 ) where
 
-import Control.Monad ( liftM2 )
+import Control.Monad ( liftM2, liftM3 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Marshal.Utils ( with )
@@ -60,6 +59,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetColorMaterialFace,GetColorMaterialParameter),
    getBoolean1, getEnum1, getSizei1, getFloat4, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
+   HasGetter(get), HasSetter(($=)),
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(..), Normal3(..), Vertex4(..), Index1(..) )
@@ -308,6 +308,17 @@ spotCutoff :: Light -> StateVar GLfloat
 spotCutoff = makeLightVar glGetLightfv glLightfv SpotCutoff
 
 --------------------------------------------------------------------------------
+
+attenuation :: Light -> StateVar (GLfloat, GLfloat, GLfloat)
+attenuation theLight =
+   makeStateVar
+      (liftM3 (,,) (get (constantAttenuation  theLight))
+                   (get (linearAttenuation    theLight))
+                   (get (quadraticAttenuation theLight)))
+      (\(constant, linear, quadratic) -> do
+         constantAttenuation  theLight $= constant
+         linearAttenuation    theLight $= linear
+         quadraticAttenuation theLight $= quadratic)
 
 constantAttenuation :: Light -> StateVar GLfloat
 constantAttenuation = makeLightVar glGetLightfv glLightfv ConstantAttenuation
