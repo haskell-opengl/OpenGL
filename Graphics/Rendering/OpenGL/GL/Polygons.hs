@@ -14,13 +14,14 @@
 
 module Graphics.Rendering.OpenGL.GL.Polygons (
    polygonSmooth, cullFace,
-   PolygonStipple, makePolygonStipple, getPolygonStippleBytes, polygonStipple,
+   PolygonStipple(..), GLpolygonstipple, polygonStipple,
    PolygonMode(..), polygonMode, polygonOffset,
    polygonOffsetPoint, polygonOffsetLine, polygonOffsetFill
 ) where
 
 import Control.Monad ( liftM2 )
-import Foreign.Marshal.Array ( withArray )
+import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
+import Foreign.Marshal.Array ( allocaArray, withArray, peekArray, pokeArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple,
@@ -37,7 +38,7 @@ import Graphics.Rendering.OpenGL.GL.PolygonMode (
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
             GetPolygonOffsetUnits),
-   getInteger2, getEnum1, getFloat1, getArrayWith )
+   getInteger2, getEnum1, getFloat1 )
 import Graphics.Rendering.OpenGL.GL.SavingState (
    ClientAttributeGroup(PixelStoreAttributes), preservingClientAttrib )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -59,33 +60,52 @@ foreign import CALLCONV unsafe "glCullFace" glCullFace :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 
-newtype PolygonStipple = PolygonStipple [GLubyte]
-   deriving ( Eq, Ord, Show )
-
 numPolygonStippleBytes :: Int
 numPolygonStippleBytes = 128   -- 32x32 bits divided into GLubytes
 
-makePolygonStipple :: [GLubyte] -> PolygonStipple
-makePolygonStipple pattern
-   | length pattern == numPolygonStippleBytes = PolygonStipple pattern
-   | otherwise =
-        error ("makePolygonStipple: expected " ++ show numPolygonStippleBytes ++
-               " pattern bytes")
+class PolygonStipple s where
+   withNewPolygonStipple :: (Ptr GLubyte -> IO ()) -> IO s
+   withPolygonStipple :: s -> (Ptr GLubyte -> IO a) -> IO a
+   newPolygonStipple :: [GLubyte] -> IO s
+   getPolygonStippleComponents :: s -> IO [GLubyte]
 
-getPolygonStippleBytes :: PolygonStipple -> [GLubyte]
-getPolygonStippleBytes (PolygonStipple pattern) = pattern
+   withNewPolygonStipple act =
+      allocaArray numPolygonStippleBytes $ \p -> do
+         act p
+         components <- peekArray numPolygonStippleBytes p
+         newPolygonStipple components
+
+   withPolygonStipple s act = do
+      components <- getPolygonStippleComponents s
+      withArray components act
+
+   newPolygonStipple components =
+      withNewPolygonStipple $
+         flip pokeArray (take numPolygonStippleBytes components)
+
+   getPolygonStippleComponents s =
+      withPolygonStipple s $ peekArray numPolygonStippleBytes
 
 --------------------------------------------------------------------------------
 
-polygonStipple :: StateVar (Maybe PolygonStipple)
+data GLpolygonstipple = GLpolygonstipple (ForeignPtr GLubyte)
+   deriving ( Eq, Ord, Show )
+
+instance PolygonStipple GLpolygonstipple where
+   withNewPolygonStipple f = do
+      fp <- mallocForeignPtrArray numPolygonStippleBytes
+      withForeignPtr fp f
+      return $ GLpolygonstipple fp
+
+   withPolygonStipple (GLpolygonstipple fp) = withForeignPtr fp
+
+--------------------------------------------------------------------------------
+
+polygonStipple :: PolygonStipple s => StateVar (Maybe s)
 polygonStipple =
    makeStateVarMaybe (return CapPolygonStipple)
-                     getPolygonStipple
-                     setPolygonStipple
-
-getPolygonStipple :: IO PolygonStipple
-getPolygonStipple = withoutGaps Pack $
-   getArrayWith PolygonStipple numPolygonStippleBytes glGetPolygonStipple
+      (withoutGaps Pack $ withNewPolygonStipple glGetPolygonStipple)
+      (\s -> withoutGaps Unpack $ withPolygonStipple s glPolygonStipple)
 
 -- Note: No need to set rowAlignment, our memory allocator always returns a
 -- region which is at least 8-byte aligned (the maximum)
@@ -99,10 +119,6 @@ withoutGaps direction action =
 
 foreign import CALLCONV unsafe "glGetPolygonStipple" glGetPolygonStipple ::
    Ptr GLubyte -> IO ()
-
-setPolygonStipple :: PolygonStipple -> IO ()
-setPolygonStipple (PolygonStipple pattern) = withoutGaps Unpack $
-   withArray pattern $ glPolygonStipple
 
 foreign import CALLCONV unsafe "glPolygonStipple" glPolygonStipple ::
    Ptr GLubyte -> IO ()
