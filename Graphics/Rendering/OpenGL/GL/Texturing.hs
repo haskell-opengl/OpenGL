@@ -33,33 +33,44 @@ module Graphics.Rendering.OpenGL.GL.Texturing (
    compressedTexSubImage1D, compressedTexSubImage2D, compressedTexSubImage3D,
 
    -- * Texture Parameters
+   Repetition(..), Clamping(..), textureWrapMode,
+   textureBorderColor,
 
    -- * Texture Objects
    TextureObject, defaultTextureObject, textureBinding,
    textureResident, areTexturesResident,
-   texturePriority, prioritizeTextures
+   texturePriority, prioritizeTextures,
 
    -- * Texture Environment and Texture Functions
 
+   -- * Texture Queries
+   getTexImage, getCompressedTexImage,
+   textureInternalFormat, textureSize1D, textureSize2D, textureSize3D,
+   textureBorder, textureRGBASizes, textureIntensitySize, textureLuminanceSize,
+   textureIndexSize, textureDepthBits, textureCompressedImageSize,
+   textureProxyOK
 ) where
 
-import Control.Monad ( liftM )
+import Control.Monad ( liftM, liftM2, liftM3, liftM4 )
 import Data.List ( partition, genericLength )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArray, peekArray, allocaArray )
+import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLint, GLuint, GLsizei, GLenum, GLfloat, GLclampf )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..) )
+import Graphics.Rendering.OpenGL.GL.CoordTrans (
+   Position(..), TextureCoordName(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelInternalFormat (
-   PixelInternalFormat(..), marshalPixelInternalFormat )
+   PixelInternalFormat(..), marshalPixelInternalFormat,
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData, Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -71,6 +82,8 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.TextureTarget (
    TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget )
+import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -147,6 +160,12 @@ texImage3D proxy level int (TextureSize3D w h d) border pd =
 EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexImage3DEXT,GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLint -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+getTexImage :: TextureTarget -> Level -> PixelData a -> IO ()
+getTexImage t level pd =
+   withPixelData pd $
+      glGetTexImage (marshalTextureTarget t) level
 
 foreign import CALLCONV unsafe "glGetTexImage"
    glGetTexImage :: GLenum -> GLint -> GLenum -> GLenum -> Ptr a -> IO ()
@@ -296,6 +315,10 @@ EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexImage3
 
 --------------------------------------------------------------------------------
 
+-- ToDo: cube maps
+getCompressedTexImage :: TextureTarget -> Level -> Ptr a -> IO ()
+getCompressedTexImage = glGetCompressedTexImageARB . marshalTextureTarget
+
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glGetCompressedTexImageARB,GLenum -> GLint -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
@@ -377,11 +400,81 @@ marshalTexParameter x = case x of
 
 --------------------------------------------------------------------------------
 
+data Repetition =
+     Repeated
+   | Mirrored
+   deriving ( Eq, Ord, Show )
+
+data Clamping =
+     Clamp
+   | Repeat
+   | ClampToEdge
+   | ClampToBorder
+   deriving ( Eq, Ord, Show )
+
+marshalTextureWrapMode :: (Repetition, Clamping) -> GLint
+marshalTextureWrapMode x = case x of
+   (Repeated, Clamp) -> 0x2900
+   (Repeated, Repeat) -> 0x2901
+   (Repeated, ClampToEdge) -> 0x812f
+   (Repeated, ClampToBorder) -> 0x812d
+   (Mirrored, Clamp) -> 0x8742
+   (Mirrored, Repeat) -> 0x8370
+   (Mirrored, ClampToEdge) -> 0x8743
+   (Mirrored, ClampToBorder) -> 0x8912
+
+unmarshalTextureWrapMode :: GLint -> (Repetition, Clamping)
+unmarshalTextureWrapMode x
+   | x == 0x2900 = (Repeated, Clamp)
+   | x == 0x2901 = (Repeated, Repeat)
+   | x == 0x812f = (Repeated, ClampToEdge)
+   | x == 0x812d = (Repeated, ClampToBorder)
+   | x == 0x8742 = (Mirrored, Clamp)
+   | x == 0x8370 = (Mirrored, Repeat)
+   | x == 0x8743 = (Mirrored, ClampToEdge)
+   | x == 0x8912 = (Mirrored, ClampToBorder)
+   | otherwise = error ("unmarshalTextureWrapMode: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+textureWrapMode :: TextureTarget -> TextureCoordName -> StateVar (Repetition, Clamping)
+textureWrapMode t coord =
+   let mp = textureCoordNameToTexParameter coord
+   in makeStateVar
+      (maybe (do recordInvalidEnum; return (Repeated, Repeat)) (getTexParameteri unmarshalTextureWrapMode t) mp)
+      (\m -> maybe recordInvalidEnum (\p -> texParameteri t p (marshalTextureWrapMode m)) mp)
+
+textureCoordNameToTexParameter :: TextureCoordName -> Maybe TexParameter
+textureCoordNameToTexParameter x = case x of
+   S -> Just TextureWrapS
+   T -> Just TextureWrapT
+   R -> Just TextureWrapR
+   Q -> Nothing
+
+-- ToDo: cube maps
+textureBorderColor :: TextureTarget -> StateVar (Color4 GLfloat)
+textureBorderColor t =
+   makeStateVar
+       (getTexParameterC4f t TextureBorderColor)
+       (texParameterC4f t TextureBorderColor)
+
+texParameterC4f :: TextureTarget -> TexParameter -> Color4 GLfloat -> IO ()
+texParameterC4f t p c =
+   with c $
+      glTexParameterC4f (marshalTextureTarget t) (marshalTexParameter p)
+
 foreign import CALLCONV unsafe "glTexParameterf"
    glTexParameterf :: GLenum -> GLenum ->  GLfloat -> IO ()
 
+texParameteri :: TextureTarget -> TexParameter -> GLint -> IO ()
+texParameteri t = glTexParameteri (marshalTextureTarget t) . marshalTexParameter
+
 foreign import CALLCONV unsafe "glTexParameteri"
    glTexParameteri :: GLenum -> GLenum ->  GLint -> IO ()
+
+foreign import CALLCONV unsafe "glTexParameterfv"
+   glTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 
 foreign import CALLCONV unsafe "glTexParameterfv"
    glTexParameterfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
@@ -398,10 +491,19 @@ getTexParameterf t p =
 foreign import CALLCONV unsafe "glGetTexParameterfv"
    glGetTexParameterfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
 
-getTexParameteri :: (GLint -> a) -> Proxy -> TextureTarget -> TexParameter -> IO a
-getTexParameteri f proxy t p =
+getTexParameterC4f :: TextureTarget -> TexParameter -> IO (Color4 GLfloat)
+getTexParameterC4f t p =
    alloca $ \buf -> do
-     glGetTexParameteriv (marshalProxyTextureTarget proxy t) (marshalTexParameter p) buf
+     glGetTexParameterC4f (marshalTextureTarget t) (marshalTexParameter p) buf
+     peek buf
+
+foreign import CALLCONV unsafe "glGetTexParameterfv"
+   glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+
+getTexParameteri :: (GLint -> a) -> TextureTarget -> TexParameter -> IO a
+getTexParameteri f t p =
+   alloca $ \buf -> do
+     glGetTexParameteriv (marshalTextureTarget t) (marshalTexParameter p) buf
      peek1 f buf
 
 foreign import CALLCONV unsafe "glGetTexParameteriv"
@@ -410,11 +512,10 @@ foreign import CALLCONV unsafe "glGetTexParameteriv"
 --------------------------------------------------------------------------------
 
 data TexLevelParameter =
-     TextureComponents
+     TextureInternalFormat
    | TextureWidth
    | TextureHeight
    | TextureDepth
-   | TextureInternalFormat
    | TextureBorder
    | TextureRedSize
    | TextureGreenSize
@@ -429,11 +530,10 @@ data TexLevelParameter =
 
 marshalTexLevelParameter :: TexLevelParameter -> GLenum
 marshalTexLevelParameter x = case x of
-   TextureComponents -> 0x1003
+   TextureInternalFormat -> 0x1003
    TextureWidth -> 0x1000
    TextureHeight -> 0x1001
    TextureDepth -> 0x8071
-   TextureInternalFormat -> 0x1003
    TextureBorder -> 0x1005
    TextureRedSize -> 0x805C
    TextureGreenSize -> 0x805D
@@ -448,8 +548,95 @@ marshalTexLevelParameter x = case x of
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glGetTexLevelParameterfv"
-   glGetTexLevelParameterfv :: GLenum -> GLint -> GLenum -> Ptr GLfloat -> IO ()
+-- ToDo: cube maps
+textureInternalFormat :: TextureTarget -> Level -> GettableStateVar PixelInternalFormat
+textureInternalFormat t level =
+   makeGettableStateVar $
+      getTexLevelParameteri (unmarshalPixelInternalFormat . fromIntegral) NoProxy t level TextureInternalFormat
+
+-- ToDo: cube maps
+textureSize1D :: TextureTarget -> Level -> GettableStateVar TextureSize1D
+textureSize1D t level =
+   makeGettableStateVar $
+      getTexLevelParameteri (TextureSize1D . fromIntegral) NoProxy t level TextureWidth
+
+-- ToDo: cube maps
+textureSize2D :: TextureTarget -> Level -> GettableStateVar TextureSize2D
+textureSize2D t level =
+   makeGettableStateVar $
+      liftM2 TextureSize2D
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureWidth )
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureHeight)
+
+-- ToDo: cube maps
+textureSize3D :: TextureTarget -> Level -> GettableStateVar TextureSize3D
+textureSize3D t level =
+   makeGettableStateVar $
+      liftM3 TextureSize3D
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureWidth )
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureHeight)
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureDepth )
+
+-- ToDo: cube maps
+textureBorder :: TextureTarget -> Level -> GettableStateVar Border
+textureBorder t level =
+   makeGettableStateVar $
+      getTexLevelParameteri fromIntegral NoProxy t level TextureBorder
+
+-- ToDo: cube maps
+textureRGBASizes :: TextureTarget -> Level -> GettableStateVar (Color4 GLsizei)
+textureRGBASizes t level =
+   makeGettableStateVar $
+      liftM4 Color4
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureRedSize  )
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureGreenSize)
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureBlueSize )
+             (getTexLevelParameteri fromIntegral NoProxy t level TextureAlphaSize)
+
+-- ToDo: cube maps
+textureIntensitySize :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureIntensitySize t level =
+   makeGettableStateVar $
+      getTexLevelParameteri fromIntegral NoProxy t level TextureIntensitySize
+
+-- ToDo: cube maps
+textureLuminanceSize :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureLuminanceSize t level =
+   makeGettableStateVar $
+      getTexLevelParameteri fromIntegral NoProxy t level TextureLuminanceSize
+
+-- ToDo: cube maps
+textureIndexSize :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureIndexSize t level =
+   makeGettableStateVar $
+      getTexLevelParameteri fromIntegral NoProxy t level TextureIndexSize
+
+-- ToDo: cube maps
+textureDepthBits :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureDepthBits t level =
+   makeGettableStateVar $
+      getTexLevelParameteri fromIntegral NoProxy t level DepthBits
+
+-- ToDo: cube maps
+textureCompressedImageSize :: TextureTarget -> Level -> GettableStateVar (Maybe GLsizei)
+textureCompressedImageSize t level =
+   makeGettableStateVar $ do
+      isCompressed <- getTexLevelParameteri (unmarshalGLboolean . fromIntegral) NoProxy t level TextureCompressed
+      if isCompressed
+         then getTexLevelParameteri (Just . fromIntegral) NoProxy t level TextureCompressedImageSize
+         else return Nothing
+
+-- ToDo: cube maps
+textureProxyOK :: TextureTarget -> Level -> GettableStateVar Bool
+textureProxyOK t level =
+   makeGettableStateVar $
+      getTexLevelParameteri (unmarshalGLboolean . fromIntegral) Proxy t level TextureWidth
+
+getTexLevelParameteri :: (GLint -> a) -> Proxy -> TextureTarget -> Level -> TexLevelParameter -> IO a
+getTexLevelParameteri f proxy t level p =
+   alloca $ \buf -> do
+      glGetTexLevelParameteriv (marshalProxyTextureTarget proxy t) level (marshalTexLevelParameter p) buf
+      peek1 f buf
 
 -- all targets incl. proxies and all cube maps
 foreign import CALLCONV unsafe "glGetTexLevelParameteriv"
@@ -501,8 +688,8 @@ foreign import CALLCONV unsafe "glBindTexture"
 
 textureResident :: TextureTarget -> GettableStateVar Bool
 textureResident t =
-   makeGettableStateVar
-      (getTexParameteri (unmarshalGLboolean . fromIntegral) NoProxy t TextureResident)
+   makeGettableStateVar $
+      getTexParameteri (unmarshalGLboolean . fromIntegral) t TextureResident
 
 areTexturesResident :: [TextureObject] -> IO ([TextureObject],[TextureObject])
 areTexturesResident texObjs = do
