@@ -30,15 +30,20 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    pixelMapIToI, pixelMapSToS, pixelMapIToR, pixelMapIToG, pixelMapIToB,
    pixelMapIToA, pixelMapRToR, pixelMapGToG, pixelMapBToB, pixelMapAToA,
 
-   colorTable, postConvolutionColorTable, postColorMatrixColorTable,
-   ColorTableTarget(..),
+   colorTableEnabled, postConvolutionColorTableEnabled,
+   postColorMatrixColorTableEnabled,
+   colorTableScale, colorTableBias,
+   postConvolutionColorTableScale, postConvolutionColorTableBias,
+   postColorMatrixColorTableScale, postColorMatrixColorTableBias,
 
    PixelFormat(..), PixelType(..), drawPixels
 ) where
 
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
+import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable )
+import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLuint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
@@ -449,8 +454,6 @@ pixelMapBToB = pixelMap PixelMapBToB
 pixelMapAToA :: StateVar (PixelMap (GLfloat))
 pixelMapAToA = pixelMap PixelMapAToA
 
---------------------------------------------------------------------------------
-
 pixelMap :: PixelMapComponent a => PixelMap' -> StateVar (PixelMap a)
 pixelMap pm =
    makeStateVar
@@ -484,6 +487,23 @@ foreign import CALLCONV unsafe "glPixelMapfv" glPixelMapfv ::
 
 --------------------------------------------------------------------------------
 
+colorTableEnabled :: StateVar Bool
+colorTableEnabled = makeCapability CapColorTable
+
+postConvolutionColorTableEnabled :: StateVar Bool
+postConvolutionColorTableEnabled = makeCapability CapPostConvolutionColorTable
+
+postColorMatrixColorTableEnabled :: StateVar Bool
+postColorMatrixColorTableEnabled = makeCapability CapPostColorMatrixColorTable
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorTable,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorSubTable,GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
 data ColorTableTarget =
      ColorTable
    | PostConvolutionColorTable
@@ -491,7 +511,6 @@ data ColorTableTarget =
    | ProxyColorTable
    | ProxyPostConvolutionColorTable
    | ProxyPostColorMatrixColorTable
-   deriving ( Eq, Ord, Show )
 
 marshalColorTableTarget :: ColorTableTarget -> GLenum
 marshalColorTableTarget x = case x of
@@ -514,34 +533,91 @@ unmarshalColorTableTarget x
 
 --------------------------------------------------------------------------------
 
-colorTable :: StateVar Bool
-colorTable = makeCapability CapColorTable
+data ColorTablePName =
+     ColorTableScale
+   | ColorTableBias
+   | ColorTableFormat
+   | ColorTableWidth
+   | ColorTableRedSize
+   | ColorTableGreenSize
+   | ColorTableBlueSize
+   | ColorTableAlphaSize
+   | ColorTableLuminanceSize
+   | ColorTableIntensitySize
 
-postConvolutionColorTable :: StateVar Bool
-postConvolutionColorTable = makeCapability CapPostConvolutionColorTable
-
-postColorMatrixColorTable :: StateVar Bool
-postColorMatrixColorTable = makeCapability CapPostColorMatrixColorTable
+marshalColorTablePName :: ColorTablePName -> GLenum
+marshalColorTablePName x = case x of
+   ColorTableScale -> 0x80d6
+   ColorTableBias -> 0x80d7
+   ColorTableFormat -> 0x80d8
+   ColorTableWidth -> 0x80d9
+   ColorTableRedSize -> 0x80da
+   ColorTableGreenSize -> 0x80db
+   ColorTableBlueSize -> 0x80dc
+   ColorTableAlphaSize -> 0x80dd
+   ColorTableLuminanceSize -> 0x80de
+   ColorTableIntensitySize -> 0x80df
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("GL_ARB_imaging",glColorTable,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+colorTableScale :: StateVar (Color4 GLfloat)
+colorTableScale = colorTableScaleBias ColorTable ColorTableScale
 
-EXTENSION_ENTRY("GL_ARB_imaging",glColorSubTable,GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+colorTableBias :: StateVar (Color4 GLfloat)
+colorTableBias = colorTableScaleBias ColorTable ColorTableBias
 
-EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+postConvolutionColorTableScale :: StateVar (Color4 GLfloat)
+postConvolutionColorTableScale =
+   colorTableScaleBias PostConvolutionColorTable ColorTableScale
 
-EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+postConvolutionColorTableBias :: StateVar (Color4 GLfloat)
+postConvolutionColorTableBias =
+   colorTableScaleBias PostConvolutionColorTable ColorTableBias
+
+postColorMatrixColorTableScale :: StateVar (Color4 GLfloat)
+postColorMatrixColorTableScale =
+   colorTableScaleBias PostColorMatrixColorTable ColorTableScale
+
+postColorMatrixColorTableBias :: StateVar (Color4 GLfloat)
+postColorMatrixColorTableBias =
+   colorTableScaleBias PostColorMatrixColorTable ColorTableBias
+
+colorTableScaleBias ::
+   ColorTableTarget -> ColorTablePName -> StateVar (Color4 GLfloat)
+colorTableScaleBias t p =
+   makeStateVar (getColorTableParameterC4 t p) (colorTableParameterC4 t p)
+
+getColorTableParameterC4 ::
+   ColorTableTarget -> ColorTablePName -> IO (Color4 GLfloat) 
+getColorTableParameterC4 t p =
+   alloca $ \buf -> do
+      glGetColorTableParameterfv
+         (marshalColorTableTarget t)
+         (marshalColorTablePName p)
+         buf
+      peek buf
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
+
+colorTableParameterC4 ::
+   ColorTableTarget -> ColorTablePName -> Color4 GLfloat -> IO ()
+colorTableParameterC4 t p c =
+   with c $
+      glColorTableParameterfv
+         (marshalColorTableTarget t)
+         (marshalColorTablePName p)
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
 
 EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorSubTable,GLenum -> GLsizei -> GLint -> GLint -> GLsizei -> IO ())
 
 EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorTable,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTable,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
 
 EXTENSION_ENTRY("GL_ARB_imaging",glHistogram,GLenum -> GLsizei -> GLenum -> GLboolean -> IO ())
 
