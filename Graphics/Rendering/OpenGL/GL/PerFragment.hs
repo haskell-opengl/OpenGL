@@ -82,12 +82,9 @@ setSampleCoverage :: Maybe (GLclampf, Bool) -> IO ()
 setSampleCoverage Nothing = sampleCoverageEnabled $= False
 setSampleCoverage (Just (value, invert)) = do
    sampleCoverageEnabled $= True
-   glSampleCoverage value (marshalGLboolean invert)
+   glSampleCoverageARB value (marshalGLboolean invert)
 
-EXTENSION_ENTRY("GL_ARB_multisample or OpenGL 1.3","glSampleCoverageARB",dynSampleCoverage,ptrSampleCoverage,GLclampf -> GLboolean -> IO ())
-
-glSampleCoverage :: GLclampf -> GLboolean -> IO ()
-glSampleCoverage = dynSampleCoverage ptrSampleCoverage
+EXTENSION_ENTRY("GL_ARB_multisample or OpenGL 1.3",glSampleCoverageARB,GLclampf -> GLboolean -> IO ())
 
 sampleCoverageEnabled :: StateVar Bool
 sampleCoverageEnabled = makeCapability CapSampleCoverage

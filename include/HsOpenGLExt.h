@@ -5,7 +5,7 @@
  * License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
  * 
  * Maintainer  :  sven_panne@yahoo.com
- * Stability   :  experimental
+ * Stability   :  provisional
  * Portability :  portable
  *
  * This header should only define preprocessor macros!
@@ -15,10 +15,12 @@
 #ifndef HSOPENGLEXT_H
 #define HSOPENGLEXT_H
 
-#define EXTENSION_ENTRY(ext,entry,dynName,ptrName,ty) \
-foreign import CALLCONV unsafe "dynamic" dynName :: Graphics.Rendering.OpenGL.GL.Extensions.Invoker (ty) ; \
-ptrName :: FunPtr a ; \
-ptrName = unsafePerformIO (Graphics.Rendering.OpenGL.GL.Extensions.getProcAddress (ext) (entry)) ; \
-{-# NOINLINE ptrName #-}
+#define EXTENSION_ENTRY(_msg,_entry,_ty) \
+_entry :: (_ty) ; \
+_entry = dyn_/**/_entry ptr_/**/_entry ; \
+foreign import CALLCONV unsafe "dynamic" dyn_/**/_entry :: Graphics.Rendering.OpenGL.GL.Extensions.Invoker (_ty) ; \
+ptr_/**/_entry :: FunPtr a ; \
+ptr_/**/_entry = unsafePerformIO (Graphics.Rendering.OpenGL.GL.Extensions.getProcAddress (_msg) ("_entry")) ; \
+{-# NOINLINE ptr_/**/_entry #-}
 
 #endif

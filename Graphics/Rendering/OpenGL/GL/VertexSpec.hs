@@ -337,15 +337,15 @@ foreign import CALLCONV unsafe "glTexCoord3sv" glTexCoord3sv ::
 foreign import CALLCONV unsafe "glTexCoord4sv" glTexCoord4sv ::
    Ptr GLshort -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1sARB",dynMultiTexCoord1s,ptrMultiTexCoord1s,TextureUnit -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2sARB",dynMultiTexCoord2s,ptrMultiTexCoord2s,TextureUnit -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3sARB",dynMultiTexCoord3s,ptrMultiTexCoord3s,TextureUnit -> GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4sARB",dynMultiTexCoord4s,ptrMultiTexCoord4s,TextureUnit -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1sARB,TextureUnit -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2sARB,TextureUnit -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3sARB,TextureUnit -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4sARB,TextureUnit -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1svARB",dynMultiTexCoord1sv,ptrMultiTexCoord1sv,TextureUnit -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2svARB",dynMultiTexCoord2sv,ptrMultiTexCoord2sv,TextureUnit -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3svARB",dynMultiTexCoord3sv,ptrMultiTexCoord3sv,TextureUnit -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4svARB",dynMultiTexCoord4sv,ptrMultiTexCoord4sv,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1svARB,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2svARB,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3svARB,TextureUnit -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4svARB,TextureUnit -> Ptr GLshort -> IO ())
 
 instance TexCoordComponent GLshort where
    texCoord1 = glTexCoord1s
@@ -358,15 +358,15 @@ instance TexCoordComponent GLshort where
    texCoord3v = glTexCoord3sv
    texCoord4v = glTexCoord4sv
 
-   multiTexCoord1 = dynMultiTexCoord1s ptrMultiTexCoord1s
-   multiTexCoord2 = dynMultiTexCoord2s ptrMultiTexCoord2s
-   multiTexCoord3 = dynMultiTexCoord3s ptrMultiTexCoord3s
-   multiTexCoord4 = dynMultiTexCoord4s ptrMultiTexCoord4s
+   multiTexCoord1 = glMultiTexCoord1sARB
+   multiTexCoord2 = glMultiTexCoord2sARB
+   multiTexCoord3 = glMultiTexCoord3sARB
+   multiTexCoord4 = glMultiTexCoord4sARB
 
-   multiTexCoord1v = dynMultiTexCoord1sv ptrMultiTexCoord1sv
-   multiTexCoord2v = dynMultiTexCoord2sv ptrMultiTexCoord2sv
-   multiTexCoord3v = dynMultiTexCoord3sv ptrMultiTexCoord3sv
-   multiTexCoord4v = dynMultiTexCoord4sv ptrMultiTexCoord4sv
+   multiTexCoord1v = glMultiTexCoord1svARB
+   multiTexCoord2v = glMultiTexCoord2svARB
+   multiTexCoord3v = glMultiTexCoord3svARB
+   multiTexCoord4v = glMultiTexCoord4svARB
 
 --------------------------------------------------------------------------------
 
@@ -394,15 +394,15 @@ foreign import CALLCONV unsafe "glTexCoord3iv" glTexCoord3iv ::
 foreign import CALLCONV unsafe "glTexCoord4iv" glTexCoord4iv ::
    Ptr GLint -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1sARB",dynMultiTexCoord1i,ptrMultiTexCoord1i,TextureUnit -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2sARB",dynMultiTexCoord2i,ptrMultiTexCoord2i,TextureUnit -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3sARB",dynMultiTexCoord3i,ptrMultiTexCoord3i,TextureUnit -> GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4sARB",dynMultiTexCoord4i,ptrMultiTexCoord4i,TextureUnit -> GLint -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1iARB,TextureUnit -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2iARB,TextureUnit -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3iARB,TextureUnit -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4iARB,TextureUnit -> GLint -> GLint -> GLint -> GLint -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1svARB",dynMultiTexCoord1iv,ptrMultiTexCoord1iv,TextureUnit -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2svARB",dynMultiTexCoord2iv,ptrMultiTexCoord2iv,TextureUnit -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3svARB",dynMultiTexCoord3iv,ptrMultiTexCoord3iv,TextureUnit -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4svARB",dynMultiTexCoord4iv,ptrMultiTexCoord4iv,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1ivARB,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2ivARB,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3ivARB,TextureUnit -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4ivARB,TextureUnit -> Ptr GLint -> IO ())
 
 instance TexCoordComponent GLint where
    texCoord1 = glTexCoord1i
@@ -415,15 +415,15 @@ instance TexCoordComponent GLint where
    texCoord3v = glTexCoord3iv
    texCoord4v = glTexCoord4iv
 
-   multiTexCoord1 = dynMultiTexCoord1i ptrMultiTexCoord1i
-   multiTexCoord2 = dynMultiTexCoord2i ptrMultiTexCoord2i
-   multiTexCoord3 = dynMultiTexCoord3i ptrMultiTexCoord3i
-   multiTexCoord4 = dynMultiTexCoord4i ptrMultiTexCoord4i
+   multiTexCoord1 = glMultiTexCoord1iARB
+   multiTexCoord2 = glMultiTexCoord2iARB
+   multiTexCoord3 = glMultiTexCoord3iARB
+   multiTexCoord4 = glMultiTexCoord4iARB
 
-   multiTexCoord1v = dynMultiTexCoord1iv ptrMultiTexCoord1iv
-   multiTexCoord2v = dynMultiTexCoord2iv ptrMultiTexCoord2iv
-   multiTexCoord3v = dynMultiTexCoord3iv ptrMultiTexCoord3iv
-   multiTexCoord4v = dynMultiTexCoord4iv ptrMultiTexCoord4iv
+   multiTexCoord1v = glMultiTexCoord1ivARB
+   multiTexCoord2v = glMultiTexCoord2ivARB
+   multiTexCoord3v = glMultiTexCoord3ivARB
+   multiTexCoord4v = glMultiTexCoord4ivARB
 
 --------------------------------------------------------------------------------
 
@@ -451,15 +451,15 @@ foreign import CALLCONV unsafe "glTexCoord3fv" glTexCoord3fv ::
 foreign import CALLCONV unsafe "glTexCoord4fv" glTexCoord4fv ::
    Ptr GLfloat -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1sARB",dynMultiTexCoord1f,ptrMultiTexCoord1f,TextureUnit -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2sARB",dynMultiTexCoord2f,ptrMultiTexCoord2f,TextureUnit -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3sARB",dynMultiTexCoord3f,ptrMultiTexCoord3f,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4sARB",dynMultiTexCoord4f,ptrMultiTexCoord4f,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fARB,TextureUnit -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fARB,TextureUnit -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fARB,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fARB,TextureUnit -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1svARB",dynMultiTexCoord1fv,ptrMultiTexCoord1fv,TextureUnit -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2svARB",dynMultiTexCoord2fv,ptrMultiTexCoord2fv,TextureUnit -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3svARB",dynMultiTexCoord3fv,ptrMultiTexCoord3fv,TextureUnit -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4svARB",dynMultiTexCoord4fv,ptrMultiTexCoord4fv,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fvARB,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fvARB,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fvARB,TextureUnit -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fvARB,TextureUnit -> Ptr GLfloat -> IO ())
 
 instance TexCoordComponent GLfloat where
    texCoord1 = glTexCoord1f
@@ -472,15 +472,15 @@ instance TexCoordComponent GLfloat where
    texCoord3v = glTexCoord3fv
    texCoord4v = glTexCoord4fv
 
-   multiTexCoord1 = dynMultiTexCoord1f ptrMultiTexCoord1f
-   multiTexCoord2 = dynMultiTexCoord2f ptrMultiTexCoord2f
-   multiTexCoord3 = dynMultiTexCoord3f ptrMultiTexCoord3f
-   multiTexCoord4 = dynMultiTexCoord4f ptrMultiTexCoord4f
+   multiTexCoord1 = glMultiTexCoord1fARB
+   multiTexCoord2 = glMultiTexCoord2fARB
+   multiTexCoord3 = glMultiTexCoord3fARB
+   multiTexCoord4 = glMultiTexCoord4fARB
 
-   multiTexCoord1v = dynMultiTexCoord1fv ptrMultiTexCoord1fv
-   multiTexCoord2v = dynMultiTexCoord2fv ptrMultiTexCoord2fv
-   multiTexCoord3v = dynMultiTexCoord3fv ptrMultiTexCoord3fv
-   multiTexCoord4v = dynMultiTexCoord4fv ptrMultiTexCoord4fv
+   multiTexCoord1v = glMultiTexCoord1fvARB
+   multiTexCoord2v = glMultiTexCoord2fvARB
+   multiTexCoord3v = glMultiTexCoord3fvARB
+   multiTexCoord4v = glMultiTexCoord4fvARB
 
 --------------------------------------------------------------------------------
 
@@ -508,15 +508,15 @@ foreign import CALLCONV unsafe "glTexCoord3dv" glTexCoord3dv ::
 foreign import CALLCONV unsafe "glTexCoord4dv" glTexCoord4dv ::
    Ptr GLdouble -> IO ()
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1sARB",dynMultiTexCoord1d,ptrMultiTexCoord1d,TextureUnit -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2sARB",dynMultiTexCoord2d,ptrMultiTexCoord2d,TextureUnit -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3sARB",dynMultiTexCoord3d,ptrMultiTexCoord3d,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4sARB",dynMultiTexCoord4d,ptrMultiTexCoord4d,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dARB,TextureUnit -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dARB,TextureUnit -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dARB,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dARB,TextureUnit -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord1svARB",dynMultiTexCoord1dv,ptrMultiTexCoord1dv,TextureUnit -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord2svARB",dynMultiTexCoord2dv,ptrMultiTexCoord2dv,TextureUnit -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord3svARB",dynMultiTexCoord3dv,ptrMultiTexCoord3dv,TextureUnit -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3","glMultiTexCoord4svARB",dynMultiTexCoord4dv,ptrMultiTexCoord4dv,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dvARB,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dvARB,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dvARB,TextureUnit -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dvARB,TextureUnit -> Ptr GLdouble -> IO ())
 
 instance TexCoordComponent GLdouble where
    texCoord1 = glTexCoord1d
@@ -529,15 +529,15 @@ instance TexCoordComponent GLdouble where
    texCoord3v = glTexCoord3dv
    texCoord4v = glTexCoord4dv
 
-   multiTexCoord1 = dynMultiTexCoord1d ptrMultiTexCoord1d
-   multiTexCoord2 = dynMultiTexCoord2d ptrMultiTexCoord2d
-   multiTexCoord3 = dynMultiTexCoord3d ptrMultiTexCoord3d
-   multiTexCoord4 = dynMultiTexCoord4d ptrMultiTexCoord4d
+   multiTexCoord1 = glMultiTexCoord1dARB
+   multiTexCoord2 = glMultiTexCoord2dARB
+   multiTexCoord3 = glMultiTexCoord3dARB
+   multiTexCoord4 = glMultiTexCoord4dARB
 
-   multiTexCoord1v = dynMultiTexCoord1dv ptrMultiTexCoord1dv
-   multiTexCoord2v = dynMultiTexCoord2dv ptrMultiTexCoord2dv
-   multiTexCoord3v = dynMultiTexCoord3dv ptrMultiTexCoord3dv
-   multiTexCoord4v = dynMultiTexCoord4dv ptrMultiTexCoord4dv
+   multiTexCoord1v = glMultiTexCoord1dvARB
+   multiTexCoord2v = glMultiTexCoord2dvARB
+   multiTexCoord3v = glMultiTexCoord3dvARB
+   multiTexCoord4v = glMultiTexCoord4dvARB
 
 --------------------------------------------------------------------------------
 
@@ -749,21 +749,21 @@ class FogCoordComponent a where
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4","glFogCoordfEXT",dynFogCoordf,ptrFogCoordf,GLfloat -> IO ())
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4","glFogCoordfvEXT",dynFogCoordfv,ptrFogCoordfv,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordfEXT,GLfloat -> IO ())
+EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordfvEXT,Ptr GLfloat -> IO ())
 
 instance FogCoordComponent GLfloat where
-   fogCoord1 = dynFogCoordf ptrFogCoordf
-   fogCoord1v = dynFogCoordfv ptrFogCoordfv
+   fogCoord1 = glFogCoordfEXT
+   fogCoord1v = glFogCoordfvEXT
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4","glFogCoorddEXT",dynFogCoordd,ptrFogCoordd,GLdouble -> IO ())
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4","glFogCoorddvEXT",dynFogCoorddv,ptrFogCoorddv,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoorddEXT,GLdouble -> IO ())
+EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoorddvEXT,Ptr GLdouble -> IO ())
 
 instance FogCoordComponent GLdouble where
-   fogCoord1 = dynFogCoordd ptrFogCoordd
-   fogCoord1v = dynFogCoorddv ptrFogCoorddv
+   fogCoord1 = glFogCoorddEXT
+   fogCoord1v = glFogCoorddvEXT
 
 --------------------------------------------------------------------------------
 
@@ -828,8 +828,8 @@ foreign import CALLCONV unsafe "glColor3bv" glColor3bv ::
 foreign import CALLCONV unsafe "glColor4bv" glColor4bv ::
    Ptr GLbyte -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3bEXT",dynSecondaryColor3b,ptrSecondaryColor3b,GLbyte -> GLbyte -> GLbyte -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3bvEXT",dynSecondaryColor3bv,ptrSecondaryColor3bv,Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3bEXT,GLbyte -> GLbyte -> GLbyte -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3bvEXT,Ptr GLbyte -> IO ())
 
 instance ColorComponent GLbyte where
    color3 = glColor3b
@@ -838,8 +838,8 @@ instance ColorComponent GLbyte where
    color3v = glColor3bv
    color4v = glColor4bv
 
-   secondaryColor3 = dynSecondaryColor3b ptrSecondaryColor3b
-   secondaryColor3v = dynSecondaryColor3bv ptrSecondaryColor3bv
+   secondaryColor3 = glSecondaryColor3bEXT
+   secondaryColor3v = glSecondaryColor3bvEXT
 
 --------------------------------------------------------------------------------
 
@@ -855,8 +855,8 @@ foreign import CALLCONV unsafe "glColor3sv" glColor3sv ::
 foreign import CALLCONV unsafe "glColor4sv" glColor4sv ::
    Ptr GLshort -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3sEXT",dynSecondaryColor3s,ptrSecondaryColor3s,GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3svEXT",dynSecondaryColor3sv,ptrSecondaryColor3sv,Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3sEXT,GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3svEXT,Ptr GLshort -> IO ())
 
 instance ColorComponent GLshort where
    color3 = glColor3s
@@ -865,8 +865,8 @@ instance ColorComponent GLshort where
    color3v = glColor3sv
    color4v = glColor4sv
 
-   secondaryColor3 = dynSecondaryColor3s ptrSecondaryColor3s
-   secondaryColor3v = dynSecondaryColor3sv ptrSecondaryColor3sv
+   secondaryColor3 = glSecondaryColor3sEXT
+   secondaryColor3v = glSecondaryColor3svEXT
 
 --------------------------------------------------------------------------------
 
@@ -882,8 +882,8 @@ foreign import CALLCONV unsafe "glColor3iv" glColor3iv ::
 foreign import CALLCONV unsafe "glColor4iv" glColor4iv ::
    Ptr GLint -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3iEXT",dynSecondaryColor3i,ptrSecondaryColor3i,GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3ivEXT",dynSecondaryColor3iv,ptrSecondaryColor3iv,Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3iEXT,GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ivEXT,Ptr GLint -> IO ())
 
 instance ColorComponent GLint where
    color3 = glColor3i
@@ -892,8 +892,8 @@ instance ColorComponent GLint where
    color3v = glColor3iv
    color4v = glColor4iv
 
-   secondaryColor3 = dynSecondaryColor3i ptrSecondaryColor3i
-   secondaryColor3v = dynSecondaryColor3iv ptrSecondaryColor3iv
+   secondaryColor3 = glSecondaryColor3iEXT
+   secondaryColor3v = glSecondaryColor3ivEXT
 
 --------------------------------------------------------------------------------
 
@@ -909,8 +909,8 @@ foreign import CALLCONV unsafe "glColor3fv" glColor3fv ::
 foreign import CALLCONV unsafe "glColor4fv" glColor4fv ::
    Ptr GLfloat -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3fEXT",dynSecondaryColor3f,ptrSecondaryColor3f,GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3fvEXT",dynSecondaryColor3fv,ptrSecondaryColor3fv,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3fEXT,GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3fvEXT,Ptr GLfloat -> IO ())
 
 instance ColorComponent GLfloat where
    color3 = glColor3f
@@ -919,8 +919,8 @@ instance ColorComponent GLfloat where
    color3v = glColor3fv
    color4v = glColor4fv
 
-   secondaryColor3 = dynSecondaryColor3f ptrSecondaryColor3f
-   secondaryColor3v = dynSecondaryColor3fv ptrSecondaryColor3fv
+   secondaryColor3 = glSecondaryColor3fEXT
+   secondaryColor3v = glSecondaryColor3fvEXT
 
 --------------------------------------------------------------------------------
 
@@ -936,8 +936,8 @@ foreign import CALLCONV unsafe "glColor3dv" glColor3dv ::
 foreign import CALLCONV unsafe "glColor4dv" glColor4dv ::
    Ptr GLdouble -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3dEXT",dynSecondaryColor3d,ptrSecondaryColor3d,GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3dvEXT",dynSecondaryColor3dv,ptrSecondaryColor3dv,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3dEXT,GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3dvEXT,Ptr GLdouble -> IO ())
 
 instance ColorComponent GLdouble where
    color3 = glColor3d
@@ -946,8 +946,8 @@ instance ColorComponent GLdouble where
    color3v = glColor3dv
    color4v = glColor4dv
 
-   secondaryColor3 = dynSecondaryColor3d ptrSecondaryColor3d
-   secondaryColor3v = dynSecondaryColor3dv ptrSecondaryColor3dv
+   secondaryColor3 = glSecondaryColor3dEXT
+   secondaryColor3v = glSecondaryColor3dvEXT
 
 --------------------------------------------------------------------------------
 
@@ -964,8 +964,8 @@ foreign import CALLCONV unsafe "glColor3ubv" glColor3ubv ::
 foreign import CALLCONV unsafe "glColor4ubv" glColor4ubv ::
    Ptr GLubyte -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3ubEXT",dynSecondaryColor3ub,ptrSecondaryColor3ub,GLubyte -> GLubyte -> GLubyte -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3ubvEXT",dynSecondaryColor3ubv,ptrSecondaryColor3ubv,Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ubEXT,GLubyte -> GLubyte -> GLubyte -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ubvEXT,Ptr GLubyte -> IO ())
 
 instance ColorComponent GLubyte where
    color3 = glColor3ub
@@ -974,8 +974,8 @@ instance ColorComponent GLubyte where
    color3v = glColor3ubv
    color4v = glColor4ubv
 
-   secondaryColor3 = dynSecondaryColor3ub ptrSecondaryColor3ub
-   secondaryColor3v = dynSecondaryColor3ubv ptrSecondaryColor3ubv
+   secondaryColor3 = glSecondaryColor3ubEXT
+   secondaryColor3v = glSecondaryColor3ubvEXT
 
 --------------------------------------------------------------------------------
 
@@ -991,8 +991,8 @@ foreign import CALLCONV unsafe "glColor3usv" glColor3usv ::
 foreign import CALLCONV unsafe "glColor4usv" glColor4usv ::
    Ptr GLushort -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3usEXT",dynSecondaryColor3us,ptrSecondaryColor3us,GLushort -> GLushort -> GLushort -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3usvEXT",dynSecondaryColor3usv,ptrSecondaryColor3usv,Ptr GLushort -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3usEXT,GLushort -> GLushort -> GLushort -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3usvEXT,Ptr GLushort -> IO ())
 
 instance ColorComponent GLushort where
    color3 = glColor3us
@@ -1001,8 +1001,8 @@ instance ColorComponent GLushort where
    color3v = glColor3usv
    color4v = glColor4usv
 
-   secondaryColor3 = dynSecondaryColor3us ptrSecondaryColor3us
-   secondaryColor3v = dynSecondaryColor3usv ptrSecondaryColor3usv
+   secondaryColor3 = glSecondaryColor3usEXT
+   secondaryColor3v = glSecondaryColor3usvEXT
 
 --------------------------------------------------------------------------------
 
@@ -1018,8 +1018,8 @@ foreign import CALLCONV unsafe "glColor3uiv" glColor3uiv ::
 foreign import CALLCONV unsafe "glColor4uiv" glColor4uiv ::
    Ptr GLuint -> IO ()
 
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3uiEXT",dynSecondaryColor3ui,ptrSecondaryColor3ui,GLuint -> GLuint -> GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4","glSecondaryColor3uivEXT",dynSecondaryColor3uiv,ptrSecondaryColor3uiv,Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3uiEXT,GLuint -> GLuint -> GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3uivEXT,Ptr GLuint -> IO ())
 
 instance ColorComponent GLuint where
    color3 = glColor3ui
@@ -1028,8 +1028,8 @@ instance ColorComponent GLuint where
    color3v = glColor3uiv
    color4v = glColor4uiv
 
-   secondaryColor3 = dynSecondaryColor3ui ptrSecondaryColor3ui
-   secondaryColor3v = dynSecondaryColor3uiv ptrSecondaryColor3uiv
+   secondaryColor3 = glSecondaryColor3uiEXT
+   secondaryColor3v = glSecondaryColor3uivEXT
 
 --------------------------------------------------------------------------------
 

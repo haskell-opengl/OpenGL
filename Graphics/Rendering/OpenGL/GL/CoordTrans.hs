@@ -217,7 +217,7 @@ instance MatrixElement GLfloat  where
       makeStateVar (getCurrentColumnMajorMatrix getFloatv) loadMatrixf
 
    multMatrix (Matrix ColumnMajor fp) = withForeignPtr fp $ glMultMatrixf
-   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ multTransposeMatrixf
+   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ glMultTransposeMatrixfARB
 
    rotate a (Vector3 x y z) = glRotatef a x y z
    translate (Vector3 x y z) = glTranslatef x y z
@@ -225,14 +225,14 @@ instance MatrixElement GLfloat  where
 
 loadMatrixf :: Matrix GLfloat -> IO ()
 loadMatrixf (Matrix ColumnMajor fp) = withForeignPtr fp $ glLoadMatrixf
-loadMatrixf (Matrix RowMajor    fp) = withForeignPtr fp $ loadTransposeMatrixf
+loadMatrixf (Matrix RowMajor    fp) = withForeignPtr fp $ glLoadTransposeMatrixfARB
 
 instance MatrixElement GLdouble where
    currentMatrix =
       makeStateVar (getCurrentColumnMajorMatrix getDoublev) loadMatrixd
 
    multMatrix (Matrix ColumnMajor fp) = withForeignPtr fp $ glMultMatrixd
-   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ multTransposeMatrixd
+   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ glMultTransposeMatrixdARB
 
    rotate a (Vector3 x y z) = glRotated a x y z
    translate (Vector3 x y z) = glTranslated x y z
@@ -240,7 +240,7 @@ instance MatrixElement GLdouble where
 
 loadMatrixd :: Matrix GLdouble -> IO ()
 loadMatrixd (Matrix ColumnMajor fp) = withForeignPtr fp $ glLoadMatrixd
-loadMatrixd (Matrix RowMajor    fp) = withForeignPtr fp $ loadTransposeMatrixd
+loadMatrixd (Matrix RowMajor    fp) = withForeignPtr fp $ glLoadTransposeMatrixdARB
 
 --------------------------------------------------------------------------------
 
@@ -264,28 +264,14 @@ getMatrixPName MatrixPalette = GetMatrixPalette
 foreign import CALLCONV unsafe "glLoadMatrixf" glLoadMatrixf :: Ptr GLfloat -> IO ()
 foreign import CALLCONV unsafe "glLoadMatrixd" glLoadMatrixd :: Ptr GLdouble -> IO ()
 
-loadTransposeMatrixf :: Ptr GLfloat -> IO ()
-loadTransposeMatrixf = dynLoadTransposeMatrixf ptrLoadTransposeMatrixf
-
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glLoadTransposeMatrixfARB",dynLoadTransposeMatrixf,ptrLoadTransposeMatrixf,Ptr GLfloat -> IO ())
-
-loadTransposeMatrixd :: Ptr GLdouble -> IO ()
-loadTransposeMatrixd = dynLoadTransposeMatrixd ptrLoadTransposeMatrixd
-
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glLoadTransposeMatrixdARB",dynLoadTransposeMatrixd,ptrLoadTransposeMatrixd,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glLoadTransposeMatrixfARB,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glLoadTransposeMatrixdARB,Ptr GLdouble -> IO ())
 
 foreign import CALLCONV unsafe "glMultMatrixf" glMultMatrixf :: Ptr GLfloat -> IO ()
 foreign import CALLCONV unsafe "glMultMatrixd" glMultMatrixd :: Ptr GLdouble -> IO ()
 
-multTransposeMatrixf :: Ptr GLfloat -> IO ()
-multTransposeMatrixf = dynMultTransposeMatrixf ptrMultTransposeMatrixf
-
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glMultTransposeMatrixfARB",dynMultTransposeMatrixf,ptrMultTransposeMatrixf,Ptr GLfloat -> IO ())
-
-multTransposeMatrixd :: Ptr GLdouble -> IO ()
-multTransposeMatrixd = dynMultTransposeMatrixd ptrMultTransposeMatrixd
-
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glMultTransposeMatrixdARB",dynMultTransposeMatrixd,ptrMultTransposeMatrixd,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glMultTransposeMatrixfARB,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glMultTransposeMatrixdARB,Ptr GLdouble -> IO ())
 
 --------------------------------------------------------------------------------
 
