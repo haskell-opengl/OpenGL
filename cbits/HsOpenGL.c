@@ -17,20 +17,34 @@
 
 #include <mach-o/dyld.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-static void *NSGLGetProcAddress(const char *name)
+static void*
+NSGLGetProcAddress(const char *name)
 {
   NSSymbol symbol;
-  char *symbolName;
-  // Prepend a '_' for the Unix C symbol mangling convention
-  symbolName = malloc (strlen (name) + 2);
-  strcpy(symbolName + 1, name);
+
+  /* Prepend a '_' for the Unix C symbol mangling convention */
+  char* symbolName = (char*)malloc(strlen(name) + 2);
+  if (!symbolName) {
+    fprintf(stderr, "Failed to allocate memory for NSGLGetProcAddress\n");
+    return NULL;
+  }
   symbolName[0] = '_';
-  symbol = NULL;
-  if (NSIsSymbolNameDefined (symbolName))
-    symbol = NSLookupAndBindSymbol (symbolName);
-  free (symbolName);
-  return symbol ? NSAddressOfSymbol (symbol) : NULL;
+  strcpy(symbolName + 1, name);
+
+  if (!NSIsSymbolNameDefined(symbolName)) {
+    free(symbolName);
+    return NULL;
+  }
+
+  symbol = NSLookupAndBindSymbol(symbolName);
+  free(symbolName);
+  if (!symbol) {
+    return NULL;
+  }
+
+  return NSAddressOfSymbol(symbol);
 }
 #endif
 
