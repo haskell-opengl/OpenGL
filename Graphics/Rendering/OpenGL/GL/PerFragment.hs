@@ -263,10 +263,9 @@ blendEquation =
    makeStateVarMaybe
       (return CapBlend)
       (getEnum1 unmarshalBlendEquationMode GetBlendEquation)
-      (glBlendEquation . marshalBlendEquationMode)
+      (glBlendEquationEXT . marshalBlendEquationMode)
 
-foreign import CALLCONV unsafe "glBlendEquation" glBlendEquation ::
-   GLenum -> IO ()
+EXTENSION_ENTRY("GL_EXT_blend_minmax or OpenGL 1.2",glBlendEquationEXT,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -359,10 +358,9 @@ blendColor :: StateVar (Color4 GLclampf)
 blendColor =
    makeStateVar
       (getFloat4 Color4 GetBlendColor)
-      (\(Color4 r g b a) -> glBlendColor r g b a)
+      (\(Color4 r g b a) -> glBlendColorEXT r g b a)
 
-foreign import CALLCONV unsafe "glBlendColor" glBlendColor ::
-   GLclampf -> GLclampf -> GLclampf -> GLclampf -> IO ()
+EXTENSION_ENTRY("GL_EXT_blend_color or OpenGL 1.4",glBlendColorEXT,GLclampf -> GLclampf -> GLclampf -> GLclampf -> IO ())
 
 --------------------------------------------------------------------------------
 
