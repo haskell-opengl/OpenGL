@@ -17,6 +17,7 @@ PACKAGE = OpenGL
 PACKAGE_DEPS = base
 
 SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp $(GL_CFLAGS)
+SRC_CC_OPTS += $(GL_CFLAGS)
 
 # WinDoze DLL hell
 ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
