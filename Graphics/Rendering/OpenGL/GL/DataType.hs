@@ -48,6 +48,7 @@ data DataType =
    | UnsignedInt2101010Rev
    | UnsignedShort88
    | UnsignedShort88Rev
+   | UnsignedInt248
    deriving ( Eq, Ord, Show )
 
 marshalDataType :: DataType -> GLenum
@@ -78,6 +79,7 @@ marshalDataType x = case x of
    UnsignedInt2101010Rev -> 0x8368
    UnsignedShort88 -> 0x85ba
    UnsignedShort88Rev -> 0x85bb
+   UnsignedInt248 -> 0x84fa
 
 unmarshalDataType :: GLenum -> DataType
 unmarshalDataType x
@@ -107,4 +109,5 @@ unmarshalDataType x
    | x == 0x8368 = UnsignedInt2101010Rev
    | x == 0x85ba = UnsignedShort88
    | x == 0x85bb = UnsignedShort88Rev
+   | x == 0x84fa = UnsignedInt248
    | otherwise = error ("unmarshalDataType: illegal value " ++ show x)

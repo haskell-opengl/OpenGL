@@ -43,6 +43,7 @@ data PixelFormat =
    | FourTwoTwoAverage
    | FourTwoTwoRevAverage
    | YCBCR422
+   | DepthStencil
    deriving ( Eq, Ord, Show )
 
 marshalPixelFormat :: PixelFormat -> GLenum
@@ -68,6 +69,7 @@ marshalPixelFormat x = case x of
    FourTwoTwoAverage -> 0x80CE
    FourTwoTwoRevAverage -> 0x80CF
    YCBCR422 -> 0x85B9
+   DepthStencil -> 0x84f9
 
 unmarshalPixelFormat :: GLenum -> PixelFormat
 unmarshalPixelFormat x
@@ -92,4 +94,5 @@ unmarshalPixelFormat x
    | x == 0x80CE = FourTwoTwoAverage
    | x == 0x80CF = FourTwoTwoRevAverage
    | x == 0x85B9 = YCBCR422
+   | x == 0x84f9 = DepthStencil
    | otherwise = error ("unmarshalPixelFormat: illegal value " ++ show x)
