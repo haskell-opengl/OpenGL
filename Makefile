@@ -82,6 +82,8 @@ CLEAN_FILES += $(STUBOBJS) \
    Graphics/Rendering/OpenGL/GLU/Quadrics_stub.[ch] \
    Graphics/Rendering/OpenGL/GLU/Tessellation_stub.[ch]
 
+endif
+
 # -----------------------------------------------------------------------------
 
 DIST_CLEAN_FILES += HsOpenGLConfig.h OpenGL.buildinfo config.cache config.status 
@@ -91,7 +93,5 @@ extraclean::
 	$(RM) -rf autom4te.cache
 
 # -----------------------------------------------------------------------------
-
-endif
 
 include $(TOP)/mk/target.mk
