@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 5.5 (Flush and Finish) of the OpenGL 1.4
+-- This module corresponds to section 5.5 (Flush and Finish) of the OpenGL 1.5
 -- specs.
 --
 --------------------------------------------------------------------------------

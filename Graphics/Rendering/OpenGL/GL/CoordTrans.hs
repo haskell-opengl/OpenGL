@@ -8,8 +8,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 2.10 (Coordinate Transformations) of the
--- OpenGL 1.4 specs.
+-- This module corresponds to section 2.11 (Coordinate Transformations) of the
+-- OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

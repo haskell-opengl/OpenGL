@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 2.5 (GL Errors) of the OpenGL 1.4 specs
+-- This module corresponds to section 2.5 (GL Errors) of the OpenGL 1.5 specs
 -- and chapter 8 (Errors) of the GLU specs, offering a generalized view of
 -- errors in GL and GLU.
 --

@@ -9,7 +9,7 @@
 -- Portability :  portable
 --
 -- This module corresponds to section 4.1 (Per-Fragment Operations) of the
--- OpenGL 1.4 specs.
+-- OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

@@ -8,8 +8,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 2.13 (Colors and Coloring) of the
--- OpenGL 1.4 specs.
+-- This module corresponds to section 2.14 (Colors and Coloring) of the
+-- OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

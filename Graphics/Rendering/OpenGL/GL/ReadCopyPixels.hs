@@ -9,7 +9,7 @@
 -- Portability :  portable
 --
 -- This module corresponds to section 4.3 (Drawing, Reading, and Copying Pixels)
--- of the OpenGL 1.4 specs.
+-- of the OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

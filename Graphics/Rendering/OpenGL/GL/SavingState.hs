@@ -8,8 +8,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 6.1.12 (Saving and Restoring State) of the
--- OpenGL 1.4 specs.
+-- This module corresponds to section 6.1.14 (Saving and Restoring State) of the
+-- OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

@@ -10,7 +10,7 @@
 -- Portability :  portable
 --
 -- This is a purely internal module corresponding to some parts of section 2.5
--- (GL Errors) of the OpenGL 1.4 specs and chapter 8 (Errors) of the GLU specs.
+-- (GL Errors) of the OpenGL 1.5 specs and chapter 8 (Errors) of the GLU specs.
 --
 --------------------------------------------------------------------------------
 

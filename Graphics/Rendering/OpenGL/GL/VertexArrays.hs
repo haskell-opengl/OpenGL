@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 2.8 (Vertex Arrays) of the OpenGL 1.4
+-- This module corresponds to section 2.8 (Vertex Arrays) of the OpenGL 1.5
 -- specs.
 --
 --------------------------------------------------------------------------------

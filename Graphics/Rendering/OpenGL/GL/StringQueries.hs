@@ -9,7 +9,7 @@
 -- Portability :  portable
 --
 -- This module corresponds to parts of section 6.1.11 (Pointer and String
--- Queries) of the OpenGL 1.4 specs.
+-- Queries) of the OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

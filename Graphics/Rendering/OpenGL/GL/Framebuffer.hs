@@ -9,7 +9,7 @@
 -- Portability :  portable
 --
 -- This module corresponds to section 4.2 (Whole Framebuffer Operations) of the
--- OpenGL 1.4 specs.
+-- OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 2.11 (Clipping) of the OpenGL 1.4 specs.
+-- This module corresponds to section 2.12 (Clipping) of the OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

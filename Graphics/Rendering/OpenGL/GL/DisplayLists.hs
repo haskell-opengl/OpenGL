@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 5.4 (Display Lists) of the OpenGL 1.4
+-- This module corresponds to section 5.4 (Display Lists) of the OpenGL 1.5
 -- specs.
 --
 --------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 3.10 (Fog) of the OpenGL 1.4 specs.
+-- This module corresponds to section 3.10 (Fog) of the OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 
