@@ -14,17 +14,20 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
-   TexParameter(..),
-   texParameteri, texParameterf, texParameterC4f,
-   getTexParameteri, getTexParameterf, getTexParameterC4f
+   TexParameter(..), texParami, texParamf, texParamC4f, getTexParameteri,
+   combineTexParams, combineTexParamsMaybe
 ) where
 
+import Control.Monad ( liftM, liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum, GLfloat )
+import Graphics.Rendering.OpenGL.GL.Capability ( Capability(..) )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget(..), marshalTextureTarget )
 import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
@@ -130,3 +133,41 @@ getTexParameterC4f t p =
 
 foreign import CALLCONV unsafe "glGetTexParameterfv"
    glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+
+--------------------------------------------------------------------------------
+
+texParami ::
+   (GLint -> a) -> (a -> GLint) -> TexParameter -> TextureTarget -> StateVar a
+texParami unmarshal marshal p t =
+   makeStateVar (getTexParameteri unmarshal t p) (texParameteri marshal t p)
+
+texParamf ::
+   (GLfloat -> a) -> (a -> GLfloat) -> TexParameter -> TextureTarget -> StateVar a
+texParamf unmarshal marshal p t =
+   makeStateVar (getTexParameterf unmarshal t p) (texParameterf marshal t p)
+
+texParamC4f :: TexParameter -> TextureTarget -> StateVar (Color4 GLfloat)
+texParamC4f p t = makeStateVar (getTexParameterC4f t p) (texParameterC4f t p)
+
+--------------------------------------------------------------------------------
+
+combineTexParams :: (TextureTarget -> StateVar a)
+                 -> (TextureTarget -> StateVar b)
+                 -> (TextureTarget -> StateVar (a,b))
+combineTexParams v w t =
+   makeStateVar
+      (liftM2 (,) (get (v t)) (get (w t)))
+      (\(x,y) -> do v t $= x; w t $= y)
+
+combineTexParamsMaybe :: (TextureTarget -> StateVar Capability)
+                      -> (TextureTarget -> StateVar a)
+                      -> (TextureTarget -> StateVar (Maybe a))
+combineTexParamsMaybe enab val t =
+   makeStateVar
+      (do tcm <- get (enab t)
+          case tcm of
+             Disabled -> return Nothing
+             Enabled -> liftM Just $ get (val t))
+      (maybe (enab t $= Disabled)
+             (\tcf -> do enab t $= Enabled
+                         val t $= tcf))

@@ -23,20 +23,17 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    textureCompareFailValue, TextureCompareOperator(..), textureCompareOperator
 ) where
 
-import Control.Monad ( liftM, liftM2 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLfloat, GLclampf )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, marshalCapability, unmarshalCapability )
+   Capability(..), marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction ( ComparisonFunction,
    marshalComparisonFunction, unmarshalComparisonFunction )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( TextureCoordName(..) )
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxTextureMaxAnisotropy,GetMaxTextureLODBias), getFloat1)
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), GettableStateVar, makeGettableStateVar,
-   HasSetter(($=)), StateVar, makeStateVar )
+   GettableStateVar, makeGettableStateVar,
+   StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification ( Level )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
@@ -45,8 +42,7 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
                 TextureLODBias,GenerateMipmap,DepthTextureMode,
                 TextureCompareMode,TextureCompareFunc,TextureCompareFailValue,
                 TextureCompare,TextureCompareOperator),
-   texParameteri, texParameterf, texParameterC4f,
-   getTexParameteri, getTexParameterf, getTexParameterC4f )
+   texParami, texParamf, texParamC4f, combineTexParams, combineTexParamsMaybe )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat, marshalPixelInternalFormat,
    unmarshalPixelInternalFormat )
@@ -61,6 +57,18 @@ data TextureFilter =
      Nearest
    | Linear'
    deriving ( Eq, Ord, Show )
+
+type MinificationFilter = (TextureFilter, Maybe TextureFilter)
+
+type MagnificationFilter = TextureFilter
+
+-- We treat MagnificationFilter as a degenerated case of MinificationFilter
+magToMin :: MagnificationFilter -> MinificationFilter
+magToMin magFilter = (magFilter, Nothing)
+
+minToMag :: MinificationFilter -> MagnificationFilter
+minToMag (magFilter, Nothing) = magFilter
+minToMag minFilter = error ("minToMag: illegal value " ++ show minFilter)
 
 marshalMinificationFilter :: MinificationFilter -> GLint
 marshalMinificationFilter x = case x of
@@ -89,43 +97,12 @@ unmarshalMagnificationFilter = minToMag . unmarshalMinificationFilter
 
 --------------------------------------------------------------------------------
 
-type MinificationFilter = (TextureFilter, Maybe TextureFilter)
-
-type MagnificationFilter = TextureFilter
-
--- We treat MagnificationFilter as a degenerated case of MinificationFilter
-magToMin :: MagnificationFilter -> MinificationFilter
-magToMin magFilter = (magFilter, Nothing)
-
-minToMag :: MinificationFilter -> MagnificationFilter
-minToMag (magFilter, Nothing) = magFilter
-minToMag minFilter = error ("minToMag: illegal value " ++ show minFilter)
-
---------------------------------------------------------------------------------
-
 -- ToDo: cube maps
 textureFilter :: TextureTarget -> StateVar (MinificationFilter, MagnificationFilter)
-textureFilter = combineStateVars textureMinFilter textureMagFilter
-
-combineStateVars :: (TextureTarget -> StateVar a)
-                 -> (TextureTarget -> StateVar b)
-                 -> (TextureTarget -> StateVar (a,b))
-combineStateVars v w t =
-   makeStateVar
-      (liftM2 (,) (get (v t)) (get (w t)))
-      (\(x,y) -> do v t $= x; w t $= y)
-
-textureMinFilter :: TextureTarget -> StateVar MinificationFilter
-textureMinFilter t =
-   makeStateVar
-      (getTexParameteri unmarshalMinificationFilter  t TextureMinFilter)
-      (texParameteri    marshalMinificationFilter    t TextureMinFilter)
-
-textureMagFilter :: TextureTarget -> StateVar MagnificationFilter
-textureMagFilter t =
-   makeStateVar
-      (getTexParameteri unmarshalMagnificationFilter t TextureMagFilter)
-      (texParameteri    marshalMagnificationFilter   t TextureMagFilter)
+textureFilter =
+   combineTexParams
+      (texParami unmarshalMinificationFilter  marshalMinificationFilter  TextureMinFilter)
+      (texParami unmarshalMagnificationFilter marshalMagnificationFilter TextureMagFilter)
 
 --------------------------------------------------------------------------------
 
@@ -169,10 +146,11 @@ unmarshalTextureWrapMode x
 -- ToDo: cube maps
 textureWrapMode :: TextureTarget -> TextureCoordName -> StateVar (Repetition,Clamping)
 textureWrapMode t coord = case coord of
-   S -> textureWrapMode' t TextureWrapS
-   T -> textureWrapMode' t TextureWrapT
-   R -> textureWrapMode' t TextureWrapR
+   S -> wrap TextureWrapS
+   T -> wrap TextureWrapT
+   R -> wrap TextureWrapR
    Q -> invalidTextureCoord
+   where wrap c = texParami unmarshalTextureWrapMode marshalTextureWrapMode c t
 
 invalidTextureCoord :: StateVar (Repetition,Clamping)
 invalidTextureCoord =
@@ -180,20 +158,11 @@ invalidTextureCoord =
       (do recordInvalidEnum; return (Repeated, Repeat))
       (const recordInvalidEnum)
 
-textureWrapMode' :: TextureTarget -> TexParameter -> StateVar (Repetition,Clamping)
-textureWrapMode' t p =
-   makeStateVar
-      (getTexParameteri unmarshalTextureWrapMode t p)
-      (texParameteri    marshalTextureWrapMode   t p)
-
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
 textureBorderColor :: TextureTarget -> StateVar (Color4 GLfloat)
-textureBorderColor t =
-   makeStateVar
-       (getTexParameterC4f t TextureBorderColor)
-       (texParameterC4f t TextureBorderColor)
+textureBorderColor = texParamC4f TextureBorderColor
 
 --------------------------------------------------------------------------------
 
@@ -201,10 +170,7 @@ type LOD = GLfloat
 
 -- ToDo: cube maps
 textureObjectLODBias :: TextureTarget -> StateVar LOD
-textureObjectLODBias t =
-   makeStateVar
-      (getTexParameterf id t TextureLODBias)
-      (texParameterf    id t TextureLODBias)
+textureObjectLODBias = texParamf id id TextureLODBias
 
 maxTextureLODBias :: GettableStateVar LOD
 maxTextureLODBias =
@@ -212,28 +178,16 @@ maxTextureLODBias =
 
 -- ToDo: cube maps
 textureLODRange :: TextureTarget -> StateVar (LOD,LOD)
-textureLODRange = combineStateVars textureMinLOD textureMaxLOD
-
-textureMinLOD :: TextureTarget -> StateVar LOD
-textureMinLOD t =
-   makeStateVar
-      (getTexParameterf id t TextureMinLOD)
-      (texParameterf    id t TextureMinLOD)
-
-textureMaxLOD :: TextureTarget -> StateVar LOD
-textureMaxLOD t =
-   makeStateVar
-      (getTexParameterf id t TextureMaxLOD)
-      (texParameterf    id t TextureMaxLOD)
+textureLODRange =
+   combineTexParams
+      (texParamf id id TextureMinLOD)
+      (texParamf id id TextureMaxLOD)
 
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
 textureMaxAnisotropy :: TextureTarget -> StateVar GLfloat
-textureMaxAnisotropy t =
-   makeStateVar
-      (getTexParameterf id t TextureMaxAnisotropy)
-      (texParameterf    id t TextureMaxAnisotropy)
+textureMaxAnisotropy = texParamf id id TextureMaxAnisotropy
 
 maxTextureMaxAnisotropy :: GettableStateVar GLfloat
 maxTextureMaxAnisotropy =
@@ -243,90 +197,56 @@ maxTextureMaxAnisotropy =
 
 -- ToDo: cube maps
 textureLevelRange :: TextureTarget -> StateVar (Level,Level)
-textureLevelRange = combineStateVars textureBaseLevel textureMaxLevel
-
-textureBaseLevel :: TextureTarget -> StateVar Level
-textureBaseLevel t =
-   makeStateVar
-      (getTexParameteri id t TextureBaseLevel)
-      (texParameteri    id t TextureBaseLevel)
-
-textureMaxLevel :: TextureTarget -> StateVar Level
-textureMaxLevel t =
-   makeStateVar
-      (getTexParameteri id t TextureMaxLevel)
-      (texParameteri    id t TextureMaxLevel)
+textureLevelRange =
+   combineTexParams
+      (texParami id id TextureBaseLevel)
+      (texParami id id TextureMaxLevel)
 
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
 generateMipmap :: TextureTarget -> StateVar Capability
-generateMipmap t =
-   makeStateVar
-      (getTexParameteri (unmarshalCapability . fromIntegral) t GenerateMipmap)
-      (texParameteri    (fromIntegral . marshalCapability)   t GenerateMipmap)
+generateMipmap = texParami unmarshal marshal GenerateMipmap
+   where unmarshal = unmarshalCapability . fromIntegral
+         marshal = fromIntegral . marshalCapability
 
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
 -- Only Luminance', Intensity, and Alpha' allowed
 depthTextureMode :: TextureTarget -> StateVar PixelInternalFormat
-depthTextureMode t =
-   makeStateVar
-      (getTexParameteri unmarshalPixelInternalFormat t DepthTextureMode)
-      (texParameteri    marshalPixelInternalFormat   t DepthTextureMode)
+depthTextureMode =
+   texParami unmarshalPixelInternalFormat marshalPixelInternalFormat DepthTextureMode
 
 --------------------------------------------------------------------------------
 
-data TextureCompareMode =
-     None
-   | CompareRToTexture
-
-marshalTextureCompareMode :: TextureCompareMode -> GLint
+marshalTextureCompareMode :: Capability -> GLint
 marshalTextureCompareMode x = case x of
-   None -> 0x0
-   CompareRToTexture -> 0x884e
+   Disabled -> 0x0     -- i.e. None
+   Enabled -> 0x884e   -- i.e. CompareRToTexture
 
-unmarshalTextureCompareMode :: GLint -> TextureCompareMode
+unmarshalTextureCompareMode :: GLint -> Capability
 unmarshalTextureCompareMode x
-   | x == 0x0 = None
-   | x == 0x884e = CompareRToTexture
+   | x == 0x0 = Disabled
+   | x == 0x884e = Enabled
    | otherwise = error ("unmarshalTextureCompareMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
 textureCompareMode :: TextureTarget -> StateVar (Maybe ComparisonFunction)
-textureCompareMode t =
-   makeStateVar
-      (do tcm <- get (textureCompareMode' t)
-          case tcm of
-             None -> return Nothing
-             CompareRToTexture -> liftM Just $ get (textureCompareFunc t))
-      (maybe (textureCompareMode' t $= None)
-             (\tcf -> do textureCompareMode' t $= CompareRToTexture
-                         textureCompareFunc t $= tcf))
-
-textureCompareMode' :: TextureTarget -> StateVar TextureCompareMode
-textureCompareMode' t =
-   makeStateVar
-      (getTexParameteri unmarshalTextureCompareMode t TextureCompareMode)
-      (texParameteri    marshalTextureCompareMode   t TextureCompareMode)
-
-textureCompareFunc :: TextureTarget -> StateVar ComparisonFunction
-textureCompareFunc t =
-   makeStateVar
-      (getTexParameteri (unmarshalComparisonFunction . fromIntegral) t TextureCompareFunc)
-      (texParameteri    (fromIntegral . marshalComparisonFunction)   t TextureCompareFunc)
+textureCompareMode =
+   combineTexParamsMaybe
+      (texParami unmarshalTextureCompareMode marshalTextureCompareMode TextureCompareMode)
+      (texParami unmarshal marshal TextureCompareFunc)
+   where unmarshal = unmarshalComparisonFunction . fromIntegral
+         marshal = fromIntegral . marshalComparisonFunction
 
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
 textureCompareFailValue :: TextureTarget -> StateVar GLclampf
-textureCompareFailValue t =
-   makeStateVar
-      (getTexParameterf id t TextureCompareFailValue)
-      (texParameterf    id t TextureCompareFailValue)
+textureCompareFailValue = texParamf id id TextureCompareFailValue
 
 --------------------------------------------------------------------------------
 
@@ -350,24 +270,7 @@ unmarshalTextureCompareOperator x
 
 -- ToDo: cube maps
 textureCompareOperator :: TextureTarget -> StateVar (Maybe TextureCompareOperator)
-textureCompareOperator t =
-   makeStateVar
-      (do c <- get (textureCompare t)
-          case c of
-             False -> return Nothing
-             True -> liftM Just $ get (textureCompareOperator' t))
-      (maybe (textureCompare t $= False)
-             (\tco -> do textureCompare t $= True
-                         textureCompareOperator' t $= tco))
-          
-textureCompare :: TextureTarget -> StateVar Bool
-textureCompare t =
-   makeStateVar
-      (getTexParameteri (unmarshalGLboolean . fromIntegral) t TextureCompare)
-      (texParameteri    (fromIntegral . marshalGLboolean)   t TextureCompare)
-
-textureCompareOperator' :: TextureTarget -> StateVar TextureCompareOperator
-textureCompareOperator' t =
-   makeStateVar
-      (getTexParameteri unmarshalTextureCompareOperator t TextureCompareOperator)
-      (texParameteri    marshalTextureCompareOperator   t TextureCompareOperator)
+textureCompareOperator =
+   combineTexParamsMaybe
+      (texParami (unmarshalCapability . fromIntegral) (fromIntegral. marshalCapability) TextureCompare)
+      (texParami unmarshalTextureCompareOperator marshalTextureCompareOperator TextureCompareOperator)

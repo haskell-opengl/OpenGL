@@ -35,8 +35,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
-   TexParameter(TextureResident,TexturePriority),
-   texParameterf, getTexParameteri, getTexParameterf )
+   TexParameter(TextureResident,TexturePriority), texParamf, getTexParameteri )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget(..), marshalTextureTarget )
 
@@ -119,10 +118,7 @@ foreign import CALLCONV unsafe "glAreTexturesResident"
 type TexturePriority = GLclampf
 
 texturePriority :: TextureTarget -> StateVar TexturePriority
-texturePriority t =
-   makeStateVar
-      (getTexParameterf id t TexturePriority)
-      (texParameterf    id t TexturePriority)
+texturePriority = texParamf id id TexturePriority
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()
 prioritizeTextures tps =
