@@ -201,7 +201,8 @@ data Matrix a = Matrix MatrixOrder (ForeignPtr a)
 -- | Create a new matrix of the given order (containing undefined elements) and
 -- call the action to fill it with 4x4 elements.
 
-withNewMatrix :: Storable a => MatrixOrder -> (Ptr a -> IO ()) -> IO (Matrix a)
+withNewMatrix ::
+   MatrixElement a => MatrixOrder -> (Ptr a -> IO ()) -> IO (Matrix a)
 withNewMatrix order f = do
    fp <- mallocForeignPtrArray 16
    withForeignPtr fp f
@@ -270,7 +271,7 @@ instance MatrixElement GLdouble where
 --------------------------------------------------------------------------------
 
 getCurrentColumnMajorMatrix ::
-   Storable a => (GetPName -> Ptr a -> IO ()) -> IO (Matrix a)
+   MatrixElement a => (GetPName -> Ptr a -> IO ()) -> IO (Matrix a)
 getCurrentColumnMajorMatrix getV  = do
    mode <- get matrixMode
    withNewMatrix ColumnMajor $ getV (getMatrixPName mode)
