@@ -15,7 +15,8 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
    TextureObject, defaultTextureObject, textureBinding,
-   textureResident, areTexturesResident, texturePriority, prioritizeTextures
+   textureResident, areTexturesResident,
+   TexturePriority, texturePriority, prioritizeTextures
 ) where
 
 import Control.Monad ( liftM )
@@ -115,13 +116,15 @@ foreign import CALLCONV unsafe "glAreTexturesResident"
 
 --------------------------------------------------------------------------------
 
-texturePriority :: TextureTarget -> StateVar GLclampf
+type TexturePriority = GLclampf
+
+texturePriority :: TextureTarget -> StateVar TexturePriority
 texturePriority t =
    makeStateVar
       (getTexParameterf t TexturePriority)
       (texParameterf t TexturePriority)
 
-prioritizeTextures :: [(TextureObject,GLclampf)] -> IO ()
+prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()
 prioritizeTextures tps =
    withArray (map (textureID . fst) tps) $ \texObjsBuf ->
       withArray (map snd tps) $
