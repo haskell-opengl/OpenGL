@@ -27,6 +27,10 @@ module Graphics.Rendering.OpenGL.GL.Texturing (
    copyTexSubImage1D, copyTexSubImage2D, copyTexSubImage3D,
 
    -- * Compressed Texture Images
+   CompressedTextureFormat(..), compressedTextureFormats,
+   CompressedPixelData(..),
+   compressedTexImage1D, compressedTexImage2D, compressedTexImage3D,
+   compressedTexSubImage1D, compressedTexSubImage2D, compressedTexSubImage3D,
 
    -- * Texture Parameters
 
@@ -60,8 +64,9 @@ import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData, Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetTextureBinding1D,GetTextureBinding2D,GetTextureBinding3D,
-            GetTextureBindingCubeMap,GetTextureBindingRectangle),
-   getEnum1)
+            GetTextureBindingCubeMap,GetTextureBindingRectangle,
+            GetNumCompressedTextureFormats,GetCompressedTextureFormats),
+   getInteger1,getIntegerv,getEnum1)
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.TextureTarget (
@@ -228,19 +233,96 @@ EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glCopyTexSubImage3DEXT,GLenum -
 
 --------------------------------------------------------------------------------
 
+newtype CompressedTextureFormat = CompressedTextureFormat GLenum
+   deriving ( Eq, Ord, Show )
+
+compressedTextureFormats :: GettableStateVar [CompressedTextureFormat]
+compressedTextureFormats =
+   makeGettableStateVar $ do
+      n <- getInteger1 fromIntegral GetNumCompressedTextureFormats
+      allocaArray n $ \buf -> do
+         getIntegerv GetCompressedTextureFormats buf
+         liftM (map (CompressedTextureFormat . fromIntegral)) $ peekArray n buf
+
+--------------------------------------------------------------------------------
+
+data CompressedPixelData a =
+     CompressedPixelData CompressedTextureFormat GLsizei (Ptr a)
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq (CompressedPixelData a)
+instance Ord (CompressedPixelData a)
+instance Show (CompressedPixelData a)
+#else
+   deriving ( Eq, Ord, Show )
+#endif
+
+withCompressedPixelData ::
+   CompressedPixelData a -> (GLenum -> GLsizei -> Ptr a -> b) -> b
+withCompressedPixelData
+   (CompressedPixelData (CompressedTextureFormat fmt) size ptr) f =
+   f fmt size ptr
+
+--------------------------------------------------------------------------------
+
+compressedTexImage1D :: Proxy -> Level -> TextureSize1D -> Border -> CompressedPixelData a -> IO ()
+compressedTexImage1D proxy level (TextureSize1D w) border cpd =
+   withCompressedPixelData cpd $ \fmt ->
+      glCompressedTexImage1DARB
+         (marshalProxyTextureTarget proxy Texture1D) level fmt w border
+
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexImage1DARB,GLenum -> GLint -> GLenum -> GLsizei -> GLint -> GLsizei -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+compressedTexImage2D :: Proxy -> Level -> TextureSize2D -> Border -> CompressedPixelData a -> IO ()
+compressedTexImage2D proxy level (TextureSize2D w h) border cpd =
+   withCompressedPixelData cpd $ \fmt ->
+      glCompressedTexImage2DARB
+         (marshalProxyTextureTarget proxy Texture2D) level fmt w h border
 
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexImage2DARB,GLenum -> GLint -> GLenum -> GLsizei -> GLsizei ->GLint -> GLsizei -> Ptr a -> IO ())
 
+--------------------------------------------------------------------------------
+
+compressedTexImage3D :: Proxy -> Level -> TextureSize3D -> Border -> CompressedPixelData a -> IO ()
+compressedTexImage3D proxy level (TextureSize3D w h d) border cpd =
+   withCompressedPixelData cpd $ \fmt ->
+      glCompressedTexImage3DARB
+         (marshalProxyTextureTarget proxy Texture3D) level fmt w h d border
+
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexImage3DARB,GLenum -> GLint -> GLenum -> GLsizei -> GLsizei -> GLsizei -> GLint -> GLsizei -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
 
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glGetCompressedTexImageARB,GLenum -> GLint -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
+compressedTexSubImage1D :: Level -> TexturePosition1D -> TextureSize1D -> CompressedPixelData a -> IO ()
+compressedTexSubImage1D level (TexturePosition1D xOff) (TextureSize1D w) cpd =
+   withCompressedPixelData cpd $
+      glCompressedTexSubImage1DARB (marshalTextureTarget Texture1D) level xOff w
+
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexSubImage1DARB,GLenum -> GLint -> GLint -> GLsizei -> GLenum -> GLsizei -> Ptr a -> IO ())
 
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+compressedTexSubImage2D :: Level -> TexturePosition2D -> TextureSize2D -> CompressedPixelData a -> IO ()
+compressedTexSubImage2D level (TexturePosition2D xOff yOff) (TextureSize2D w h) cpd =
+   withCompressedPixelData cpd $
+      glCompressedTexSubImage2DARB (marshalTextureTarget Texture2D) level xOff yOff w h
+
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexSubImage2DARB,GLenum -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> GLsizei -> Ptr a-> IO ())
+
+--------------------------------------------------------------------------------
+
+compressedTexSubImage3D :: Level -> TexturePosition3D -> TextureSize3D -> CompressedPixelData a -> IO ()
+compressedTexSubImage3D level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) cpd =
+   withCompressedPixelData cpd $
+      glCompressedTexSubImage3DARB (marshalTextureTarget Texture3D) level xOff yOff zOff w h d
 
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexSubImage3DARB,GLenum -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLenum -> GLsizei -> Ptr a -> IO ())
 

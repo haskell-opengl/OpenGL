@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(..),
    clipPlaneIndexToEnum, lightIndexToEnum,
    getBoolean1, getBoolean4,
-   getInteger1, getInteger2, getInteger4,
+   getInteger1, getInteger2, getInteger4, getIntegerv,
    getEnum1,
    getSizei1,
    getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
