@@ -23,7 +23,6 @@ module Graphics.Rendering.OpenGL.GL.BasicTypes (
 
 import Data.Int
 import Data.Word
-import Foreign.C.Types ( CPtrdiff ) -- TODO: Use autoconf stuff for this!
 
 --------------------------------------------------------------------------------
 
@@ -49,7 +48,7 @@ type GLint = HTYPE_GLINT
 
 -- | Signed 2\'s complement binary integer (sufficiently large enough to hold
 -- any address)
-type GLintptr = CPtrdiff -- TODO: Use autoconf stuff for this!
+type GLintptr = Int32 -- TODO: Use autoconf stuff for this!
 
 -- | Unsigned binary integer (min. 8 bits)
 type GLubyte = HTYPE_GLUBYTE
@@ -65,7 +64,7 @@ type GLsizei = HTYPE_GLSIZEI
 
 -- | Non-negatitve binary integer size (sufficiently large enough to hold any
 -- address)
-type GLsizeiptr = CPtrdiff -- TODO: Use autoconf stuff for this!
+type GLsizeiptr = Int32 -- TODO: Use autoconf stuff for this!
 
 -- | Floating-point value (min. 32 bits)
 type GLfloat = HTYPE_GLFLOAT
