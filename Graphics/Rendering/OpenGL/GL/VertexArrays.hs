@@ -35,7 +35,7 @@ import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
-             CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordinateArray,
+             CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordArray,
              CapSecondaryColorArray,CapMatrixIndexArray,CapPrimitiveRestart),
    makeCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -50,7 +50,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetColorArrayType,GetColorArrayStride,GetSecondaryColorArraySize,
             GetSecondaryColorArrayType,GetSecondaryColorArrayStride,
             GetIndexArrayType,GetIndexArrayStride,
-            GetFogCoordinateArrayType,GetFogCoordinateArrayStride,
+            GetFogCoordArrayType,GetFogCoordArrayStride,
             GetTextureCoordArraySize,GetTextureCoordArrayType,
             GetTextureCoordArrayStride,GetEdgeFlagArrayStride,
             GetMaxElementsVertices,GetMaxElementsIndices,
@@ -59,7 +59,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getInteger1, getEnum1, getSizei1,
    GetPointervPName(VertexArrayPointer,NormalArrayPointer,ColorArrayPointer,
                     SecondaryColorArrayPointer,IndexArrayPointer,
-                    FogCoordinateArrayPointer,TextureCoordArrayPointer,
+                    FogCoordArrayPointer,TextureCoordArrayPointer,
                     EdgeFlagArrayPointer),
    getPointer )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( marshalPrimitiveMode )
@@ -183,9 +183,9 @@ fogCoordPointer = makeStateVar getFogCoordPointer setFogCoordPointer
 
 getFogCoordPointer :: IO (DataType, Stride, Ptr a)
 getFogCoordPointer = do
-   d <- getEnum1 unmarshalDataType GetFogCoordinateArrayType
-   s <- getInteger1 fromIntegral GetFogCoordinateArrayStride
-   p <- getPointer FogCoordinateArrayPointer
+   d <- getEnum1 unmarshalDataType GetFogCoordArrayType
+   s <- getInteger1 fromIntegral GetFogCoordArrayStride
+   p <- getPointer FogCoordArrayPointer
    return (d, s, p)
 
 setFogCoordPointer :: (DataType, Stride, Ptr a) -> IO ()
@@ -282,7 +282,7 @@ data ClientArrayType =
    | IndexArray
    | TextureCoordArray
    | EdgeFlagArray
-   | FogCoordinateArray
+   | FogCoordArray
    | SecondaryColorArray
    | MatrixIndexArray
    deriving ( Eq, Ord, Show )
@@ -295,7 +295,7 @@ marshalClientArrayType x = case x of
    IndexArray -> 0x8077
    TextureCoordArray -> 0x8078
    EdgeFlagArray -> 0x8079
-   FogCoordinateArray -> 0x8457
+   FogCoordArray -> 0x8457
    SecondaryColorArray -> 0x845e
    MatrixIndexArray -> 0x8844
 
@@ -308,7 +308,7 @@ clientArrayTypeToEnableCap x = case x of
    IndexArray -> CapIndexArray
    TextureCoordArray -> CapTextureCoordArray
    EdgeFlagArray -> CapEdgeFlagArray
-   FogCoordinateArray -> CapFogCoordinateArray
+   FogCoordArray -> CapFogCoordArray
    SecondaryColorArray -> CapSecondaryColorArray
    MatrixIndexArray -> CapMatrixIndexArray
 

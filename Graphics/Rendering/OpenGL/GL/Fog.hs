@@ -16,7 +16,7 @@ module Graphics.Rendering.OpenGL.GL.Fog (
    fog,
    FogMode(..), fogMode,
    fogColor, fogIndex,
-   FogCoordinateSource(..), fogCoordinateSource,
+   FogCoordSrc(..), fogCoordSrc,
    FogDistanceMode(..), fogDistanceMode
 ) where
 
@@ -28,7 +28,7 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetFogIndex,GetFogDensity,GetFogStart,GetFogEnd,GetFogMode,
-   GetFogColor,GetFogCoordinateSource,GetFogDistanceMode),
+   GetFogColor,GetFogCoordSrc,GetFogDistanceMode),
    getInteger1, getFloat1, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
@@ -48,7 +48,7 @@ data FogParameter =
    | FogEnd
    | FogMode
    | FogColor
-   | FogCoordinateSource
+   | FogCoordSrc
    | FogDistanceMode
 
 marshalFogParameter :: FogParameter -> GLenum
@@ -59,7 +59,7 @@ marshalFogParameter x = case x of
    FogEnd -> 0xb64
    FogMode -> 0xb65
    FogColor -> 0xb66
-   FogCoordinateSource -> 0x8450
+   FogCoordSrc -> 0x8450
    FogDistanceMode -> 0x855a
 
 --------------------------------------------------------------------------------
@@ -152,29 +152,29 @@ fogIndex =
 
 --------------------------------------------------------------------------------
 
-data FogCoordinateSource =
-     FogCoordinate
+data FogCoordSrc =
+     FogCoord
    | FragmentDepth
    deriving ( Eq, Ord, Show )
 
-marshalFogCoordinateSource :: FogCoordinateSource -> GLint
-marshalFogCoordinateSource x = case x of
-   FogCoordinate -> 0x8451
+marshalFogCoordSrc :: FogCoordSrc -> GLint
+marshalFogCoordSrc x = case x of
+   FogCoord -> 0x8451
    FragmentDepth -> 0x8452
 
-unmarshalFogCoordinateSource :: GLint -> FogCoordinateSource
-unmarshalFogCoordinateSource x
-   | x == 0x8451 = FogCoordinate
+unmarshalFogCoordSrc :: GLint -> FogCoordSrc
+unmarshalFogCoordSrc x
+   | x == 0x8451 = FogCoord
    | x == 0x8452 = FragmentDepth
-   | otherwise = error ("unmarshalFogCoordinateSource: illegal value " ++ show x)
+   | otherwise = error ("unmarshalFogCoordSrc: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
-fogCoordinateSource :: StateVar FogCoordinateSource
-fogCoordinateSource =
+fogCoordSrc :: StateVar FogCoordSrc
+fogCoordSrc =
    makeStateVar
-      (getInteger1 unmarshalFogCoordinateSource GetFogCoordinateSource)
-      (fogi FogCoordinateSource . marshalFogCoordinateSource)
+      (getInteger1 unmarshalFogCoordSrc GetFogCoordSrc)
+      (fogi FogCoordSrc . marshalFogCoordSrc)
 
 --------------------------------------------------------------------------------
 

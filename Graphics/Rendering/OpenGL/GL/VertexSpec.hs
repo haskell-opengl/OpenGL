@@ -33,7 +33,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    Normal3(..),
 
    -- ** Fog Coordinate
-   currentFogCoordinate, FogCoord(..),
+   currentFogCoord, FogCoord(..),
    FogCoordComponent,
    FogCoord1(..),
 
@@ -66,7 +66,7 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke (
    poke1, poke2, poke3, poke4,
    peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoordinate,
+   GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoord,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits,GetRGBAMode),
    getBoolean1, getInteger1, getFloat1, getFloat3, getFloat4 )
@@ -748,9 +748,9 @@ instance Storable a => Storable (Normal3 a) where
 
 -- | The current fog coordinate. The initial value is 0.
 
-currentFogCoordinate :: StateVar (FogCoord1 GLfloat)
-currentFogCoordinate =
-   makeStateVar (getFloat1 FogCoord1 GetCurrentFogCoordinate) fogCoord
+currentFogCoord :: StateVar (FogCoord1 GLfloat)
+currentFogCoord =
+   makeStateVar (getFloat1 FogCoord1 GetCurrentFogCoord) fogCoord
 
 --------------------------------------------------------------------------------
 

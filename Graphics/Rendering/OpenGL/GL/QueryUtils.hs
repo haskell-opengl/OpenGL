@@ -92,8 +92,8 @@ data GetPName =
    | GetFogEnd
    | GetFogMode
    | GetFogColor
-   | GetFogCoordinateSource
-   | GetCurrentFogCoordinate
+   | GetFogCoordSrc
+   | GetCurrentFogCoord
    | GetDepthRange
    | GetDepthTest
    | GetDepthWritemask
@@ -261,7 +261,7 @@ data GetPName =
    | GetIndexArray
    | GetTextureCoordArray
    | GetEdgeFlagArray
-   | GetFogCoordinateArray
+   | GetFogCoordArray
    | GetSecondaryColorArray
    | GetMatrixIndexArray
    | GetVertexArraySize
@@ -278,8 +278,8 @@ data GetPName =
    | GetTextureCoordArrayType
    | GetTextureCoordArrayStride
    | GetEdgeFlagArrayStride
-   | GetFogCoordinateArrayType
-   | GetFogCoordinateArrayStride
+   | GetFogCoordArrayType
+   | GetFogCoordArrayStride
    | GetSecondaryColorArraySize
    | GetSecondaryColorArrayType
    | GetSecondaryColorArrayStride
@@ -474,8 +474,8 @@ marshalGetPName x = case x of
    GetFogEnd -> 0xb64
    GetFogMode -> 0xb65
    GetFogColor -> 0xb66
-   GetFogCoordinateSource -> 0x8450
-   GetCurrentFogCoordinate -> 0x8453
+   GetFogCoordSrc -> 0x8450
+   GetCurrentFogCoord -> 0x8453
    GetDepthRange -> 0xb70
    GetDepthTest -> 0xb71
    GetDepthWritemask -> 0xb72
@@ -643,7 +643,7 @@ marshalGetPName x = case x of
    GetIndexArray -> 0x8077
    GetTextureCoordArray -> 0x8078
    GetEdgeFlagArray -> 0x8079
-   GetFogCoordinateArray -> 0x8457
+   GetFogCoordArray -> 0x8457
    GetSecondaryColorArray -> 0x845e
    GetMatrixIndexArray -> 0x8844
    GetVertexArraySize -> 0x807a
@@ -660,8 +660,8 @@ marshalGetPName x = case x of
    GetTextureCoordArrayType -> 0x8089
    GetTextureCoordArrayStride -> 0x808a
    GetEdgeFlagArrayStride -> 0x808c
-   GetFogCoordinateArrayType -> 0x8454
-   GetFogCoordinateArrayStride -> 0x8455
+   GetFogCoordArrayType -> 0x8454
+   GetFogCoordArrayStride -> 0x8455
    GetSecondaryColorArraySize -> 0x845a
    GetSecondaryColorArrayType -> 0x845b
    GetSecondaryColorArrayStride -> 0x845c
@@ -930,7 +930,7 @@ data GetPointervPName =
    | IndexArrayPointer
    | TextureCoordArrayPointer
    | EdgeFlagArrayPointer
-   | FogCoordinateArrayPointer
+   | FogCoordArrayPointer
    | SecondaryColorArrayPointer
    | FeedbackBufferPointer
    | SelectionBufferPointer
@@ -945,7 +945,7 @@ marshalGetPointervPName x = case x of
    IndexArrayPointer -> 0x8091
    TextureCoordArrayPointer -> 0x8092
    EdgeFlagArrayPointer -> 0x8093
-   FogCoordinateArrayPointer -> 0x8456
+   FogCoordArrayPointer -> 0x8456
    SecondaryColorArrayPointer -> 0x845d
    FeedbackBufferPointer -> 0xdf0
    SelectionBufferPointer -> 0xdf3

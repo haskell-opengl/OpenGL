@@ -126,7 +126,7 @@ ClientArrayType enum:
 	INDEX_ARRAY					= 0x8077
 	TEXTURE_COORD_ARRAY				= 0x8078
 	EDGE_FLAG_ARRAY					= 0x8079
-	FOG_COORDINATE_ARRAY				= 0x8457
+	FOG_COORD_ARRAY					= 0x8457
 	SECONDARY_COLOR_ARRAY				= 0x845E
 	MATRIX_INDEX_ARRAY				= 0x8844	# ARB Extension #16: ARB_matrix_palette
 
@@ -301,7 +301,7 @@ EnableCap enum:
 	use ClientArrayType INDEX_ARRAY
 	use ClientArrayType TEXTURE_COORD_ARRAY
 	use ClientArrayType EDGE_FLAG_ARRAY
-	use ClientArrayType FOG_COORDINATE_ARRAY
+	use ClientArrayType FOG_COORD_ARRAY
 	use ClientArrayType SECONDARY_COLOR_ARRAY
 	use ClientArrayType MATRIX_INDEX_ARRAY				# ARB Extension #16: ARB_matrix_palette
 
@@ -369,8 +369,8 @@ FeedBackToken enum:
 	COPY_PIXEL_TOKEN				= 0x0706
 	LINE_RESET_TOKEN				= 0x0707
 
-FogCoordinate enum:
-	FOG_COORDINATE					= 0x8451
+FogCoord enum:
+	FOG_COORD					= 0x8451
 	FRAGMENT_DEPTH					= 0x8452
 
 FogMode enum:
@@ -385,7 +385,7 @@ FogParameter enum:
 	FOG_END						= 0x0B64
 	FOG_MODE					= 0x0B65
 	FOG_COLOR					= 0x0B66
-	FOG_COORDINATE_SOURCE				= 0x8450
+	FOG_COORD_SRC					= 0x8450
 
 FrontFaceDirection enum:
 	CW						= 0x0900
@@ -455,7 +455,7 @@ GetPointervPName enum:
 	INDEX_ARRAY_POINTER				= 0x8091
 	TEXTURE_COORD_ARRAY_POINTER			= 0x8092
 	EDGE_FLAG_ARRAY_POINTER				= 0x8093
-	FOG_COORDINATE_ARRAY_POINTER			= 0x8456
+	FOG_COORD_ARRAY_POINTER				= 0x8456
 	SECONDARY_COLOR_ARRAY_POINTER			= 0x845D
 	FEEDBACK_BUFFER_POINTER				= 0x0DF0
 	SELECTION_BUFFER_POINTER			= 0x0DF3
@@ -524,8 +524,8 @@ GetPName enum:
 	use FogParameter FOG_END					# 1 F
 	use FogParameter FOG_MODE					# 1 I
 	use FogParameter FOG_COLOR					# 4 F
-	use FogParameter FOG_COORDINATE_SOURCE				# 1 I
-	CURRENT_FOG_COORDINATE				= 0x8453	# 1 F
+	use FogParameter FOG_COORD_SRC					# 1 I
+	CURRENT_FOG_COORD				= 0x8453	# 1 F
 
 	DEPTH_RANGE					= 0x0B70	# 2 F
 	use Enable DEPTH_TEST						# 1 I
@@ -726,7 +726,7 @@ GetPName enum:
 	use ClientArrayType INDEX_ARRAY					# 1 I
 	use ClientArrayType TEXTURE_COORD_ARRAY				# 1 I
 	use ClientArrayType EDGE_FLAG_ARRAY				# 1 I
-	use ClientArrayType FOG_COORDINATE_ARRAY			# 1 I
+	use ClientArrayType FOG_COORD_ARRAY			# 1 I
 	use ClientArrayType SECONDARY_COLOR_ARRAY			# 1 I
 	use ClientArrayType MATRIX_INDEX_ARRAY				# 1 I, ARB Extension #16: ARB_matrix_palette
 
@@ -750,8 +750,8 @@ GetPName enum:
 
 	EDGE_FLAG_ARRAY_STRIDE				= 0x808C	# 1 I
 
-	FOG_COORDINATE_ARRAY_TYPE			= 0x8454	# 1 I
-	FOG_COORDINATE_ARRAY_STRIDE			= 0x8455	# 1 I
+	FOG_COORD_ARRAY_TYPE				= 0x8454	# 1 I
+	FOG_COORD_ARRAY_STRIDE				= 0x8455	# 1 I
 
 	SECONDARY_COLOR_ARRAY_SIZE			= 0x845A	# 1 I
 	SECONDARY_COLOR_ARRAY_TYPE			= 0x845B	# 1 I
@@ -1416,12 +1416,12 @@ TextureEnvParameter enum:
 	TEXTURE_ENV_COLOR				= 0x2201
 	COMBINE_RGB					= 0x8571	# ARB Extension #17: ARB_texture_env_combine
 	COMBINE_ALPHA					= 0x8572	# ARB Extension #17: ARB_texture_env_combine
-	SOURCE0_RGB					= 0x8580	# ARB Extension #17: ARB_texture_env_combine
-	SOURCE1_RGB					= 0x8581	# ARB Extension #17: ARB_texture_env_combine
-	SOURCE2_RGB					= 0x8582	# ARB Extension #17: ARB_texture_env_combine
-	SOURCE0_ALPHA					= 0x8588	# ARB Extension #17: ARB_texture_env_combine
-	SOURCE1_ALPHA					= 0x8589	# ARB Extension #17: ARB_texture_env_combine
-	SOURCE2_ALPHA					= 0x858A	# ARB Extension #17: ARB_texture_env_combine
+	SRC0_RGB					= 0x8580	# ARB Extension #17: ARB_texture_env_combine
+	SRC1_RGB					= 0x8581	# ARB Extension #17: ARB_texture_env_combine
+	SRC2_RGB					= 0x8582	# ARB Extension #17: ARB_texture_env_combine
+	SRC0_ALPHA					= 0x8588	# ARB Extension #17: ARB_texture_env_combine
+	SRC1_ALPHA					= 0x8589	# ARB Extension #17: ARB_texture_env_combine
+	SRC2_ALPHA					= 0x858A	# ARB Extension #17: ARB_texture_env_combine
 	OPERAND0_RGB					= 0x8590	# ARB Extension #17: ARB_texture_env_combine
 	OPERAND1_RGB					= 0x8591	# ARB Extension #17: ARB_texture_env_combine
 	OPERAND2_RGB					= 0x8592	# ARB Extension #17: ARB_texture_env_combine
@@ -1431,8 +1431,8 @@ TextureEnvParameter enum:
 	RGB_SCALE					= 0x8573
 	use PixelTransfer ALPHA_SCALE					# ARB Extension #17: ARB_texture_env_combine
 
-# USE_PREFIX Source
-TextureEnvSource enum:
+# USE_PREFIX Src
+TextureEnvSrc enum:
 	use MatrixMode TEXTURE						# ARB Extension #17: ARB_texture_env_combine
 	CONSTANT					= 0x8576	# ARB Extension #17: ARB_texture_env_combine
 	PRIMARY_COLOR					= 0x8577	# ARB Extension #17: ARB_texture_env_combine

@@ -94,7 +94,7 @@ data EnableCap =
    | CapIndexArray
    | CapTextureCoordArray
    | CapEdgeFlagArray
-   | CapFogCoordinateArray
+   | CapFogCoordArray
    | CapSecondaryColorArray
    | CapMatrixIndexArray
    | CapConvolution1D
@@ -180,7 +180,7 @@ marshalEnableCap x = case x of
    CapIndexArray -> 0x8077
    CapTextureCoordArray -> 0x8078
    CapEdgeFlagArray -> 0x8079
-   CapFogCoordinateArray -> 0x8457
+   CapFogCoordArray -> 0x8457
    CapSecondaryColorArray -> 0x845e
    CapMatrixIndexArray -> 0x8844
    CapConvolution1D -> 0x8010
