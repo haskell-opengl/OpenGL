@@ -20,11 +20,11 @@ module Graphics.Rendering.OpenGL.GLU.Matrix (
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peek) )
+import Foreign.Storable ( Storable(peek,peekElemOff) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLdouble, GLclampd )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
-   MatrixOrder(ColumnMajor), Matrix, MatrixElement(getMatrixElements),
+   MatrixOrder(..), Matrix, withMatrix, MatrixElement,
    Vector3(..), Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3(..), Vertex4(..) )
 
@@ -65,8 +65,8 @@ project ::
    -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
    -> IO (Maybe (Vertex3 GLdouble))
 project (Vertex3 objX objY objZ) model proj viewport =
-   withMatrix ColumnMajor model $ \modelBuf ->
-   withMatrix ColumnMajor proj $ \projBuf ->
+   withColumnMajor model $ \modelBuf ->
+   withColumnMajor proj $ \projBuf ->
    withViewport viewport $ \viewBuf ->
    getVertex3 $ gluProject objX objY objZ modelBuf projBuf viewBuf
 
@@ -80,8 +80,8 @@ unProject ::
    -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
    -> IO (Maybe (Vertex3 GLdouble))
 unProject (Vertex3 objX objY objZ) model proj viewport =
-   withMatrix ColumnMajor model $ \modelBuf ->
-   withMatrix ColumnMajor proj $ \projBuf ->
+   withColumnMajor model $ \modelBuf ->
+   withColumnMajor proj $ \projBuf ->
    withViewport viewport $ \viewBuf ->
    getVertex3 $ gluUnProject objX objY objZ modelBuf projBuf viewBuf
 
@@ -96,8 +96,8 @@ unProject4 ::
    -> GLclampd -> GLclampd
    -> IO (Maybe (Vertex4 GLdouble))
 unProject4 (Vertex4 objX objY objZ clipW) model proj viewport near far =
-   withMatrix ColumnMajor model $ \modelBuf ->
-   withMatrix ColumnMajor proj $ \projBuf ->
+   withColumnMajor model $ \modelBuf ->
+   withColumnMajor proj $ \projBuf ->
    withViewport viewport $ \viewBuf ->
    getVertex4 $
       gluUnProject4 objX objY objZ clipW modelBuf projBuf viewBuf near far
@@ -114,12 +114,15 @@ withViewport :: (Position, Size) -> (Ptr GLint -> IO a ) -> IO a
 withViewport (Position x y, Size w h) =
    withArray [ x, y, fromIntegral w, fromIntegral h ]
 
--- TODO: Improve this sometimes needless (un-)marshaling
-withMatrix ::
-   MatrixElement a => MatrixOrder -> Matrix a -> (Ptr a -> IO b) -> IO b
-withMatrix order matrix act = do
-   elements <- getMatrixElements order matrix
-   withArray elements act
+withColumnMajor :: MatrixElement a => Matrix a -> (Ptr a -> IO b) -> IO b
+withColumnMajor matrix act = withMatrix matrix juggle
+   where juggle ColumnMajor p = act p
+         juggle RowMajor    p = do
+            transposedElems <- mapM (peekElemOff p) [ 0, 4,  8, 12,
+                                                      1, 5,  9, 13,
+                                                      2, 6, 10, 14,
+                                                      3, 7, 11, 15 ]
+            withArray transposedElems act
 
 getVertex3 ::
    Storable a => (Ptr a -> Ptr a -> Ptr a -> IO GLint) -> IO (Maybe (Vertex3 a))

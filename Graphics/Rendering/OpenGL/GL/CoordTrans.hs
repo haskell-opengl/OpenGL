@@ -20,7 +20,8 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 
    -- * Matrices
    MatrixMode(..), matrixMode,
-   Vector3(..), MatrixOrder(..), Matrix, MatrixElement(..),
+   Vector3(..),
+   MatrixOrder(..), Matrix, withNewMatrix, withMatrix, MatrixElement(..),
    loadIdentity,
    ortho, frustum,
    activeTexture,
@@ -187,24 +188,37 @@ data MatrixOrder = ColumnMajor | RowMajor
 data Matrix a = Matrix MatrixOrder (ForeignPtr a)
    deriving ( Eq, Ord, Show )
 
+-- | Create a new matrix of the given order (containing undefined elements) and
+-- call the action to fill it with 4x4 elements.
+
+withNewMatrix :: Storable a => MatrixOrder -> (Ptr a -> IO ()) -> IO (Matrix a)
+withNewMatrix order f = do
+   fp <- mallocForeignPtrArray 16
+   withForeignPtr fp f
+   return $ Matrix order fp
+
+-- | Call the action with the given matrix. /Note:/ The action is /not/ allowed
+-- to modify the matrix elments!
+
+withMatrix :: Matrix a -> (MatrixOrder -> Ptr a -> IO b) -> IO b
+withMatrix (Matrix order fp) f = withForeignPtr fp (f order)
+
 --------------------------------------------------------------------------------
 
 class Storable a => MatrixElement a where
-   makeMatrix :: MatrixOrder -> [a] -> IO (Matrix a)
-   getMatrixElements :: MatrixOrder -> Matrix a -> IO [a]
+   matrix :: MatrixOrder -> [a] -> Matrix a
+   matrixElements :: MatrixOrder -> Matrix a -> [a]
    currentMatrix :: StateVar (Matrix a)
    multMatrix :: Matrix a -> IO ()
    rotate :: a -> Vector3 a -> IO ()
    scale :: a -> a -> a -> IO ()
    translate :: Vector3 a -> IO ()
 
-   makeMatrix order elements = do
-      fp <- mallocForeignPtrArray 16
-      withForeignPtr fp $ flip pokeArray (take 16 elements)
-      return $ Matrix order fp
+   matrix order elements = unsafePerformIO $
+      withNewMatrix order $ flip pokeArray (take 16 elements)
 
-   getMatrixElements desiredOrder (Matrix order fp) = do
-      withForeignPtr fp $ \p ->
+   matrixElements desiredOrder mat = unsafePerformIO $ do
+      withMatrix mat $ \order p ->
         if desiredOrder == order
            then peekArray 16 p
            else mapM (peekElemOff p) [ 0, 4,  8, 12,
@@ -214,33 +228,34 @@ class Storable a => MatrixElement a where
 
 instance MatrixElement GLfloat  where
    currentMatrix =
-      makeStateVar (getCurrentColumnMajorMatrix getFloatv) loadMatrixf
+      makeStateVar (getCurrentColumnMajorMatrix getFloatv) setCurrentMatrix
+      where setCurrentMatrix mat = withMatrix mat loadMatrixf
+            loadMatrixf ColumnMajor = glLoadMatrixf
+            loadMatrixf RowMajor    = glLoadTransposeMatrixfARB
 
-   multMatrix (Matrix ColumnMajor fp) = withForeignPtr fp $ glMultMatrixf
-   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ glMultTransposeMatrixfARB
+   multMatrix mat = withMatrix mat multMatrixf
+      where multMatrixf ColumnMajor = glMultMatrixf
+            multMatrixf RowMajor    = glMultTransposeMatrixfARB
 
    rotate a (Vector3 x y z) = glRotatef a x y z
    translate (Vector3 x y z) = glTranslatef x y z
    scale = glScalef
 
-loadMatrixf :: Matrix GLfloat -> IO ()
-loadMatrixf (Matrix ColumnMajor fp) = withForeignPtr fp $ glLoadMatrixf
-loadMatrixf (Matrix RowMajor    fp) = withForeignPtr fp $ glLoadTransposeMatrixfARB
-
 instance MatrixElement GLdouble where
    currentMatrix =
-      makeStateVar (getCurrentColumnMajorMatrix getDoublev) loadMatrixd
+      makeStateVar (getCurrentColumnMajorMatrix getDoublev) setCurrentMatrix
+      where setCurrentMatrix mat = withMatrix mat loadMatrixd
+            loadMatrixd ColumnMajor = glLoadMatrixd
+            loadMatrixd RowMajor    = glLoadTransposeMatrixdARB
 
-   multMatrix (Matrix ColumnMajor fp) = withForeignPtr fp $ glMultMatrixd
-   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ glMultTransposeMatrixdARB
+
+   multMatrix mat = withMatrix mat multMatrixd
+      where multMatrixd ColumnMajor = glMultMatrixd
+            multMatrixd RowMajor    = glMultTransposeMatrixdARB
 
    rotate a (Vector3 x y z) = glRotated a x y z
    translate (Vector3 x y z) = glTranslated x y z
    scale = glScaled
-
-loadMatrixd :: Matrix GLdouble -> IO ()
-loadMatrixd (Matrix ColumnMajor fp) = withForeignPtr fp $ glLoadMatrixd
-loadMatrixd (Matrix RowMajor    fp) = withForeignPtr fp $ glLoadTransposeMatrixdARB
 
 --------------------------------------------------------------------------------
 
@@ -248,9 +263,7 @@ getCurrentColumnMajorMatrix ::
    Storable a => (GetPName -> Ptr a -> IO ()) -> IO (Matrix a)
 getCurrentColumnMajorMatrix getV  = do
    mode <- get matrixMode
-   fp <- mallocForeignPtrArray 16
-   withForeignPtr fp $ getV (getMatrixPName mode)
-   return $ Matrix ColumnMajor fp
+   withNewMatrix ColumnMajor $ getV (getMatrixPName mode)
 
 getMatrixPName :: MatrixMode -> GetPName
 getMatrixPName (Modelview _) = GetModelviewMatrix -- ???
