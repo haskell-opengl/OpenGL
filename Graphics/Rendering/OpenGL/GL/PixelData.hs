@@ -26,7 +26,14 @@ import Graphics.Rendering.OpenGL.GL.PixelFormat (
 --------------------------------------------------------------------------------
 
 data PixelData a = PixelData PixelFormat DataType (Ptr a)
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq (PixelData a)
+instance Ord (PixelData a)
+instance Show (PixelData a)
+#else
    deriving ( Eq, Ord, Show )
+#endif
 
 withPixelData :: PixelData a -> (GLenum -> GLenum -> Ptr a -> b) -> b
 withPixelData (PixelData pixelFormat dataType ptr) f =
