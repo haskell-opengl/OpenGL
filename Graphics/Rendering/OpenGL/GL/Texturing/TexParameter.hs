@@ -21,8 +21,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
 import Control.Monad ( liftM, liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Utils ( with )
+import Foreign.Storable ( Storable )
 import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability ( Capability(..) )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
@@ -83,71 +83,69 @@ marshalTexParameter x = case x of
 
 --------------------------------------------------------------------------------
 
-texParameteri :: (a -> GLint) -> TextureTarget -> TexParameter -> a -> IO ()
-texParameteri f t p =
-   glTexParameteri (marshalTextureTarget t) (marshalTexParameter p) . f
+texParameter :: (GLenum -> GLenum -> b -> IO ())
+             -> (a -> (b -> IO ()) -> IO ())
+             -> TextureTarget -> TexParameter -> a -> IO ()
+texParameter glTexParameter marshalAct t p x =
+   marshalAct x $
+      glTexParameter (marshalTextureTarget t) (marshalTexParameter p)
 
 foreign import CALLCONV unsafe "glTexParameteri"
    glTexParameteri :: GLenum -> GLenum ->  GLint -> IO ()
 
-texParameterf :: (a -> GLfloat) -> TextureTarget -> TexParameter -> a -> IO ()
-texParameterf f t p =
-   glTexParameterf (marshalTextureTarget t) (marshalTexParameter p) . f
-
 foreign import CALLCONV unsafe "glTexParameterf"
    glTexParameterf :: GLenum -> GLenum ->  GLfloat -> IO ()
-
-texParameterC4f :: TextureTarget -> TexParameter -> Color4 GLfloat -> IO ()
-texParameterC4f t p c =
-   with c $
-      glTexParameterC4f (marshalTextureTarget t) (marshalTexParameter p)
 
 foreign import CALLCONV unsafe "glTexParameterfv"
    glTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 
 --------------------------------------------------------------------------------
 
-getTexParameteri :: (GLint -> a) -> TextureTarget -> TexParameter -> IO a
-getTexParameteri f t p =
+getTexParameter :: Storable b
+                => (GLenum -> GLenum -> Ptr b -> IO ())
+                -> (b -> a)
+                -> TextureTarget -> TexParameter -> IO a
+getTexParameter glGetTexParameter unmarshal t p =
    alloca $ \buf -> do
-     glGetTexParameteriv (marshalTextureTarget t) (marshalTexParameter p) buf
-     peek1 f buf
+     glGetTexParameter (marshalTextureTarget t) (marshalTexParameter p) buf
+     peek1 unmarshal buf
 
 foreign import CALLCONV unsafe "glGetTexParameteriv"
    glGetTexParameteriv :: GLenum -> GLenum -> Ptr GLint -> IO ()
 
-getTexParameterf :: (GLfloat -> a) -> TextureTarget -> TexParameter -> IO a
-getTexParameterf f t p =
-   alloca $ \buf -> do
-     glGetTexParameterfv (marshalTextureTarget t) (marshalTexParameter p) buf
-     peek1 f buf
-
 foreign import CALLCONV unsafe "glGetTexParameterfv"
    glGetTexParameterfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-getTexParameterC4f :: TextureTarget -> TexParameter -> IO (Color4 GLfloat)
-getTexParameterC4f t p =
-   alloca $ \buf -> do
-     glGetTexParameterC4f (marshalTextureTarget t) (marshalTexParameter p) buf
-     peek buf
 
 foreign import CALLCONV unsafe "glGetTexParameterfv"
    glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 
 --------------------------------------------------------------------------------
 
+m2a :: (a -> b) -> a -> (b -> IO ()) -> IO ()
+m2a marshal x act = act (marshal x)
+
 texParami ::
    (GLint -> a) -> (a -> GLint) -> TexParameter -> TextureTarget -> StateVar a
 texParami unmarshal marshal p t =
-   makeStateVar (getTexParameteri unmarshal t p) (texParameteri marshal t p)
+   makeStateVar
+      (getTexParameter glGetTexParameteriv unmarshal     t p)
+      (texParameter    glTexParameteri     (m2a marshal) t p)
 
 texParamf ::
    (GLfloat -> a) -> (a -> GLfloat) -> TexParameter -> TextureTarget -> StateVar a
 texParamf unmarshal marshal p t =
-   makeStateVar (getTexParameterf unmarshal t p) (texParameterf marshal t p)
+   makeStateVar
+      (getTexParameter glGetTexParameterfv unmarshal     t p)
+      (texParameter    glTexParameterf     (m2a marshal) t p)
 
 texParamC4f :: TexParameter -> TextureTarget -> StateVar (Color4 GLfloat)
-texParamC4f p t = makeStateVar (getTexParameterC4f t p) (texParameterC4f t p)
+texParamC4f p t =
+   makeStateVar
+      (getTexParameter glGetTexParameterC4f id   t p)
+      (texParameter    glTexParameterC4f    with t p)
+
+getTexParameteri :: (GLint -> a) -> TextureTarget -> TexParameter -> IO a
+getTexParameteri = getTexParameter glGetTexParameteriv
 
 --------------------------------------------------------------------------------
 
