@@ -30,26 +30,32 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    rescaleNormal, normalize,
 
    -- * Generating Texture Coordinates
-   Plane(..), TextureCoordName(..), TextureGenFunc(..)
+   Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
+import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
+import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapRescaleNormal,CapNormalize), makeCapability )
+   EnableCap(CapRescaleNormal, CapNormalize,
+             CapTextureGenS, CapTextureGenT,
+             CapTextureGenR, CapTextureGenQ),
+   makeCapability )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
             GetModelviewMatrix, GetProjectionMatrix, GetTextureMatrix,
             GetColorMatrix, GetMatrixPalette, GetActiveTexture),
    getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get),
+   HasGetter(get), HasSetter(($=)),
    GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
@@ -361,6 +367,12 @@ normalize = makeCapability CapNormalize
 data Plane a = Plane a a a a
    deriving ( Eq, Ord, Show )
 
+instance Storable a => Storable (Plane a) where
+   sizeOf    ~(Plane a _ _ _) = 4 * sizeOf a
+   alignment ~(Plane a _ _ _) = alignment a
+   peek                       = peek4 Plane
+   poke ptr   (Plane a b c d) = poke4 ptr a b c d
+
 --------------------------------------------------------------------------------
 
 data TextureCoordName =
@@ -392,33 +404,33 @@ marshalTextureGenParameter x = case x of
 
 --------------------------------------------------------------------------------
 
-data TextureGenMode =
+data TextureGenMode' =
      EyeLinear'
    | ObjectLinear'
    | SphereMap'
    | NormalMap'
    | ReflectionMap'
 
-marshalTextureGenMode :: TextureGenMode -> GLenum
-marshalTextureGenMode x = case x of
+marshalTextureGenMode' :: TextureGenMode' -> GLint
+marshalTextureGenMode' x = case x of
    EyeLinear' -> 0x2400
    ObjectLinear' -> 0x2401
    SphereMap' -> 0x2402
    NormalMap' -> 0x8511
    ReflectionMap' -> 0x8512
 
-unmarshalTextureGenMode :: GLenum -> TextureGenMode
-unmarshalTextureGenMode x
+unmarshalTextureGenMode' :: GLint -> TextureGenMode'
+unmarshalTextureGenMode' x
    | x == 0x2400 = EyeLinear'
    | x == 0x2401 = ObjectLinear'
    | x == 0x2402 = SphereMap'
    | x == 0x8511 = NormalMap'
    | x == 0x8512 = ReflectionMap'
-   | otherwise = error ("unmarshalTextureGenMode: illegal value " ++ show x)
+   | otherwise = error ("unmarshalTextureGenMode': illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
-data TextureGenFunc =
+data TextureGenMode =
      EyeLinear    (Plane GLdouble)
    | ObjectLinear (Plane GLdouble)
    | SphereMap
@@ -426,16 +438,107 @@ data TextureGenFunc =
    | ReflectionMap
    deriving ( Eq, Ord, Show )
 
+marshalTextureGenMode :: TextureGenMode -> GLint
+marshalTextureGenMode = marshalTextureGenMode' . convertMode
+   where convertMode (EyeLinear    _) = EyeLinear'
+         convertMode (ObjectLinear _) = ObjectLinear'
+         convertMode SphereMap        = SphereMap'
+         convertMode NormalMap        = NormalMap'
+         convertMode ReflectionMap    = ReflectionMap'
+
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glTexGeni" glTexGeni :: GLenum -> GLenum -> GLint -> IO ()
-foreign import CALLCONV unsafe "glTexGenf" glTexGenf :: GLenum -> GLenum -> GLfloat -> IO ()
-foreign import CALLCONV unsafe "glTexGend" glTexGend :: GLenum -> GLenum -> GLdouble -> IO ()
+textureGenMode :: TextureCoordName -> StateVar (Maybe TextureGenMode)
+textureGenMode coord =
+   makeStateVar (getTextureGenMode coord) (setTextureGenMode coord)
 
-foreign import CALLCONV unsafe "glTexGeniv" glTexGeniv :: GLenum -> GLenum -> Ptr GLint -> IO ()
-foreign import CALLCONV unsafe "glTexGenfv" glTexGenfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-foreign import CALLCONV unsafe "glTexGendv" glTexGendv :: GLenum -> GLenum -> Ptr GLdouble -> IO ()
+--------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glGetTexGeniv" glGetTexGeniv :: GLenum -> GLenum -> Ptr GLint -> IO ()
-foreign import CALLCONV unsafe "glGetTexGenfv" glGetTexGenfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-foreign import CALLCONV unsafe "glGetTexGendv" glGetTexGendv :: GLenum -> GLenum -> Ptr GLdouble -> IO ()
+getTextureGenMode :: TextureCoordName -> IO (Maybe TextureGenMode)
+getTextureGenMode coord = do
+   enabled <- get (textureCoordNameToStateVar coord)
+   if enabled
+      then do
+         mode <- getMode coord
+         case mode of
+            EyeLinear'     -> do
+               plane <- getPlane coord EyePlane
+               return $ Just (EyeLinear plane)
+            ObjectLinear'  -> do
+               plane <- getPlane coord ObjectPlane
+               return $ Just (ObjectLinear plane)
+            SphereMap'     -> return $ Just SphereMap
+            NormalMap'     -> return $ Just NormalMap
+            ReflectionMap' -> return $ Just ReflectionMap
+      else
+         return Nothing
+
+--------------------------------------------------------------------------------
+
+setTextureGenMode :: TextureCoordName -> Maybe TextureGenMode -> IO ()
+setTextureGenMode coord Nothing =
+   textureCoordNameToStateVar coord $= False
+setTextureGenMode coord (Just mode) = do
+   textureCoordNameToStateVar coord $= True
+   setMode coord mode
+   case mode of
+      EyeLinear    plane -> setPlane coord EyePlane    plane
+      ObjectLinear plane -> setPlane coord ObjectPlane plane
+      _ -> return ()
+
+--------------------------------------------------------------------------------
+
+textureCoordNameToStateVar :: TextureCoordName -> StateVar Bool
+textureCoordNameToStateVar S = textureGenS
+textureCoordNameToStateVar T = textureGenT
+textureCoordNameToStateVar R = textureGenR
+textureCoordNameToStateVar Q = textureGenQ
+
+textureGenS, textureGenT, textureGenR, textureGenQ :: StateVar Bool
+textureGenS = makeCapability CapTextureGenS
+textureGenT = makeCapability CapTextureGenT
+textureGenR = makeCapability CapTextureGenR
+textureGenQ = makeCapability CapTextureGenQ
+
+--------------------------------------------------------------------------------
+
+getMode :: TextureCoordName -> IO TextureGenMode'
+getMode coord = alloca $ \buf -> do
+   glGetTexGeniv (marshalTextureCoordName coord)
+                 (marshalTextureGenParameter TextureGenMode)
+                 buf
+   peek1 unmarshalTextureGenMode' buf
+
+foreign import CALLCONV unsafe "glGetTexGeniv" glGetTexGeniv ::
+   GLenum -> GLenum -> Ptr GLint -> IO ()
+
+setMode :: TextureCoordName -> TextureGenMode -> IO ()
+setMode coord mode =
+   glTexGeni (marshalTextureCoordName coord)
+             (marshalTextureGenParameter TextureGenMode)
+             (marshalTextureGenMode mode)
+
+foreign import CALLCONV unsafe "glTexGeni" glTexGeni ::
+    GLenum -> GLenum -> GLint -> IO ()
+
+--------------------------------------------------------------------------------
+
+getPlane :: TextureCoordName -> TextureGenParameter -> IO (Plane GLdouble)
+getPlane coord param = alloca $ \planeBuffer -> do
+   glGetTexGendv (marshalTextureCoordName coord)
+                 (marshalTextureGenParameter param)
+                 planeBuffer
+   peek planeBuffer
+
+foreign import CALLCONV unsafe "glGetTexGendv" glGetTexGendv ::
+   GLenum -> GLenum -> Ptr (Plane GLdouble) -> IO ()
+
+setPlane :: TextureCoordName -> TextureGenParameter -> Plane GLdouble -> IO ()
+setPlane coord param plane =
+   with plane $ \planeBuffer ->
+      glTexGendv (marshalTextureCoordName coord)
+                 (marshalTextureGenParameter param)
+                 planeBuffer
+
+foreign import CALLCONV unsafe "glTexGendv" glTexGendv ::
+   GLenum -> GLenum -> Ptr (Plane GLdouble) -> IO ()
