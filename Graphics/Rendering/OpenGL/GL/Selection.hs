@@ -13,7 +13,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Selection (
-   SelectionName(..), HitRecord(..), withSelection, withName, loadName,
+   HitRecord(..), getHitRecords, Name(..), pushName, loadName,
    RenderMode(..), renderMode
 ) where
 
@@ -29,22 +29,19 @@ import Graphics.Rendering.OpenGL.GL.RenderMode (
 
 --------------------------------------------------------------------------------
 
-newtype SelectionName = SelectionName GLuint
-   deriving ( Eq, Ord, Show )
-
-data HitRecord = HitRecord GLfloat GLfloat [SelectionName]
+data HitRecord = HitRecord GLfloat GLfloat [Name]
    deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
 
-withSelection :: GLsizei -> IO a -> IO (a, Maybe [HitRecord])
-withSelection bufSize action =
+getHitRecords :: GLsizei -> IO a -> IO (a, Maybe [HitRecord])
+getHitRecords bufSize action =
    allocaArray (fromIntegral bufSize) $ \buf -> do
       glSelectBuffer bufSize buf
       (value, numHits) <- withRenderMode Select $ do
          glInitNames
          action
-      hits <- getHitRecords numHits buf
+      hits <- parseSelectionBuffer numHits buf
       return (value, hits)
 
 foreign import CALLCONV unsafe "glInitNames" glInitNames :: IO ()
@@ -54,40 +51,43 @@ foreign import CALLCONV unsafe "glSelectBuffer" glSelectBuffer ::
 
 --------------------------------------------------------------------------------
 
-getHitRecords :: GLint -> Ptr GLuint -> IO (Maybe [HitRecord])
-getHitRecords numHits buf
+parseSelectionBuffer :: GLint -> Ptr GLuint -> IO (Maybe [HitRecord])
+parseSelectionBuffer numHits buf
    | numHits < 0 = return Nothing
-   | otherwise   = liftM Just $ evalIOState (nTimes numHits getSelectionHit) buf
+   | otherwise = liftM Just $ evalIOState (nTimes numHits parseSelectionHit) buf
 
 type Parser a = IOState (Ptr GLuint) a
 
 nTimes :: Integral a => a -> Parser b -> Parser [b]
 nTimes n = sequence . replicate (fromIntegral n)
 
-getSelectionHit :: Parser HitRecord
-getSelectionHit = do
-   nameStackDepth <- getGLuint
-   minZ <- getGLfloat
-   maxZ <- getGLfloat
-   nameStack <- nTimes nameStackDepth getSelectionName
+parseSelectionHit :: Parser HitRecord
+parseSelectionHit = do
+   nameStackDepth <- parseGLuint
+   minZ <- parseGLfloat
+   maxZ <- parseGLfloat
+   nameStack <- nTimes nameStackDepth parseName
    return $ HitRecord minZ maxZ nameStack
 
-getGLuint :: Parser GLuint
-getGLuint = peekIOState
+parseGLuint :: Parser GLuint
+parseGLuint = peekIOState
 
-getGLfloat :: Parser GLfloat
-getGLfloat = liftM (\x -> fromIntegral x / 0xffffffff) getGLuint
+parseGLfloat :: Parser GLfloat
+parseGLfloat = liftM (\x -> fromIntegral x / 0xffffffff) parseGLuint
 
-getSelectionName :: Parser SelectionName
-getSelectionName = liftM SelectionName getGLuint
+parseName :: Parser Name
+parseName = liftM Name parseGLuint
 
 --------------------------------------------------------------------------------
 
-withName :: SelectionName -> IO a -> IO a
-withName name action = (do glPushName name ; action) `finally` glPopName
+newtype Name = Name GLuint
+   deriving ( Eq, Ord, Show )
+
+pushName :: Name -> IO a -> IO a
+pushName name action = (do glPushName name ; action) `finally` glPopName
 
 foreign import CALLCONV unsafe "glPopName" glPopName :: IO ()
 
-foreign import CALLCONV unsafe "glPushName" glPushName :: SelectionName -> IO ()
+foreign import CALLCONV unsafe "glPushName" glPushName :: Name -> IO ()
 
-foreign import CALLCONV unsafe "glLoadName" loadName :: SelectionName -> IO ()
+foreign import CALLCONV unsafe "glLoadName" loadName :: Name -> IO ()
