@@ -29,7 +29,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 
    -- * Color Tables
    ColorTableStage(..), colorTableStage,
-   ColorTable(..), colorTable, getColorTable,
+   Proxy(..), ColorTable(..), colorTable, getColorTable,
    copyColorTable, colorSubTable, copyColorSubTable,
    colorTableScale, colorTableBias, colorTableFormat, colorTableWidth,
    colorTableRGBASizes, colorTableLuminanceSize, colorTableIntesitySize,
