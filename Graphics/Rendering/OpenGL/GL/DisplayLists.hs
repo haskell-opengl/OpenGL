@@ -81,7 +81,7 @@ foreign import CALLCONV unsafe "glDeleteLists" glDeleteLists ::
 combineConsecutive :: [DisplayList] -> [(DisplayList, GLsizei)]
 combineConsecutive []     = []
 combineConsecutive (z:zs) = (z, len) : combineConsecutive rest
-   where (len, rest) = run 0 z zs
+   where (len, rest) = run (0 :: GLsizei) z zs
          run n x xs = case n + 1 of
                          m -> case xs of
                                  []                          -> (m, [])
