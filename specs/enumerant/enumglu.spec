@@ -38,7 +38,7 @@ Boolean enum:
 
 ###############################################################################
 
-Version enum:
+Version define:
 	VERSION_1_1						= 1
 	VERSION_1_2						= 1
 	VERSION_1_3						= 1
