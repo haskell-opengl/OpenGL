@@ -15,10 +15,8 @@
 
 module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    -- * Pixel Storage Modes
-   unpackSwapBytes, unpackLSBFirst, unpackRowLength, unpackSkipRows,
-   unpackSkipPixels, unpackAlignment, unpackImageHeight, unpackSkipImages,
-   packSwapBytes, packLSBFirst, packRowLength, packSkipRows,
-   packSkipPixels, packAlignment, packImageHeight, packSkipImages,
+   PixelStoreDirection(..), swapBytes, lsbFirst, rowLength, skipRows,
+   skipPixels, rowAlignment, imageHeight, skipImages,
 
    -- * Pixel Transfer Modes
    PixelTransferStage(..),
@@ -102,6 +100,13 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
 
 --------------------------------------------------------------------------------
 
+data PixelStoreDirection =
+     Pack
+   | Unpack
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
 data PixelStore =
      UnpackSwapBytes
    | UnpackLSBFirst
@@ -141,53 +146,37 @@ marshalPixelStore x = case x of
 
 --------------------------------------------------------------------------------
 
-unpackSwapBytes :: StateVar Bool
-unpackSwapBytes = pixelStoreb GetUnpackSwapBytes UnpackSwapBytes
+swapBytes :: PixelStoreDirection -> StateVar Bool
+swapBytes Pack   = pixelStoreb GetPackSwapBytes PackSwapBytes
+swapBytes Unpack = pixelStoreb GetUnpackSwapBytes UnpackSwapBytes
 
-unpackLSBFirst :: StateVar Bool
-unpackLSBFirst = pixelStoreb GetUnpackLSBFirst UnpackLSBFirst
+lsbFirst :: PixelStoreDirection -> StateVar Bool
+lsbFirst Pack   = pixelStoreb GetPackLSBFirst PackLSBFirst
+lsbFirst Unpack = pixelStoreb GetUnpackLSBFirst UnpackLSBFirst
 
-unpackRowLength :: StateVar GLint
-unpackRowLength = pixelStorei GetUnpackRowLength UnpackRowLength
+rowLength :: PixelStoreDirection -> StateVar GLint
+rowLength Pack   = pixelStorei GetPackRowLength PackRowLength
+rowLength Unpack = pixelStorei GetUnpackRowLength UnpackRowLength
 
-unpackSkipRows :: StateVar GLint
-unpackSkipRows = pixelStorei GetUnpackSkipRows UnpackSkipRows
+skipRows :: PixelStoreDirection -> StateVar GLint
+skipRows Pack   = pixelStorei GetPackSkipRows PackSkipRows
+skipRows Unpack = pixelStorei GetUnpackSkipRows UnpackSkipRows
 
-unpackSkipPixels :: StateVar GLint
-unpackSkipPixels = pixelStorei GetUnpackSkipPixels UnpackSkipPixels
+skipPixels :: PixelStoreDirection -> StateVar GLint
+skipPixels Pack   = pixelStorei GetPackSkipPixels PackSkipPixels
+skipPixels Unpack = pixelStorei GetUnpackSkipPixels PackSkipPixels
 
-unpackAlignment :: StateVar GLint
-unpackAlignment = pixelStorei GetUnpackAlignment UnpackAlignment
+rowAlignment :: PixelStoreDirection -> StateVar GLint
+rowAlignment Pack   = pixelStorei GetPackAlignment PackAlignment
+rowAlignment Unpack = pixelStorei GetUnpackAlignment UnpackAlignment
 
-unpackImageHeight :: StateVar GLint
-unpackImageHeight = pixelStorei GetUnpackImageHeight UnpackImageHeight
+imageHeight :: PixelStoreDirection -> StateVar GLint
+imageHeight Pack   = pixelStorei GetPackImageHeight PackImageHeight
+imageHeight Unpack = pixelStorei GetUnpackImageHeight PackImageHeight
 
-unpackSkipImages :: StateVar GLint
-unpackSkipImages = pixelStorei GetUnpackSkipImages UnpackSkipImages
-
-packSwapBytes :: StateVar Bool
-packSwapBytes = pixelStoreb GetPackSwapBytes PackSwapBytes
-
-packLSBFirst :: StateVar Bool
-packLSBFirst = pixelStoreb GetPackLSBFirst PackLSBFirst
-
-packRowLength :: StateVar GLint
-packRowLength = pixelStorei GetPackRowLength PackRowLength
-
-packSkipRows :: StateVar GLint
-packSkipRows = pixelStorei GetPackSkipRows PackSkipRows
-
-packSkipPixels :: StateVar GLint
-packSkipPixels = pixelStorei GetPackSkipPixels PackSkipPixels
-
-packAlignment :: StateVar GLint
-packAlignment = pixelStorei GetPackAlignment PackAlignment
-
-packImageHeight :: StateVar GLint
-packImageHeight = pixelStorei GetPackImageHeight PackImageHeight
-
-packSkipImages :: StateVar GLint
-packSkipImages = pixelStorei GetPackSkipImages PackSkipImages
+skipImages :: PixelStoreDirection -> StateVar GLint
+skipImages Pack   = pixelStorei GetPackSkipImages PackSkipImages
+skipImages Unpack = pixelStorei GetUnpackSkipImages PackSkipImages
 
 --------------------------------------------------------------------------------
 

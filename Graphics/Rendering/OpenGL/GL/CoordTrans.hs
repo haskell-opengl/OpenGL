@@ -26,10 +26,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    ortho, frustum,
    activeTexture,
    matrixExcursion, unsafeMatrixExcursion,
-   modelviewStackDepth, maxModelviewStackDepth,
-   projectionStackDepth, maxProjectionStackDepth,
-   textureStackDepth, maxTexMaxtureStackDepth,
-   colorMatrixStackDepth, maxColorMatrixStackDepth,
+   stackDepth, maxStackDepth,
 
    -- * Normal Transformation
    rescaleNormal, normalize,
@@ -63,7 +60,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetModelviewStackDepth,GetMaxModelviewStackDepth,
             GetProjectionStackDepth,GetMaxProjectionStackDepth,
             GetTextureStackDepth,GetMaxTextureStackDepth,
-            GetColorMatrixStackDepth,GetMaxColorMatrixStackDepth),
+            GetColorMatrixStackDepth,GetMaxColorMatrixStackDepth,
+            GetMaxMatrixPaletteStackDepth),
    getInteger2, getInteger4, getEnum1, getSizei1, getFloatv,
    getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -173,6 +171,31 @@ unmarshalMatrixMode x
    | x == 0x8840 = MatrixPalette
    | otherwise = error ("unmarshalMatrixMode: illegal value " ++ show x)
 
+matrixModeToGetMatrix :: MatrixMode -> GetPName
+matrixModeToGetMatrix x = case x of
+   Modelview _   -> GetModelviewMatrix -- ???
+   Projection    -> GetProjectionMatrix
+   Texture       -> GetTextureMatrix
+   Color         -> GetColorMatrix
+   MatrixPalette -> GetMatrixPalette
+
+matrixModeToGetStackDepth :: MatrixMode -> GetPName
+matrixModeToGetStackDepth x =  case x of
+   Modelview _   -> GetModelviewStackDepth
+   Projection    -> GetProjectionStackDepth
+   Texture       -> GetTextureStackDepth
+   Color         -> GetColorMatrixStackDepth
+   MatrixPalette ->
+    error "OpenGL provides no way to get the current matrix palette stack depth"
+
+matrixModeToGetMaxStackDepth :: MatrixMode -> GetPName
+matrixModeToGetMaxStackDepth x = case x of
+   Modelview _    -> GetMaxModelviewStackDepth
+   Projection     -> GetMaxProjectionStackDepth
+   Texture        -> GetMaxTextureStackDepth
+   Color          -> GetMaxColorMatrixStackDepth
+   MatrixPalette  -> GetMaxMatrixPaletteStackDepth
+
 --------------------------------------------------------------------------------
 
 -- | Controls which matrix stack is the target for subsequent matrix operations.
@@ -274,14 +297,7 @@ getCurrentColumnMajorMatrix ::
    MatrixElement a => (GetPName -> Ptr a -> IO ()) -> IO (Matrix a)
 getCurrentColumnMajorMatrix getV  = do
    mode <- get matrixMode
-   withNewMatrix ColumnMajor $ getV (getMatrixPName mode)
-
-getMatrixPName :: MatrixMode -> GetPName
-getMatrixPName (Modelview _) = GetModelviewMatrix -- ???
-getMatrixPName Projection    = GetProjectionMatrix
-getMatrixPName Texture       = GetTextureMatrix
-getMatrixPName Color         = GetColorMatrix
-getMatrixPName MatrixPalette = GetMatrixPalette
+   withNewMatrix ColumnMajor $ getV (matrixModeToGetMatrix mode)
 
 --------------------------------------------------------------------------------
 
@@ -358,32 +374,12 @@ unsafeMatrixExcursion action = do
 
 --------------------------------------------------------------------------------
 
-modelviewStackDepth :: GettableStateVar GLsizei
-modelviewStackDepth = stackInfo GetModelviewStackDepth
+stackDepth :: MatrixMode -> GettableStateVar GLsizei
+stackDepth = makeGettableStateVar . getSizei1 id . matrixModeToGetStackDepth
 
-maxModelviewStackDepth :: GettableStateVar GLsizei
-maxModelviewStackDepth = stackInfo GetMaxModelviewStackDepth
-
-projectionStackDepth :: GettableStateVar GLsizei
-projectionStackDepth = stackInfo GetProjectionStackDepth
-
-maxProjectionStackDepth :: GettableStateVar GLsizei
-maxProjectionStackDepth = stackInfo GetMaxProjectionStackDepth
-
-textureStackDepth :: GettableStateVar GLsizei
-textureStackDepth = stackInfo GetTextureStackDepth
-
-maxTexMaxtureStackDepth :: GettableStateVar GLsizei
-maxTexMaxtureStackDepth = stackInfo GetMaxTextureStackDepth
-
-colorMatrixStackDepth :: GettableStateVar GLsizei
-colorMatrixStackDepth = stackInfo GetColorMatrixStackDepth
-
-maxColorMatrixStackDepth :: GettableStateVar GLsizei
-maxColorMatrixStackDepth = stackInfo GetMaxColorMatrixStackDepth
-
-stackInfo :: GetPName -> GettableStateVar GLsizei
-stackInfo = makeGettableStateVar . getSizei1 id
+maxStackDepth :: MatrixMode -> GettableStateVar GLsizei
+maxStackDepth =
+   makeGettableStateVar . getSizei1 id . matrixModeToGetMaxStackDepth
 
 --------------------------------------------------------------------------------
 
