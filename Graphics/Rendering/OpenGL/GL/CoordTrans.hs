@@ -52,7 +52,8 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
+import Graphics.Rendering.OpenGL.GL.PeekPoke (
+   peek1, peek3, peek4, poke3, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
             GetModelviewMatrix,GetProjectionMatrix,GetTextureMatrix,
@@ -213,6 +214,12 @@ foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
 
 data Vector3 a = Vector3 a a a
    deriving ( Eq, Ord, Show )
+
+instance Storable a => Storable (Vector3 a) where
+   sizeOf    ~(Vector3 x _ _) = 3 * sizeOf x
+   alignment ~(Vector3 x _ _) = alignment x
+   peek                       = peek3 Vector3 . castPtr
+   poke ptr   (Vector3 x y z) = poke3 (castPtr ptr) x y z
 
 --------------------------------------------------------------------------------
 
