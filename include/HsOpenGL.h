@@ -13,12 +13,10 @@
 #ifndef HSOPENGL_H
 #define HSOPENGL_H
 
-#include <GL/glu.h>
-
 #ifdef _WIN32
 
 /* for the prototype of wglGetProcAddress */
-#include <wingdi.h>
+#include <windows.h>
 
 #else
 
@@ -28,6 +26,7 @@
 #define GLX_GLXEXT_PROTOTYPES
 #endif
 
+#include <GL/glu.h>
 #include <GL/glx.h>
 
 #endif
