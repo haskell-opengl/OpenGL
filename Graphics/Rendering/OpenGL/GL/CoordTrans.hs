@@ -145,7 +145,7 @@ marshalMatrixMode x = case x of
       | i == 0    -> 0x1700
       | i == 1    -> 0x850a
       | i <= 31   -> 0x8722 + fromIntegral i
-      | otherwise -> error ("marshalMatrixMode: illegal value" ++ show i)
+      | otherwise -> error ("marshalMatrixMode: illegal value " ++ show i)
    Projection -> 0x1701
    Texture -> 0x1702
    Color -> 0x1800
