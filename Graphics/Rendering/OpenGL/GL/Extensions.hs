@@ -23,6 +23,10 @@ import Foreign ( unsafePerformIO )
 import Foreign.C.String ( CString, withCString )
 import Foreign.Ptr ( FunPtr, nullFunPtr )
 
+#ifdef __HUGS__
+{-# CBITS HsOpenGL.c #-}
+#endif
+
 --------------------------------------------------------------------------------
 
 type Invoker a = FunPtr a -> a
