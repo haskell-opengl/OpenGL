@@ -47,11 +47,10 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 
    -- * Histogram Table
    Sink(..), histogram, Reset(..), getHistogram, resetHistogram,
-   histogramWidth, histogramFormat, histogramRGBASizes, histogramLuminanceSize,
-   histogramSink,
+   histogramRGBASizes, histogramLuminanceSize,
 
    -- * Minmax Table
-   minmax, getMinmax, resetMinmax, minmaxFormat, minmaxSink,
+   minmax, getMinmax, resetMinmax,
 
    -- * Drawing Pixels
    PixelData(..), PixelFormat(..), drawPixels,
@@ -72,8 +71,9 @@ import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapColorTable,CapPostConvolutionColorTable,
              CapPostColorMatrixColorTable,CapTextureColorTable,
-             CapConvolution1D, CapConvolution2D,CapSeparable2D),
-   makeCapability, marshalCapability, unmarshalCapability )
+             CapConvolution1D, CapConvolution2D,CapSeparable2D,
+             CapHistogram,CapMinmax),
+   makeCapability, marshalCapability, unmarshalCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLushort, GLint, GLuint, GLsizei, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
@@ -1158,8 +1158,32 @@ unmarshalSink s =
 
 --------------------------------------------------------------------------------
 
-histogram :: Proxy -> GLsizei -> PixelInternalFormat -> Sink -> IO ()
-histogram proxy w int sink =
+histogram :: Proxy -> StateVar (Maybe (GLsizei, PixelInternalFormat, Sink))
+histogram proxy =
+   makeStateVarMaybe
+      (return CapHistogram) (getHistogram' proxy) (setHistogram proxy)
+
+getHistogram' :: Proxy -> IO (GLsizei, PixelInternalFormat, Sink)
+getHistogram' proxy = do
+   w <- getHistogramParameteri fromIntegral proxy HistogramWidth
+   f <- getHistogramParameteri unmarshalPixelInternalFormat' proxy HistogramFormat
+   s <- getHistogramParameteri unmarshalSink proxy HistogramSink
+   return (w, f, s)
+
+getHistogramParameteri ::
+   (GLint -> a) -> Proxy -> GetHistogramParameterPName -> IO a
+getHistogramParameteri f proxy p =
+   alloca $ \buf -> do
+      glGetHistogramParameteriv
+         (marshalHistogramTarget (proxyToHistogramTarget proxy))
+         (marshalGetHistogramParameterPName p)
+         buf
+      peek1 f buf
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogramParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+setHistogram :: Proxy -> (GLsizei, PixelInternalFormat, Sink) -> IO ()
+setHistogram proxy (w, int, sink) =
    glHistogram
       (marshalHistogramTarget (proxyToHistogramTarget proxy))
       w
@@ -1221,16 +1245,6 @@ marshalGetHistogramParameterPName x = case x of
 
 --------------------------------------------------------------------------------
 
-histogramWidth :: Proxy -> GettableStateVar GLsizei
-histogramWidth proxy =
-   makeGettableStateVar $
-      getHistogramParameteri fromIntegral proxy HistogramWidth
-
-histogramFormat :: Proxy -> GettableStateVar PixelInternalFormat
-histogramFormat proxy =
-   makeGettableStateVar $
-      getHistogramParameteri unmarshalPixelInternalFormat' proxy HistogramFormat
-
 histogramRGBASizes :: Proxy -> GettableStateVar (Color4 GLsizei)
 histogramRGBASizes proxy =
    makeGettableStateVar $ do
@@ -1245,23 +1259,6 @@ histogramLuminanceSize proxy =
    makeGettableStateVar $
       getHistogramParameteri id proxy HistogramLuminanceSize
 
-histogramSink :: Proxy -> GettableStateVar Sink
-histogramSink proxy =
-   makeGettableStateVar $
-      getHistogramParameteri unmarshalSink proxy HistogramSink
-
-getHistogramParameteri ::
-   (GLint -> a) -> Proxy -> GetHistogramParameterPName -> IO a
-getHistogramParameteri f proxy p =
-   alloca $ \buf -> do
-      glGetHistogramParameteriv
-         (marshalHistogramTarget (proxyToHistogramTarget proxy))
-         (marshalGetHistogramParameterPName p)
-         buf
-      peek1 f buf
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogramParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
-
 --------------------------------------------------------------------------------
 
 data MinmaxTarget =
@@ -1273,8 +1270,17 @@ marshalMinmaxTarget x = case x of
 
 --------------------------------------------------------------------------------
 
-minmax :: PixelInternalFormat -> Sink -> IO ()
-minmax int sink =
+minmax :: StateVar (Maybe (PixelInternalFormat, Sink))
+minmax = makeStateVarMaybe (return CapMinmax) getMinmax' setMinmax
+
+getMinmax' :: IO (PixelInternalFormat, Sink)
+getMinmax' = do
+   f <- getMinmaxParameteri unmarshalPixelInternalFormat' MinmaxFormat
+   s <- getMinmaxParameteri unmarshalSink MinmaxSink
+   return (f, s)
+
+setMinmax :: (PixelInternalFormat, Sink) -> IO ()
+setMinmax (int, sink) =
    glMinmax
       (marshalMinmaxTarget Minmax)
       (marshalPixelInternalFormat int)
@@ -1310,14 +1316,6 @@ marshalGetMinmaxParameterPName x = case x of
    MinmaxSink -> 0x8030
 
 --------------------------------------------------------------------------------
-
-minmaxFormat :: GettableStateVar PixelInternalFormat
-minmaxFormat =
-   makeGettableStateVar $
-      getMinmaxParameteri unmarshalPixelInternalFormat' MinmaxFormat
-
-minmaxSink :: GettableStateVar Sink
-minmaxSink = makeGettableStateVar $ getMinmaxParameteri unmarshalSink MinmaxSink
 
 getMinmaxParameteri :: (GLint -> a) -> GetMinmaxParameterPName -> IO a
 getMinmaxParameteri f p =
