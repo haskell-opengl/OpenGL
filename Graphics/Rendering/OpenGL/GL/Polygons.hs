@@ -58,7 +58,7 @@ newtype PolygonStipple = PolygonStipple [GLubyte]
    deriving ( Eq, Ord, Show )
 
 numPolygonStippleBytes :: Int
-numPolygonStippleBytes = 32
+numPolygonStippleBytes = 128   -- 32x32 bits divided into GLubytes
 
 makePolygonStipple :: [GLubyte] -> PolygonStipple
 makePolygonStipple pattern
