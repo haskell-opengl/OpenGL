@@ -123,6 +123,7 @@ data EnableCap =
    | CapPrimitiveRestart -- NOTE: client state!
    | CapPointSprite
    | CapStencilTestTwoSide
+   | CapRasterPositionUnclipped
 
 marshalEnableCap :: EnableCap -> GLenum
 marshalEnableCap x = case x of
@@ -209,6 +210,7 @@ marshalEnableCap x = case x of
    CapPrimitiveRestart -> 0x8558
    CapPointSprite -> 0x8861
    CapStencilTestTwoSide -> 0x8910
+   CapRasterPositionUnclipped -> 0x19262
 
 --------------------------------------------------------------------------------
 

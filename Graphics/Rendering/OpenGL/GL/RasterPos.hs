@@ -17,14 +17,17 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
    currentRasterPosition, RasterPosComponent, RasterPos(..),
    WindowPosComponent, WindowPos(..),
    currentRasterDistance, currentRasterColor, currentRasterIndex,
-   currentRasterTexCoords, currentRasterPositionValid
+   currentRasterTexCoords, currentRasterPositionValid,
+   rasterPositionUnclipped
 ) where
 
 import Data.Int
 import Foreign.Ptr ( Ptr, castPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLshort, GLint, GLfloat, GLdouble )
+   GLshort, GLint, GLfloat, GLdouble, Capability )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.Capability (
+   EnableCap(CapRasterPositionUnclipped), makeCapability )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -295,3 +298,8 @@ currentRasterPositionValid :: GettableStateVar Bool
 currentRasterPositionValid =
    makeGettableStateVar
       (getBoolean1 unmarshalGLboolean GetCurrentRasterPositionValid)
+
+--------------------------------------------------------------------------------
+
+rasterPositionUnclipped :: StateVar Capability
+rasterPositionUnclipped = makeCapability CapRasterPositionUnclipped

@@ -63,6 +63,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_EXT_separate_specular_color | 1.2
 -- GL_EXT_stencil_two_side        |
 -- GL_EXT_stencil_wrap            | 1.4
+-- GL_IBM_rasterpos_clip          |
 -- GL_NV_blend_square             | 1.4
 -- GL_NV_depth_clamp              |
 -- GL_NV_fog_distance             |
