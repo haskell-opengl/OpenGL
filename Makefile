@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.4 2002/07/08 17:44:26 panne Exp $
+# $Id: Makefile,v 1.5 2003/01/23 18:49:50 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -17,7 +17,14 @@ ALL_DIRS = \
 PACKAGE = OpenGL
 PACKAGE_DEPS = base
 
-SRC_HC_OPTS += -fglasgow-exts '-\#include <GL/glu.h>'
+SRC_HC_OPTS += -Wall -fffi -package OpenGL -Iinclude '-\#include  <GL/glu.h>' -cpp
+
+# WinDoze DLL hell
+ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
+SRC_HC_OPTS += -DCALLCONV=stdcall
+else
+SRC_HC_OPTS += -DCALLCONV=ccall
+endif
 
 SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)"
 
