@@ -32,4 +32,6 @@
 
 #endif
 
+extern void* hOpenGL_getProcAddress(char* procName);
+
 #endif

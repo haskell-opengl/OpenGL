@@ -22,11 +22,17 @@ import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek,peekElemOff) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLdouble, GLclampd )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
    MatrixOrder(..), Matrix, withMatrix, MatrixElement,
    Vector3(..), Position(..), Size(..) )
+import Graphics.Rendering.OpenGL.GL.Extensions (
+   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3(..), Vertex4(..) )
+
+--------------------------------------------------------------------------------
+
+#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 -- matrix setup
@@ -58,7 +64,6 @@ foreign import CALLCONV unsafe "gluPickMatrix" gluPickMatrix ::
 
 --------------------------------------------------------------------------------
 -- coordinate projection
--- TODO: Missing for GLU 1.3: gluUnProject4
 
 project ::
       Vertex3 GLdouble
@@ -102,11 +107,7 @@ unProject4 (Vertex4 objX objY objZ clipW) model proj viewport near far =
    getVertex4 $
       gluUnProject4 objX objY objZ clipW modelBuf projBuf viewBuf near far
 
-foreign import CALLCONV unsafe "gluUnProject4" gluUnProject4 ::
-      GLdouble -> GLdouble -> GLdouble -> GLdouble
-   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint
-   -> GLclampd -> GLclampd
-   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
+EXTENSION_ENTRY("GLU 1.3",gluUnProject4,GLdouble -> GLdouble -> GLdouble -> GLdouble -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint -> GLclampd -> GLclampd -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint)
 
 --------------------------------------------------------------------------------
 

@@ -5,7 +5,7 @@ include $(TOP)/mk/boilerplate.mk
 
 # -----------------------------------------------------------------------------
 
-SUBDIRS = include specs
+SUBDIRS = cbits include
 
 ALL_DIRS = \
 	Graphics/Rendering \
@@ -20,10 +20,10 @@ SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp $(GL_CFLAGS)
 
 # WinDoze DLL hell
 ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
-SRC_HC_OPTS += -DCALLCONV=stdcall -DUSE_GLXGETPROCADDRESSARB=0
+SRC_HC_OPTS += -DCALLCONV=stdcall
 SRC_HC_OPTS := $(subst -mno-cygwin,,$(SRC_HC_OPTS))
 else
-SRC_HC_OPTS += -DCALLCONV=ccall -DUSE_GLXGETPROCADDRESSARB=1
+SRC_HC_OPTS += -DCALLCONV=ccall
 endif
 
 SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)" -p prologue.txt
