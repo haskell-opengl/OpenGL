@@ -1145,7 +1145,7 @@ proxyToHistogramTarget x = case x of
 --------------------------------------------------------------------------------
 
 data Sink =
-     Passthrough
+     PassThrough
    | Sink
    deriving ( Eq, Ord, Show )
 
@@ -1154,7 +1154,7 @@ marshalSink x = marshalGLboolean (x == Sink)
 
 unmarshalSink :: GLint -> Sink
 unmarshalSink s =
-   if unmarshalGLboolean (fromIntegral s) then Sink else Passthrough
+   if unmarshalGLboolean (fromIntegral s) then Sink else PassThrough
 
 --------------------------------------------------------------------------------
 
