@@ -99,16 +99,16 @@ library-dirs:	LIB_DIR
 #endif
 
 hs-libraries:   "HSOpenGL"
-extra-libs:	"HSOpenGL_cbits"
+extra-libraries:	"HSOpenGL_cbits"
 
 include-dirs: 	INCLUDE_DIR
 includes:	"HsOpenGL.h"
 depends:	base
-extra-hugs-opts:
-extra-cc-opts:	GLU_CFLAGS
-extra-ld-opts:	GLU_LIBS
+hugs-options:
+cc-options:	GLU_CFLAGS
+ld-options:	GLU_LIBS
 framework-dirs:
-extra-frameworks: GLU_FRAMEWORKS
+frameworks: GLU_FRAMEWORKS
 
 haddock-interfaces:	HADDOCK_IFACE
 haddock-html:		HTML_DIR
