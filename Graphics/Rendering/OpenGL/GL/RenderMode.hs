@@ -17,9 +17,8 @@ module Graphics.Rendering.OpenGL.GL.RenderMode (
    RenderMode(..), withRenderMode, renderMode
 ) where
 
-import Data.IORef ( newIORef, readIORef, writeIORef )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( finallyRet )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetRenderMode), getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -52,10 +51,7 @@ withRenderMode :: RenderMode -> IO a -> IO (a, GLint)
 withRenderMode newMode action = do
    oldMode <- get renderMode
    setRenderMode newMode
-   c <- newIORef 0
-   val <- action `finally` (setRenderMode oldMode >>= writeIORef c)
-   count <- readIORef c
-   return (val, count)
+   action `finallyRet` setRenderMode oldMode
 
 setRenderMode :: RenderMode -> IO GLint
 setRenderMode = glRenderMode . marshalRenderMode

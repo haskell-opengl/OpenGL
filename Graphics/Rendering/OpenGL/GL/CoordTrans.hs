@@ -49,7 +49,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd, Capability(..) )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket, unsafeBracket_ )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke (
@@ -388,28 +388,26 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum ->
 -- | Push the current matrix stack down by one, duplicating the current matrix,
 -- excute the given action, and pop the current matrix stack, replacing the
 -- current matrix with the one below it on the stack (i.e. restoring it to its
--- previous state). The returned value is that of the given action.
+-- previous state). The returned value is that of the given action. Note that
+-- a round-trip to the server is probably required. For a more efficient
+-- version, see 'unsafePreservingMatrix'.
 
 preservingMatrix :: IO a -> IO a
-preservingMatrix action = do
+preservingMatrix =
    -- performance paranoia: No (un-)marshaling by avoiding matrixMode
-   mode <- getEnum1 id GetMatrixMode
-   (do glPushMatrix ; action) `finally` (do glMatrixMode mode ; glPopMatrix)
-
-foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
-
-foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
+   unsafePreservingMatrix .
+      bracket (getEnum1 id GetMatrixMode) glMatrixMode . const
 
 -- | A more efficient, but potentially dangerous version of 'preservingMatrix':
 -- The given action is not allowed to throw an exception or change the
 -- current matrix mode permanently.
 
 unsafePreservingMatrix :: IO a -> IO a
-unsafePreservingMatrix action = do
-   glPushMatrix
-   ret <- action
-   glPopMatrix
-   return ret
+unsafePreservingMatrix = unsafeBracket_ glPushMatrix glPopMatrix
+
+foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
+
+foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
 
 --------------------------------------------------------------------------------
 

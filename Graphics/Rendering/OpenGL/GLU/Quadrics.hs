@@ -19,11 +19,12 @@ module Graphics.Rendering.OpenGL.GLU.Quadrics (
    renderQuadric
 ) where
 
-import Data.IORef        ( newIORef, readIORef, modifyIORef )
-import Foreign.Ptr       ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
+import Control.Monad ( unless )
+import Data.IORef ( newIORef, readIORef, modifyIORef )
+import Foreign.Ptr ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLdouble )
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( makeError )
 import Graphics.Rendering.OpenGL.GLU.Errors (
@@ -133,17 +134,17 @@ withState initialValue action = do
    readIORef ref
 
 withQuadricObj :: IO a -> (QuadricObj -> IO a) -> IO a
-withQuadricObj failure success = do
-   quadricObj <- gluNewQuadric
-   if quadricObj == QuadricObj nullPtr
-      then failure
-      else success quadricObj `finally` gluDeleteQuadric quadricObj
+withQuadricObj failure success =
+   bracket gluNewQuadric safeDeleteQuadric
+           (\quadricObj -> if isNullQuadricObj quadricObj
+                              then failure
+                              else success quadricObj)
 
 withErrorCallback :: QuadricObj -> QuadricCallback' -> IO a -> IO a
-withErrorCallback quadricObj callback action = do
-   callbackPtr <- makeQuadricCallback callback
-   gluQuadricCallback quadricObj (marshalQuadricCallback Error'2) callbackPtr
-   action `finally` freeHaskellFunPtr callbackPtr
+withErrorCallback quadricObj callback action =
+   bracket (makeQuadricCallback callback) freeHaskellFunPtr $ \callbackPtr -> do
+      gluQuadricCallback quadricObj (marshalQuadricCallback Error'2) callbackPtr
+      action
 
 setStyle :: QuadricObj -> QuadricStyle -> IO ()
 setStyle quadricObj (QuadricStyle n t o d) = do
@@ -168,9 +169,16 @@ renderPrimitive quadricObj (PartialDisk i o s l a w) =
 newtype QuadricObj = QuadricObj (Ptr Char)
    deriving ( Eq )
 
+isNullQuadricObj :: QuadricObj -> Bool
+isNullQuadricObj = (QuadricObj nullPtr ==)
+
 --------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "gluNewQuadric" gluNewQuadric :: IO QuadricObj
+
+safeDeleteQuadric :: QuadricObj -> IO ()
+safeDeleteQuadric quadricObj =
+   unless (isNullQuadricObj quadricObj) $ gluDeleteQuadric quadricObj
 
 foreign import CALLCONV unsafe "gluDeleteQuadric" gluDeleteQuadric ::
    QuadricObj -> IO ()

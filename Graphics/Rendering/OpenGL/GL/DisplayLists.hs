@@ -29,7 +29,7 @@ import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLuint, GLsizei, GLenum )
 import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetListIndex,GetListMode,GetMaxListNesting,GetListBase),
@@ -102,8 +102,7 @@ unmarshalListMode x
 --------------------------------------------------------------------------------
 
 defineList :: DisplayList -> ListMode -> IO a -> IO a
-defineList lst mode action =
-   (do glNewList lst (marshalListMode mode) ; action) `finally` glEndList
+defineList lst mode = bracket_ (glNewList lst (marshalListMode mode)) glEndList
 
 foreign import CALLCONV unsafe "glNewList" glNewList ::
    DisplayList -> GLenum -> IO ()

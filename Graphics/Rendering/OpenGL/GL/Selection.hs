@@ -23,7 +23,7 @@ import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLint, GLsizei, GLuint, GLfloat )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
 import Graphics.Rendering.OpenGL.GL.IOState (
    IOState, peekIOState, evalIOState, nTimes )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -87,7 +87,7 @@ newtype Name = Name GLuint
    deriving ( Eq, Ord, Show )
 
 withName :: Name -> IO a -> IO a
-withName name action = (do glPushName name ; action) `finally` glPopName
+withName name = bracket_ (glPushName name) glPopName
 
 foreign import CALLCONV unsafe "glPopName" glPopName :: IO ()
 

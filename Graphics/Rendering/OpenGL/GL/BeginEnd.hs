@@ -26,7 +26,7 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLboolean )
 import Graphics.Rendering.OpenGL.GL.EdgeFlag (
    EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket_, unsafeBracket_ )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
@@ -100,22 +100,22 @@ import Graphics.Rendering.OpenGL.GL.Polygons ( PolygonMode(..), polygonMode )
 -- 'Triangles' (3), 'Quads' (4), and 'QuadStrip' (2).
 
 renderPrimitive :: PrimitiveMode -> IO a -> IO a
-renderPrimitive beginMode action =
-   (do glBegin (marshalPrimitiveMode beginMode) ; action) `finally` glEnd
-
-foreign import CALLCONV unsafe "glBegin" glBegin :: GLenum -> IO ()
-
-foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
+renderPrimitive = renderPrim bracket_
 
 -- | A more efficient, but potentially dangerous version of 'renderPrimitive':
 -- The given action is not allowed to throw an exception.
 
 unsafeRenderPrimitive :: PrimitiveMode -> IO a -> IO a
-unsafeRenderPrimitive beginMode action = do
-   glBegin (marshalPrimitiveMode beginMode)
-   ret <- action
-   glEnd
-   return ret
+unsafeRenderPrimitive = renderPrim unsafeBracket_
+
+{-# INLINE renderPrim #-}
+renderPrim :: (IO () -> IO () -> IO a -> IO a) -> PrimitiveMode -> IO a -> IO a
+renderPrim brack_ beginMode =
+   brack_ (glBegin (marshalPrimitiveMode beginMode)) glEnd
+
+foreign import CALLCONV unsafe "glBegin" glBegin :: GLenum -> IO ()
+
+foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
 
 --------------------------------------------------------------------------------
 

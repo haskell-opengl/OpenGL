@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.SavingState (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLbitfield )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
 
 --------------------------------------------------------------------------------
 
@@ -76,8 +76,7 @@ marshalServerAttributeGroup x = case x of
 --------------------------------------------------------------------------------
 
 preservingAttrib :: [ServerAttributeGroup] -> IO a -> IO a
-preservingAttrib groups action =
-   (do pushAttrib groups ; action) `finally` glPopAttrib
+preservingAttrib groups = bracket_ (pushAttrib groups) glPopAttrib
 
 pushAttrib :: [ServerAttributeGroup] -> IO ()
 pushAttrib = glPushAttrib . sum . map marshalServerAttributeGroup
@@ -105,8 +104,8 @@ marshalClientAttributeGroup x = case x of
 --------------------------------------------------------------------------------
 
 preservingClientAttrib :: [ClientAttributeGroup] -> IO a -> IO a
-preservingClientAttrib groups action =
-   (do pushClientAttrib groups ; action) `finally` glPopClientAttrib
+preservingClientAttrib groups =
+   bracket_ (pushClientAttrib groups) glPopClientAttrib
 
 pushClientAttrib :: [ClientAttributeGroup] -> IO ()
 pushClientAttrib = glPushClientAttrib . sum . map marshalClientAttributeGroup

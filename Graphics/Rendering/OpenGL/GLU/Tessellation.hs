@@ -35,7 +35,7 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
    Primitive(..), SimplePolygon(..), tessellate
 ) where
 
-import Control.Monad ( foldM, liftM )
+import Control.Monad ( foldM, liftM, unless )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
@@ -44,7 +44,7 @@ import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLclampf, GLdouble, GLenum )
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
-import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.BeginEnd (
@@ -441,15 +441,22 @@ tessellate windingRule tolerance normal combiner complexPoly = do
 newtype TessellatorObj = TessellatorObj (Ptr Char)
    deriving ( Eq )
 
+isNullTesselatorObj :: TessellatorObj -> Bool
+isNullTesselatorObj = (TessellatorObj nullPtr ==)
+
 withTessellatorObj ::
    (TessellatorObj -> IO (Either Error a)) -> IO (Either Error a)
-withTessellatorObj action = do
-   tessObj <- gluNewTess
-   if tessObj == TessellatorObj nullPtr
-      then return $ Left (Error OutOfMemory "out of memory")
-      else action tessObj `finally` gluDeleteTess tessObj
+withTessellatorObj action =
+   bracket gluNewTess safeDeleteTess
+           (\tessObj -> if isNullTesselatorObj tessObj
+                           then return $ Left (Error OutOfMemory "out of memory")
+                           else action tessObj)
 
 foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO (TessellatorObj)
+
+safeDeleteTess :: TessellatorObj -> IO ()
+safeDeleteTess tessObj =
+   unless (isNullTesselatorObj tessObj) $ gluDeleteTess tessObj
 
 foreign import CALLCONV unsafe "gluDeleteTess" gluDeleteTess ::
    TessellatorObj -> IO ()
@@ -523,10 +530,11 @@ type BeginCallback  = PrimitiveMode -> IO ()
 type BeginCallback' = GLenum -> IO ()
 
 withBeginCallback :: TessellatorObj -> BeginCallback -> IO a -> IO a
-withBeginCallback tessObj beginCallback action = do
-   callbackPtr <- makeBeginCallback (beginCallback . unmarshalPrimitiveMode)
-   setBeginCallback tessObj (marshalTessCallback TessBegin) callbackPtr
-   action `finally` freeHaskellFunPtr callbackPtr
+withBeginCallback tessObj beginCallback action =
+   bracket (makeBeginCallback (beginCallback . unmarshalPrimitiveMode))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setBeginCallback tessObj (marshalTessCallback TessBegin) callbackPtr
+      action
 
 foreign import ccall "wrapper" makeBeginCallback ::
    BeginCallback' -> IO (FunPtr BeginCallback')
@@ -542,10 +550,11 @@ type EdgeFlagCallback  = EdgeFlag -> IO ()
 type EdgeFlagCallback' = GLboolean -> IO ()
 
 withEdgeFlagCallback :: TessellatorObj -> EdgeFlagCallback -> IO a -> IO a
-withEdgeFlagCallback tessObj edgeFlagCallback action = do
-   callbackPtr <- makeEdgeFlagCallback (edgeFlagCallback . unmarshalEdgeFlag)
-   setEdgeFlagCallback tessObj (marshalTessCallback TessEdgeFlag) callbackPtr
-   action `finally` freeHaskellFunPtr callbackPtr
+withEdgeFlagCallback tessObj edgeFlagCallback action =
+   bracket (makeEdgeFlagCallback (edgeFlagCallback . unmarshalEdgeFlag))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setEdgeFlagCallback tessObj (marshalTessCallback TessEdgeFlag) callbackPtr
+      action
 
 foreign import ccall "wrapper" makeEdgeFlagCallback ::
    EdgeFlagCallback' -> IO (FunPtr EdgeFlagCallback')
@@ -562,10 +571,11 @@ type VertexCallback' v = Ptr (AnnotatedVertex v) -> IO ()
 
 withVertexCallback ::
    Storable v => TessellatorObj -> VertexCallback v -> IO a -> IO a
-withVertexCallback tessObj vertexCallback action = do
-   callbackPtr <- makeVertexCallback (\p -> peek p >>= vertexCallback)
-   setVertexCallback tessObj (marshalTessCallback TessVertex) callbackPtr
-   action `finally` freeHaskellFunPtr callbackPtr
+withVertexCallback tessObj vertexCallback action =
+   bracket (makeVertexCallback (\p -> peek p >>= vertexCallback))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setVertexCallback tessObj (marshalTessCallback TessVertex) callbackPtr
+      action
 
 foreign import ccall "wrapper" makeVertexCallback ::
    VertexCallback' v -> IO (FunPtr (VertexCallback' v))
@@ -579,10 +589,10 @@ foreign import CALLCONV unsafe "gluTessCallback" setVertexCallback ::
 type EndCallback  = IO ()
 
 withEndCallback :: TessellatorObj -> EndCallback -> IO a -> IO a
-withEndCallback tessObj endCallback action = do
-   callbackPtr <- makeEndCallback endCallback
-   setEndCallback tessObj (marshalTessCallback TessEnd) callbackPtr
-   action `finally` freeHaskellFunPtr callbackPtr
+withEndCallback tessObj endCallback action =
+   bracket (makeEndCallback endCallback) freeHaskellFunPtr $ \callbackPtr -> do
+      setEndCallback tessObj (marshalTessCallback TessEnd) callbackPtr
+      action
 
 foreign import ccall "wrapper" makeEndCallback ::
    EndCallback -> IO (FunPtr EndCallback)
@@ -598,10 +608,11 @@ type ErrorCallback  = Error -> IO ()
 type ErrorCallback' = GLenum -> IO ()
 
 withErrorCallback :: TessellatorObj -> ErrorCallback -> IO a -> IO a
-withErrorCallback tessObj errorCallback action = do
-   callbackPtr <- makeErrorCallback (\e -> makeError e >>= errorCallback)
-   setErrorCallback tessObj (marshalTessCallback TessError) callbackPtr
-   action `finally` freeHaskellFunPtr callbackPtr
+withErrorCallback tessObj errorCallback action =
+   bracket (makeErrorCallback (\e -> makeError e >>= errorCallback))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setErrorCallback tessObj (marshalTessCallback TessError) callbackPtr
+      action
 
 foreign import ccall "wrapper" makeErrorCallback ::
    ErrorCallback' -> IO (FunPtr ErrorCallback')
@@ -630,11 +641,11 @@ type CombineCallback v =
 withCombineCallback ::
    Storable v => TessellatorObj -> Combiner v -> IO a -> IO a
 withCombineCallback tessObj combiner action =
-   withPool $ \vertexPool -> do
-      let callback = combineProperties vertexPool combiner
-      callbackPtr <- makeCombineCallback callback
-      setCombineCallback tessObj (marshalTessCallback TessCombine) callbackPtr
-      action `finally` freeHaskellFunPtr callbackPtr
+   withPool $ \vertexPool ->
+      bracket (makeCombineCallback (combineProperties vertexPool combiner))
+              freeHaskellFunPtr $ \callbackPtr -> do
+         setCombineCallback tessObj (marshalTessCallback TessCombine) callbackPtr
+         action 
 
 combineProperties :: Storable v => Pool -> Combiner v -> CombineCallback v
 combineProperties pool combiner newVertexPtr propertyPtrs weights result = do
