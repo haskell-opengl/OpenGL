@@ -32,6 +32,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Polygons,
    module Graphics.Rendering.OpenGL.GL.PixelRectangles,
    module Graphics.Rendering.OpenGL.GL.Texturing,
+   module Graphics.Rendering.OpenGL.GL.ColorSum,
    module Graphics.Rendering.OpenGL.GL.Fog,
 
    -- * Per-Fragment Operations and the Framebuffer
@@ -68,6 +69,7 @@ import Graphics.Rendering.OpenGL.GL.LineSegments
 import Graphics.Rendering.OpenGL.GL.Polygons
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.Texturing
+import Graphics.Rendering.OpenGL.GL.ColorSum
 import Graphics.Rendering.OpenGL.GL.Fog
 
 import Graphics.Rendering.OpenGL.GL.PerFragment
