@@ -13,4 +13,27 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.Initialization (
+   getVersion, getExtensions
 ) where
+
+import Control.Monad ( liftM )
+import Foreign.C.String ( CString, peekCString )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.GL.Query (
+   VersionInfo, parseVersionString, ExtensionsInfo(..) )
+import Graphics.Rendering.OpenGL.GLU.Constants (
+   StringName(..), marshalStringName )
+
+--------------------------------------------------------------------------------
+
+getVersion :: IO VersionInfo
+getVersion = liftM (parseVersionString "queryGLUVersion") (getString Version)
+
+getExtensions :: IO ExtensionsInfo
+getExtensions = liftM (ExtensionsInfo . words) (getString Extensions)
+
+getString :: StringName -> IO String
+getString n = gluGetString (marshalStringName n) >>= peekCString
+
+foreign import CALLCONV unsafe "gluGetString" gluGetString ::
+   GLenum -> IO CString

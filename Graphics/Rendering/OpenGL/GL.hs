@@ -15,8 +15,20 @@
 
 module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.BasicTypes,
+     module Graphics.Rendering.OpenGL.GL.BeginEnd,
+     module Graphics.Rendering.OpenGL.GL.CoordTrans,
+     module Graphics.Rendering.OpenGL.GL.PixelRect,
+     module Graphics.Rendering.OpenGL.GL.Query,
+     module Graphics.Rendering.OpenGL.GL.Texturing,
+     module Graphics.Rendering.OpenGL.GL.VertexArray,
      module Graphics.Rendering.OpenGL.GL.VertexSpec
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes
+import Graphics.Rendering.OpenGL.GL.BeginEnd
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.PixelRect
+import Graphics.Rendering.OpenGL.GL.Query
+import Graphics.Rendering.OpenGL.GL.Texturing
+import Graphics.Rendering.OpenGL.GL.VertexArray
 import Graphics.Rendering.OpenGL.GL.VertexSpec

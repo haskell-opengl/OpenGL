@@ -16,8 +16,12 @@ Package {
 #endif
 	hs_libraries	= [ "HSOpenGL" ],
 	extra_libraries	= [],
+#ifdef INSTALLING
 	include_dirs	= [],
-	c_includes	= [ "GL/glu.h" ],
+#else
+	include_dirs	= [ "$libdir/libraries/OpenGL/include" ],
+#endif
+	c_includes	= [ "HsOpenGL.h" ],
 	package_deps	= [ "base" ],
 	extra_ghc_opts	= [],
 	extra_cc_opts	= [ "" GL_CFLAGS ],

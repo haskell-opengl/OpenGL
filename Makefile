@@ -1,12 +1,12 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.6 2003/01/23 18:55:39 panne Exp $
+# $Id: Makefile,v 1.7 2003/01/24 18:54:33 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
 
 # -----------------------------------------------------------------------------
 
-SUBDIRS = specs
+SUBDIRS = include specs
 
 ALL_DIRS = \
 	Graphics/Rendering \
@@ -17,7 +17,7 @@ ALL_DIRS = \
 PACKAGE = OpenGL
 PACKAGE_DEPS = base
 
-SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include  <GL/glu.h>' -cpp
+SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp
 
 # WinDoze DLL hell
 ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
@@ -32,9 +32,6 @@ SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)"
 comma = ,
 PACKAGE_CPP_OPTS += -DGL_CFLAGS='$(patsubst %,$(comma)"%",$(GL_CFLAGS))'
 PACKAGE_CPP_OPTS += -DGL_LIBS='$(patsubst %,$(comma)"%",$(GL_LIBS))'
-
-# -----------------------------------------------------------------------------
-# Per-module flags
 
 # -----------------------------------------------------------------------------
 
