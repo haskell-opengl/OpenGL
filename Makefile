@@ -19,6 +19,7 @@ ALL_DIRS = \
 	Graphics/Rendering/OpenGL/GLU
 
 PACKAGE = OpenGL
+VERSION = 1.0
 PACKAGE_DEPS = base
 
 SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp \
