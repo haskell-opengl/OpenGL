@@ -104,8 +104,8 @@ getFeedbackTokens ::
 getFeedbackTokens bufSize feedbackType action =
    allocaArray (fromIntegral bufSize) $ \buf -> do
       glFeedbackBuffer bufSize (marshalFeedbackType feedbackType) buf
-      (value, numTokens) <- withRenderMode Feedback action
-      tokens <- parseFeedbackBuffer numTokens buf feedbackType
+      (value, numValues) <- withRenderMode Feedback action
+      tokens <- parseFeedbackBuffer numValues buf feedbackType
       return (value, tokens)
 
 foreign import CALLCONV unsafe "glFeedbackBuffer" glFeedbackBuffer ::
@@ -115,13 +115,12 @@ foreign import CALLCONV unsafe "glFeedbackBuffer" glFeedbackBuffer ::
 
 parseFeedbackBuffer ::
    GLint -> Ptr GLfloat -> FeedbackType -> IO (Maybe [FeedbackToken])
-parseFeedbackBuffer numTokens buf feedbackType
-   | numTokens < 0 = return Nothing
+parseFeedbackBuffer numValues buf feedbackType
+   | numValues < 0 = return Nothing
    | otherwise     = do
-      -- ToDo: Rewrite this to use constant space
       rgba <- get rgbaMode
       let end = buf `plusPtr`
-                  (sizeOf (undefined :: GLfloat) * fromIntegral numTokens)
+                  (sizeOf (undefined :: GLfloat) * fromIntegral numValues)
           infoParser = calcInfoParser feedbackType (calcColorParser rgba)
           loop tokens = do
              ptr <- getIOState
