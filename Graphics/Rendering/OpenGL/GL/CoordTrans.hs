@@ -56,7 +56,7 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke (
    peek1, peek2, peek3, peek4, poke2, poke3, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
-            GetCurrentMatrix,GetModelviewMatrix,GetProjectionMatrix,
+            GetModelviewMatrix,GetProjectionMatrix,
             GetTextureMatrix, GetColorMatrix,GetMatrixPalette,GetActiveTexture,
             GetCurrentMatrixStackDepth,GetModelviewStackDepth,
             GetMaxModelviewStackDepth,GetProjectionStackDepth,
@@ -66,7 +66,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getInteger2, getInteger4, getEnum1, getSizei1, getFloatv,
    getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, HasSetter(($=)),
+   GettableStateVar, makeGettableStateVar, HasGetter(get), HasSetter(($=)),
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
    marshalTextureUnit, unmarshalTextureUnit )
@@ -341,8 +341,7 @@ currentMatrix = matrix Nothing
 matrix :: (Matrix m, MatrixComponent c) => Maybe MatrixMode -> StateVar (m c)
 matrix maybeMode =
    makeStateVar
-      -- GetCurrentMatrix only with ARB_fragment_program
-      (getMatrix' (maybe GetCurrentMatrix matrixModeToGetMatrix maybeMode))
+      (maybe (get matrixMode) return maybeMode >>= (getMatrix' . matrixModeToGetMatrix))
       (maybe id withMatrixMode maybeMode . setMatrix)
 
 withMatrixMode :: MatrixMode -> IO a -> IO a
