@@ -1,3 +1,7 @@
 module Graphics.Rendering.OpenGL.GL.BasicTypes where
 
-type GLfloat = Float
+import Data.Int ( Int32 )
+
+type GLint    = Int32
+type GLfloat  = Float
+type GLdouble = Double
