@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.10 2003/02/14 21:45:15 panne Exp $
+# $Id: Makefile,v 1.11 2003/02/16 18:27:17 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -62,6 +62,16 @@ Graphics/Rendering/OpenGL/GLU/Constants.incl: \
 
 boot:: Graphics/Rendering/OpenGL/GL/Constants.incl \
        Graphics/Rendering/OpenGL/GLU/Constants.incl
+
+# -----------------------------------------------------------------------------
+
+STUBOBJS += \
+   Graphics/Rendering/OpenGL/GLU/Quadrics_stub.$(way_)o \
+   Graphics/Rendering/OpenGL/GLU/Tessellation_stub.$(way_)o
+
+CLEAN_FILES += $(STUBOBJS) \
+   Graphics/Rendering/OpenGL/GLU/Quadrics_stub.[ch] \
+   Graphics/Rendering/OpenGL/GLU/Tessellation_stub.[ch]
 
 # -----------------------------------------------------------------------------
 
