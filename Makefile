@@ -18,8 +18,6 @@ ALL_DIRS = \
 	Graphics/Rendering/OpenGL/GL/Texturing \
 	Graphics/Rendering/OpenGL/GLU
 
-PACKAGE = OpenGL
-VERSION = 1.0
 PACKAGE_DEPS = base
 
 SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp \
@@ -38,6 +36,8 @@ endif
 ifeq "$(hppa_TARGET_ARCH)" "1"
 SRC_HC_OPTS += -optc-mbig-switch
 endif
+
+PACKAGE_CPP_OPTS += -DMAINTAINER=$(MAINTAINER)
 
 SRC_HADDOCK_OPTS += -t "HOpenGL Libraries ($(PACKAGE) package)"
 

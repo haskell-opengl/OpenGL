@@ -3,7 +3,7 @@
 name:		PACKAGE
 version:	VERSION
 license:	BSD3
-maintainer:	sven.panne@aedion.de
+maintainer:	MAINTAINER
 exposed:	True
 
 exposed-modules:
