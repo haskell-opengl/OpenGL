@@ -2,10 +2,12 @@ module Main ( main ) where
 
 import Control.Monad      ( liftM, when )
 import Data.Char          ( isSpace, isDigit )
-import Data.FiniteMap
-import Data.List          ( isPrefixOf, tails )
+import Data.FiniteMap     ( FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList, lookupWithDefaultFM )
+import Data.List          ( isPrefixOf, tails, delete )
 import System.Environment ( getArgs )
-import Parsec             ( SourceName, Parser, parse, eof, oneOf, noneOf, string, (<|>), (<?>), try, option, skipMany, many, many1, sepBy, between, chainl1 )
+import Parsec             ( SourceName, Parser, parse, try, eof, oneOf, noneOf,
+                            string, (<|>), (<?>), option, skipMany, many, many1,
+                            sepBy, between, chainl1 )
 
 --------------------------------------------------------------------------------
 -- Preprocessing of spec files, making it more amenable to "real" parsing
@@ -54,9 +56,13 @@ data PropertyValues =
 
 data Category = Category (Maybe CategoryName) [FunctionDeclaration]
 
-data FunctionDeclaration = FunctionDeclaration FunctionName [ParameterName] TypeName [ParameterDeclaration] [FunctionProperty]
+data FunctionDeclaration =
+   FunctionDeclaration FunctionName [ParameterName] TypeName
+                       [ParameterDeclaration] [FunctionProperty]
 
-data ParameterDeclaration = ParameterDeclaration ParameterName ParameterType (Maybe LengthDescriptor) [PropertyValue]
+data ParameterDeclaration =
+   ParameterDeclaration ParameterName ParameterType
+                        (Maybe LengthDescriptor) [PropertyValue]
 
 data ParameterType = ParameterType TypeName Direction TransferType
 
@@ -82,6 +88,7 @@ data MetaPropertyValue =
    | RemoveAllPropertyValues
    | AddPropertyValue PropertyValue
    | RemovePropertyValue PropertyValue
+   deriving Eq
 
 newtype PropertyValue = PropertyValue String   deriving Eq
 
@@ -429,11 +436,15 @@ parseSpec fileName content =
 
 type PropertyEnvironment = FiniteMap PropertyName PropertyValues
 
+lookupProperty :: PropertyEnvironment -> PropertyName -> PropertyValues
+lookupProperty env name =
+   lookupWithDefaultFM env (error ("unknow property '" ++ show name ++ "'")) name
+
 buildPropertyEnvironment :: Spec -> PropertyEnvironment
 buildPropertyEnvironment spec =
    case noDupReqProps . noDupPropNames . noDupPropValues $ spec of
       Spec _ validProps _ ->
-         addListToFM_C (\old _ -> error ("duplicate property name "++ show old))
+         addListToFM_C (\old _ -> error ("duplicate property name '"++ show old ++ "'"))
                        emptyFM
                        [(name,values) | ValidProperty name values <- validProps]
 
@@ -448,7 +459,7 @@ noDupPropNames spec@(Spec _ validProps _) =
 noDupPropValues :: Spec -> Spec
 noDupPropValues spec@(Spec _ validProps _) =
    foldl (\spc (ValidProperty name values) ->
-              noDups spc ("property value for " ++ show name)
+              noDups spc ("property value for '" ++ show name ++ "'")
                      [ v | Values vs <- [values], v <- vs ])
          spec
          validProps
@@ -457,7 +468,7 @@ noDupPropValues spec@(Spec _ validProps _) =
 noDups :: (Show b, Eq b) => a -> String -> [b] -> a
 noDups retVal what xs = check xs
    where check []                   = retVal
-         check (y:ys) | y `elem` ys = error ("duplicate "++what++": "++ show y)
+         check (y:ys) | y `elem` ys = error ("duplicate "++what++": '"++ show y ++ "'")
                       | otherwise   = check ys
 
 --------------------------------------------------------------------------------
@@ -468,20 +479,42 @@ noDups retVal what xs = check xs
 
 expandMetaProperties :: PropertyEnvironment -> Spec -> [FunctionDeclaration]
 expandMetaProperties env (Spec reqProps validProps categories) =
-   checkRequiredPropsDecl env reqProps
-                          [ expandMetaPropertiesFuncDecl env funcDecl
-                          | Category _ funcDecls <- categories
-                          , funcDecl <- funcDecls ]
+   checkRequiredPropsDecl env reqProps .
+   map (checkRequiredPropsUse reqProps) $
+   [ expandMetaPropertiesFuncDecl env funcDecl
+   | Category _ funcDecls <- categories
+   , funcDecl <- funcDecls ]
 
 expandMetaPropertiesFuncDecl :: PropertyEnvironment
                              -> FunctionDeclaration -> FunctionDeclaration
-expandMetaPropertiesFuncDecl env funcDecl = funcDecl -- TODO
+expandMetaPropertiesFuncDecl env (FunctionDeclaration name params retType parmDecls props) =
+   FunctionDeclaration
+      name params retType parmDecls
+      [ FunctionProperty name (expandMetaPropertyValues values metaProps)
+      | FunctionProperty name metaProps <- props
+      , let values = lookupProperty env name ]
+
+expandMetaPropertyValues :: PropertyValues -> [MetaPropertyValue] -> [MetaPropertyValue]
+expandMetaPropertyValues values = foldl (go values) []
+   where go AnyValue    _ AddAllPropertyValues = error "can't use all with *"
+         go (Values vs) _ AddAllPropertyValues = map AddPropertyValue vs
+         go _ _    RemoveAllPropertyValues     = []
+         go _ accu v@(AddPropertyValue _)      = v : accu
+         go _ accu (RemovePropertyValue v)     = delete (AddPropertyValue v) accu
 
 checkRequiredPropsDecl :: PropertyEnvironment -> [PropertyName] -> a -> a
 checkRequiredPropsDecl env reqProps retVal =
    case [ reqProp | reqProp <- reqProps, not (reqProp `elemFM` env) ] of
       []    -> retVal
-      (p:_) -> error ("unknown required property: " ++ show p)
+      (p:_) -> error ("unknown required property '" ++ show p ++ "'")
+
+checkRequiredPropsUse :: [PropertyName] -> FunctionDeclaration -> FunctionDeclaration
+checkRequiredPropsUse reqProps f@(FunctionDeclaration funcName _ _ _ props) =
+    case [ reqProp | reqProp <- reqProps, not (reqProp `elem` usedProps) ] of
+       []    -> f
+       (p:_) -> error ("function '" ++ show funcName ++
+                       "' does not use required property '" ++ show p ++ "'")
+    where usedProps = [ propName | FunctionProperty propName _ <- props ]
 
 --------------------------------------------------------------------------------
 -- The driver
