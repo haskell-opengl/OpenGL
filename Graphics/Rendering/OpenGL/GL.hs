@@ -22,10 +22,10 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.FlushFinish,
      module Graphics.Rendering.OpenGL.GL.Framebuffer,
      module Graphics.Rendering.OpenGL.GL.PixelRect,
-     module Graphics.Rendering.OpenGL.GL.Query,
      module Graphics.Rendering.OpenGL.GL.RasterPos,
      module Graphics.Rendering.OpenGL.GL.Rectangles,
      module Graphics.Rendering.OpenGL.GL.StateVar,
+     module Graphics.Rendering.OpenGL.GL.StringQueries,
      module Graphics.Rendering.OpenGL.GL.Texturing,
      module Graphics.Rendering.OpenGL.GL.VertexArray,
      module Graphics.Rendering.OpenGL.GL.VertexSpec
@@ -41,10 +41,10 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PixelRect
-import Graphics.Rendering.OpenGL.GL.Query hiding ( parseVersionString )
 import Graphics.Rendering.OpenGL.GL.RasterPos
 import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.StringQueries
 import Graphics.Rendering.OpenGL.GL.Texturing
 import Graphics.Rendering.OpenGL.GL.VertexArray
 import Graphics.Rendering.OpenGL.GL.VertexSpec

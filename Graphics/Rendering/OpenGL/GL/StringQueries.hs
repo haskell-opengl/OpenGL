@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GLU.Initialization
+-- Module      :  Graphics.Rendering.OpenGL.GL.BeginEnd
 -- Copyright   :  (c) Sven Panne 2003
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -8,49 +8,60 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- This module corresponds to chapter 2 (Initialization) of the GLU specs.
+-- This module corresponds to parts of section 6.1.11 (Pointer and String
+-- Queries) of the OpenGL 1.4 specs.
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GLU.Initialization (
-   gluVersion, gluExtensions
+module Graphics.Rendering.OpenGL.GL.StringQueries (
+   vendor, renderer, glVersion, glExtensions
 ) where
 
 import Control.Monad ( liftM )
-import Foreign.Ptr ( Ptr, nullPtr, castPtr )
 import Foreign.C.String ( peekCString )
+import Foreign.Ptr ( Ptr, nullPtr, castPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar )
 
 --------------------------------------------------------------------------------
 
-gluVersion :: GettableStateVar String
-gluVersion = makeGettableStateVar (getString Version)
+vendor :: GettableStateVar String
+vendor = makeGettableStateVar (getString Vendor)
 
-gluExtensions :: GettableStateVar [String]
-gluExtensions = makeGettableStateVar (liftM words $ getString Extensions)
+renderer :: GettableStateVar String
+renderer = makeGettableStateVar (getString Renderer)
+
+glVersion :: GettableStateVar String
+glVersion = makeGettableStateVar (getString Version)
+
+glExtensions :: GettableStateVar [String]
+glExtensions = makeGettableStateVar (liftM words $ getString Extensions)
 
 --------------------------------------------------------------------------------
 
 data StringName =
-     Version
+     Vendor
+   | Renderer
+   | Version
    | Extensions
    deriving ( Eq, Ord, Show )
 
 marshalStringName :: StringName -> GLenum
 marshalStringName x = case x of
-   Version -> 0x189c0
-   Extensions -> 0x189c1
+   Vendor -> 0x1f00
+   Renderer -> 0x1f01
+   Version -> 0x1f02
+   Extensions -> 0x1f03
 
 --------------------------------------------------------------------------------
 
 getString :: StringName -> IO String
 getString n = do
-   ptr <- gluGetString (marshalStringName n)
+   ptr <- glGetString (marshalStringName n)
    if ptr == nullPtr
       then return ""
       else peekCString (castPtr ptr)
 
-foreign import CALLCONV unsafe "gluGetString" gluGetString ::
+foreign import CALLCONV unsafe "glGetString" glGetString ::
    GLenum -> IO (Ptr GLubyte)
