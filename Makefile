@@ -86,7 +86,7 @@ endif
 
 # -----------------------------------------------------------------------------
 
-DIST_CLEAN_FILES += HsOpenGLConfig.h OpenGL.buildinfo config.cache config.status 
+DIST_CLEAN_FILES += OpenGL.buildinfo config.cache config.status 
 LATE_DIST_CLEAN_FILES += config.mk
 
 extraclean::
