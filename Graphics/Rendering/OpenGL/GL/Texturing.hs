@@ -329,11 +329,11 @@ foreign import CALLCONV unsafe "glBindTexture"
 
 --------------------------------------------------------------------------------
 
-textureResident :: TextureTarget -> StateVar Bool
+-- ToDo: allow proxies!
+textureResident :: TextureTarget -> GettableStateVar Bool
 textureResident t =
-   makeStateVar
+   makeGettableStateVar
       (getTexParameteri (unmarshalGLboolean . fromIntegral) t TextureResident)
-      (glTexParameteri (marshalTextureTarget t) (marshalTexParameter TextureResident) . (fromIntegral . marshalGLboolean))
 
 areTexturesResident :: [TextureObject] -> IO ([TextureObject],[TextureObject])
 areTexturesResident texObjs = do
