@@ -6,6 +6,8 @@ include $(TOP)/mk/boilerplate.mk
 
 # -----------------------------------------------------------------------------
 
+HC           = $(GHC_INPLACE)
+MKDEPENDHS   = $(GHC_INPLACE)
 HS_PROG      = Preprocess
 CLEAN_FILES += Main.hi
 
