@@ -68,5 +68,18 @@ fi
 fi
 fi
 
-AC_CONFIG_FILES([config.mk])
+if test "$GL_BUILD_PACKAGE" = yes; then
+  BUILD_PACKAGE_BOOL=True
+else
+  BUILD_PACKAGE_BOOL=False
+fi
+AC_SUBST([BUILD_PACKAGE_BOOL])
+
+case "$target" in
+*-mingw32) CALLCONV=stdcall ;;
+*)	CALLCONV=ccall ;;
+esac
+AC_SUBST([CALLCONV])
+
+AC_CONFIG_FILES([config.mk Setup.buildinfo])
 AC_OUTPUT
