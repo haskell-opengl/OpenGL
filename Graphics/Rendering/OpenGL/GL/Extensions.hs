@@ -6,7 +6,7 @@
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven_panne@yahoo.com
--- Stability   :  experimental
+-- Stability   :  provisional
 -- Portability :  portable
 --
 -- This is a purely internal module for handling the OpenGL extension

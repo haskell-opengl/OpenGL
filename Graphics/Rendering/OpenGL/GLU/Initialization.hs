@@ -5,7 +5,7 @@
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven_panne@yahoo.com
--- Stability   :  experimental
+-- Stability   :  provisional
 -- Portability :  portable
 --
 -- This module corresponds to chapter 2 (Initialization) of the GLU specs.

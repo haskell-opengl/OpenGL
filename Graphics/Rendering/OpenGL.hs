@@ -5,7 +5,7 @@
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven_panne@yahoo.com
--- Stability   :  experimental
+-- Stability   :  provisional
 -- Portability :  portable
 --
 -- A convenience module, combining the Haskell bindings for GL and GLU.

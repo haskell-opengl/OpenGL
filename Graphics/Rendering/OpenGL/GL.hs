@@ -5,7 +5,7 @@
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven_panne@yahoo.com
--- Stability   :  experimental
+-- Stability   :  provisional
 -- Portability :  portable
 --
 -- A Haskell binding for OpenGL, the industry\'s most widely used and
