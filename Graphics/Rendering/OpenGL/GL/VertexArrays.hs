@@ -25,6 +25,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    clientState, clientActiveTexture,
 
    -- * Dereferencing and Rendering
+   ArrayIndex, NumArrayIndices, NumIndexBlocks,
    arrayElement, drawArrays, multiDrawArrays, drawElements, multiDrawElements,
    drawRangeElements, maxElementsVertices, maxElementsIndices, lockArrays,
    primitiveRestartIndex
@@ -380,51 +381,67 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glClientActiveTextureARB,GLe
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glArrayElement" arrayElement :: GLint -> IO ()
+type ArrayIndex = GLint
 
-drawArrays :: PrimitiveMode -> GLint -> GLsizei -> IO ()
+type NumArrayIndices = GLsizei
+
+type NumIndexBlocks = GLsizei
+
+--------------------------------------------------------------------------------
+
+arrayElement :: ArrayIndex -> IO ()
+arrayElement = glArrayElement
+
+foreign import CALLCONV unsafe "glArrayElement" glArrayElement :: GLint -> IO ()
+
+drawArrays :: PrimitiveMode -> ArrayIndex -> NumArrayIndices -> IO ()
 drawArrays = glDrawArrays . marshalPrimitiveMode
 
 foreign import CALLCONV unsafe "glDrawArrays" glDrawArrays ::
    GLenum -> GLint -> GLsizei -> IO ()
 
-multiDrawArrays :: PrimitiveMode -> Ptr GLint -> Ptr GLsizei -> GLsizei -> IO ()
+multiDrawArrays ::
+      PrimitiveMode -> Ptr ArrayIndex -> Ptr NumArrayIndices -> NumIndexBlocks
+   -> IO ()
 multiDrawArrays = glMultiDrawArraysEXT . marshalPrimitiveMode
 
-EXTENSION_ENTRY("GL_EXT_multi_draw_arrays or OpenGL 1.4",glMultiDrawArraysEXT,GLenum -> Ptr GLint -> Ptr GLsizei -> GLsizei -> IO ())
+EXTENSION_ENTRY("GL_EXT_multi_draw_arrays or OpenGL 1.4",glMultiDrawArraysEXT,GLenum -> Ptr ArrayIndex -> Ptr GLsizei -> GLsizei -> IO ())
 
-drawElements :: PrimitiveMode -> GLsizei -> DataType -> Ptr a -> IO ()
+drawElements :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> IO ()
 drawElements m c = glDrawElements (marshalPrimitiveMode m) c . marshalDataType
 
 foreign import CALLCONV unsafe "glDrawElements" glDrawElements ::
    GLenum -> GLsizei -> GLenum -> Ptr a -> IO ()
 
 multiDrawElements ::
-   PrimitiveMode -> Ptr GLsizei -> DataType -> Ptr (Ptr a) -> GLsizei -> IO ()
+      PrimitiveMode -> Ptr NumArrayIndices -> DataType -> Ptr (Ptr a)
+   -> NumIndexBlocks -> IO ()
 multiDrawElements m c =
    glMultiDrawElementsEXT (marshalPrimitiveMode m) c . marshalDataType
 
 EXTENSION_ENTRY("GL_EXT_multi_draw_arrays or OpenGL 1.4",glMultiDrawElementsEXT,GLenum -> Ptr GLsizei -> GLenum -> Ptr (Ptr a) -> GLsizei -> IO ())
 
 drawRangeElements ::
-   PrimitiveMode -> GLuint -> GLuint -> GLsizei -> DataType -> Ptr a -> IO ()
-drawRangeElements m s e c =
-   glDrawRangeElementsEXT (marshalPrimitiveMode m) s e c . marshalDataType
+      PrimitiveMode -> (ArrayIndex, ArrayIndex) -> NumArrayIndices -> DataType
+   -> Ptr a -> IO ()
+drawRangeElements m (s, e) c =
+   glDrawRangeElementsEXT (marshalPrimitiveMode m) (fromIntegral s)
+                          (fromIntegral e) c . marshalDataType
 
 EXTENSION_ENTRY("GL_EXT_draw_range_elements or OpenGL 1.2",glDrawRangeElementsEXT,GLenum -> GLuint -> GLuint -> GLsizei -> GLenum -> Ptr a -> IO ())
 
-maxElementsVertices :: GettableStateVar GLsizei
+maxElementsVertices :: GettableStateVar NumArrayIndices
 maxElementsVertices = makeGettableStateVar (getSizei1 id GetMaxElementsVertices)
 
-maxElementsIndices :: GettableStateVar GLsizei
+maxElementsIndices :: GettableStateVar NumArrayIndices
 maxElementsIndices = makeGettableStateVar (getSizei1 id GetMaxElementsIndices)
 
 --------------------------------------------------------------------------------
 
-lockArrays :: StateVar (Maybe (GLint, GLsizei))
+lockArrays :: StateVar (Maybe (ArrayIndex, NumArrayIndices))
 lockArrays = makeStateVar getLockArrays setLockArrays
 
-getLockArrays :: IO (Maybe (GLint, GLsizei))
+getLockArrays :: IO (Maybe (ArrayIndex, NumArrayIndices))
 getLockArrays = do
    count <- getInteger1 fromIntegral GetArrayElementLockCount
    if count > 0
@@ -432,7 +449,7 @@ getLockArrays = do
               return $ Just (first, count)
       else return Nothing
 
-setLockArrays :: Maybe (GLint, GLsizei) -> IO ()
+setLockArrays :: Maybe (ArrayIndex, NumArrayIndices) -> IO ()
 setLockArrays = maybe glUnlockArraysEXT (uncurry glLockArraysEXT)
 
 EXTENSION_ENTRY("GL_EXT_compiled_vertex_array",glLockArraysEXT,GLint -> GLsizei -> IO ())
@@ -442,22 +459,22 @@ EXTENSION_ENTRY("GL_EXT_compiled_vertex_array",glUnlockArraysEXT,IO ())
 
 -- We almost could use makeStateVarMaybe below, but, alas, this is client state.
 
-primitiveRestartIndex :: StateVar (Maybe GLuint)
+primitiveRestartIndex :: StateVar (Maybe ArrayIndex)
 primitiveRestartIndex =
    makeStateVar getPrimitiverestartIndex setPrimitiverestartIndex
 
-getPrimitiverestartIndex :: IO (Maybe GLuint)
+getPrimitiverestartIndex :: IO (Maybe ArrayIndex)
 getPrimitiverestartIndex = do
    state <- get (makeCapability CapPrimitiveRestart)
    if state == Enabled
       then liftM Just $ getInteger1 fromIntegral GetPrimitiveRestartIndex
       else return Nothing
 
-setPrimitiverestartIndex :: Maybe GLuint -> IO ()
+setPrimitiverestartIndex :: Maybe ArrayIndex -> IO ()
 setPrimitiverestartIndex maybeIdx = case maybeIdx of
    Nothing  -> glDisableClientState primitiveRestartNV
    Just idx -> do glEnableClientState primitiveRestartNV
-                  glPrimitiveRestartIndexNV idx
+                  glPrimitiveRestartIndexNV (fromIntegral idx)
    where primitiveRestartNV = 0x8558   -- ToDo: HACK!
 
 EXTENSION_ENTRY("GL_NV_primitive_restart",glPrimitiveRestartIndexNV,GLuint -> IO ())
