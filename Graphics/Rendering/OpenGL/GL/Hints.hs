@@ -13,10 +13,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Hints (
-   HintMode(..),
-   perspectiveCorrectionHint, pointSmoothHint, lineSmoothHint,
-   polygonSmoothHint, fogHint, generateMipmapHint, textureCompressionHint,
-   packCMYKHint, unpackCMYKHint
+   HintTarget(..), HintMode(..), hint
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
@@ -26,6 +23,44 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetTextureCompressionHint,GetPackCMYKHint,GetUnpackCMYKHint),
    getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+
+--------------------------------------------------------------------------------
+
+data HintTarget =
+     PerspectiveCorrection
+   | PointSmooth
+   | LineSmooth
+   | PolygonSmooth
+   | Fog
+   | GenerateMipmap
+   | TextureCompression
+   | PackCMYK
+   | UnpackCMYK
+   deriving ( Eq, Ord, Show )
+
+marshalHintTarget :: HintTarget -> GLenum
+marshalHintTarget x = case x of
+   PerspectiveCorrection -> 0xc50
+   PointSmooth -> 0xc51
+   LineSmooth -> 0xc52
+   PolygonSmooth -> 0xc53
+   Fog -> 0xc54
+   GenerateMipmap -> 0x8192
+   TextureCompression -> 0x84ef
+   PackCMYK -> 0x800e
+   UnpackCMYK -> 0x800f
+
+hintTargetToGetPName :: HintTarget -> GetPName
+hintTargetToGetPName x = case x of
+   PerspectiveCorrection -> GetPerspectiveCorrectionHint
+   PointSmooth -> GetPointSmoothHint
+   LineSmooth -> GetLineSmoothHint
+   PolygonSmooth -> GetPolygonSmoothHint
+   Fog -> GetFogHint
+   GenerateMipmap -> GetGenerateMipmapHint
+   TextureCompression -> GetTextureCompressionHint
+   PackCMYK -> GetPackCMYKHint
+   UnpackCMYK -> GetUnpackCMYKHint
 
 --------------------------------------------------------------------------------
 
@@ -50,64 +85,10 @@ unmarshalHintMode x
 
 --------------------------------------------------------------------------------
 
-data HintTarget =
-     PerspectiveCorrectionHint
-   | PointSmoothHint
-   | LineSmoothHint
-   | PolygonSmoothHint
-   | FogHint
-   | GenerateMipmapHint
-   | TextureCompressionHint
-   | PackCMYKHint
-   | UnpackCMYKHint
-
-marshalHintTarget :: HintTarget -> GLenum
-marshalHintTarget x = case x of
-   PerspectiveCorrectionHint -> 0xc50
-   PointSmoothHint -> 0xc51
-   LineSmoothHint -> 0xc52
-   PolygonSmoothHint -> 0xc53
-   FogHint -> 0xc54
-   GenerateMipmapHint -> 0x8192
-   TextureCompressionHint -> 0x84ef
-   PackCMYKHint -> 0x800e
-   UnpackCMYKHint -> 0x800f
-
---------------------------------------------------------------------------------
-
-makeHint ::  GetPName -> HintTarget -> StateVar HintMode
-makeHint p t = makeStateVar (getEnum1 unmarshalHintMode p)
-                            (glHint (marshalHintTarget t) . marshalHintMode)
+hint ::  HintTarget -> StateVar HintMode
+hint t =
+   makeStateVar
+      (getEnum1 unmarshalHintMode (hintTargetToGetPName t))
+      (glHint (marshalHintTarget t) . marshalHintMode)
 
 foreign import CALLCONV unsafe "glHint" glHint :: GLenum -> GLenum -> IO ()
-
---------------------------------------------------------------------------------
-
-perspectiveCorrectionHint :: StateVar HintMode
-perspectiveCorrectionHint =
-   makeHint GetPerspectiveCorrectionHint PerspectiveCorrectionHint
-
-pointSmoothHint :: StateVar HintMode
-pointSmoothHint = makeHint GetPointSmoothHint PointSmoothHint
-
-lineSmoothHint :: StateVar HintMode
-lineSmoothHint = makeHint GetLineSmoothHint LineSmoothHint
-
-polygonSmoothHint :: StateVar HintMode
-polygonSmoothHint = makeHint GetPolygonSmoothHint PolygonSmoothHint
-
-fogHint :: StateVar HintMode
-fogHint = makeHint GetFogHint FogHint
-
-generateMipmapHint :: StateVar HintMode
-generateMipmapHint = makeHint GetGenerateMipmapHint GenerateMipmapHint
-
-textureCompressionHint :: StateVar HintMode
-textureCompressionHint =
-   makeHint GetTextureCompressionHint TextureCompressionHint
-
-packCMYKHint :: StateVar HintMode
-packCMYKHint = makeHint GetPackCMYKHint PackCMYKHint
-
-unpackCMYKHint :: StateVar HintMode
-unpackCMYKHint = makeHint GetUnpackCMYKHint UnpackCMYKHint
