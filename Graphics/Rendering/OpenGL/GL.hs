@@ -27,6 +27,7 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.LineSegments,
      module Graphics.Rendering.OpenGL.GL.PerFragment,
      module Graphics.Rendering.OpenGL.GL.PixelRect,
+     module Graphics.Rendering.OpenGL.GL.PixelRectangles,
      module Graphics.Rendering.OpenGL.GL.Points,
      module Graphics.Rendering.OpenGL.GL.Polygons,
      module Graphics.Rendering.OpenGL.GL.RasterPos,
@@ -51,6 +52,7 @@ import Graphics.Rendering.OpenGL.GL.Hints
 import Graphics.Rendering.OpenGL.GL.LineSegments
 import Graphics.Rendering.OpenGL.GL.PerFragment
 import Graphics.Rendering.OpenGL.GL.PixelRect
+import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.Points
 import Graphics.Rendering.OpenGL.GL.Polygons
 import Graphics.Rendering.OpenGL.GL.RasterPos
