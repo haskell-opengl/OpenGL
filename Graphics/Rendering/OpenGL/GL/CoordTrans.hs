@@ -36,12 +36,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 ) where
 
 import Control.Monad ( liftM )
-import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( peekArray, pokeArray, allocaArray, withArray )
-import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(..) )
+import Foreign
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd )
 import Graphics.Rendering.OpenGL.GL.Capability (
@@ -73,6 +68,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 --------------------------------------------------------------------------------
 
 #include "HsOpenGLExt.h"
+#include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
 
@@ -230,7 +226,7 @@ class Storable c => MatrixComponent c where
    translate :: Vector3 c -> IO ()
    scale :: c -> c -> c -> IO ()
 
-instance MatrixComponent GLfloat  where
+instance MatrixComponent GLfloat_ where
    getMatrix = getFloatv
    loadMatrix = glLoadMatrixf
    loadTransposeMatrix = glLoadTransposeMatrixfARB
@@ -240,7 +236,7 @@ instance MatrixComponent GLfloat  where
    translate (Vector3 x y z) = glTranslatef x y z
    scale = glScalef
 
-instance MatrixComponent GLdouble where
+instance MatrixComponent GLdouble_ where
    getMatrix = getDoublev
    loadMatrix = glLoadMatrixd
    loadTransposeMatrix = glLoadTransposeMatrixdARB

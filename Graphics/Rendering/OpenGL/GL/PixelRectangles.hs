@@ -44,12 +44,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 ) where
 
 import Control.Monad ( liftM, liftM2 )
-import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( peekArray, pokeArray, allocaArray, withArray )
-import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peek) )
+import Foreign
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLuint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
@@ -97,6 +92,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
 --------------------------------------------------------------------------------
 
 #include "HsOpenGLExt.h"
+#include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
 
@@ -471,7 +467,7 @@ class Storable c => PixelMapComponent c where
    getPixelMapv :: GLenum -> Ptr c -> IO ()
    pixelMapv :: GLenum -> GLsizei -> Ptr c -> IO ()
 
-instance PixelMapComponent GLuint where
+instance PixelMapComponent GLuint_ where
    getPixelMapv = glGetPixelMapuiv
    pixelMapv = glPixelMapuiv
 
@@ -481,7 +477,7 @@ foreign import CALLCONV unsafe "glGetPixelMapuiv" glGetPixelMapuiv ::
 foreign import CALLCONV unsafe "glPixelMapuiv" glPixelMapuiv ::
    GLenum -> GLsizei -> Ptr GLuint -> IO ()
 
-instance PixelMapComponent GLfloat where
+instance PixelMapComponent GLfloat_ where
    getPixelMapv = glGetPixelMapfv
    pixelMapv = glPixelMapfv
 

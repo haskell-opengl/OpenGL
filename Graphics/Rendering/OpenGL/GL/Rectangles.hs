@@ -16,10 +16,15 @@ module Graphics.Rendering.OpenGL.GL.Rectangles (
    Rect(..)
 ) where
 
-import Foreign.Ptr ( Ptr )
+import Foreign
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLshort, GLint, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex2(..) )
+
+--------------------------------------------------------------------------------
+
+#include "HsOpenGLExt.h"
+#include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
 
@@ -55,7 +60,7 @@ foreign import CALLCONV unsafe "glRects" glRects ::
 foreign import CALLCONV unsafe "glRectsv" glRectsv ::
    Ptr GLshort -> Ptr GLshort -> IO ()
 
-instance Rect GLshort where
+instance Rect GLshort_ where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRects x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectsv ptr1 ptr2
 
@@ -67,7 +72,7 @@ foreign import CALLCONV unsafe "glRecti" glRecti ::
 foreign import CALLCONV unsafe "glRectiv" glRectiv ::
    Ptr GLint -> Ptr GLint -> IO ()
 
-instance Rect GLint where
+instance Rect GLint_ where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRecti x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectiv ptr1 ptr2
 
@@ -79,7 +84,7 @@ foreign import CALLCONV unsafe "glRectf" glRectf ::
 foreign import CALLCONV unsafe "glRectfv" glRectfv ::
    Ptr GLfloat -> Ptr GLfloat -> IO ()
 
-instance Rect GLfloat where
+instance Rect GLfloat_ where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRectf x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectfv ptr1 ptr2
 
@@ -91,6 +96,6 @@ foreign import CALLCONV unsafe "glRectd" glRectd ::
 foreign import CALLCONV unsafe "glRectdv" glRectdv ::
    Ptr GLdouble -> Ptr GLdouble -> IO ()
 
-instance Rect GLdouble where
+instance Rect GLdouble_ where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRectd x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectdv ptr1 ptr2

@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
    currentRasterTexCoords, currentRasterPositionValid
 ) where
 
-import Foreign.Ptr ( Ptr, castPtr )
+import Foreign
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLshort, GLint, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
@@ -40,6 +40,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 --------------------------------------------------------------------------------
 
 #include "HsOpenGLExt.h"
+#include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ foreign import CALLCONV unsafe "glRasterPos3sv" glRasterPos3sv ::
 foreign import CALLCONV unsafe "glRasterPos4sv" glRasterPos4sv ::
    Ptr GLshort -> IO ()
 
-instance RasterPosComponent GLshort where
+instance RasterPosComponent GLshort_ where
    rasterPos2 = glRasterPos2s
    rasterPos3 = glRasterPos3s
    rasterPos4 = glRasterPos4s
@@ -107,7 +108,7 @@ foreign import CALLCONV unsafe "glRasterPos3iv" glRasterPos3iv ::
 foreign import CALLCONV unsafe "glRasterPos4iv" glRasterPos4iv ::
    Ptr GLint -> IO ()
 
-instance RasterPosComponent GLint where
+instance RasterPosComponent GLint_ where
    rasterPos2 = glRasterPos2i
    rasterPos3 = glRasterPos3i
    rasterPos4 = glRasterPos4i
@@ -136,7 +137,7 @@ foreign import CALLCONV unsafe "glRasterPos3fv" glRasterPos3fv ::
 foreign import CALLCONV unsafe "glRasterPos4fv" glRasterPos4fv ::
    Ptr GLfloat -> IO ()
 
-instance RasterPosComponent GLfloat where
+instance RasterPosComponent GLfloat_ where
    rasterPos2 = glRasterPos2f
    rasterPos3 = glRasterPos3f
    rasterPos4 = glRasterPos4f
@@ -165,7 +166,7 @@ foreign import CALLCONV unsafe "glRasterPos3dv" glRasterPos3dv ::
 foreign import CALLCONV unsafe "glRasterPos4dv" glRasterPos4dv ::
    Ptr GLdouble -> IO ()
 
-instance RasterPosComponent GLdouble where
+instance RasterPosComponent GLdouble_ where
    rasterPos2 = glRasterPos2d
    rasterPos3 = glRasterPos3d
    rasterPos4 = glRasterPos4d
@@ -208,7 +209,7 @@ EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3sARB,GLshort -> GL
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2svARB,Ptr GLshort -> IO ())
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3svARB,Ptr GLshort -> IO ())
 
-instance WindowPosComponent GLshort where
+instance WindowPosComponent GLshort_ where
    windowPos2 = glWindowPos2sARB
    windowPos3 = glWindowPos3sARB
 
@@ -222,7 +223,7 @@ EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3iARB,GLint -> GLin
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2ivARB,Ptr GLint -> IO ())
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3ivARB,Ptr GLint -> IO ())
 
-instance WindowPosComponent GLint where
+instance WindowPosComponent GLint_ where
    windowPos2 = glWindowPos2iARB
    windowPos3 = glWindowPos3iARB
 
@@ -236,7 +237,7 @@ EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3fARB,GLfloat -> GL
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2fvARB,Ptr GLfloat -> IO ())
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3fvARB,Ptr GLfloat -> IO ())
 
-instance WindowPosComponent GLfloat where
+instance WindowPosComponent GLfloat_ where
    windowPos2 = glWindowPos2fARB
    windowPos3 = glWindowPos3fARB
 
@@ -250,7 +251,7 @@ EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3dARB,GLdouble -> G
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2dvARB,Ptr GLdouble -> IO ())
 EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3dvARB,Ptr GLdouble -> IO ())
 
-instance WindowPosComponent GLdouble where
+instance WindowPosComponent GLdouble_ where
    windowPos2 = glWindowPos2dARB
    windowPos3 = glWindowPos3dARB
 

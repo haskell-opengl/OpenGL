@@ -52,7 +52,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(..), maxTextureUnit
 ) where
 
-import Foreign.Ptr ( Ptr, castPtr )
+import Foreign
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLbyte, GLshort, GLint, GLubyte, GLushort, GLuint, GLfloat,
@@ -74,6 +74,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 --------------------------------------------------------------------------------
 
 #include "HsOpenGLExt.h"
+#include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
 
@@ -108,7 +109,7 @@ foreign import CALLCONV unsafe "glVertex3sv" glVertex3sv ::
 foreign import CALLCONV unsafe "glVertex4sv" glVertex4sv ::
    Ptr GLshort -> IO ()
 
-instance VertexComponent GLshort where
+instance VertexComponent GLshort_ where
    vertex2 = glVertex2s
    vertex3 = glVertex3s
    vertex4 = glVertex4s
@@ -137,7 +138,7 @@ foreign import CALLCONV unsafe "glVertex3iv" glVertex3iv ::
 foreign import CALLCONV unsafe "glVertex4iv" glVertex4iv ::
    Ptr GLint -> IO ()
 
-instance VertexComponent GLint where
+instance VertexComponent GLint_ where
    vertex2 = glVertex2i
    vertex3 = glVertex3i
    vertex4 = glVertex4i
@@ -166,7 +167,7 @@ foreign import CALLCONV unsafe "glVertex3fv" glVertex3fv ::
 foreign import CALLCONV unsafe "glVertex4fv" glVertex4fv ::
    Ptr GLfloat -> IO ()
 
-instance VertexComponent GLfloat where
+instance VertexComponent GLfloat_ where
    vertex2 = glVertex2f
    vertex3 = glVertex3f
    vertex4 = glVertex4f
@@ -195,7 +196,7 @@ foreign import CALLCONV unsafe "glVertex3dv" glVertex3dv ::
 foreign import CALLCONV unsafe "glVertex4dv" glVertex4dv ::
    Ptr GLdouble -> IO ()
 
-instance VertexComponent GLdouble where
+instance VertexComponent GLdouble_ where
    vertex2 = glVertex2d
    vertex3 = glVertex3d
    vertex4 = glVertex4d
@@ -349,7 +350,7 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2svARB,GLenum
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3svARB,GLenum -> Ptr GLshort -> IO ())
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4svARB,GLenum -> Ptr GLshort -> IO ())
 
-instance TexCoordComponent GLshort where
+instance TexCoordComponent GLshort_ where
    texCoord1 = glTexCoord1s
    texCoord2 = glTexCoord2s
    texCoord3 = glTexCoord3s
@@ -406,7 +407,7 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2ivARB,GLenum
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3ivARB,GLenum -> Ptr GLint -> IO ())
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4ivARB,GLenum -> Ptr GLint -> IO ())
 
-instance TexCoordComponent GLint where
+instance TexCoordComponent GLint_ where
    texCoord1 = glTexCoord1i
    texCoord2 = glTexCoord2i
    texCoord3 = glTexCoord3i
@@ -463,7 +464,7 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fvARB,GLenum
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fvARB,GLenum -> Ptr GLfloat -> IO ())
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fvARB,GLenum -> Ptr GLfloat -> IO ())
 
-instance TexCoordComponent GLfloat where
+instance TexCoordComponent GLfloat_ where
    texCoord1 = glTexCoord1f
    texCoord2 = glTexCoord2f
    texCoord3 = glTexCoord3f
@@ -520,7 +521,7 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dvARB,GLenum
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dvARB,GLenum -> Ptr GLdouble -> IO ())
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dvARB,GLenum -> Ptr GLdouble -> IO ())
 
-instance TexCoordComponent GLdouble where
+instance TexCoordComponent GLdouble_ where
    texCoord1 = glTexCoord1d
    texCoord2 = glTexCoord2d
    texCoord3 = glTexCoord3d
@@ -652,7 +653,7 @@ foreign import CALLCONV unsafe "glNormal3b" glNormal3b ::
 foreign import CALLCONV unsafe "glNormal3bv" glNormal3bv ::
    Ptr GLbyte -> IO ()
 
-instance NormalComponent GLbyte where
+instance NormalComponent GLbyte_ where
    normal3 = glNormal3b
    normal3v = glNormal3bv
 
@@ -664,7 +665,7 @@ foreign import CALLCONV unsafe "glNormal3s" glNormal3s ::
 foreign import CALLCONV unsafe "glNormal3sv" glNormal3sv ::
    Ptr GLshort -> IO ()
 
-instance NormalComponent GLshort where
+instance NormalComponent GLshort_ where
    normal3 = glNormal3s
    normal3v = glNormal3sv
 
@@ -676,7 +677,7 @@ foreign import CALLCONV unsafe "glNormal3i" glNormal3i ::
 foreign import CALLCONV unsafe "glNormal3iv" glNormal3iv ::
    Ptr GLint -> IO ()
 
-instance NormalComponent GLint where
+instance NormalComponent GLint_ where
    normal3 = glNormal3i
    normal3v = glNormal3iv
 
@@ -688,7 +689,7 @@ foreign import CALLCONV unsafe "glNormal3f" glNormal3f ::
 foreign import CALLCONV unsafe "glNormal3fv" glNormal3fv ::
    Ptr GLfloat -> IO ()
 
-instance NormalComponent GLfloat where
+instance NormalComponent GLfloat_ where
    normal3 = glNormal3f
    normal3v = glNormal3fv
 
@@ -700,7 +701,7 @@ foreign import CALLCONV unsafe "glNormal3d" glNormal3d ::
 foreign import CALLCONV unsafe "glNormal3dv" glNormal3dv ::
    Ptr GLdouble -> IO ()
 
-instance NormalComponent GLdouble where
+instance NormalComponent GLdouble_ where
    normal3 = glNormal3d
    normal3v = glNormal3dv
 
@@ -762,7 +763,7 @@ class FogCoordComponent a where
 EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordfEXT,GLfloat -> IO ())
 EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordfvEXT,Ptr GLfloat -> IO ())
 
-instance FogCoordComponent GLfloat where
+instance FogCoordComponent GLfloat_ where
    fogCoord1 = glFogCoordfEXT
    fogCoord1v = glFogCoordfvEXT
 
@@ -771,7 +772,7 @@ instance FogCoordComponent GLfloat where
 EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoorddEXT,GLdouble -> IO ())
 EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoorddvEXT,Ptr GLdouble -> IO ())
 
-instance FogCoordComponent GLdouble where
+instance FogCoordComponent GLdouble_ where
    fogCoord1 = glFogCoorddEXT
    fogCoord1v = glFogCoorddvEXT
 
@@ -849,7 +850,7 @@ foreign import CALLCONV unsafe "glColor4bv" glColor4bv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3bEXT,GLbyte -> GLbyte -> GLbyte -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3bvEXT,Ptr GLbyte -> IO ())
 
-instance ColorComponent GLbyte where
+instance ColorComponent GLbyte_ where
    color3 = glColor3b
    color4 = glColor4b
 
@@ -876,7 +877,7 @@ foreign import CALLCONV unsafe "glColor4sv" glColor4sv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3sEXT,GLshort -> GLshort -> GLshort -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3svEXT,Ptr GLshort -> IO ())
 
-instance ColorComponent GLshort where
+instance ColorComponent GLshort_ where
    color3 = glColor3s
    color4 = glColor4s
 
@@ -903,7 +904,7 @@ foreign import CALLCONV unsafe "glColor4iv" glColor4iv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3iEXT,GLint -> GLint -> GLint -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ivEXT,Ptr GLint -> IO ())
 
-instance ColorComponent GLint where
+instance ColorComponent GLint_ where
    color3 = glColor3i
    color4 = glColor4i
 
@@ -930,7 +931,7 @@ foreign import CALLCONV unsafe "glColor4fv" glColor4fv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3fEXT,GLfloat -> GLfloat -> GLfloat -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3fvEXT,Ptr GLfloat -> IO ())
 
-instance ColorComponent GLfloat where
+instance ColorComponent GLfloat_ where
    color3 = glColor3f
    color4 = glColor4f
 
@@ -957,7 +958,7 @@ foreign import CALLCONV unsafe "glColor4dv" glColor4dv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3dEXT,GLdouble -> GLdouble -> GLdouble -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3dvEXT,Ptr GLdouble -> IO ())
 
-instance ColorComponent GLdouble where
+instance ColorComponent GLdouble_ where
    color3 = glColor3d
    color4 = glColor4d
 
@@ -985,7 +986,7 @@ foreign import CALLCONV unsafe "glColor4ubv" glColor4ubv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ubEXT,GLubyte -> GLubyte -> GLubyte -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ubvEXT,Ptr GLubyte -> IO ())
 
-instance ColorComponent GLubyte where
+instance ColorComponent GLubyte_ where
    color3 = glColor3ub
    color4 = glColor4ub
 
@@ -1012,7 +1013,7 @@ foreign import CALLCONV unsafe "glColor4usv" glColor4usv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3usEXT,GLushort -> GLushort -> GLushort -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3usvEXT,Ptr GLushort -> IO ())
 
-instance ColorComponent GLushort where
+instance ColorComponent GLushort_ where
    color3 = glColor3us
    color4 = glColor4us
 
@@ -1039,7 +1040,7 @@ foreign import CALLCONV unsafe "glColor4uiv" glColor4uiv ::
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3uiEXT,GLuint -> GLuint -> GLuint -> IO ())
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3uivEXT,Ptr GLuint -> IO ())
 
-instance ColorComponent GLuint where
+instance ColorComponent GLuint_ where
    color3 = glColor3ui
    color4 = glColor4ui
 
@@ -1123,7 +1124,7 @@ foreign import CALLCONV unsafe "glIndexs" glIndexs ::
 foreign import CALLCONV unsafe "glIndexsv" glIndexsv ::
    Ptr GLshort -> IO ()
 
-instance IndexComponent GLshort where
+instance IndexComponent GLshort_ where
    index1 = glIndexs
    index1v = glIndexsv
 
@@ -1135,7 +1136,7 @@ foreign import CALLCONV unsafe "glIndexi" glIndexi ::
 foreign import CALLCONV unsafe "glIndexiv" glIndexiv ::
    Ptr GLint -> IO ()
 
-instance IndexComponent GLint where
+instance IndexComponent GLint_ where
    index1 = glIndexi
    index1v = glIndexiv
 
@@ -1147,7 +1148,7 @@ foreign import CALLCONV unsafe "glIndexf" glIndexf ::
 foreign import CALLCONV unsafe "glIndexfv" glIndexfv ::
    Ptr GLfloat -> IO ()
 
-instance IndexComponent GLfloat where
+instance IndexComponent GLfloat_ where
    index1 = glIndexf
    index1v = glIndexfv
 
@@ -1159,7 +1160,7 @@ foreign import CALLCONV unsafe "glIndexd" glIndexd ::
 foreign import CALLCONV unsafe "glIndexdv" glIndexdv ::
    Ptr GLdouble -> IO ()
 
-instance IndexComponent GLdouble where
+instance IndexComponent GLdouble_ where
    index1 = glIndexd
    index1v = glIndexdv
 
@@ -1171,7 +1172,7 @@ foreign import CALLCONV unsafe "glIndexub" glIndexub ::
 foreign import CALLCONV unsafe "glIndexubv" glIndexubv ::
    Ptr GLubyte -> IO ()
 
-instance IndexComponent GLubyte where
+instance IndexComponent GLubyte_ where
    index1 = glIndexub
    index1v = glIndexubv
 
