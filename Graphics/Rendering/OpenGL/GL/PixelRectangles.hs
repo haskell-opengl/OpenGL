@@ -23,7 +23,10 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    -- * Pixel Transfer Modes
    mapColor, mapStencil, indexShift, indexOffset, rgbaScale, depthScale,
    rgbaBias, depthBias, postConvolutionRGBAScale, postConvolutionRGBABias,
-   postColorMatrixRGBAScale, postColorMatrixRGBABias, maxPixelMapTable,
+   postColorMatrixRGBAScale, postColorMatrixRGBABias,
+
+   PixelMap, PixelMapComponent, withNewPixelMap, withPixelMap,
+   maxPixelMapTable,
    pixelMapIToI, pixelMapSToS, pixelMapIToR, pixelMapIToG, pixelMapIToB,
    pixelMapIToA, pixelMapRToR, pixelMapGToG, pixelMapBToB, pixelMapAToA,
 
@@ -33,9 +36,9 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    PixelFormat(..), PixelType(..), drawPixels
 ) where
 
-import Data.List ( genericLength )
-import Foreign.Marshal.Array ( withArray )
+import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Ptr ( Ptr )
+import Foreign.Storable ( Storable )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLuint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
@@ -70,10 +73,10 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetPixelMapIToRSize,GetPixelMapIToGSize,GetPixelMapIToBSize,
             GetPixelMapIToASize,GetPixelMapRToRSize,GetPixelMapGToGSize,
             GetPixelMapBToBSize,GetPixelMapAToASize),
-   getBoolean1, getInteger1, getSizei1, getFloat1, getArrayWith )
+   getBoolean1, getInteger1, getSizei1, getFloat1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), Index1(..) )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
 
 --------------------------------------------------------------------------------
 
@@ -356,7 +359,7 @@ foreign import CALLCONV unsafe "glPixelTransferf" glPixelTransferf ::
 
 --------------------------------------------------------------------------------
 
-data PixelMap =
+data PixelMap' =
      PixelMapIToI
    | PixelMapSToS
    | PixelMapIToR
@@ -368,7 +371,7 @@ data PixelMap =
    | PixelMapBToB
    | PixelMapAToA
 
-marshalPixelMap :: PixelMap -> GLenum
+marshalPixelMap :: PixelMap' -> GLenum
 marshalPixelMap x = case x of
    PixelMapIToI -> 0xc70
    PixelMapSToS -> 0xc71
@@ -381,7 +384,7 @@ marshalPixelMap x = case x of
    PixelMapBToB -> 0xc78
    PixelMapAToA -> 0xc79
 
-pixelMapToGetPName :: PixelMap -> GetPName
+pixelMapToGetPName :: PixelMap' -> GetPName
 pixelMapToGetPName x = case x of
    PixelMapIToI -> GetPixelMapIToISize
    PixelMapSToS -> GetPixelMapSToSSize
@@ -401,67 +404,83 @@ maxPixelMapTable = makeGettableStateVar (getSizei1 id GetMaxPixelMapTable)
 
 --------------------------------------------------------------------------------
 
-pixelMapIToI :: StateVar [Index1 GLint]
-pixelMapIToI =
-   pixelMapui (fromIntegral . unIndex1) (Index1 . fromIntegral) PixelMapIToI
-   where unIndex1 (Index1 i) = i
+data PixelMap a = PixelMap GLsizei (ForeignPtr a)
+   deriving ( Eq, Ord, Show )
 
-pixelMapSToS :: StateVar [GLuint]
-pixelMapSToS = pixelMapui id id PixelMapSToS
+withNewPixelMap ::
+   PixelMapComponent a => GLsizei -> (Ptr a -> IO ()) -> IO (PixelMap a)
+withNewPixelMap size f = do
+   fp <- mallocForeignPtrArray (fromIntegral size)
+   withForeignPtr fp f
+   return $ PixelMap size fp
 
-pixelMapIToR :: StateVar [GLfloat]
-pixelMapIToR = pixelMapf PixelMapIToR
-
-pixelMapIToG :: StateVar [GLfloat]
-pixelMapIToG = pixelMapf PixelMapIToG
-
-pixelMapIToB :: StateVar [GLfloat]
-pixelMapIToB = pixelMapf PixelMapIToB
-
-pixelMapIToA :: StateVar [GLfloat]
-pixelMapIToA = pixelMapf PixelMapIToA
-
-pixelMapRToR :: StateVar [GLfloat]
-pixelMapRToR = pixelMapf PixelMapRToR
-
-pixelMapGToG :: StateVar [GLfloat]
-pixelMapGToG = pixelMapf PixelMapGToG
-
-pixelMapBToB :: StateVar [GLfloat]
-pixelMapBToB = pixelMapf PixelMapBToB
-
-pixelMapAToA :: StateVar [GLfloat]
-pixelMapAToA = pixelMapf PixelMapAToA
+withPixelMap :: PixelMap a -> (GLsizei -> Ptr a -> IO b) -> IO b
+withPixelMap (PixelMap size fp) f = withForeignPtr fp (f size)
 
 --------------------------------------------------------------------------------
 
-pixelMapui :: (a -> GLuint) -> (GLuint -> a) -> PixelMap -> StateVar [a]
-pixelMapui f g pm =
+pixelMapIToI :: StateVar (PixelMap GLuint)
+pixelMapIToI = pixelMap PixelMapIToI
+
+pixelMapSToS :: StateVar (PixelMap (GLuint))
+pixelMapSToS = pixelMap PixelMapSToS
+
+pixelMapIToR :: StateVar (PixelMap (GLfloat))
+pixelMapIToR = pixelMap PixelMapIToR
+
+pixelMapIToG :: StateVar (PixelMap (GLfloat))
+pixelMapIToG = pixelMap PixelMapIToG
+
+pixelMapIToB :: StateVar (PixelMap (GLfloat))
+pixelMapIToB = pixelMap PixelMapIToB
+
+pixelMapIToA :: StateVar (PixelMap (GLfloat))
+pixelMapIToA = pixelMap PixelMapIToA
+
+pixelMapRToR :: StateVar (PixelMap (GLfloat))
+pixelMapRToR = pixelMap PixelMapRToR
+
+pixelMapGToG :: StateVar (PixelMap (GLfloat))
+pixelMapGToG = pixelMap PixelMapGToG
+
+pixelMapBToB :: StateVar (PixelMap (GLfloat))
+pixelMapBToB = pixelMap PixelMapBToB
+
+pixelMapAToA :: StateVar (PixelMap (GLfloat))
+pixelMapAToA = pixelMap PixelMapAToA
+
+--------------------------------------------------------------------------------
+
+pixelMap :: PixelMapComponent a => PixelMap' -> StateVar (PixelMap a)
+pixelMap pm =
    makeStateVar
       (do size <- getInteger1 fromIntegral (pixelMapToGetPName pm)
-          getArrayWith (map g) size (glGetPixelMapuiv (marshalPixelMap pm)))
-      (\arr -> withArray (map f arr) $
-                  glPixelMapuiv (marshalPixelMap pm) (genericLength arr))
+          withNewPixelMap size $ getPixelMapv (marshalPixelMap pm))
+      (\theMap -> withPixelMap theMap $ pixelMapv (marshalPixelMap pm))
 
-pixelMapf :: PixelMap -> StateVar [GLfloat]
-pixelMapf pm =
-   makeStateVar
-      (do size <- getInteger1 fromIntegral (pixelMapToGetPName pm)
-          getArrayWith id size (glGetPixelMapfv (marshalPixelMap pm)))
-      (\arr -> withArray arr $
-                  glPixelMapfv (marshalPixelMap pm) (genericLength arr))
+class Storable a => PixelMapComponent a where
+   getPixelMapv :: GLenum -> Ptr a -> IO ()
+   pixelMapv :: GLenum -> GLsizei -> Ptr a -> IO ()
 
-foreign import CALLCONV unsafe "glPixelMapuiv" glPixelMapuiv ::
-   GLenum -> GLsizei -> Ptr GLuint -> IO ()
-
-foreign import CALLCONV unsafe "glPixelMapfv" glPixelMapfv ::
-   GLenum -> GLsizei -> Ptr GLfloat -> IO ()
+instance PixelMapComponent GLuint where
+   getPixelMapv = glGetPixelMapuiv
+   pixelMapv = glPixelMapuiv
 
 foreign import CALLCONV unsafe "glGetPixelMapuiv" glGetPixelMapuiv ::
    GLenum -> Ptr GLuint -> IO ()
 
+foreign import CALLCONV unsafe "glPixelMapuiv" glPixelMapuiv ::
+   GLenum -> GLsizei -> Ptr GLuint -> IO ()
+
+instance PixelMapComponent GLfloat where
+   getPixelMapv = glGetPixelMapfv
+   pixelMapv = glPixelMapfv
+
 foreign import CALLCONV unsafe "glGetPixelMapfv" glGetPixelMapfv ::
    GLenum -> Ptr GLfloat -> IO ()
+
+foreign import CALLCONV unsafe "glPixelMapfv" glPixelMapfv ::
+   GLenum -> GLsizei -> Ptr GLfloat -> IO ()
 
 --------------------------------------------------------------------------------
 
