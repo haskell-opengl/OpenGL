@@ -14,27 +14,38 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.VertexSpec (
-   -- * Vertex coordinates
+   -- * Vertex Coordinates
    VertexComponent, Vertex(..),
    Vertex2(..), Vertex3(..), Vertex4(..),
 
-   -- * Texture coordinates
-   TextureUnit(..), TexCoordComponent, TexCoord(..),
+   -- * Auxiliary Vertex Attributes
+   -- $AuxiliaryVertexAttributes
+
+   -- ** Texture Coordinates
+   currentTextureCoords,
+   TexCoordComponent, TexCoord(..),
    TexCoord1(..), TexCoord2(..), TexCoord3(..), TexCoord4(..),
 
-   -- * Normal
+   -- ** Normal
+   currentNormal,
    NormalComponent, Normal(..),
    Normal3(..),
 
-   -- * Fog coordinate
+   -- ** Fog Coordinate
+   currentFogCoordinate,
    FogCoordComponent, FogCoord(..),
 
-   -- * Color
+   -- ** Color and Secondary Color
+   currentColor, currentSecondaryColor,
    ColorComponent, Color(..), SecondaryColor(..),
    Color3(..), Color4(..),
 
+   currentIndex,
    IndexComponent, Index(..),
-   Index1(..)
+   Index1(..),
+
+   -- * Texture Units
+   TextureUnit(..), maxTextureUnit
 ) where
 
 import Foreign.Ptr ( Ptr, castPtr )
@@ -44,10 +55,21 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLdouble )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.Query (
+   GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoordinate,
+            GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
+            GetMaxTextureUnits),
+   getInteger1, getFloat1, getFloat3, getFloat4, peek1, peek2, peek3, peek4 )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+
+--------------------------------------------------------------------------------
 
 #include "HsOpenGLExt.h"
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+-- | The class of all types which can be used as a vertex coordinate.
 
 class VertexComponent a where
    vertex2 :: a -> a -> IO ()
@@ -58,7 +80,7 @@ class VertexComponent a where
    vertex3v :: Ptr a -> IO ()
    vertex4v :: Ptr a -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glVertex2s" glVertex2s ::
    GLshort -> GLshort -> IO ()
@@ -87,7 +109,7 @@ instance VertexComponent GLshort where
    vertex3v = glVertex3sv
    vertex4v = glVertex4sv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glVertex2i" glVertex2i ::
    GLint -> GLint -> IO ()
@@ -116,7 +138,7 @@ instance VertexComponent GLint where
    vertex3v = glVertex3iv
    vertex4v = glVertex4iv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glVertex2f" glVertex2f ::
    GLfloat -> GLfloat -> IO ()
@@ -145,7 +167,7 @@ instance VertexComponent GLfloat where
    vertex3v = glVertex3fv
    vertex4v = glVertex4fv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glVertex2d" glVertex2d ::
    GLdouble -> GLdouble -> IO ()
@@ -174,12 +196,17 @@ instance VertexComponent GLdouble where
    vertex3v = glVertex3dv
    vertex4v = glVertex4dv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+-- | Specify the (/x/,/y/,/z/,/w/) coordinates of a four-dimensional vertex.
+-- Note that there is no such thing as a \"current vertex\" which could be
+-- retrieved.
 
 class Vertex a where
    vertex  ::     a -> IO ()
    vertexv :: Ptr a -> IO ()
 
+-- | A vertex with /z/=0 and /w/=1.
 data Vertex2 a = Vertex2 a a
    deriving ( Eq, Ord, Show )
 
@@ -193,6 +220,7 @@ instance Storable a => Storable (Vertex2 a) where
    peek                     = peek2 Vertex2
    poke ptr   (Vertex2 x y) = poke2 ptr x y
 
+-- | A vertex with /w/=1.
 data Vertex3 a = Vertex3 a a a
    deriving ( Eq, Ord, Show )
 
@@ -206,6 +234,7 @@ instance Storable a => Storable (Vertex3 a) where
    peek                       = peek3 Vertex3
    poke ptr   (Vertex3 x y z) = poke3 ptr x y z
 
+-- | A fully-fledged four-dimensional vertex.
 data Vertex4 a = Vertex4 a a a a
    deriving ( Eq, Ord, Show )
 
@@ -219,12 +248,30 @@ instance Storable a => Storable (Vertex4 a) where
    peek                         = peek4 Vertex4
    poke ptr   (Vertex4 x y z w) = poke4 ptr x y z w
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- $AuxiliaryVertexAttributes
+-- Apart from its coordinates in four-dimensional space, every vertex has
+-- associated /auxiliary attributes/: Its texture coordinates, a normal, a
+-- fog coordinate, and a color plus a secondary color. For every attribute, the
+-- OpenGL state contains its current value, which can be changed at any time.
+--
+-- Every attribute has a \"natural\" format via which it can be manipulated
+-- directly as part of the OpenGL state, e.g. the current texture coordinates
+-- are internally handled as @'TexCoord4' 'GLfloat'@. Different formats are
+-- converted to this format, e.g. the /s/, /r/, and /t/ coordinates of a
+-- @'TexCoord3' 'GLint'@ are converted to floating point values and a /q/
+-- coordinate of 1.0 is implicitly assumed.
+--
+-- Consequently, the vast majority of classes, functions, and data types in this
+-- module are for convenience only and offer no additional functionality.
 
-newtype TextureUnit = TextureUnit GLenum
-   deriving ( Eq, Ord, Show )
+--------------------------------------------------------------------------------
 
----------------------------------------------------------------------------
+currentTextureCoords :: StateVar (TexCoord4 GLfloat)
+currentTextureCoords =
+   makeStateVar (getFloat4 TexCoord4 GetCurrentTextureCoords) texCoord
+
+--------------------------------------------------------------------------------
 
 class TexCoordComponent a where
    texCoord1 :: a -> IO ()
@@ -247,7 +294,7 @@ class TexCoordComponent a where
    multiTexCoord3v :: TextureUnit -> Ptr a -> IO ()
    multiTexCoord4v :: TextureUnit -> Ptr a -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glTexCoord1s" glTexCoord1s ::
    GLshort -> IO ()
@@ -304,7 +351,7 @@ instance TexCoordComponent GLshort where
    multiTexCoord3v = dynMultiTexCoord3sv ptrMultiTexCoord3sv
    multiTexCoord4v = dynMultiTexCoord4sv ptrMultiTexCoord4sv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glTexCoord1i" glTexCoord1i ::
    GLint -> IO ()
@@ -361,7 +408,7 @@ instance TexCoordComponent GLint where
    multiTexCoord3v = dynMultiTexCoord3iv ptrMultiTexCoord3iv
    multiTexCoord4v = dynMultiTexCoord4iv ptrMultiTexCoord4iv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glTexCoord1f" glTexCoord1f ::
    GLfloat -> IO ()
@@ -418,7 +465,7 @@ instance TexCoordComponent GLfloat where
    multiTexCoord3v = dynMultiTexCoord3fv ptrMultiTexCoord3fv
    multiTexCoord4v = dynMultiTexCoord4fv ptrMultiTexCoord4fv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glTexCoord1d" glTexCoord1d ::
    GLdouble -> IO ()
@@ -475,7 +522,7 @@ instance TexCoordComponent GLdouble where
    multiTexCoord3v = dynMultiTexCoord3dv ptrMultiTexCoord3dv
    multiTexCoord4v = dynMultiTexCoord4dv ptrMultiTexCoord4dv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 class TexCoord a where
    texCoord       ::                    a -> IO ()
@@ -543,13 +590,18 @@ instance Storable a => Storable (TexCoord4 a) where
    peek                           = peek4 TexCoord4
    poke ptr   (TexCoord4 s t r q) = poke4 ptr s t r q
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+currentNormal :: StateVar (Normal3 GLfloat)
+currentNormal = makeStateVar (getFloat3 Normal3 GetCurrentNormal) normal
+
+--------------------------------------------------------------------------------
 
 class NormalComponent a where
    normal3 :: a -> a -> a -> IO ()
    normal3v :: Ptr a -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glNormal3b" glNormal3b ::
    GLbyte -> GLbyte -> GLbyte -> IO ()
@@ -561,7 +613,7 @@ instance NormalComponent GLbyte where
    normal3 = glNormal3b
    normal3v = glNormal3bv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glNormal3s" glNormal3s ::
    GLshort -> GLshort -> GLshort -> IO ()
@@ -573,7 +625,7 @@ instance NormalComponent GLshort where
    normal3 = glNormal3s
    normal3v = glNormal3sv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glNormal3i" glNormal3i ::
    GLint -> GLint -> GLint -> IO ()
@@ -585,7 +637,7 @@ instance NormalComponent GLint where
    normal3 = glNormal3i
    normal3v = glNormal3iv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glNormal3f" glNormal3f ::
    GLfloat -> GLfloat -> GLfloat -> IO ()
@@ -597,7 +649,7 @@ instance NormalComponent GLfloat where
    normal3 = glNormal3f
    normal3v = glNormal3fv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glNormal3d" glNormal3d ::
    GLdouble -> GLdouble -> GLdouble -> IO ()
@@ -609,7 +661,7 @@ instance NormalComponent GLdouble where
    normal3 = glNormal3d
    normal3v = glNormal3dv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 class Normal a where
    normal  ::     a -> IO ()
@@ -628,13 +680,19 @@ instance Storable a => Storable (Normal3 a) where
    peek                       = peek3 Normal3
    poke ptr   (Normal3 x y z) = poke3 ptr x y z
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+currentFogCoordinate :: StateVar (FogCoord1 GLfloat)
+currentFogCoordinate =
+   makeStateVar (getFloat1 FogCoord1 GetCurrentFogCoordinate) fogCoord
+
+--------------------------------------------------------------------------------
 
 class FogCoordComponent a where
    fogCoord1 :: a -> IO ()
    fogCoord1v :: Ptr a -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 EXTENSION_ENTRY("VERSION_1_3","glFogCoordfEXT",dynFogCoordf,ptrFogCoordf,GLfloat -> IO ())
 EXTENSION_ENTRY("VERSION_1_3","glFogCoordfvEXT",dynFogCoordfv,ptrFogCoordfv,Ptr GLfloat -> IO ())
@@ -643,7 +701,7 @@ instance FogCoordComponent GLfloat where
    fogCoord1 = dynFogCoordf ptrFogCoordf
    fogCoord1v = dynFogCoordfv ptrFogCoordfv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 EXTENSION_ENTRY("VERSION_1_3","glFogCoorddEXT",dynFogCoordd,ptrFogCoordd,GLdouble -> IO ())
 EXTENSION_ENTRY("VERSION_1_3","glFogCoorddvEXT",dynFogCoorddv,ptrFogCoorddv,Ptr GLdouble -> IO ())
@@ -652,7 +710,7 @@ instance FogCoordComponent GLdouble where
    fogCoord1 = dynFogCoordd ptrFogCoordd
    fogCoord1v = dynFogCoorddv ptrFogCoorddv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 class FogCoord a where
    fogCoord  ::     a -> IO ()
@@ -665,7 +723,17 @@ instance FogCoordComponent a => FogCoord (FogCoord1 a) where
    fogCoord (FogCoord1 c) = fogCoord1 c
    fogCoordv = fogCoord1v . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+currentColor :: StateVar (Color4 GLfloat)
+currentColor =
+   makeStateVar (getFloat4 Color4 GetCurrentColor) color
+
+currentSecondaryColor :: StateVar (Color4 GLfloat)
+currentSecondaryColor =
+   makeStateVar (getFloat4 Color4 GetCurrentSecondaryColor) color
+
+--------------------------------------------------------------------------------
 
 class ColorComponent a where
    color3 :: a -> a -> a -> IO ()
@@ -677,7 +745,7 @@ class ColorComponent a where
    secondaryColor3  :: a -> a -> a -> IO ()
    secondaryColor3v :: Ptr a -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3b" glColor3b ::
    GLbyte -> GLbyte -> GLbyte -> IO ()
@@ -704,7 +772,7 @@ instance ColorComponent GLbyte where
    secondaryColor3 = dynSecondaryColor3b ptrSecondaryColor3b
    secondaryColor3v = dynSecondaryColor3bv ptrSecondaryColor3bv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3s" glColor3s ::
    GLshort -> GLshort -> GLshort -> IO ()
@@ -731,7 +799,7 @@ instance ColorComponent GLshort where
    secondaryColor3 = dynSecondaryColor3s ptrSecondaryColor3s
    secondaryColor3v = dynSecondaryColor3sv ptrSecondaryColor3sv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3i" glColor3i ::
    GLint -> GLint -> GLint -> IO ()
@@ -758,7 +826,7 @@ instance ColorComponent GLint where
    secondaryColor3 = dynSecondaryColor3i ptrSecondaryColor3i
    secondaryColor3v = dynSecondaryColor3iv ptrSecondaryColor3iv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3f" glColor3f ::
    GLfloat -> GLfloat -> GLfloat -> IO ()
@@ -785,7 +853,7 @@ instance ColorComponent GLfloat where
    secondaryColor3 = dynSecondaryColor3f ptrSecondaryColor3f
    secondaryColor3v = dynSecondaryColor3fv ptrSecondaryColor3fv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3d" glColor3d ::
    GLdouble -> GLdouble -> GLdouble -> IO ()
@@ -812,7 +880,7 @@ instance ColorComponent GLdouble where
    secondaryColor3 = dynSecondaryColor3d ptrSecondaryColor3d
    secondaryColor3v = dynSecondaryColor3dv ptrSecondaryColor3dv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3ub" glColor3ub ::
    GLubyte -> GLubyte -> GLubyte -> IO ()
@@ -840,7 +908,7 @@ instance ColorComponent GLubyte where
    secondaryColor3 = dynSecondaryColor3ub ptrSecondaryColor3ub
    secondaryColor3v = dynSecondaryColor3ubv ptrSecondaryColor3ubv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3us" glColor3us ::
    GLushort -> GLushort -> GLushort -> IO ()
@@ -867,7 +935,7 @@ instance ColorComponent GLushort where
    secondaryColor3 = dynSecondaryColor3us ptrSecondaryColor3us
    secondaryColor3v = dynSecondaryColor3usv ptrSecondaryColor3usv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glColor3ui" glColor3ui ::
    GLuint -> GLuint -> GLuint -> IO ()
@@ -894,7 +962,7 @@ instance ColorComponent GLuint where
    secondaryColor3 = dynSecondaryColor3ui ptrSecondaryColor3ui
    secondaryColor3v = dynSecondaryColor3uiv ptrSecondaryColor3uiv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 class Color a where
    color  ::     a -> IO ()
@@ -926,7 +994,7 @@ instance Storable a => Storable (Color4 a) where
    peek                        = peek4 Color4
    poke ptr   (Color4 r g b a) = poke4 ptr r g b a
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 class SecondaryColor a where
    secondaryColor  ::     a -> IO ()
@@ -936,13 +1004,18 @@ instance ColorComponent a => SecondaryColor (Color3 a) where
    secondaryColor (Color3 r g b) = secondaryColor3 r g b
    secondaryColorv = secondaryColor3v . (castPtr :: Ptr (Color3 b) -> Ptr b)
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+currentIndex :: StateVar (Index1 GLint)
+currentIndex = makeStateVar (getInteger1 Index1 GetCurrentIndex) index
+
+--------------------------------------------------------------------------------
 
 class IndexComponent a where
    index1 :: a -> IO ()
    index1v :: Ptr a -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glIndexs" glIndexs ::
    GLshort -> IO ()
@@ -954,7 +1027,7 @@ instance IndexComponent GLshort where
    index1 = glIndexs
    index1v = glIndexsv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glIndexi" glIndexi ::
    GLint -> IO ()
@@ -966,7 +1039,7 @@ instance IndexComponent GLint where
    index1 = glIndexi
    index1v = glIndexiv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glIndexf" glIndexf ::
    GLfloat -> IO ()
@@ -978,7 +1051,7 @@ instance IndexComponent GLfloat where
    index1 = glIndexf
    index1v = glIndexfv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glIndexd" glIndexd ::
    GLdouble -> IO ()
@@ -990,7 +1063,7 @@ instance IndexComponent GLdouble where
    index1 = glIndexd
    index1v = glIndexdv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glIndexub" glIndexub ::
    GLubyte -> IO ()
@@ -1002,7 +1075,7 @@ instance IndexComponent GLubyte where
    index1 = glIndexub
    index1v = glIndexubv
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- Collision with Prelude.index
 class Index a where
@@ -1016,39 +1089,26 @@ instance IndexComponent a => Index (Index1 a) where
    index (Index1 i) = index1 i
    indexv = index1v . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+-- | Identifies a texture unit via its number, which must be in the range of
+-- (0 .. 'maxTextureUnit').
+
+newtype TextureUnit = TextureUnit GLenum
+   deriving ( Eq, Ord, Show, Enum )
+
+-- | An implementation must support at least 2 texture units, but it may
+-- support up to 32 ones. This state variable can be used to query the actual
+-- implementation limit.
+
+maxTextureUnit :: GettableStateVar TextureUnit
+maxTextureUnit =
+   makeGettableStateVar
+     (getInteger1 (TextureUnit . fromIntegral) GetMaxTextureUnits)
+
+--------------------------------------------------------------------------------
 -- Utilities (a little bit verbose/redundant, but seems to generate better
 -- code than mapM/zipWithM_)
-
-{-# INLINE peek1 #-}
-peek1 :: Storable a => (a -> b) -> Ptr c -> IO b
-peek1 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   return $ f x
-
-{-# INLINE peek2 #-}
-peek2 :: Storable a => (a -> a -> b) -> Ptr c -> IO b
-peek2 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   return $ f x y
-
-{-# INLINE peek3 #-}
-peek3 :: Storable a => (a -> a -> a -> b) -> Ptr c -> IO b
-peek3 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   z <- peekElemOff (castPtr ptr) 2
-   return $ f x y z
-
-{-# INLINE peek4 #-}
-peek4 :: Storable a => (a -> a -> a -> a -> b) -> Ptr c -> IO b
-peek4 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   z <- peekElemOff (castPtr ptr) 2
-   w <- peekElemOff (castPtr ptr) 3
-   return $ f x y z w
 
 {-# INLINE poke1 #-}
 poke1 :: Storable b => Ptr a -> b -> IO ()

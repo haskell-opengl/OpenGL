@@ -15,19 +15,22 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Query (
-   GetPName(..),   -- used only internally
-   getBoolean, getInteger, getFloat, getDouble,   -- used only internally
+   GetPName(..),                     -- used only internally
+   getBoolean1,                      -- used only internally
+   getInteger1,                      -- used only internally
+   getFloat1, getFloat3, getFloat4,  -- used only internally
+   getDouble1,                       -- used only internally
    VersionInfo(..),
-   parseVersionString,   -- used only internally
+   parseVersionString,               -- used only internally
    ExtensionsInfo(..),
+   peek1, peek2, peek3, peek4        -- used only internally
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peek) )
+import Foreign.Ptr ( Ptr, castPtr )
+import Foreign.Storable ( Storable(peekElemOff) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, unmarshalGLboolean, GLenum, GLint, GLfloat, GLdouble )
+   GLboolean, GLenum, GLint, GLfloat, GLdouble )
 
 ---------------------------------------------------------------------------
 
@@ -789,40 +792,51 @@ marshalGetPName x = case x of
 
 ---------------------------------------------------------------------------
 
-getBoolean :: GetPName -> IO Bool
-getBoolean n = alloca $ \buf -> do
+getBoolean1 :: (GLboolean -> a) -> GetPName -> IO a
+getBoolean1 f n = alloca $ \buf -> do
    glGetBooleanv (marshalGetPName n) buf
-   liftM unmarshalGLboolean $ peek buf
+   peek1 f buf
 
 foreign import CALLCONV unsafe "glGetBooleanv" glGetBooleanv ::
    GLenum -> Ptr GLboolean -> IO ()
 
 ---------------------------------------------------------------------------
 
-getInteger :: GetPName -> IO GLint
-getInteger n = alloca $ \buf -> do
+getInteger1 :: (GLint -> a) -> GetPName -> IO a
+getInteger1 f n = alloca $ \buf -> do
    glGetIntegerv (marshalGetPName n) buf
-   peek buf
+   peek1 f buf
 
 foreign import CALLCONV unsafe "glGetIntegerv" glGetIntegerv ::
    GLenum -> Ptr GLint -> IO ()
 
 ---------------------------------------------------------------------------
 
-getFloat :: GetPName -> IO GLfloat
-getFloat n = alloca $ \buf -> do
+getFloat1 :: (GLfloat -> a) -> GetPName -> IO a
+getFloat1 f n = alloca $ \buf -> do
    glGetFloatv (marshalGetPName n) buf
-   peek buf
+   peek1 f buf
+
+getFloat3 :: (GLfloat -> GLfloat -> GLfloat -> a) -> GetPName -> IO a
+getFloat3 f n = alloca $ \buf -> do
+   glGetFloatv (marshalGetPName n) buf
+   peek3 f buf
+
+getFloat4 ::
+   (GLfloat -> GLfloat -> GLfloat -> GLfloat -> a) -> GetPName -> IO a
+getFloat4 f n = alloca $ \buf -> do
+   glGetFloatv (marshalGetPName n) buf
+   peek4 f buf
 
 foreign import CALLCONV unsafe "glGetFloatv" glGetFloatv ::
    GLenum -> Ptr GLfloat -> IO ()
 
 ---------------------------------------------------------------------------
 
-getDouble :: GetPName -> IO GLdouble
-getDouble n = alloca $ \buf -> do
+getDouble1 :: (GLdouble -> a) -> GetPName -> IO a
+getDouble1 f n = alloca $ \buf -> do
    glGetDoublev (marshalGetPName n) buf
-   peek buf
+   peek1 f buf
 
 foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
    GLenum -> Ptr GLdouble -> IO ()
@@ -857,3 +871,37 @@ parseVersionString _ versionString =
 
 data ExtensionsInfo = ExtensionsInfo [String]
    deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+-- Utilities (a little bit verbose/redundant, but seems to generate better
+-- code than mapM/zipWithM_)
+
+{-# INLINE peek1 #-}
+peek1 :: Storable a => (a -> b) -> Ptr c -> IO b
+peek1 f ptr = do
+   x <- peekElemOff (castPtr ptr) 0
+   return $ f x
+
+{-# INLINE peek2 #-}
+peek2 :: Storable a => (a -> a -> b) -> Ptr c -> IO b
+peek2 f ptr = do
+   x <- peekElemOff (castPtr ptr) 0
+   y <- peekElemOff (castPtr ptr) 1
+   return $ f x y
+
+{-# INLINE peek3 #-}
+peek3 :: Storable a => (a -> a -> a -> b) -> Ptr c -> IO b
+peek3 f ptr = do
+   x <- peekElemOff (castPtr ptr) 0
+   y <- peekElemOff (castPtr ptr) 1
+   z <- peekElemOff (castPtr ptr) 2
+   return $ f x y z
+
+{-# INLINE peek4 #-}
+peek4 :: Storable a => (a -> a -> a -> a -> b) -> Ptr c -> IO b
+peek4 f ptr = do
+   x <- peekElemOff (castPtr ptr) 0
+   y <- peekElemOff (castPtr ptr) 1
+   z <- peekElemOff (castPtr ptr) 2
+   w <- peekElemOff (castPtr ptr) 3
+   return $ f x y z w

@@ -26,8 +26,8 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, marshalGLboolean, GLenum )
-import Graphics.Rendering.OpenGL.GL.Query ( getBoolean, GetPName(GetEdgeFlag) )
+   GLboolean, marshalGLboolean, unmarshalGLboolean, GLenum )
+import Graphics.Rendering.OpenGL.GL.Query ( getBoolean1, GetPName(GetEdgeFlag) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
@@ -184,6 +184,8 @@ foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
 -- during 'withBeginMode'.
 
 edgeFlag :: StateVar Bool
-edgeFlag = makeStateVar (getBoolean GetEdgeFlag) (glEdgeFlag . marshalGLboolean)
+edgeFlag =
+   makeStateVar (getBoolean1 unmarshalGLboolean GetEdgeFlag)
+                (glEdgeFlag . marshalGLboolean)
 
 foreign import CALLCONV unsafe "glEdgeFlag" glEdgeFlag :: GLboolean -> IO ()
