@@ -2,6 +2,7 @@ module Main ( main ) where
 
 import Control.Monad      ( liftM, when )
 import Data.Char          ( isSpace, isDigit )
+import Data.FiniteMap
 import Data.List          ( isPrefixOf, tails )
 import System.Environment ( getArgs )
 import Parsec             ( SourceName, Parser, parse, eof, oneOf, noneOf, string, (<|>), (<?>), try, option, skipMany, many, many1, sepBy, between, chainl1 )
@@ -48,8 +49,7 @@ data Spec = Spec [PropertyName] [ValidProperty] [Category]
 data ValidProperty = ValidProperty PropertyName PropertyValues
 
 data PropertyValues =
-     NoValues
-   | AnyValue
+     AnyValue
    | Values [PropertyValue]
 
 data Category = Category (Maybe CategoryName) [FunctionDeclaration]
@@ -83,9 +83,9 @@ data MetaPropertyValue =
    | AddPropertyValue PropertyValue
    | RemovePropertyValue PropertyValue
 
-newtype PropertyValue = PropertyValue String
+newtype PropertyValue = PropertyValue String   deriving Eq
 
-newtype PropertyName  = PropertyName  String
+newtype PropertyName  = PropertyName  String   deriving (Eq, Ord)
 newtype CategoryName  = CategoryName  String
 newtype FunctionName  = FunctionName  String
 newtype TypeName      = TypeName      String
@@ -108,7 +108,6 @@ instance Show ValidProperty where
       shows name . showChar ':' . showChar ' ' . shows values
 
 instance Show PropertyValues where
-   showsPrec _ NoValues    = showString ""
    showsPrec _ AnyValue    = showChar '*'
    showsPrec _ (Values vs) = hsep (map shows vs)
 
@@ -243,8 +242,8 @@ validPropertyName =
 
 validPropertyValues :: Parser PropertyValues
 validPropertyValues =
-   option NoValues (    (do symbol "*"; return AnyValue)
-                    <|> liftM Values (many1 propertyValue))
+   option (Values []) (    (do symbol "*"; return AnyValue)
+                       <|> liftM Values (many1 propertyValue))
 
 category :: Parser Category
 category = do
@@ -424,6 +423,67 @@ parseSpec fileName content =
       Right s  -> s
 
 --------------------------------------------------------------------------------
+-- Calculate a mapping from property names to their corresponding domains,
+-- doing checks for duplicate names/values on the way...
+--------------------------------------------------------------------------------
+
+type PropertyEnvironment = FiniteMap PropertyName PropertyValues
+
+buildPropertyEnvironment :: Spec -> PropertyEnvironment
+buildPropertyEnvironment spec =
+   case noDupReqProps . noDupPropNames . noDupPropValues $ spec of
+      Spec _ validProps _ ->
+         addListToFM_C (\old _ -> error ("duplicate property name "++ show old))
+                       emptyFM
+                       [(name,values) | ValidProperty name values <- validProps]
+
+noDupReqProps :: Spec -> Spec
+noDupReqProps spec@(Spec reqProps _ _) =
+   noDups spec "required property" reqProps
+
+noDupPropNames :: Spec -> Spec
+noDupPropNames spec@(Spec _ validProps _) =
+   noDups spec "property name" [ name | ValidProperty name _ <- validProps ]
+
+noDupPropValues :: Spec -> Spec
+noDupPropValues spec@(Spec _ validProps _) =
+   foldl (\spc (ValidProperty name values) ->
+              noDups spc ("property value for " ++ show name)
+                     [ v | Values vs <- [values], v <- vs ])
+         spec
+         validProps
+
+-- Simply return retVal if there are no duplicates in xs, otherwise complain.
+noDups :: (Show b, Eq b) => a -> String -> [b] -> a
+noDups retVal what xs = check xs
+   where check []                   = retVal
+         check (y:ys) | y `elem` ys = error ("duplicate "++what++": "++ show y)
+                      | otherwise   = check ys
+
+--------------------------------------------------------------------------------
+-- Expand MetaPropertyValues so that only AddPropertyValues are left, stealthily
+-- throwing away (required) property declarations and category names on the way.
+-- Checks for required properties are done here, too.
+--------------------------------------------------------------------------------
+
+expandMetaProperties :: PropertyEnvironment -> Spec -> [FunctionDeclaration]
+expandMetaProperties env (Spec reqProps validProps categories) =
+   checkRequiredPropsDecl env reqProps
+                          [ expandMetaPropertiesFuncDecl env funcDecl
+                          | Category _ funcDecls <- categories
+                          , funcDecl <- funcDecls ]
+
+expandMetaPropertiesFuncDecl :: PropertyEnvironment
+                             -> FunctionDeclaration -> FunctionDeclaration
+expandMetaPropertiesFuncDecl env funcDecl = funcDecl -- TODO
+
+checkRequiredPropsDecl :: PropertyEnvironment -> [PropertyName] -> a -> a
+checkRequiredPropsDecl env reqProps retVal =
+   case [ reqProp | reqProp <- reqProps, not (reqProp `elemFM` env) ] of
+      []    -> retVal
+      (p:_) -> error ("unknown required property: " ++ show p)
+
+--------------------------------------------------------------------------------
 -- The driver
 --------------------------------------------------------------------------------
 
@@ -445,13 +505,16 @@ execute verbose header showFn f x = do
       putStrLn (showFn result)
    return result
 
+-- TODO: Ugly!
 mainWithArgs :: [String] -> IO ()
 mainWithArgs args = do
    let (verbose, fileName, getInput) = parseArguments args
        exec = execute verbose
-   getInput                                          >>=
-      exec "preprocessing" id   preprocess           >>=
-      exec "parsing"       show (parseSpec fileName)
+   input        <- getInput
+   preprocInput <- exec "preprocessing" id preprocess input
+   spec         <- exec "parsing" show (parseSpec fileName) preprocInput
+   propEnv      <- exec "building property environment" (unlines . map show . fmToList) buildPropertyEnvironment spec
+   expandedSpec <- exec "expanding properties" (unlines . map show) (expandMetaProperties propEnv) spec
    return ()
 
 main :: IO ()
