@@ -13,44 +13,24 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.NURBS (
+   withNURBSObj,
+   checkForError,
+   nurbsBeginEndCurve, gluNurbsCurve,
+   nurbsBeginEndSurface, gluNurbsSurface,
+   nurbsBeginEndTrim, gluPwlCurve,
+   NURBSProperty(..), setNURBSProperty,
+   DisplayMode'(..), SamplingMethod(..), NURBSMode(..)
 ) where
 
 import Control.Monad ( unless )
-import Foreign.Ptr ( Ptr, nullPtr, FunPtr )
+import Foreign.Ptr ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLfloat )
-import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket, bracket_ )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordOutOfMemory )
 
 --------------------------------------------------------------------------------
--- chapter 7.1: The NURBS Object
-
--- an opaque pointer to a NURBS object
-newtype NURBSObj = NURBSObj (Ptr NURBSObj)
-
-isNullNURBSObj :: NURBSObj -> Bool
-isNullNURBSObj (NURBSObj ptr) = ptr == nullPtr
-
-withNURBSObj :: a -> (NURBSObj -> IO a) -> IO a
-withNURBSObj failureValue action =
-   bracket gluNewNurbsRenderer safeDeleteNurbsRenderer
-           (\nurbsObj -> if isNullNURBSObj nurbsObj
-                            then do recordOutOfMemory
-                                    return failureValue
-                            else action nurbsObj)
-
-foreign import CALLCONV unsafe "gluNewNurbsRenderer"
-   gluNewNurbsRenderer :: IO NURBSObj
-
-safeDeleteNurbsRenderer :: NURBSObj -> IO ()
-safeDeleteNurbsRenderer nurbsObj =
-   unless (isNullNURBSObj nurbsObj) $ gluDeleteNurbsRenderer nurbsObj
-
-foreign import CALLCONV unsafe "gluDeleteNurbsRenderer"
-   gluDeleteNurbsRenderer :: NURBSObj -> IO ()
-
---------------------------------------------------------------------------------
--- chapter 7.2: Callbacks
 
 data NURBSCallback =
      Error
@@ -84,43 +64,85 @@ marshalNURBSCallback x = case x of
    EndData -> 100175
 
 --------------------------------------------------------------------------------
+-- chapter 7.1: The NURBS Object
 
--- GLAPI void GLAPIENTRY gluNurbsCallback (GLUnurbs* nurb, GLenum which, _GLUfuncptr CallBackFunc);
-foreign import CALLCONV unsafe "gluNurbsCallback"
-   gluNurbsCallback :: NURBSObj -> GLenum -> FunPtr a -> IO ()
+-- an opaque pointer to a NURBS object
+newtype NURBSObj = NURBSObj (Ptr NURBSObj)
 
--- GLAPI void GLAPIENTRY gluNurbsCallbackData (GLUnurbs* nurb, GLvoid* userData);
-foreign import CALLCONV unsafe "gluNurbsCallbackData"
-   gluNurbsCallbackData :: NURBSObj -> Ptr a -> IO ()
+isNullNURBSObj :: NURBSObj -> Bool
+isNullNURBSObj (NURBSObj ptr) = ptr == nullPtr
+
+withNURBSObj :: a -> (NURBSObj -> IO a) -> IO a
+withNURBSObj failureValue action =
+   bracket gluNewNurbsRenderer safeDeleteNurbsRenderer
+           (\nurbsObj -> if isNullNURBSObj nurbsObj
+                            then do recordOutOfMemory
+                                    return failureValue
+                            else action nurbsObj)
+
+foreign import CALLCONV safe "gluNewNurbsRenderer"
+   gluNewNurbsRenderer :: IO NURBSObj
+
+safeDeleteNurbsRenderer :: NURBSObj -> IO ()
+safeDeleteNurbsRenderer nurbsObj =
+   unless (isNullNURBSObj nurbsObj) $ gluDeleteNurbsRenderer nurbsObj
+
+foreign import CALLCONV safe "gluDeleteNurbsRenderer"
+   gluDeleteNurbsRenderer :: NURBSObj -> IO ()
+
+--------------------------------------------------------------------------------
+-- chapter 7.2: Callbacks (error)
+
+type ErrorCallback = GLenum -> IO ()
+
+withErrorCallback :: NURBSObj -> ErrorCallback -> IO a -> IO a
+withErrorCallback nurbsObj errorCallback action =
+   bracket (makeErrorCallback errorCallback)
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setErrorCallback nurbsObj (marshalNURBSCallback Error) callbackPtr
+      action
+
+foreign import ccall "wrapper" makeErrorCallback ::
+   ErrorCallback -> IO (FunPtr ErrorCallback)
+
+foreign import CALLCONV safe "gluNurbsCallback"
+   setErrorCallback :: NURBSObj -> GLenum -> FunPtr ErrorCallback -> IO ()
+
+checkForError :: NURBSObj -> IO a -> IO a
+checkForError nurbsObj = withErrorCallback nurbsObj recordErrorCode
 
 --------------------------------------------------------------------------------
 -- chapter 7.3: NURBS Curves
 
--- GLAPI void GLAPIENTRY gluBeginCurve (GLUnurbs* nurb);
-foreign import CALLCONV unsafe "gluBeginCurve"
+nurbsBeginEndCurve :: NURBSObj -> IO a -> IO a
+nurbsBeginEndCurve nurbsObj =
+   bracket_ (gluBeginCurve nurbsObj) (gluEndCurve nurbsObj)
+
+foreign import CALLCONV safe "gluBeginCurve"
    gluBeginCurve :: NURBSObj -> IO ()
 
 -- GLAPI void GLAPIENTRY gluNurbsCurve (GLUnurbs* nurb, GLint knotCount, GLfloat* knots, GLint stride, GLfloat* control, GLint order, GLenum type);
-foreign import CALLCONV unsafe "gluNurbsCurve"
+foreign import CALLCONV safe "gluNurbsCurve"
    gluNurbsCurve :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLenum -> IO ()
 
--- GLAPI void GLAPIENTRY gluEndCurve (GLUnurbs* nurb);
-foreign import CALLCONV unsafe "gluEndCurve"
+foreign import CALLCONV safe "gluEndCurve"
    gluEndCurve :: NURBSObj -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.4: NURBS Surfaces
 
--- GLAPI void GLAPIENTRY gluBeginSurface (GLUnurbs* nurb);
-foreign import CALLCONV unsafe "gluBeginSurface"
+nurbsBeginEndSurface :: NURBSObj -> IO a -> IO a
+nurbsBeginEndSurface nurbsObj =
+   bracket_ (gluBeginSurface nurbsObj) (gluEndSurface nurbsObj)
+
+foreign import CALLCONV safe "gluBeginSurface"
    gluBeginSurface :: NURBSObj -> IO ()
 
 -- GLAPI void GLAPIENTRY gluNurbsSurface (GLUnurbs* nurb, GLint sKnotCount, GLfloat* sKnots, GLint tKnotCount, GLfloat* tKnots, GLint sStride, GLint tStride, GLfloat* control, GLint sOrder, GLint tOrder, GLenum type);
-foreign import CALLCONV unsafe "gluNurbsSurface"
+foreign import CALLCONV safe "gluNurbsSurface"
    gluNurbsSurface :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLint -> Ptr GLfloat -> GLint -> GLint -> GLenum -> IO ()
 
--- GLAPI void GLAPIENTRY gluEndSurface (GLUnurbs* nurb);
-foreign import CALLCONV unsafe "gluEndSurface"
+foreign import CALLCONV safe "gluEndSurface"
    gluEndSurface :: NURBSObj -> IO ()
 
 --------------------------------------------------------------------------------
@@ -135,63 +157,93 @@ marshalNURBSTrim x = case x of
    Map1Trim2 -> 100210
    Map1Trim3 -> 100211
 
--- GLAPI void GLAPIENTRY gluBeginTrim (GLUnurbs* nurb);
-foreign import CALLCONV unsafe "gluBeginTrim"
+nurbsBeginEndTrim :: NURBSObj -> IO a -> IO a
+nurbsBeginEndTrim nurbsObj =
+   bracket_ (gluBeginTrim nurbsObj) (gluEndTrim nurbsObj)
+
+foreign import CALLCONV safe "gluBeginTrim"
    gluBeginTrim :: NURBSObj -> IO ()
 
 -- GLAPI void GLAPIENTRY gluPwlCurve (GLUnurbs* nurb, GLint count, GLfloat* data, GLint stride, GLenum type);
-foreign import CALLCONV unsafe "gluPwlCurve"
+foreign import CALLCONV safe "gluPwlCurve"
    gluPwlCurve :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> GLenum -> IO ()
 
--- GLAPI void GLAPIENTRY gluEndTrim (GLUnurbs* nurb);
-foreign import CALLCONV unsafe "gluEndTrim"
+foreign import CALLCONV safe "gluEndTrim"
    gluEndTrim :: NURBSObj -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.6: NURBS Properties
 
-data NURBSProperty =
-     AutoLoadMatrix
-   | Culling
-   | ParametricTolerance
-   | SamplingTolerance
-   | DisplayMode
-   | SamplingMethod
-   | UStep
-   | VStep
-   | NurbsMode
+data NURBSProperty' =
+     AutoLoadMatrix'
+   | Culling'
+   | ParametricTolerance'
+   | SamplingTolerance'
+   | DisplayMode'
+   | SamplingMethod'
+   | UStep'
+   | VStep'
+   | NURBSMode'
 
-marshalNURBSProperty :: NURBSProperty -> GLenum
-marshalNURBSProperty x = case x of
-   AutoLoadMatrix -> 100200
-   Culling -> 100201
-   ParametricTolerance -> 100202
-   SamplingTolerance -> 100203
-   DisplayMode -> 100204
-   SamplingMethod -> 100205
-   UStep -> 100206
-   VStep -> 100207
-   NurbsMode -> 100160
+marshalNURBSProperty' :: NURBSProperty' -> GLenum
+marshalNURBSProperty' x = case x of
+   AutoLoadMatrix' -> 100200
+   Culling' -> 100201
+   ParametricTolerance' -> 100202
+   SamplingTolerance' -> 100203
+   DisplayMode' -> 100204
+   SamplingMethod' -> 100205
+   UStep' -> 100206
+   VStep' -> 100207
+   NURBSMode' -> 100160
 
 --------------------------------------------------------------------------------
 
-data DisplayMode =
-     Fill
+data NURBSProperty =
+     AutoLoadMatrix Bool
+   | Culling Bool
+   | ParametricTolerance GLfloat
+   | SamplingTolerance GLfloat
+   | DisplayMode DisplayMode'
+   | SamplingMethod SamplingMethod
+   | UStep GLfloat
+   | VStep GLfloat
+   | NURBSMode NURBSMode
+   deriving ( Eq, Ord, Show )
+
+setNURBSProperty :: NURBSObj -> NURBSProperty -> IO ()
+setNURBSProperty nurbsObj x = case x of
+   AutoLoadMatrix a -> nurbsProperty AutoLoadMatrix' (marshalGLboolean a)
+   Culling c -> nurbsProperty Culling' (marshalGLboolean c)
+   ParametricTolerance p -> nurbsProperty ParametricTolerance' p
+   SamplingTolerance s -> nurbsProperty SamplingTolerance' s
+   DisplayMode d -> nurbsProperty DisplayMode' (marshalDisplayMode' d)
+   SamplingMethod m -> nurbsProperty SamplingMethod' (marshalSamplingMethod m)
+   UStep u -> nurbsProperty UStep' u
+   VStep v -> nurbsProperty VStep' v
+   NURBSMode m -> nurbsProperty NURBSMode' (marshalNURBSMode m)
+   where nurbsProperty = gluNurbsProperty nurbsObj . marshalNURBSProperty'
+
+--------------------------------------------------------------------------------
+
+data DisplayMode' =
+     Fill'
    | OutlinePolygon
    | OutlinePatch
+   deriving ( Eq, Ord, Show )
 
-marshalDisplayMode :: DisplayMode -> GLenum
-marshalDisplayMode x = case x of
-   Fill -> 100012
+marshalDisplayMode' :: DisplayMode' -> GLfloat
+marshalDisplayMode' x = case x of
+   Fill' -> 100012
    OutlinePolygon -> 100240
    OutlinePatch -> 100241
 
-unmarshalDisplayMode :: GLenum -> DisplayMode
-unmarshalDisplayMode x
-   | x == 100012 = Fill
+unmarshalDisplayMode' :: GLfloat -> DisplayMode'
+unmarshalDisplayMode' x
+   | x == 100012 = Fill'
    | x == 100240 = OutlinePolygon
    | x == 100241 = OutlinePatch
-   | otherwise = error ("unmarshalDisplayMode: illegal value " ++ show x)
+   | otherwise = error ("unmarshalDisplayMode': illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
@@ -201,8 +253,9 @@ data SamplingMethod =
    | PathLength
    | ParametricError
    | DomainDistance
+   deriving ( Eq, Ord, Show )
 
-marshalSamplingMethod :: SamplingMethod -> GLenum
+marshalSamplingMethod :: SamplingMethod -> GLfloat
 marshalSamplingMethod x = case x of
    ObjectParametricError -> 100208
    ObjectPathLength -> 100209
@@ -210,7 +263,7 @@ marshalSamplingMethod x = case x of
    ParametricError -> 100216
    DomainDistance -> 100217
 
-unmarshalSamplingMethod :: GLenum -> SamplingMethod
+unmarshalSamplingMethod :: GLfloat -> SamplingMethod
 unmarshalSamplingMethod x
    | x == 100208 = ObjectParametricError
    | x == 100209 = ObjectPathLength
@@ -224,13 +277,14 @@ unmarshalSamplingMethod x
 data NURBSMode =
      NurbsTessellator
    | NurbsRenderer
+   deriving ( Eq, Ord, Show )
 
-marshalNURBSMode :: NURBSMode -> GLenum
+marshalNURBSMode :: NURBSMode -> GLfloat
 marshalNURBSMode x = case x of
    NurbsTessellator -> 100161
    NurbsRenderer -> 100162
 
-unmarshalNURBSMode :: GLenum -> NURBSMode
+unmarshalNURBSMode :: GLfloat -> NURBSMode
 unmarshalNURBSMode x
    | x == 100161 = NurbsTessellator
    | x == 100162 = NurbsRenderer
@@ -238,14 +292,15 @@ unmarshalNURBSMode x
 
 --------------------------------------------------------------------------------
 
--- GLAPI void GLAPIENTRY gluNurbsProperty (GLUnurbs* nurb, GLenum property, GLfloat value);
-foreign import CALLCONV unsafe "gluNurbsProperty"
+foreign import CALLCONV safe "gluNurbsProperty"
    gluNurbsProperty :: NURBSObj -> GLenum -> GLfloat -> IO ()
 
 -- GLAPI void GLAPIENTRY gluGetNurbsProperty (GLUnurbs* nurb, GLenum property, GLfloat* data);
-foreign import CALLCONV unsafe "gluGetNurbsProperty"
+foreign import CALLCONV safe "gluGetNurbsProperty"
    gluGetNurbsProperty :: NURBSObj -> GLenum -> Ptr GLfloat -> IO ()
 
+--------------------------------------------------------------------------------
+
 -- GLAPI void GLAPIENTRY gluLoadSamplingMatrices (GLUnurbs* nurb, const GLfloat* model, const GLfloat* perspective, const GLint* view);
-foreign import CALLCONV unsafe "gluLoadSamplingMatrices"
+foreign import CALLCONV safe "gluLoadSamplingMatrices"
    gluLoadSamplingMatrices :: NURBSObj -> Ptr GLfloat -> Ptr GLfloat -> Ptr GLint -> IO ()
