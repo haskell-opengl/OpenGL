@@ -81,5 +81,5 @@ case "$target" in
 esac
 AC_SUBST([CALLCONV])
 
-AC_CONFIG_FILES([config.mk Setup.buildinfo])
+AC_CONFIG_FILES([config.mk OpenGL.buildinfo])
 AC_OUTPUT
