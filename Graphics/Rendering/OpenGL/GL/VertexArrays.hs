@@ -27,16 +27,18 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
 
    -- * Dereferencing and Rendering
    arrayElement, drawArrays, multiDrawArrays, drawElements, multiDrawElements,
-   drawRangeElements, maxElementsVertices, maxElementsIndices, lockArrays
+   drawRangeElements, maxElementsVertices, maxElementsIndices, lockArrays,
+   primitiveRestartIndex
 ) where
 
+import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLuint, GLsizei )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapVertexArray, CapNormalArray, CapColorArray, CapIndexArray,
-             CapTextureCoordArray, CapEdgeFlagArray, CapFogCoordinateArray,
-             CapSecondaryColorArray, CapMatrixIndexArray),
+   EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
+             CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordinateArray,
+             CapSecondaryColorArray,CapMatrixIndexArray,CapPrimitiveRestart),
    Capability(Enabled), makeCapability )
 import Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType )
@@ -53,7 +55,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetTextureCoordArrayStride,GetEdgeFlagArrayStride,
             GetMaxElementsVertices,GetMaxElementsIndices,
             GetClientActiveTexture,GetArrayElementLockFirst,
-            GetArrayElementLockCount),
+            GetArrayElementLockCount,GetPrimitiveRestartIndex),
    getInteger1, getEnum1, getSizei1,
    GetPointervPName(VertexArrayPointer,NormalArrayPointer,ColorArrayPointer,
                     SecondaryColorArrayPointer,IndexArrayPointer,
@@ -398,3 +400,27 @@ setLockArrays = maybe glUnlockArraysEXT (uncurry glLockArraysEXT)
 
 EXTENSION_ENTRY("GL_EXT_compiled_vertex_array.2",glLockArraysEXT,GLint -> GLsizei -> IO ())
 EXTENSION_ENTRY("GL_EXT_compiled_vertex_array.2",glUnlockArraysEXT,IO ())
+
+--------------------------------------------------------------------------------
+
+-- We almost could use makeStateVarMaybe below, but, alas, this is client state.
+
+primitiveRestartIndex :: StateVar (Maybe GLuint)
+primitiveRestartIndex =
+   makeStateVar getPrimitiverestartIndex setPrimitiverestartIndex
+
+getPrimitiverestartIndex :: IO (Maybe GLuint)
+getPrimitiverestartIndex = do
+   state <- get (makeCapability CapPrimitiveRestart)
+   if state == Enabled
+      then liftM Just $ getInteger1 fromIntegral GetPrimitiveRestartIndex
+      else return Nothing
+
+setPrimitiverestartIndex :: Maybe GLuint -> IO ()
+setPrimitiverestartIndex maybeIdx = case maybeIdx of
+   Nothing  -> glDisableClientState primitiveRestartNV
+   Just idx -> do glEnableClientState primitiveRestartNV
+                  glPrimitiveRestartIndexNV idx
+   where primitiveRestartNV = 0x8558   -- ToDo: HACK!
+
+EXTENSION_ENTRY("GL_NV_primitive_restart",glPrimitiveRestartIndexNV,GLuint -> IO ())

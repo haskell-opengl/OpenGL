@@ -120,6 +120,7 @@ data EnableCap =
    | CapMatrixPalette
    | CapDepthClamp
    | CapDepthBoundsTest
+   | CapPrimitiveRestart -- NOTE: client state!
 
 marshalEnableCap :: EnableCap -> GLenum
 marshalEnableCap x = case x of
@@ -203,6 +204,7 @@ marshalEnableCap x = case x of
    CapMatrixPalette -> 0x8840
    CapDepthClamp -> 0x864f
    CapDepthBoundsTest -> 0x8890
+   CapPrimitiveRestart -> 0x8558
 
 --------------------------------------------------------------------------------
 

@@ -16,7 +16,7 @@
 module Graphics.Rendering.OpenGL.GL.BeginEnd (
    -- * Begin and End Objects
    PrimitiveMode(..),
-   renderPrimitive, unsafeRenderPrimitive,
+   renderPrimitive, unsafeRenderPrimitive, primitiveRestart,
 
    -- * Polygon Edges
    EdgeFlag(..),
@@ -27,11 +27,17 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLboolean )
 import Graphics.Rendering.OpenGL.GL.EdgeFlag (
    EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
+import Graphics.Rendering.OpenGL.GL.Extensions (
+   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
    PrimitiveMode(..), marshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, GetPName(GetEdgeFlag) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+
+--------------------------------------------------------------------------------
+
+#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -103,6 +109,13 @@ unsafeRenderPrimitive beginMode action = do
    ret <- action
    glEnd
    return ret
+
+--------------------------------------------------------------------------------
+
+primitiveRestart :: IO ()
+primitiveRestart = glPrimitiveRestartNV
+
+EXTENSION_ENTRY("GL_NV_primitive_restart",glPrimitiveRestartNV,IO ())
 
 --------------------------------------------------------------------------------
 
