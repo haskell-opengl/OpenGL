@@ -1,33 +1,29 @@
-#include "ghcconfig.h"
-
 Package {
-	name		= "OpenGL",
-	auto		= True,
+	name		 = "OpenGL",
+	auto		 = True,
 #ifdef INSTALLING
-	import_dirs	= [ "$libdir/imports" ],
+	import_dirs	 = [ "$libdir/imports" ],
 #else
-	import_dirs	= [ "$libdir/libraries/OpenGL" ],
+	import_dirs	 = [ "$libdir/libraries/OpenGL" ],
 #endif
-	source_dirs	= [],
+	source_dirs	 = [],
 #ifdef INSTALLING
-	library_dirs	= [ "$libdir" ],
+	library_dirs	 = [ "$libdir" ],
 #else
-	library_dirs	= [ "$libdir/libraries/OpenGL"
-	                  , "$libdir/libraries/OpenGL/cbits" ],
+	library_dirs	 = [ "$libdir/libraries/OpenGL"
+	                   , "$libdir/libraries/OpenGL/cbits" ],
 #endif
-	hs_libraries	= [ "HSOpenGL" ],
-	extra_libraries	= [ "HSOpenGL_cbits"],
+	hs_libraries	 = [ "HSOpenGL" ],
+	extra_libraries	 = [ "HSOpenGL_cbits"],
 #ifdef INSTALLING
-	include_dirs	= [],
+	include_dirs	 = [],
 #else
-	include_dirs	= [ "$libdir/libraries/OpenGL/include" ],
+	include_dirs	 = [ "$libdir/libraries/OpenGL/include" ],
 #endif
-	c_includes	= [ "HsOpenGL.h" ],
-	package_deps	= [ "base" ],
-	extra_ghc_opts	= [],
-	extra_cc_opts	= [ "" GLU_CFLAGS ],
-#ifdef USE_QUARTZ_OPENGL
-	extra_frameworks = [ "OpenGL" ],
-#endif
-	extra_ld_opts	= [ "" GLU_LIBS ]
+	c_includes	 = [ "HsOpenGL.h" ],
+	package_deps	 = [ "base" ],
+	extra_ghc_opts	 = [],
+	extra_cc_opts	 = [ "" GLU_CFLAGS ],
+	extra_frameworks = [ GLU_FRAMEWORKS ],
+	extra_ld_opts	 = [ "" GLU_LIBS ]
 }

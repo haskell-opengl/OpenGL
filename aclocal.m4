@@ -136,6 +136,15 @@ if test x"$enable_opengl" = xyes; then
     ;;
   esac
 fi
+
+GLU_FRAMEWORKS=
+GLUT_FRAMEWORKS=
+if test x"$use_quartz_opengl" = xyes; then
+  GLU_FRAMEWORKS=OpenGL
+  GLUT_FRAMEWORKS=GLUT
+fi
+AC_SUBST([GLU_FRAMEWORKS])
+AC_SUBST([GLUT_FRAMEWORKS])
 ])# FP_CHECK_QUARTZ_OPENGL
 
 
