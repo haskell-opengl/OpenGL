@@ -46,6 +46,8 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability )
+import Graphics.Rendering.OpenGL.GL.Face (
+   Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek3 )
@@ -109,27 +111,6 @@ frontFace =
       (glFrontFace . marshalFrontFaceDirection)
 
 foreign import CALLCONV unsafe "glFrontFace" glFrontFace :: GLenum -> IO ()
-
---------------------------------------------------------------------------------
-
-data Face =
-     Front
-   | Back
-   | FrontAndBack
-   deriving ( Eq, Ord, Show )
-
-marshalFace :: Face -> GLenum
-marshalFace x = case x of
-   Front -> 0x404
-   Back -> 0x405
-   FrontAndBack -> 0x408
-
-unmarshalFace :: GLenum -> Face
-unmarshalFace x
-   | x == 0x404 = Front
-   | x == 0x405 = Back
-   | x == 0x408 = FrontAndBack
-   | otherwise = error ("unmarshalFace: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
