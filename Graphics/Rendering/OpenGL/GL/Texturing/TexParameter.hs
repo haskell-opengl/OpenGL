@@ -23,8 +23,8 @@ import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Storable ( Storable )
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum, GLfloat )
-import Graphics.Rendering.OpenGL.GL.Capability ( Capability(..) )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLint, GLenum, GLfloat, Capability(..) )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )

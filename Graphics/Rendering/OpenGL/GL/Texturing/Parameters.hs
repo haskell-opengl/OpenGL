@@ -23,19 +23,21 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    textureCompareFailValue, TextureCompareOperator(..), textureCompareOperator
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLfloat, GLclampf )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLint, GLfloat, GLclampf, Capability(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability(..), marshalCapability, unmarshalCapability )
-import Graphics.Rendering.OpenGL.GL.ComparisonFunction ( ComparisonFunction,
+   marshalCapability, unmarshalCapability )
+import Graphics.Rendering.OpenGL.GL.ComparisonFunction (
    marshalComparisonFunction, unmarshalComparisonFunction )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( TextureCoordName(..) )
+import Graphics.Rendering.OpenGL.GL.PerFragment ( ComparisonFunction )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxTextureMaxAnisotropy,GetMaxTextureLODBias), getFloat1)
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
-   Level, TextureTarget(..) )
+   Level, TextureTarget(..), PixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
                 TextureWrapR,TextureBorderColor,TextureMinLOD,TextureMaxLOD,
@@ -45,8 +47,7 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
                 TextureCompare,TextureCompareOperator),
    texParami, texParamf, texParamC4f, combineTexParams, combineTexParamsMaybe )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat, marshalPixelInternalFormat,
-   unmarshalPixelInternalFormat )
+   marshalPixelInternalFormat, unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 

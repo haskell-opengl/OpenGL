@@ -15,7 +15,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Capability (
-   Capability(..), marshalCapability, unmarshalCapability,
+   marshalCapability, unmarshalCapability,
    EnableCap(..), makeCapability, makeStateVarMaybe
 ) where
 
