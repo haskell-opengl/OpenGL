@@ -13,8 +13,9 @@ For every line do:
 
    3) Remove trailing whitespace.
 
-   4) Terminate property declarations: Append ';' to a line where the first ':'
-      is only preceded by non-TAB and non-SPC characters.
+   4) Mangle property declarations: Append ';' to a line where the first ':'
+      is only preceded by non-TAB and non-SPC characters. Additionally, move
+      that ':' to the beginning of the line.
 
    5) Separate definitions: Append ',' to a line starting with TAB and followed
       (ignoring empty lines) by a line starting with TAB.

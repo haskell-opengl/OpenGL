@@ -133,15 +133,18 @@ instance Num Number where
 
 preprocess :: String -> String
 preprocess = unlines .
-             addSeparators . terminateColonLines .
+             addSeparators . mangleColonLines .
              removeTrailingWhitespace . removePassthru . removeComments .
              lines
 
    where removeComments = map $ takeWhile (/= '#')
          removePassthru = map $ \l -> if "passthru:" `isPrefixOf` l then "" else l
          removeTrailingWhitespace = map $ reverse . dropWhile isSpace . reverse
-         terminateColonLines = map $ \l-> if isColonLine l then l ++ ";" else l
-         isColonLine = (":" `isPrefixOf`) . dropWhile (not . (`elem` ['\t',' ',':']))
+         mangleColonLines = map $ \l ->
+            case break (== ':') l of
+               (xs, ':':ys) | noSpaceIn xs -> ":" ++ xs ++ " " ++ ys ++ ";"
+               _ -> l
+         noSpaceIn = not . any (`elem` ['\t',' '])
 
          addSeparators = map addSeparator . tails
 
