@@ -97,7 +97,6 @@ unmarshalMagnificationFilter = minToMag . unmarshalMinificationFilter
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureFilter :: TextureTarget -> StateVar (MinificationFilter, MagnificationFilter)
 textureFilter =
    combineTexParams
@@ -143,7 +142,6 @@ unmarshalTextureWrapMode x
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureWrapMode :: TextureTarget -> TextureCoordName -> StateVar (Repetition,Clamping)
 textureWrapMode t coord = case coord of
    S -> wrap TextureWrapS
@@ -160,7 +158,6 @@ invalidTextureCoord =
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureBorderColor :: TextureTarget -> StateVar (Color4 GLfloat)
 textureBorderColor = texParamC4f TextureBorderColor
 
@@ -168,7 +165,6 @@ textureBorderColor = texParamC4f TextureBorderColor
 
 type LOD = GLfloat
 
--- ToDo: cube maps
 textureObjectLODBias :: TextureTarget -> StateVar LOD
 textureObjectLODBias = texParamf id id TextureLODBias
 
@@ -176,7 +172,6 @@ maxTextureLODBias :: GettableStateVar LOD
 maxTextureLODBias =
    makeGettableStateVar (getFloat1 id GetMaxTextureLODBias)
 
--- ToDo: cube maps
 textureLODRange :: TextureTarget -> StateVar (LOD,LOD)
 textureLODRange =
    combineTexParams
@@ -185,7 +180,6 @@ textureLODRange =
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureMaxAnisotropy :: TextureTarget -> StateVar GLfloat
 textureMaxAnisotropy = texParamf id id TextureMaxAnisotropy
 
@@ -195,7 +189,6 @@ maxTextureMaxAnisotropy =
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureLevelRange :: TextureTarget -> StateVar (Level,Level)
 textureLevelRange =
    combineTexParams
@@ -204,7 +197,6 @@ textureLevelRange =
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 generateMipmap :: TextureTarget -> StateVar Capability
 generateMipmap = texParami unmarshal marshal GenerateMipmap
    where unmarshal = unmarshalCapability . fromIntegral
@@ -212,7 +204,6 @@ generateMipmap = texParami unmarshal marshal GenerateMipmap
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 -- Only Luminance', Intensity, and Alpha' allowed
 depthTextureMode :: TextureTarget -> StateVar PixelInternalFormat
 depthTextureMode =
@@ -233,7 +224,6 @@ unmarshalTextureCompareMode x
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureCompareMode :: TextureTarget -> StateVar (Maybe ComparisonFunction)
 textureCompareMode =
    combineTexParamsMaybe
@@ -244,7 +234,6 @@ textureCompareMode =
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureCompareFailValue :: TextureTarget -> StateVar GLclampf
 textureCompareFailValue = texParamf id id TextureCompareFailValue
 
@@ -268,7 +257,6 @@ unmarshalTextureCompareOperator x
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
 textureCompareOperator :: TextureTarget -> StateVar (Maybe TextureCompareOperator)
 textureCompareOperator =
    combineTexParamsMaybe

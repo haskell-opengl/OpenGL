@@ -33,7 +33,8 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    Level, Border, TextureSize1D(..), TextureSize2D(..), TextureSize3D(..) )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalProxyTextureTarget )
+   TextureTarget(..), marshalProxyTextureTarget,
+   CubeMapTarget, marshalCubeMapTarget )
 import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 
 --------------------------------------------------------------------------------
@@ -75,21 +76,18 @@ marshalTexLevelParameter x = case x of
 
 --------------------------------------------------------------------------------
 
-type TextureQuery a = TextureTarget -> Level -> GettableStateVar a
+type TextureQuery a = Either TextureTarget CubeMapTarget -> Level -> GettableStateVar a
 
--- ToDo: cube maps
 textureInternalFormat :: TextureQuery PixelInternalFormat
 textureInternalFormat t level =
    makeGettableStateVar $
       getTexLevelParameteri unmarshalPixelInternalFormat NoProxy t level TextureInternalFormat
 
--- ToDo: cube maps
 textureSize1D :: TextureQuery TextureSize1D
 textureSize1D t level =
    makeGettableStateVar $
       getTexLevelParameteri (TextureSize1D . fromIntegral) NoProxy t level TextureWidth
 
--- ToDo: cube maps
 textureSize2D :: TextureQuery TextureSize2D
 textureSize2D t level =
    makeGettableStateVar $
@@ -97,7 +95,6 @@ textureSize2D t level =
              (getTexLevelParameteri fromIntegral NoProxy t level TextureWidth )
              (getTexLevelParameteri fromIntegral NoProxy t level TextureHeight)
 
--- ToDo: cube maps
 textureSize3D :: TextureQuery TextureSize3D
 textureSize3D t level =
    makeGettableStateVar $
@@ -106,13 +103,11 @@ textureSize3D t level =
              (getTexLevelParameteri fromIntegral NoProxy t level TextureHeight)
              (getTexLevelParameteri fromIntegral NoProxy t level TextureDepth )
 
--- ToDo: cube maps
 textureBorder :: TextureQuery Border
 textureBorder t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureBorder
 
--- ToDo: cube maps
 textureRGBASizes :: TextureQuery (Color4 GLsizei)
 textureRGBASizes t level =
    makeGettableStateVar $
@@ -122,31 +117,26 @@ textureRGBASizes t level =
              (getTexLevelParameteri fromIntegral NoProxy t level TextureBlueSize )
              (getTexLevelParameteri fromIntegral NoProxy t level TextureAlphaSize)
 
--- ToDo: cube maps
 textureIntensitySize :: TextureQuery GLsizei
 textureIntensitySize t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureIntensitySize
 
--- ToDo: cube maps
 textureLuminanceSize :: TextureQuery GLsizei
 textureLuminanceSize t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureLuminanceSize
 
--- ToDo: cube maps
 textureIndexSize :: TextureQuery GLsizei
 textureIndexSize t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureIndexSize
 
--- ToDo: cube maps
 textureDepthBits :: TextureQuery GLsizei
 textureDepthBits t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level DepthBits
 
--- ToDo: cube maps
 textureCompressedImageSize :: TextureQuery (Maybe GLsizei)
 textureCompressedImageSize t level =
    makeGettableStateVar $ do
@@ -155,18 +145,16 @@ textureCompressedImageSize t level =
          then getTexLevelParameteri (Just . fromIntegral) NoProxy t level TextureCompressedImageSize
          else return Nothing
 
--- ToDo: cube maps
 textureProxyOK :: TextureQuery Bool
 textureProxyOK t level =
    makeGettableStateVar $
       getTexLevelParameteri (unmarshalGLboolean . fromIntegral) Proxy t level TextureWidth
 
-getTexLevelParameteri :: (GLint -> a) -> Proxy -> TextureTarget -> Level -> TexLevelParameter -> IO a
+getTexLevelParameteri :: (GLint -> a) -> Proxy -> Either TextureTarget CubeMapTarget -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteri f proxy t level p =
    alloca $ \buf -> do
-      glGetTexLevelParameteriv (marshalProxyTextureTarget proxy t) level (marshalTexLevelParameter p) buf
+      glGetTexLevelParameteriv (either (marshalProxyTextureTarget proxy) (\c -> if proxy == Proxy then marshalProxyTextureTarget Proxy TextureCubeMap else marshalCubeMapTarget c) t) level (marshalTexLevelParameter p) buf
       peek1 f buf
 
--- all targets incl. proxies and all cube maps
 foreign import CALLCONV unsafe "glGetTexLevelParameteriv"
    glGetTexLevelParameteriv :: GLenum -> GLint -> GLenum -> Ptr GLint -> IO ()

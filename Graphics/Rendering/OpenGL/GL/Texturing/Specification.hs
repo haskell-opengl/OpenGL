@@ -16,7 +16,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    -- * Texture-related Data Types
-   TextureTarget(..), Level, PixelInternalFormat(..), Border,
+   TextureTarget(..), CubeMapTarget(..), Level, PixelInternalFormat(..), Border,
    TexturePosition1D(..), TexturePosition2D(..), TexturePosition3D(..),
    TextureSize1D(..), TextureSize2D(..), TextureSize3D(..),
 
@@ -55,7 +55,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget )
+   TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget,
+   CubeMapTarget(..), marshalCubeMapTarget )
 
 --------------------------------------------------------------------------------
 
@@ -99,12 +100,13 @@ foreign import CALLCONV unsafe "glTexImage1D"
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-texImage2D :: Proxy -> Level -> PixelInternalFormat -> TextureSize2D -> Border -> PixelData a -> IO ()
-texImage2D proxy level int (TextureSize2D w h) border pd =
+texImage2D :: Maybe CubeMapTarget -> Proxy -> Level -> PixelInternalFormat -> TextureSize2D -> Border -> PixelData a -> IO ()
+texImage2D mbCubeMap proxy level int (TextureSize2D w h) border pd =
    withPixelData pd $
       glTexImage2D
-         (marshalProxyTextureTarget proxy Texture2D)
+         (maybe (marshalProxyTextureTarget proxy Texture2D)
+                (\c -> if proxy == Proxy then marshalProxyTextureTarget Proxy TextureCubeMap else marshalCubeMapTarget c)
+                mbCubeMap)
          level (marshalPixelInternalFormat int) w h border
 
 foreign import CALLCONV unsafe "glTexImage2D"
@@ -123,11 +125,10 @@ EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexImage3DEXT,GLenum -> GLint
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-getTexImage :: TextureTarget -> Level -> PixelData a -> IO ()
+getTexImage :: Either TextureTarget CubeMapTarget -> Level -> PixelData a -> IO ()
 getTexImage t level pd =
    withPixelData pd $
-      glGetTexImage (marshalTextureTarget t) level
+      glGetTexImage (either marshalTextureTarget marshalCubeMapTarget t) level
 
 foreign import CALLCONV unsafe "glGetTexImage"
    glGetTexImage :: GLenum -> GLint -> GLenum -> GLenum -> Ptr a -> IO ()
@@ -145,11 +146,10 @@ foreign import CALLCONV unsafe "glCopyTexImage1D"
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-copyTexImage2D :: Level -> PixelInternalFormat -> Position -> TextureSize2D -> Border -> IO ()
-copyTexImage2D level int (Position x y) (TextureSize2D w h) border =
+copyTexImage2D :: Maybe CubeMapTarget -> Level -> PixelInternalFormat -> Position -> TextureSize2D -> Border -> IO ()
+copyTexImage2D mbCubeMap level int (Position x y) (TextureSize2D w h) border =
    glCopyTexImage2D
-      (marshalTextureTarget Texture2D) level
+      (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level
       (marshalPixelInternalFormat' int) x y w h border
 
 foreign import CALLCONV unsafe "glCopyTexImage2D"
@@ -167,11 +167,10 @@ foreign import CALLCONV unsafe "glTexSubImage1D"
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-texSubImage2D :: Level -> TexturePosition2D -> TextureSize2D -> PixelData a -> IO ()
-texSubImage2D level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd =
+texSubImage2D :: Maybe CubeMapTarget -> Level -> TexturePosition2D -> TextureSize2D -> PixelData a -> IO ()
+texSubImage2D mbCubeMap level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd =
    withPixelData pd $
-      glTexSubImage2D (marshalTextureTarget Texture2D) level xOff yOff w h
+      glTexSubImage2D (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level xOff yOff w h
 
 foreign import CALLCONV unsafe "glTexSubImage2D"
    glTexSubImage2D :: GLenum -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()
@@ -196,10 +195,9 @@ foreign import CALLCONV unsafe "glCopyTexSubImage1D"
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-copyTexSubImage2D :: Level -> TexturePosition2D -> Position -> TextureSize2D -> IO ()
-copyTexSubImage2D level (TexturePosition2D xOff yOff) (Position x y) (TextureSize2D w h) =
-   glCopyTexSubImage2D (marshalTextureTarget Texture2D) level xOff yOff x y w h
+copyTexSubImage2D :: Maybe CubeMapTarget -> Level -> TexturePosition2D -> Position -> TextureSize2D -> IO ()
+copyTexSubImage2D mbCubeMap level (TexturePosition2D xOff yOff) (Position x y) (TextureSize2D w h) =
+   glCopyTexSubImage2D (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level xOff yOff x y w h
 
 foreign import CALLCONV unsafe "glCopyTexSubImage2D"
    glCopyTexSubImage2D :: GLenum -> GLint -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> IO ()
@@ -256,12 +254,14 @@ EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexImage1
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-compressedTexImage2D :: Proxy -> Level -> TextureSize2D -> Border -> CompressedPixelData a -> IO ()
-compressedTexImage2D proxy level (TextureSize2D w h) border cpd =
+compressedTexImage2D :: Maybe CubeMapTarget -> Proxy -> Level -> TextureSize2D -> Border -> CompressedPixelData a -> IO ()
+compressedTexImage2D mbCubeMap proxy level (TextureSize2D w h) border cpd =
    withCompressedPixelData cpd $ \fmt ->
       glCompressedTexImage2DARB
-         (marshalProxyTextureTarget proxy Texture2D) level fmt w h border
+         (maybe (marshalProxyTextureTarget proxy Texture2D)
+                (\c -> if proxy == Proxy then marshalProxyTextureTarget Proxy TextureCubeMap else marshalCubeMapTarget c)
+                mbCubeMap)
+         level fmt w h border
 
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexImage2DARB,GLenum -> GLint -> GLenum -> GLsizei -> GLsizei ->GLint -> GLsizei -> Ptr a -> IO ())
 
@@ -277,9 +277,8 @@ EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexImage3
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-getCompressedTexImage :: TextureTarget -> Level -> Ptr a -> IO ()
-getCompressedTexImage = glGetCompressedTexImageARB . marshalTextureTarget
+getCompressedTexImage :: Either TextureTarget CubeMapTarget -> Level -> Ptr a -> IO ()
+getCompressedTexImage = glGetCompressedTexImageARB . either marshalTextureTarget marshalCubeMapTarget
 
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glGetCompressedTexImageARB,GLenum -> GLint -> Ptr a -> IO ())
 
@@ -294,11 +293,10 @@ EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexSubIma
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-compressedTexSubImage2D :: Level -> TexturePosition2D -> TextureSize2D -> CompressedPixelData a -> IO ()
-compressedTexSubImage2D level (TexturePosition2D xOff yOff) (TextureSize2D w h) cpd =
+compressedTexSubImage2D :: Maybe CubeMapTarget -> Level -> TexturePosition2D -> TextureSize2D -> CompressedPixelData a -> IO ()
+compressedTexSubImage2D mbCubeMap level (TexturePosition2D xOff yOff) (TextureSize2D w h) cpd =
    withCompressedPixelData cpd $
-      glCompressedTexSubImage2DARB (marshalTextureTarget Texture2D) level xOff yOff w h
+      glCompressedTexSubImage2DARB (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level xOff yOff w h
 
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexSubImage2DARB,GLenum -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> GLsizei -> Ptr a-> IO ())
 

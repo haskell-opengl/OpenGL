@@ -9,12 +9,13 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for (un-)marshaling TextureTarget.
+-- This is a purely internal module for marshaling texture targets.
 --
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget
+   TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget,
+   CubeMapTarget(..), marshalCubeMapTarget
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
@@ -27,12 +28,6 @@ data TextureTarget =
    | Texture2D
    | Texture3D
    | TextureCubeMap
---   | TextureCubeMapPositiveX
---   | TextureCubeMapNegativeX
---   | TextureCubeMapPositiveY
---   | TextureCubeMapNegativeY
---   | TextureCubeMapPositiveZ
---   | TextureCubeMapNegativeZ
    | TextureRectangle
    deriving ( Eq, Ord, Show )
 
@@ -42,12 +37,6 @@ marshalTextureTarget x = case x of
    Texture2D -> 0xde1
    Texture3D -> 0x806f
    TextureCubeMap -> 0x8513
---   TextureCubeMapPositiveX -> 0x8515
---   TextureCubeMapNegativeX -> 0x8516
---   TextureCubeMapPositiveY -> 0x8517
---   TextureCubeMapNegativeY -> 0x8518
---   TextureCubeMapPositiveZ -> 0x8519
---   TextureCubeMapNegativeZ -> 0x851a
    TextureRectangle -> 0x84f5
 
 marshalProxyTextureTarget :: Proxy -> TextureTarget -> GLenum
@@ -58,3 +47,23 @@ marshalProxyTextureTarget Proxy   x = case x of
    Texture3D -> 0x8070
    TextureCubeMap -> 0x851b
    TextureRectangle -> 0x84f7
+
+--------------------------------------------------------------------------------
+
+data CubeMapTarget =
+     TextureCubeMapPositiveX
+   | TextureCubeMapNegativeX
+   | TextureCubeMapPositiveY
+   | TextureCubeMapNegativeY
+   | TextureCubeMapPositiveZ
+   | TextureCubeMapNegativeZ
+   deriving ( Eq, Ord, Show )
+
+marshalCubeMapTarget :: CubeMapTarget -> GLenum
+marshalCubeMapTarget x = case x of
+   TextureCubeMapPositiveX -> 0x8515
+   TextureCubeMapNegativeX -> 0x8516
+   TextureCubeMapPositiveY -> 0x8517
+   TextureCubeMapNegativeY -> 0x8518
+   TextureCubeMapPositiveZ -> 0x8519
+   TextureCubeMapNegativeZ -> 0x851a
