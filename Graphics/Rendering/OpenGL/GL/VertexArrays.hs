@@ -64,8 +64,8 @@ import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get),
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   TextureUnit(TextureUnit) )
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
+   TextureUnit, marshalTextureUnit, unmarshalTextureUnit )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum, recordInvalidValue )
 
@@ -374,8 +374,8 @@ foreign import CALLCONV unsafe "glDisableClientState" glDisableClientState ::
 
 clientActiveTexture :: StateVar TextureUnit
 clientActiveTexture =
-   makeStateVar (getEnum1 TextureUnit GetClientActiveTexture)
-                (\(TextureUnit u) -> glClientActiveTextureARB u)
+   makeStateVar (getEnum1 unmarshalTextureUnit GetClientActiveTexture)
+                (glClientActiveTextureARB . marshalTextureUnit)
 
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glClientActiveTextureARB,GLenum -> IO ())
 

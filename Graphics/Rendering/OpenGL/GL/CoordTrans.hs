@@ -68,8 +68,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   TextureUnit(TextureUnit) )
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
+   TextureUnit, marshalTextureUnit, unmarshalTextureUnit )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum, recordInvalidValue )
 
@@ -390,8 +390,8 @@ depthClamp = makeCapability CapDepthClamp
 --------------------------------------------------------------------------------
 
 activeTexture :: StateVar TextureUnit
-activeTexture = makeStateVar (getEnum1 TextureUnit GetActiveTexture)
-                             (\(TextureUnit u) -> glActiveTextureARB u)
+activeTexture = makeStateVar (getEnum1 unmarshalTextureUnit GetActiveTexture)
+                             (glActiveTextureARB . marshalTextureUnit)
 
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum -> IO ())   
 

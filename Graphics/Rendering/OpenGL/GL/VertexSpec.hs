@@ -69,9 +69,11 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoord,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits,GetRGBAMode),
-   getBoolean1, getInteger1, getFloat1, getFloat3, getFloat4 )
+   getBoolean1, getInteger1, getEnum1, getFloat1, getFloat3, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
+   TextureUnit(..), marshalTextureUnit, unmarshalTextureUnit )
 
 --------------------------------------------------------------------------------
 
@@ -563,10 +565,10 @@ data TexCoord1 a = TexCoord1 a
 instance TexCoordComponent a => TexCoord (TexCoord1 a) where
    texCoord (TexCoord1 s) = texCoord1 s
    texCoordv = texCoord1v . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
-   multiTexCoord (TextureUnit u) (TexCoord1 s) =
-      multiTexCoord1 (fromIntegral u) s
-   multiTexCoordv (TextureUnit u) =
-      multiTexCoord1v (fromIntegral u) . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
+   multiTexCoord u (TexCoord1 s) =
+      multiTexCoord1 (marshalTextureUnit u) s
+   multiTexCoordv u =
+      multiTexCoord1v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord1 a) where
    sizeOf    ~(TexCoord1 s) = sizeOf s
@@ -582,10 +584,10 @@ data TexCoord2 a = TexCoord2 a a
 instance TexCoordComponent a => TexCoord (TexCoord2 a) where
    texCoord (TexCoord2 s t) = texCoord2 s t
    texCoordv = texCoord2v . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
-   multiTexCoord (TextureUnit u) (TexCoord2 s t) =
-      multiTexCoord2 (fromIntegral u) s t
-   multiTexCoordv (TextureUnit u) =
-      multiTexCoord2v (fromIntegral u) . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
+   multiTexCoord u (TexCoord2 s t) =
+      multiTexCoord2 (marshalTextureUnit u) s t
+   multiTexCoordv u =
+      multiTexCoord2v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord2 a) where
    sizeOf    ~(TexCoord2 s _) = 2 * sizeOf s
@@ -601,10 +603,10 @@ data TexCoord3 a = TexCoord3 a a a
 instance TexCoordComponent a => TexCoord (TexCoord3 a) where
    texCoord (TexCoord3 s t r) = texCoord3 s t r
    texCoordv = texCoord3v . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
-   multiTexCoord (TextureUnit u) (TexCoord3 s t r) =
-      multiTexCoord3 (fromIntegral u) s t r
-   multiTexCoordv (TextureUnit u) =
-      multiTexCoord3v (fromIntegral u) . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
+   multiTexCoord u (TexCoord3 s t r) =
+      multiTexCoord3 (marshalTextureUnit u) s t r
+   multiTexCoordv u =
+      multiTexCoord3v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord3 a) where
    sizeOf    ~(TexCoord3 s _ _) = 3 * sizeOf s
@@ -620,10 +622,10 @@ data TexCoord4 a = TexCoord4 a a a a
 instance TexCoordComponent a => TexCoord (TexCoord4 a) where
    texCoord (TexCoord4 s t r q) = texCoord4 s t r q
    texCoordv = texCoord4v . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
-   multiTexCoord (TextureUnit u) (TexCoord4 s t r q) =
-      multiTexCoord4 (fromIntegral u) s t r q
-   multiTexCoordv (TextureUnit u) =
-      multiTexCoord4v (fromIntegral u) . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
+   multiTexCoord u (TexCoord4 s t r q) =
+      multiTexCoord4 (marshalTextureUnit u) s t r q
+   multiTexCoordv u =
+      multiTexCoord4v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
 
 instance Storable a => Storable (TexCoord4 a) where
    sizeOf    ~(TexCoord4 s _ _ _) = 4 * sizeOf s
@@ -1203,17 +1205,10 @@ instance Storable a => Storable (Index1 a) where
 
 --------------------------------------------------------------------------------
 
--- | Identifies a texture unit via its number, which must be in the range of
--- (0 .. 'maxTextureUnit').
-
-newtype TextureUnit = TextureUnit GLuint
-   deriving ( Eq, Ord, Show )
-
 -- | An implementation must support at least 2 texture units, but it may
 -- support up to 32 ones. This state variable can be used to query the actual
 -- implementation limit.
 
 maxTextureUnit :: GettableStateVar TextureUnit
 maxTextureUnit =
-    makeGettableStateVar
-      (getInteger1 (TextureUnit . fromIntegral) GetMaxTextureUnits)
+   makeGettableStateVar (getEnum1 unmarshalTextureUnit GetMaxTextureUnits)
