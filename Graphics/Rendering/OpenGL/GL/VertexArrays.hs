@@ -435,8 +435,8 @@ getLockArrays = do
 setLockArrays :: Maybe (GLint, GLsizei) -> IO ()
 setLockArrays = maybe glUnlockArraysEXT (uncurry glLockArraysEXT)
 
-EXTENSION_ENTRY("GL_EXT_compiled_vertex_array.2",glLockArraysEXT,GLint -> GLsizei -> IO ())
-EXTENSION_ENTRY("GL_EXT_compiled_vertex_array.2",glUnlockArraysEXT,IO ())
+EXTENSION_ENTRY("GL_EXT_compiled_vertex_array",glLockArraysEXT,GLint -> GLsizei -> IO ())
+EXTENSION_ENTRY("GL_EXT_compiled_vertex_array",glUnlockArraysEXT,IO ())
 
 --------------------------------------------------------------------------------
 
