@@ -4,7 +4,7 @@
  * Copyright   :  (c) Sven Panne 2003
  * License     :  BSD-style (see the file libraries/GLUT/LICENSE)
  * 
- * Maintainer  :  sven_panne@yahoo.com
+ * Maintainer  :  sven.panne@aedion.de
  * Stability   :  experimental
  * Portability :  portable
  *
