@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 
    -- * Matrices
    MatrixMode(..), matrixMode,
-   Vector3(..),
+   Vector2(..), Vector3(..),
    MatrixOrder(..), MatrixComponent(rotate,translate,scale), Matrix(..),
    currentMatrix, multMatrix, GLmatrix, loadIdentity,
    ortho, frustum, depthClamp,
@@ -53,7 +53,7 @@ import Graphics.Rendering.OpenGL.GL.Exception ( bracket, unsafeBracket_ )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke (
-   peek1, peek3, peek4, poke3, poke4 )
+   peek1, peek2, peek3, peek4, poke2, poke3, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
             GetModelviewMatrix,GetProjectionMatrix,GetTextureMatrix,
@@ -209,6 +209,17 @@ matrixMode =
                 (glMatrixMode . marshalMatrixMode)
 
 foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+data Vector2 a = Vector2 a a
+   deriving ( Eq, Ord, Show )
+
+instance Storable a => Storable (Vector2 a) where
+   sizeOf    ~(Vector2 x _) = 2 * sizeOf x
+   alignment ~(Vector2 x _) = alignment x
+   peek                     = peek2 Vector2 . castPtr
+   poke ptr   (Vector2 x y) = poke2 (castPtr ptr) x y
 
 --------------------------------------------------------------------------------
 
