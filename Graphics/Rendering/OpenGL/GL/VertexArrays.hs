@@ -32,7 +32,9 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
 ) where
 
 import Control.Monad ( liftM )
+import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Ptr ( Ptr, nullPtr )
+import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
              CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordArray,
@@ -56,12 +58,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetMaxElementsVertices,GetMaxElementsIndices,
             GetClientActiveTexture,GetArrayElementLockFirst,
             GetArrayElementLockCount,GetPrimitiveRestartIndex),
-   getInteger1, getEnum1, getSizei1,
-   GetPointervPName(VertexArrayPointer,NormalArrayPointer,ColorArrayPointer,
-                    SecondaryColorArrayPointer,IndexArrayPointer,
-                    FogCoordArrayPointer,TextureCoordArrayPointer,
-                    EdgeFlagArrayPointer),
-   getPointer )
+   getInteger1, getEnum1, getSizei1 )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( marshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -481,3 +478,44 @@ setPrimitiverestartIndex maybeIdx = case maybeIdx of
    where primitiveRestartNV = 0x8558   -- ToDo: HACK!
 
 EXTENSION_ENTRY("GL_NV_primitive_restart",glPrimitiveRestartIndexNV,GLuint -> IO ())
+
+--------------------------------------------------------------------------------
+
+data GetPointervPName =
+     VertexArrayPointer
+   | NormalArrayPointer
+   | ColorArrayPointer
+   | IndexArrayPointer
+   | TextureCoordArrayPointer
+   | EdgeFlagArrayPointer
+   | FogCoordArrayPointer
+   | SecondaryColorArrayPointer
+   | FeedbackBufferPointer
+   | SelectionBufferPointer
+   | WeightArrayPointer
+   | MatrixIndexArrayPointer
+
+marshalGetPointervPName :: GetPointervPName -> GLenum
+marshalGetPointervPName x = case x of
+   VertexArrayPointer -> 0x808e
+   NormalArrayPointer -> 0x808f
+   ColorArrayPointer -> 0x8090
+   IndexArrayPointer -> 0x8091
+   TextureCoordArrayPointer -> 0x8092
+   EdgeFlagArrayPointer -> 0x8093
+   FogCoordArrayPointer -> 0x8456
+   SecondaryColorArrayPointer -> 0x845d
+   FeedbackBufferPointer -> 0xdf0
+   SelectionBufferPointer -> 0xdf3
+   WeightArrayPointer -> 0x86ac
+   MatrixIndexArrayPointer -> 0x8849
+
+--------------------------------------------------------------------------------
+
+getPointer :: GetPointervPName -> IO (Ptr a)
+getPointer n = alloca $ \buf -> do
+   glGetPointerv (marshalGetPointervPName n) buf
+   peek buf
+
+foreign import CALLCONV unsafe "glGetPointerv" glGetPointerv ::
+   GLenum -> Ptr (Ptr a) -> IO ()
