@@ -80,7 +80,7 @@ type NumComponents = GLint
 type Stride = GLsizei
 
 data VertexArrayDescriptor a =
-   VertexArrayDescriptor NumComponents DataType Stride (Ptr a)
+   VertexArrayDescriptor !NumComponents !DataType !Stride !(Ptr a)
 #ifdef __HADDOCK__
 -- Help Haddock a bit, because it doesn't do any instance inference.
 instance Eq (VertexArrayDescriptor a)

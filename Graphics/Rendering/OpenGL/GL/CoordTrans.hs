@@ -103,11 +103,11 @@ foreign import CALLCONV unsafe "glDepthRange" glDepthRange ::
 --------------------------------------------------------------------------------
 
 -- | A 2-dimensional position, measured in pixels.
-data Position = Position GLint GLint
+data Position = Position !GLint !GLint
    deriving ( Eq, Ord, Show )
 
 -- | A 2-dimensional size, measured in pixels.
-data Size = Size GLsizei GLsizei
+data Size = Size !GLsizei !GLsizei
    deriving ( Eq, Ord, Show )
 
 -- | Controls the affine transformation from normalized device coordinates to
@@ -213,7 +213,7 @@ foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 
-data Vector2 a = Vector2 a a
+data Vector2 a = Vector2 !a !a
    deriving ( Eq, Ord, Show )
 
 instance Storable a => Storable (Vector2 a) where
@@ -224,7 +224,7 @@ instance Storable a => Storable (Vector2 a) where
 
 --------------------------------------------------------------------------------
 
-data Vector3 a = Vector3 a a a
+data Vector3 a = Vector3 !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance Storable a => Storable (Vector3 a) where
@@ -454,7 +454,7 @@ normalize = makeCapability CapNormalize
 
 --------------------------------------------------------------------------------
 
-data Plane a = Plane a a a a
+data Plane a = Plane !a !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance Storable a => Storable (Plane a) where

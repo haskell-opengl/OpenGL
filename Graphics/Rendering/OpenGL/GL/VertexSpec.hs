@@ -225,7 +225,7 @@ class Vertex a where
    vertexv :: Ptr a -> IO ()
 
 -- | A vertex with /z/=0 and /w/=1.
-data Vertex2 a = Vertex2 a a
+data Vertex2 a = Vertex2 !a !a
    deriving ( Eq, Ord, Show )
 
 instance VertexComponent a => Vertex (Vertex2 a) where
@@ -239,7 +239,7 @@ instance Storable a => Storable (Vertex2 a) where
    poke ptr   (Vertex2 x y) = poke2 (castPtr ptr) x y
 
 -- | A vertex with /w/=1.
-data Vertex3 a = Vertex3 a a a
+data Vertex3 a = Vertex3 !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance VertexComponent a => Vertex (Vertex3 a) where
@@ -253,7 +253,7 @@ instance Storable a => Storable (Vertex3 a) where
    poke ptr   (Vertex3 x y z) = poke3 (castPtr ptr) x y z
 
 -- | A fully-fledged four-dimensional vertex.
-data Vertex4 a = Vertex4 a a a a
+data Vertex4 a = Vertex4 !a !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance VertexComponent a => Vertex (Vertex4 a) where
@@ -559,7 +559,7 @@ class TexCoord a where
 
 -- | Texture coordinates with /t/=0, /r/=0, and /q/=1.
 
-data TexCoord1 a = TexCoord1 a
+newtype TexCoord1 a = TexCoord1 a
    deriving ( Eq, Ord, Show )
 
 instance TexCoordComponent a => TexCoord (TexCoord1 a) where
@@ -578,7 +578,7 @@ instance Storable a => Storable (TexCoord1 a) where
 
 -- | Texture coordinates with /r/=0 and /q/=1.
 
-data TexCoord2 a = TexCoord2 a a
+data TexCoord2 a = TexCoord2 !a !a
    deriving ( Eq, Ord, Show )
 
 instance TexCoordComponent a => TexCoord (TexCoord2 a) where
@@ -597,7 +597,7 @@ instance Storable a => Storable (TexCoord2 a) where
 
 -- | Texture coordinates with /q/=1.
 
-data TexCoord3 a = TexCoord3 a a a
+data TexCoord3 a = TexCoord3 !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance TexCoordComponent a => TexCoord (TexCoord3 a) where
@@ -616,7 +616,7 @@ instance Storable a => Storable (TexCoord3 a) where
 
 -- | Fully-fledged four-dimensional texture coordinates.
 
-data TexCoord4 a = TexCoord4 a a a a
+data TexCoord4 a = TexCoord4 !a !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance TexCoordComponent a => TexCoord (TexCoord4 a) where
@@ -733,7 +733,7 @@ class Normal a where
 
 -- A three-dimensional normal.
 
-data Normal3 a = Normal3 a a a
+data Normal3 a = Normal3 !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance NormalComponent a => Normal (Normal3 a) where
@@ -1064,7 +1064,7 @@ class Color a where
 
 -- An RGBA color with /A/=1.
 
-data Color3 a = Color3 a a a
+data Color3 a = Color3 !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance ColorComponent a => Color (Color3 a) where
@@ -1079,7 +1079,7 @@ instance Storable a => Storable (Color3 a) where
 
 -- | A fully-fledged RGBA color.
 
-data Color4 a = Color4 a a a a
+data Color4 a = Color4 !a !a !a !a
    deriving ( Eq, Ord, Show )
 
 instance ColorComponent a => Color (Color4 a) where

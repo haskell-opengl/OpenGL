@@ -18,7 +18,8 @@ ALL_DIRS = \
 PACKAGE = OpenGL
 PACKAGE_DEPS = base
 
-SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp $(GLU_CFLAGS)
+SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp \
+	       -funbox-strict-fields $(GLU_CFLAGS)
 SRC_CC_OPTS += $(GLU_CFLAGS)
 
 # WinDoze DLL hell

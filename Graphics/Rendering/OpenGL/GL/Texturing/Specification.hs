@@ -71,19 +71,19 @@ type Border = GLint
 newtype TexturePosition1D = TexturePosition1D GLint
    deriving ( Eq, Ord, Show )
 
-data TexturePosition2D = TexturePosition2D GLint GLint
+data TexturePosition2D = TexturePosition2D !GLint !GLint
    deriving ( Eq, Ord, Show )
 
-data TexturePosition3D = TexturePosition3D GLint GLint GLint
+data TexturePosition3D = TexturePosition3D !GLint !GLint !GLint
    deriving ( Eq, Ord, Show )
 
 newtype TextureSize1D = TextureSize1D GLsizei
    deriving ( Eq, Ord, Show )
 
-data TextureSize2D = TextureSize2D GLsizei GLsizei
+data TextureSize2D = TextureSize2D !GLsizei !GLsizei
    deriving ( Eq, Ord, Show )
 
-data TextureSize3D = TextureSize3D GLsizei GLsizei GLsizei
+data TextureSize3D = TextureSize3D !GLsizei !GLsizei !GLsizei
    deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ compressedTextureFormats =
 --------------------------------------------------------------------------------
 
 data CompressedPixelData a =
-     CompressedPixelData CompressedTextureFormat GLsizei (Ptr a)
+     CompressedPixelData !CompressedTextureFormat GLsizei (Ptr a)
 #ifdef __HADDOCK__
 -- Help Haddock a bit, because it doesn't do any instance inference.
 instance Eq (CompressedPixelData a)

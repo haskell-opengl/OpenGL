@@ -74,7 +74,7 @@ lighting = makeCapability CapLighting
 
 --------------------------------------------------------------------------------
 
-data Light = Light GLsizei
+newtype Light = Light GLsizei
    deriving ( Eq, Ord, Show )
 
 marshalLight :: Light -> Maybe GLenum
