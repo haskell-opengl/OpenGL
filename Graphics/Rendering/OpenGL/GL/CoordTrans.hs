@@ -21,8 +21,8 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    -- * Matrices
    MatrixMode(..), matrixMode,
    Vector3(..),
-   MatrixOrder(..), Matrix, withNewMatrix, withMatrix, MatrixElement(..),
-   loadIdentity,
+   MatrixOrder(..), MatrixComponent(rotate,translate,scale), Matrix(..),
+   currentMatrix, multMatrix, GLmatrix, loadIdentity,
    ortho, frustum,
    activeTexture,
    matrixExcursion, unsafeMatrixExcursion,
@@ -218,86 +218,37 @@ data Vector3 a = Vector3 a a a
 data MatrixOrder = ColumnMajor | RowMajor
    deriving ( Eq, Ord, Show )
 
-data Matrix a = Matrix MatrixOrder (ForeignPtr a)
-   deriving ( Eq, Ord, Show )
-
--- | Create a new matrix of the given order (containing undefined elements) and
--- call the action to fill it with 4x4 elements.
-
-withNewMatrix ::
-   MatrixElement a => MatrixOrder -> (Ptr a -> IO ()) -> IO (Matrix a)
-withNewMatrix order f = do
-   fp <- mallocForeignPtrArray 16
-   withForeignPtr fp f
-   return $ Matrix order fp
-
--- | Call the action with the given matrix. /Note:/ The action is /not/ allowed
--- to modify the matrix elments!
-
-withMatrix :: Matrix a -> (MatrixOrder -> Ptr a -> IO b) -> IO b
-withMatrix (Matrix order fp) f = withForeignPtr fp (f order)
-
 --------------------------------------------------------------------------------
 
-class Storable a => MatrixElement a where
-   matrix :: MatrixOrder -> [a] -> Matrix a
-   matrixElements :: MatrixOrder -> Matrix a -> [a]
-   currentMatrix :: StateVar (Matrix a)
-   multMatrix :: Matrix a -> IO ()
-   rotate :: a -> Vector3 a -> IO ()
-   scale :: a -> a -> a -> IO ()
-   translate :: Vector3 a -> IO ()
+class Storable c => MatrixComponent c where
+   getMatrix :: GetPName -> Ptr c -> IO ()
+   loadMatrix :: Ptr c -> IO ()
+   loadTransposeMatrix :: Ptr c -> IO ()
+   multMatrix_ :: Ptr c -> IO ()
+   multTransposeMatrix :: Ptr c -> IO ()
+   rotate :: c -> Vector3 c -> IO ()
+   translate :: Vector3 c -> IO ()
+   scale :: c -> c -> c -> IO ()
 
-   matrix order elements = unsafePerformIO $
-      withNewMatrix order $ flip pokeArray (take 16 elements)
-
-   matrixElements desiredOrder mat = unsafePerformIO $ do
-      withMatrix mat $ \order p ->
-        if desiredOrder == order
-           then peekArray 16 p
-           else mapM (peekElemOff p) [ 0, 4,  8, 12,
-                                       1, 5,  9, 13,
-                                       2, 6, 10, 14,
-                                       3, 7, 11, 15 ]
-
-instance MatrixElement GLfloat  where
-   currentMatrix =
-      makeStateVar (getCurrentColumnMajorMatrix getFloatv) setCurrentMatrix
-      where setCurrentMatrix mat = withMatrix mat loadMatrixf
-            loadMatrixf ColumnMajor = glLoadMatrixf
-            loadMatrixf RowMajor    = glLoadTransposeMatrixfARB
-
-   multMatrix mat = withMatrix mat multMatrixf
-      where multMatrixf ColumnMajor = glMultMatrixf
-            multMatrixf RowMajor    = glMultTransposeMatrixfARB
-
+instance MatrixComponent GLfloat  where
+   getMatrix = getFloatv
+   loadMatrix = glLoadMatrixf
+   loadTransposeMatrix = glLoadTransposeMatrixfARB
+   multMatrix_ = glMultMatrixf
+   multTransposeMatrix = glMultTransposeMatrixfARB
    rotate a (Vector3 x y z) = glRotatef a x y z
    translate (Vector3 x y z) = glTranslatef x y z
    scale = glScalef
 
-instance MatrixElement GLdouble where
-   currentMatrix =
-      makeStateVar (getCurrentColumnMajorMatrix getDoublev) setCurrentMatrix
-      where setCurrentMatrix mat = withMatrix mat loadMatrixd
-            loadMatrixd ColumnMajor = glLoadMatrixd
-            loadMatrixd RowMajor    = glLoadTransposeMatrixdARB
-
-
-   multMatrix mat = withMatrix mat multMatrixd
-      where multMatrixd ColumnMajor = glMultMatrixd
-            multMatrixd RowMajor    = glMultTransposeMatrixdARB
-
+instance MatrixComponent GLdouble where
+   getMatrix = getDoublev
+   loadMatrix = glLoadMatrixd
+   loadTransposeMatrix = glLoadTransposeMatrixdARB
+   multMatrix_ = glMultMatrixd
+   multTransposeMatrix = glMultTransposeMatrixdARB
    rotate a (Vector3 x y z) = glRotated a x y z
    translate (Vector3 x y z) = glTranslated x y z
    scale = glScaled
-
---------------------------------------------------------------------------------
-
-getCurrentColumnMajorMatrix ::
-   MatrixElement a => (GetPName -> Ptr a -> IO ()) -> IO (Matrix a)
-getCurrentColumnMajorMatrix getV  = do
-   mode <- get matrixMode
-   withNewMatrix ColumnMajor $ getV (matrixModeToGetMatrix mode)
 
 --------------------------------------------------------------------------------
 
@@ -313,12 +264,6 @@ foreign import CALLCONV unsafe "glMultMatrixd" glMultMatrixd :: Ptr GLdouble -> 
 EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glMultTransposeMatrixfARB,Ptr GLfloat -> IO ())
 EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glMultTransposeMatrixdARB,Ptr GLdouble -> IO ())
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glLoadIdentity" loadIdentity :: IO ()
-
---------------------------------------------------------------------------------
-
 foreign import CALLCONV unsafe "glRotatef" glRotatef :: GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
 foreign import CALLCONV unsafe "glRotated" glRotated :: GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
 
@@ -327,6 +272,70 @@ foreign import CALLCONV unsafe "glTranslated" glTranslated :: GLdouble -> GLdoub
 
 foreign import CALLCONV unsafe "glScalef" glScalef :: GLfloat -> GLfloat -> GLfloat -> IO ()
 foreign import CALLCONV unsafe "glScaled" glScaled :: GLdouble -> GLdouble -> GLdouble -> IO ()
+
+--------------------------------------------------------------------------------
+
+class Matrix m where
+   -- | Create a new matrix of the given order (containing undefined elements)
+   -- and call the action to fill it with 4x4 elements.
+   withNewMatrix ::
+      MatrixComponent c => MatrixOrder -> (Ptr c -> IO ()) -> IO (m c)
+
+   -- | Call the action with the given matrix. /Note:/ The action is /not/
+   -- allowed to modify the matrix elments!
+   withMatrix ::
+      MatrixComponent c => m c -> (MatrixOrder -> Ptr c -> IO a) -> IO a
+
+   matrix :: MatrixComponent c => MatrixOrder -> [c] -> m c
+   matrixElements :: MatrixComponent c => MatrixOrder -> m c -> [c]
+
+   matrix order elements = unsafePerformIO $
+      withNewMatrix order $ flip pokeArray (take 16 elements)
+
+   matrixElements desiredOrder mat = unsafePerformIO $ do
+      withMatrix mat $ \order p ->
+        if desiredOrder == order
+           then peekArray 16 p
+           else mapM (peekElemOff p) [ 0, 4,  8, 12,
+                                       1, 5,  9, 13,
+                                       2, 6, 10, 14,
+                                       3, 7, 11, 15 ]
+
+--------------------------------------------------------------------------------
+
+currentMatrix :: (Matrix m, MatrixComponent c) => StateVar (m c)
+currentMatrix =
+   makeStateVar
+      (do mode <- get matrixMode
+          withNewMatrix ColumnMajor $ getMatrix (matrixModeToGetMatrix mode))
+      (\mat -> withMatrix mat $ \order ->
+         case order of
+            ColumnMajor -> loadMatrix
+            RowMajor    -> loadTransposeMatrix)
+
+multMatrix :: (Matrix m, MatrixComponent c) => m c -> IO ()
+multMatrix mat =
+   withMatrix mat $ \order ->
+      case order of
+         ColumnMajor -> multMatrix_
+         RowMajor    -> multTransposeMatrix
+
+--------------------------------------------------------------------------------
+
+data GLmatrix a = GLmatrix MatrixOrder (ForeignPtr a)
+   deriving ( Eq, Ord, Show )
+
+instance Matrix GLmatrix where
+   withNewMatrix order f = do
+      fp <- mallocForeignPtrArray 16
+      withForeignPtr fp f
+      return $ GLmatrix order fp
+
+   withMatrix (GLmatrix order fp) f = withForeignPtr fp (f order)
+
+--------------------------------------------------------------------------------
+
+foreign import CALLCONV unsafe "glLoadIdentity" loadIdentity :: IO ()
 
 --------------------------------------------------------------------------------
 

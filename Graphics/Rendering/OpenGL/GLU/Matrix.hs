@@ -23,7 +23,7 @@ import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek,peekElemOff) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLdouble, GLclampd )
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
-   MatrixOrder(..), Matrix, withMatrix, MatrixElement,
+   MatrixOrder(..), Matrix(..), MatrixComponent,
    Vector3(..), Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
@@ -66,8 +66,8 @@ foreign import CALLCONV unsafe "gluPickMatrix" gluPickMatrix ::
 -- coordinate projection
 
 project ::
-      Vertex3 GLdouble
-   -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
+      Matrix m
+   => Vertex3 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
    -> IO (Maybe (Vertex3 GLdouble))
 project (Vertex3 objX objY objZ) model proj viewport =
    withColumnMajor model $ \modelBuf ->
@@ -81,8 +81,8 @@ foreign import CALLCONV unsafe "gluProject" gluProject ::
    -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
 
 unProject ::
-      Vertex3 GLdouble
-   -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
+      Matrix m
+   => Vertex3 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
    -> IO (Maybe (Vertex3 GLdouble))
 unProject (Vertex3 objX objY objZ) model proj viewport =
    withColumnMajor model $ \modelBuf ->
@@ -96,8 +96,8 @@ foreign import CALLCONV unsafe "gluUnProject" gluUnProject ::
    -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
 
 unProject4 ::
-      Vertex4 GLdouble
-   -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
+      Matrix m
+   => Vertex4 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
    -> GLclampd -> GLclampd
    -> IO (Maybe (Vertex4 GLdouble))
 unProject4 (Vertex4 objX objY objZ clipW) model proj viewport near far =
@@ -115,8 +115,8 @@ withViewport :: (Position, Size) -> (Ptr GLint -> IO a ) -> IO a
 withViewport (Position x y, Size w h) =
    withArray [ x, y, fromIntegral w, fromIntegral h ]
 
-withColumnMajor :: MatrixElement a => Matrix a -> (Ptr a -> IO b) -> IO b
-withColumnMajor matrix act = withMatrix matrix juggle
+withColumnMajor :: (Matrix m, MatrixComponent c) => m c -> (Ptr c -> IO b) -> IO b
+withColumnMajor mat act = withMatrix mat juggle
    where juggle ColumnMajor p = act p
          juggle RowMajor    p = do
             transposedElems <- mapM (peekElemOff p) [ 0, 4,  8, 12,
