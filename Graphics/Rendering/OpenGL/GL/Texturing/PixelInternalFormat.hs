@@ -178,4 +178,9 @@ unmarshalPixelInternalFormat x
    | x == 0x84ec = CompressedIntensity
    | x == 0x84ed = CompressedRGB
    | x == 0x84ee = CompressedRGBA
+   -- legacy values
+   | x == 1 = Luminance'
+   | x == 2 = LuminanceAlpha'
+   | x == 3 = RGB'
+   | x == 4 = RGBA'
    | otherwise = error ("unmarshalPixelInternalFormat: illegal value " ++ show x)
