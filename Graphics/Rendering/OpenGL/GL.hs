@@ -20,6 +20,7 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.Colors,
      module Graphics.Rendering.OpenGL.GL.CoordTrans,
      module Graphics.Rendering.OpenGL.GL.FlushFinish,
+     module Graphics.Rendering.OpenGL.GL.Fog,
      module Graphics.Rendering.OpenGL.GL.Framebuffer,
      module Graphics.Rendering.OpenGL.GL.PixelRect,
      module Graphics.Rendering.OpenGL.GL.RasterPos,
@@ -37,6 +38,7 @@ import Graphics.Rendering.OpenGL.GL.Clipping
 import Graphics.Rendering.OpenGL.GL.Colors
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.FlushFinish
+import Graphics.Rendering.OpenGL.GL.Fog
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PixelRect
 import Graphics.Rendering.OpenGL.GL.RasterPos
