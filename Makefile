@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.5 2003/01/23 18:49:50 panne Exp $
+# $Id: Makefile,v 1.6 2003/01/23 18:55:39 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -17,7 +17,7 @@ ALL_DIRS = \
 PACKAGE = OpenGL
 PACKAGE_DEPS = base
 
-SRC_HC_OPTS += -Wall -fffi -package OpenGL -Iinclude '-\#include  <GL/glu.h>' -cpp
+SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include  <GL/glu.h>' -cpp
 
 # WinDoze DLL hell
 ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
