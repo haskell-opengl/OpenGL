@@ -50,9 +50,10 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 --------------------------------------------------------------------------------
 
 -- | 'pointSize' contains the rasterized diameter of both aliased and
--- antialiased points. Using a point size other than 1 has different effects,
--- depending on whether point antialiasing is enabled (see 'pointSmooth') or
--- point sprites are enabled (see 'pointSprite'). Both are initially disabled.
+-- antialiased points. The initial value is 1. Using a point size other than 1
+-- has different effects, depending on whether point antialiasing is enabled
+-- (see 'pointSmooth') or point sprites are enabled (see 'pointSprite'). Both
+-- are initially disabled.
 --
 -- The specified point size is multiplied with a distance attenuation factor
 -- and clamped to the specified 'pointSizeRange', and further clamped to the
@@ -111,10 +112,10 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 -- Not all sizes are supported when point antialiasing is enabled. If an
 -- unsupported size is requested, the nearest supported size is used.  Only size
 -- 1 is guaranteed to be supported; others depend on the implementation. To
--- query the range of supported sizes and the size difference between supported
--- sizes within the range, query 'smoothPointSizeRange' and
--- 'smoothPointSizeGranularity', respectively. For aliased points, query the
--- supported range with 'aliasedPointSizeRange'.
+-- query the range of supported sizes for antialiased points and the size
+-- difference between supported sizes within the range, query
+-- 'smoothPointSizeRange' and 'smoothPointSizeGranularity', respectively. For
+-- aliased points, query the supported range with 'aliasedPointSizeRange'.
 --
 -- The point size specified when 'pointSize' is set is always returned when it
 -- is queried. Clamping and rounding for aliased and antialiased points have no
