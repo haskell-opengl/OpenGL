@@ -167,5 +167,5 @@ combineTexParamsMaybe enab val t =
              Disabled -> return Nothing
              Enabled -> liftM Just $ get (val t))
       (maybe (enab t $= Disabled)
-             (\tcf -> do enab t $= Enabled
-                         val t $= tcf))
+             (\tcf -> do val t $= tcf
+                         enab t $= Enabled))
