@@ -13,7 +13,8 @@
 #ifndef HSOPENGL_H
 #define HSOPENGL_H
 
-#include "ghcconfig.h"
+/* Define to 1 if native OpenGL should be used on Mac OS X */
+#undef USE_QUARTZ_OPENGL
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 

@@ -2,6 +2,9 @@
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
+-include config.mk
+
+ifneq "$(GL_BUILD_PACKAGE)" "no"
 
 # -----------------------------------------------------------------------------
 
@@ -55,5 +58,14 @@ CLEAN_FILES += $(STUBOBJS) \
    Graphics/Rendering/OpenGL/GLU/Tessellation_stub.[ch]
 
 # -----------------------------------------------------------------------------
+
+DIST_CLEAN_FILES += config.cache config.status config.mk
+
+extraclean::
+	$(RM) -rf autom4te.cache
+
+# -----------------------------------------------------------------------------
+
+endif
 
 include $(TOP)/mk/target.mk
