@@ -36,14 +36,19 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 ) where
 
 import Control.Monad ( liftM )
-import Foreign
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd )
+import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
+import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
+import Foreign.Marshal.Utils ( with )
+import Foreign.Ptr ( Ptr )
+import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapRescaleNormal, CapNormalize,CapDepthClamp,
              CapTextureGenS, CapTextureGenT,
              CapTextureGenR, CapTextureGenQ),
-   Capability(..), makeCapability, makeStateVarMaybe )
+   makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd, Capability(..) )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )

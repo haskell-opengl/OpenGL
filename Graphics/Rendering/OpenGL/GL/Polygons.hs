@@ -22,13 +22,14 @@ module Graphics.Rendering.OpenGL.GL.Polygons (
 import Control.Monad ( liftM2 )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple,
              CapPolygonOffsetPoint,CapPolygonOffsetLine,CapPolygonOffsetFill),
-   Capability, makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.Face (
-   Face(..), marshalFace, unmarshalFace )
+   makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLubyte, GLfloat, Capability )
+import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
+import Graphics.Rendering.OpenGL.GL.Colors ( Face(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
             GetPolygonOffsetUnits),

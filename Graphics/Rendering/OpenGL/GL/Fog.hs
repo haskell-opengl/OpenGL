@@ -22,9 +22,10 @@ module Graphics.Rendering.OpenGL.GL.Fog (
 
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapFog), makeCapability )
+   EnableCap(CapFog), makeCapability )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLint, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetFogIndex,GetFogDensity,GetFogStart,GetFogEnd,GetFogMode,
    GetFogColor,GetFogCoordinateSource,GetFogDistanceMode),

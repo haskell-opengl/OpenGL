@@ -33,12 +33,13 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
 ) where
 
 import Control.Monad ( liftM4 )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd )
 import Graphics.Rendering.OpenGL.GL.BufferMode (
    BufferMode(..), marshalBufferMode, unmarshalBufferMode )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, marshalCapability, unmarshalCapability )
+   marshalCapability, unmarshalCapability )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd,
+   Capability )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,

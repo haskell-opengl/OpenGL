@@ -20,12 +20,12 @@ module Graphics.Rendering.OpenGL.GL.Evaluators (
 ) where
 
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapAutoNormal), makeCapability )
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
-   PrimitiveMode, marshalPrimitiveMode )
+   EnableCap(CapAutoNormal), makeCapability )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLint, GLsizei, GLfloat, GLdouble, Capability )
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( marshalPrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxEvalOrder,
             GetMap1GridSegments,GetMap1GridDomain,

@@ -19,10 +19,10 @@ module Graphics.Rendering.OpenGL.GL.LineSegments (
 ) where
 
 import Control.Monad ( liftM2 )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLushort, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapLineSmooth,CapLineStipple), Capability, makeCapability,
-   makeStateVarMaybe )
+   EnableCap(CapLineSmooth,CapLineStipple), makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLint, GLushort, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetLineWidth,GetAliasedLineWidthRange,GetSmoothLineWidthRange,
             GetSmoothLineWidthGranularity,GetLineStippleRepeat,

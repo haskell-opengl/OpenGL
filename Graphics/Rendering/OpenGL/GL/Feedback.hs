@@ -25,8 +25,8 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.IOState (
    IOState, getIOState, peekIOState, evalIOState, nTimes )
-import Graphics.Rendering.OpenGL.GL.RenderMode (
-   RenderMode(Feedback), withRenderMode )
+import Graphics.Rendering.OpenGL.GL.RenderMode ( withRenderMode )
+import Graphics.Rendering.OpenGL.GL.Selection ( RenderMode(Feedback) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( HasGetter(get) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex2(..), Vertex3(..), Vertex4(..), Index1(..), Color4(..),

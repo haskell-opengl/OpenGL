@@ -44,19 +44,19 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 ) where
 
 import Control.Monad ( liftM2, liftM3 )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLuint, GLsizei, GLenum, GLclampf, GLclampd )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
              CapSampleCoverage,CapDepthBoundsTest,CapAlphaTest,CapStencilTest,
              CapStencilTestTwoSide,CapDepthTest,CapBlend,CapDither,
              CapIndexLogicOp,CapColorLogicOp),
-   Capability, makeCapability, makeStateVarMaybe )
+   makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLint, GLuint, GLsizei, GLenum, GLclampf, GLclampd, Capability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
-import Graphics.Rendering.OpenGL.GL.Face (
-   Face(..), marshalFace, unmarshalFace )
+import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
+import Graphics.Rendering.OpenGL.GL.Colors ( Face )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (

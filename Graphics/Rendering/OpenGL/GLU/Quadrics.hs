@@ -25,8 +25,9 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLdouble )
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   Error(..), ErrorCategory(..), makeError )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( makeError )
+import Graphics.Rendering.OpenGL.GLU.Errors (
+   Error(Error), ErrorCategory(OutOfMemory) )
 
 --------------------------------------------------------------------------------
 

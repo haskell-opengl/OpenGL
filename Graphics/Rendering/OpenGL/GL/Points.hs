@@ -20,9 +20,9 @@ module Graphics.Rendering.OpenGL.GL.Points (
 
 import Control.Monad ( liftM2 )
 import Foreign.Marshal.Array ( withArray )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapPointSmooth,CapPointSprite), makeCapability )
+   EnableCap(CapPointSmooth,CapPointSprite), makeCapability )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetPointSize,GetAliasedPointSizeRange,GetSmoothPointSizeRange,
             GetSmoothPointSizeGranularity,GetPointSizeMin,GetPointSizeMax,

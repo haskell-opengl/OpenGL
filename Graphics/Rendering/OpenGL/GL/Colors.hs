@@ -44,12 +44,12 @@ import Foreign.Marshal.Array ( withArray )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, marshalCapability, unmarshalCapability,
+   marshalCapability, unmarshalCapability,
    EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability,
    makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLint, GLsizei, GLfloat,Capability )
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek3 )

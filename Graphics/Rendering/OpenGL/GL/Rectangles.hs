@@ -16,10 +16,14 @@ module Graphics.Rendering.OpenGL.GL.Rectangles (
    Rect(..)
 ) where
 
-import Foreign
+import Data.Int
+import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLshort, GLint, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex2(..) )
+#ifdef __HADDOCK__
+import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode(Polygon) )
+#endif
 
 --------------------------------------------------------------------------------
 

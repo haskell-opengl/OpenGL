@@ -44,15 +44,22 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 ) where
 
 import Control.Monad ( liftM, liftM2 )
-import Foreign
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLuint, GLsizei, GLfloat )
+import Data.Word
+import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
+import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
+import Foreign.Marshal.Utils ( with )
+import Foreign.Ptr ( Ptr )
+import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapColorTable,CapPostConvolutionColorTable,
              CapPostColorMatrixColorTable),
-   Capability, makeCapability )
+   makeCapability )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLint, GLuint, GLsizei, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
-import Graphics.Rendering.OpenGL.GL.DataType ( DataType(..), marshalDataType )
+import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
+import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (

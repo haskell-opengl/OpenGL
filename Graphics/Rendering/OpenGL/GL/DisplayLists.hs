@@ -27,7 +27,8 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
 import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLuint, GLsizei, GLenum )
-import Graphics.Rendering.OpenGL.GL.DataType ( DataType, marshalDataType )
+import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
+import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (

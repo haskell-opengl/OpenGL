@@ -33,13 +33,13 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
 
 import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLuint, GLsizei )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
              CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordinateArray,
              CapSecondaryColorArray,CapMatrixIndexArray,CapPrimitiveRestart),
-   Capability(Enabled), makeCapability )
+   makeCapability )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLint, GLuint, GLsizei, Capability(Enabled) )
 import Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -62,8 +62,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
                     FogCoordinateArrayPointer,TextureCoordArrayPointer,
                     EdgeFlagArrayPointer),
    getPointer )
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
-   PrimitiveMode, marshalPrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( marshalPrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get),
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )

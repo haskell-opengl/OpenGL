@@ -24,11 +24,13 @@ module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLsizei )
 import Graphics.Rendering.OpenGL.GL.BufferMode (
-   BufferMode(..), marshalBufferMode, unmarshalBufferMode )
+   marshalBufferMode, unmarshalBufferMode )
+import Graphics.Rendering.OpenGL.GL.Framebuffer ( BufferMode(..) )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.DataType ( DataType(..), marshalDataType )
-import Graphics.Rendering.OpenGL.GL.PixelFormat (
-   PixelFormat(..), marshalPixelFormat )
+import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
+import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
+import Graphics.Rendering.OpenGL.GL.PixelFormat ( marshalPixelFormat )
+import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelFormat )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetReadBuffer), getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )

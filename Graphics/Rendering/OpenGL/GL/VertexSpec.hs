@@ -52,7 +52,9 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(..), maxTextureUnit
 ) where
 
-import Foreign
+import Data.Int
+import Data.Word
+import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLbyte, GLshort, GLint, GLubyte, GLushort, GLuint, GLfloat,

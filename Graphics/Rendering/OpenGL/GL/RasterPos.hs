@@ -20,7 +20,8 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
    currentRasterTexCoords, currentRasterPositionValid
 ) where
 
-import Foreign
+import Data.Int
+import Foreign.Ptr ( Ptr, castPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLshort, GLint, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )

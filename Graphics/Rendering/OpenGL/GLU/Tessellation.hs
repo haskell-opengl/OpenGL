@@ -44,16 +44,17 @@ import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
 import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLclampf, GLdouble, GLenum )
-import Graphics.Rendering.OpenGL.GL.EdgeFlag (
-   EdgeFlag(BeginsInteriorEdge), unmarshalEdgeFlag )
+import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
-   PrimitiveMode, unmarshalPrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.BeginEnd (
+   PrimitiveMode, EdgeFlag(BeginsInteriorEdge) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   Error(..), ErrorCategory(..), makeError )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (, makeError )
+import Graphics.Rendering.OpenGL.GLU.Errors (
+   Error(Error), ErrorCategory(OutOfMemory) )
 
 --------------------------------------------------------------------------------
 
