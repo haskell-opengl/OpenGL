@@ -2,7 +2,7 @@ name:		OpenGL
 version:	2.0
 license:	BSD3
 maintainer:	Sven Panne <sven.panne@aedion.de>
-package-url:	http://www.haskell.org/HOpenGL/
+homepage:	http://www.haskell.org/HOpenGL/
 category:	Graphics
 description:
 	A Haskell binding for the OpenGL graphics system (GL, version
