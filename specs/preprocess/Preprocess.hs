@@ -8,8 +8,6 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- $Id: Preprocess.hs,v 1.3 2003/05/04 17:09:11 panne Exp $
---
 -- The .spec files from the SI are normally processed by Perl/AWK scripts and
 -- have  therefore a rather ugly line-oriented syntax. To make things more
 -- amenable to "real" parsing, some lexical preprocessing is useful. Note that
