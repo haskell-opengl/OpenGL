@@ -417,6 +417,18 @@ data GetPName =
    | GetDepthBounds
    | GetPrimitiveRestartIndex
    | GetActiveStencilFace
+   | GetArrayBufferBinding
+   | GetElementArrayBufferBinding
+   | GetVertexArrayBufferBinding
+   | GetNormalArrayBufferBinding
+   | GetColorArrayBufferBinding
+   | GetIndexArrayBufferBinding
+   | GetTextureCoordArrayBufferBinding
+   | GetEdgeFlagArrayBufferBinding
+   | GetSecondaryColorArrayBufferBinding
+   | GetFogCoordArrayBufferBinding
+   -- GetWeightArrayBufferBinding
+   -- GetVertexAttribArrayBufferBinding
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -799,6 +811,18 @@ marshalGetPName x = case x of
    GetDepthBounds -> 0x8891
    GetPrimitiveRestartIndex -> 0x8559
    GetActiveStencilFace -> 0x8911
+   GetArrayBufferBinding -> 0x8894
+   GetElementArrayBufferBinding -> 0x8895
+   GetVertexArrayBufferBinding -> 0x8896
+   GetNormalArrayBufferBinding -> 0x8897
+   GetColorArrayBufferBinding -> 0x8898
+   GetIndexArrayBufferBinding -> 0x8899
+   GetTextureCoordArrayBufferBinding -> 0x889a
+   GetEdgeFlagArrayBufferBinding -> 0x889b
+   GetSecondaryColorArrayBufferBinding -> 0x889c
+   GetFogCoordArrayBufferBinding -> 0x889d
+   -- GetWeightArrayBufferBinding -> 0x889e
+   -- GetVertexAttribArrayBufferBinding -> 0x889f
 
 --------------------------------------------------------------------------------
 

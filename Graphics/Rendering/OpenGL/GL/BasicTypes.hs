@@ -14,14 +14,16 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLboolean, GLbitfield, GLbyte, GLshort, GLint, GLubyte, GLushort,
-   GLuint, GLsizei, GLfloat, GLclampf, GLdouble, GLclampd, Capability(..)
+   GLenum, GLboolean, GLbitfield, GLbyte, GLshort, GLint, GLintptr, GLubyte,
+   GLushort, GLuint, GLsizei, GLsizeiptr, GLfloat, GLclampf, GLdouble, GLclampd,
+   Capability(..)
 ) where
 
 --------------------------------------------------------------------------------
 
 import Data.Int
 import Data.Word
+import Foreign.C.Types ( CPtrdiff ) -- TODO: Use autoconf stuff for this!
 
 --------------------------------------------------------------------------------
 
@@ -45,6 +47,10 @@ type GLshort = HTYPE_GLSHORT
 -- | Signed 2\'s complement binary integer (min. 32 bits)
 type GLint = HTYPE_GLINT
 
+-- | Signed 2\'s complement binary integer (sufficiently large enough to hold
+-- any address)
+type GLintptr = CPtrdiff -- TODO: Use autoconf stuff for this!
+
 -- | Unsigned binary integer (min. 8 bits)
 type GLubyte = HTYPE_GLUBYTE
 
@@ -56,6 +62,10 @@ type GLuint = HTYPE_GLUINT
 
 -- | Non-negatitve binary integer size (min. 32 bits)
 type GLsizei = HTYPE_GLSIZEI
+
+-- | Non-negatitve binary integer size (sufficiently large enough to hold any
+-- address)
+type GLsizeiptr = CPtrdiff -- TODO: Use autoconf stuff for this!
 
 -- | Floating-point value (min. 32 bits)
 type GLfloat = HTYPE_GLFLOAT
