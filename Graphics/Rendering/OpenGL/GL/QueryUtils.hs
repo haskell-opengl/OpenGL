@@ -22,13 +22,11 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getSizei1,
    getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
    getDouble1, getDouble2, getDouble4, getDoublev,
-   GetPointervPName(..), getPointer,
-   getArrayWith
+   GetPointervPName(..), getPointer
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( allocaArray, peekArray )
+import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -985,12 +983,3 @@ getPointer n = alloca $ \buf -> do
 
 foreign import CALLCONV unsafe "glGetPointerv" glGetPointerv ::
    GLenum -> Ptr (Ptr a) -> IO ()
-
---------------------------------------------------------------------------------
-
--- Something like this in the Foreign libs would be handy...
-getArrayWith :: Storable a => ([a] -> b) -> Int -> (Ptr a -> IO c) -> IO b
-getArrayWith f size act =
-   allocaArray size $ \buf -> do
-      act buf
-      liftM f $ peekArray size buf
