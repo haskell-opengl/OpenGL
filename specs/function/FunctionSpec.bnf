@@ -1,0 +1,67 @@
+(* An LL(1) grammar for function spec files in RDP syntax, see
+  http://www.cs.rhbnc.ac.uk/research/languages/projects/rdp.shtml *)
+
+spec                 ::= [ requiredProperties ] { validProperty } { category }.
+
+requiredProperties   ::= ':required-props' { propertyName } ';'.
+
+validProperty        ::= ':' validProperyName validPropertyValues ';'.
+validProperyName     ::= 'param' | propertyName.
+validPropertyValues  ::= [ '*' | propertyValue { propertyValue } ] .
+
+category             ::= functionDeclaration
+                       | newCategory { functionDeclaration } endCategory.
+
+newCategory          ::= ':newcategory' categoryName ';'.
+endCategory          ::= ':endcategory' ';'.
+
+functionDeclaration  ::= functionName parameters returnType [ ',' paramsAndProps ] ';' .
+parameters           ::= '(' [ parameterName { ',' parameterName } ] ')'.
+returnType           ::= 'return' typeName.
+paramsAndProps       ::= parameterDeclaration [ ',' paramsAndProps ]
+                         | [ functionProperty { ',' functionProperty } ].
+
+parameterDeclaration ::= 'param' parameterName parameterType [ lengthDescriptor ] { propertyValue }.
+
+parameterType        ::= typeName direction transferType.
+direction            ::= 'in' | 'out' | 'in/out'.
+transferType         ::= 'array' | 'reference' | 'value'.
+
+lengthDescriptor     ::= '[' indexExpression { ',' indexExpression } ']'.
+indexExpression      ::= term { addOp term }.
+addOp                ::= '+' | '-'.
+term                 ::= factor { mulOp factor }.
+mulOp                ::=  '*' | '/'.
+factor               ::= compsize | '(' indexExpression ')' | integer | parameterName.
+compsize             ::= 'COMPSIZE' '(' [ parameterName { '/' parameterName } ] ')'.
+integer              ::= digit { digit }.
+
+functionProperty     ::= propertyName { metaPropertyValue }.
+
+metaPropertyValue    ::= [ '!' ] ( 'all' | propertyValue ).
+propertyValue        ::= word.
+
+propertyName         ::= word.
+categoryName         ::= word.
+functionName         ::= word.
+typeName             ::= word.
+parameterName        ::= word.
+
+(* Not totally correct, but with RDP one can't specify a lexer. We really mean:
+   A word is a non-empty sequence of characters which are not in the set
+   " \t\n\r\f\v\xa0()[]:,;+*/!". Integers are not words. *)
+
+word                 ::= ( upper | lower ) wordChar.
+wordChar             ::= upper | lower | digit | special.
+
+upper                ::= 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
+                       | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T'
+                       | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'.
+
+lower                ::= 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j'
+                       | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't'
+                       | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'.
+
+digit                ::= '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'.
+
+special              ::= '_' | '-' | '.'.
