@@ -27,7 +27,8 @@ import Graphics.Rendering.OpenGL.GL.BufferMode (
    marshalBufferMode, unmarshalBufferMode )
 import Graphics.Rendering.OpenGL.GL.Framebuffer ( BufferMode(..) )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
+import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
+import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetReadBuffer), getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
