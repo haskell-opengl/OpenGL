@@ -426,6 +426,8 @@ data GetPName =
    | GetFogCoordArrayBufferBinding
    | GetTextureBindingCubeMap
    | GetTextureBindingRectangle
+   | GetCurrentMatrix
+   | GetCurrentMatrixStackDepth
    -- GetWeightArrayBufferBinding
    -- GetVertexAttribArrayBufferBinding
 
@@ -822,6 +824,8 @@ marshalGetPName x = case x of
    GetFogCoordArrayBufferBinding -> Just 0x889d
    GetTextureBindingCubeMap -> Just 0x8514
    GetTextureBindingRectangle -> Just 0x84f6
+   GetCurrentMatrix -> Just 0x8641
+   GetCurrentMatrixStackDepth -> Just 0x8640
    -- GetWeightArrayBufferBinding -> Just 0x889e
    -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 

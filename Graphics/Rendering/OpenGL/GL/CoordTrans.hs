@@ -22,11 +22,11 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    MatrixMode(..), matrixMode,
    Vector2(..), Vector3(..),
    MatrixOrder(..), MatrixComponent(rotate,translate,scale), Matrix(..),
-   currentMatrix, multMatrix, GLmatrix, loadIdentity,
+   currentMatrix, matrix, multMatrix, GLmatrix, loadIdentity,
    ortho, frustum, depthClamp,
    activeTexture,
    preservingMatrix, unsafePreservingMatrix,
-   stackDepth, maxStackDepth,
+   currentStackDepth, stackDepth, maxStackDepth,
 
    -- * Normal Transformation
    rescaleNormal, normalize,
@@ -56,17 +56,17 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke (
    peek1, peek2, peek3, peek4, poke2, poke3, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
-            GetModelviewMatrix,GetProjectionMatrix,GetTextureMatrix,
-            GetColorMatrix,GetMatrixPalette,GetActiveTexture,
-            GetModelviewStackDepth,GetMaxModelviewStackDepth,
-            GetProjectionStackDepth,GetMaxProjectionStackDepth,
-            GetTextureStackDepth,GetMaxTextureStackDepth,
-            GetColorMatrixStackDepth,GetMaxColorMatrixStackDepth,
-            GetMaxMatrixPaletteStackDepth),
+            GetCurrentMatrix,GetModelviewMatrix,GetProjectionMatrix,
+            GetTextureMatrix, GetColorMatrix,GetMatrixPalette,GetActiveTexture,
+            GetCurrentMatrixStackDepth,GetModelviewStackDepth,
+            GetMaxModelviewStackDepth,GetProjectionStackDepth,
+            GetMaxProjectionStackDepth,GetTextureStackDepth,
+            GetMaxTextureStackDepth,GetColorMatrixStackDepth,
+            GetMaxColorMatrixStackDepth,GetMaxMatrixPaletteStackDepth),
    getInteger2, getInteger4, getEnum1, getSizei1, getFloatv,
    getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), GettableStateVar, makeGettableStateVar,
+   GettableStateVar, makeGettableStateVar, HasSetter(($=)),
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
    TextureUnit, marshalTextureUnit, unmarshalTextureUnit )
@@ -336,12 +336,22 @@ class Matrix m where
 currentMatrix :: (Matrix m, MatrixComponent c) => StateVar (m c)
 currentMatrix =
    makeStateVar
-      (do mode <- get matrixMode
-          withNewMatrix ColumnMajor $ getMatrix (matrixModeToGetMatrix mode))
+      (getMatrix' GetCurrentMatrix) -- with ARB_fragment_program only
       (\mat -> withMatrix mat $ \order ->
          case order of
             ColumnMajor -> loadMatrix
             RowMajor    -> loadTransposeMatrix)
+
+matrix :: (Matrix m, MatrixComponent c) => MatrixMode -> StateVar (m c)
+matrix mode =
+   makeStateVar
+      (getMatrix' (matrixModeToGetMatrix mode))
+      (\mat -> preservingMatrixMode $ do
+         matrixMode $= mode
+         currentMatrix $= mat)
+
+getMatrix' :: (Matrix m, MatrixComponent c) => GetPName -> IO (m c)
+getMatrix' = withNewMatrix ColumnMajor . getMatrix
 
 multMatrix :: (Matrix m, MatrixComponent c) => m c -> IO ()
 multMatrix mat =
@@ -405,10 +415,11 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum ->
 -- version, see 'unsafePreservingMatrix'.
 
 preservingMatrix :: IO a -> IO a
-preservingMatrix =
-   -- performance paranoia: No (un-)marshaling by avoiding matrixMode
-   unsafePreservingMatrix .
-      bracket (getEnum1 id GetMatrixMode) glMatrixMode . const
+preservingMatrix = unsafePreservingMatrix . preservingMatrixMode
+
+-- performance paranoia: No (un-)marshaling by avoiding matrixMode
+preservingMatrixMode :: IO a -> IO a
+preservingMatrixMode = bracket (getEnum1 id GetMatrixMode) glMatrixMode . const
 
 -- | A more efficient, but potentially dangerous version of 'preservingMatrix':
 -- The given action is not allowed to throw an exception or change the
@@ -422,6 +433,11 @@ foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
 foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
 
 --------------------------------------------------------------------------------
+
+-- only with ARB_fragment_program
+currentStackDepth :: GettableStateVar GLsizei
+currentStackDepth =
+   makeGettableStateVar $ getSizei1 id GetCurrentMatrixStackDepth
 
 stackDepth :: MatrixMode -> GettableStateVar GLsizei
 stackDepth m =
