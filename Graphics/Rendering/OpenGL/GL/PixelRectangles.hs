@@ -523,7 +523,14 @@ class PixelMap m where
 --------------------------------------------------------------------------------
 
 data GLpixelmap a = GLpixelmap GLsizei (ForeignPtr a)
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq a => Eq (GLpixelmap a)
+instance Ord a => Ord (GLpixelmap a)
+instance Show a => Show (GLpixelmap a)
+#else
    deriving ( Eq, Ord, Show )
+#endif
 
 instance PixelMap GLpixelmap where
    withNewPixelMap size f = do

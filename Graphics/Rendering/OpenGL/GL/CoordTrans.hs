@@ -334,7 +334,14 @@ multMatrix mat =
 --------------------------------------------------------------------------------
 
 data GLmatrix a = GLmatrix MatrixOrder (ForeignPtr a)
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq a => Eq (GLmatrix a)
+instance Ord a => Ord (GLmatrix a)
+instance Show a => Show (GLmatrix a)
+#else
    deriving ( Eq, Ord, Show )
+#endif
 
 instance Matrix GLmatrix where
    withNewMatrix order f = do

@@ -134,7 +134,13 @@ marshalTessWinding x = case x of
 -- property, e.g. color, texture coordinates, etc.
 
 data AnnotatedVertex v = AnnotatedVertex (Vertex3 GLdouble) v
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (AnnotatedVertex v)
+instance Ord v => Ord (AnnotatedVertex v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 offsetOfProperty :: Storable v => v -> Int
 offsetOfProperty v = alignOffset v (3 * sizeOf x)
@@ -173,7 +179,13 @@ instance Storable v => Storable (AnnotatedVertex v) where
 -- | A complex contour, which can be self-intersecting and\/or concave.
 
 newtype ComplexContour v = ComplexContour [AnnotatedVertex v]
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (ComplexContour v)
+instance Ord v => Ord (ComplexContour v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 sizeOfComplexContour :: Storable v => ComplexContour v -> Int
 sizeOfComplexContour (ComplexContour vs) =
@@ -190,7 +202,13 @@ pokeComplexContour ptr (ComplexContour vs) =
 -- and possibly intersecting contours.
 
 newtype ComplexPolygon v = ComplexPolygon [ComplexContour v]
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (ComplexPolygon v)
+instance Ord v => Ord (ComplexPolygon v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 sizeOfComplexPolygon :: Storable v => ComplexPolygon v -> Int
 sizeOfComplexPolygon (ComplexPolygon complexContours) =
@@ -221,7 +239,13 @@ data WeightedProperties v
                         (GLclampf, v)
                         (GLclampf, v)
                         (GLclampf, v)
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (WeightedProperties v)
+instance Ord v => Ord (WeightedProperties v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 -- | A function combining given vertex properties into a property for a newly
 -- generated vertex
@@ -262,13 +286,25 @@ type Tessellator p v
 -- | A simple, non-self-intersecting contour
 
 newtype SimpleContour v = SimpleContour [AnnotatedVertex v]
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (SimpleContour v)
+instance Ord v => Ord (SimpleContour v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 -- | The contours of a complex polygon, represented by one or more
 -- non-intersecting simple contours
 
 newtype PolygonContours v = PolygonContours [SimpleContour v]
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (PolygonContours v)
+instance Ord v => Ord (PolygonContours v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 extractContours :: Storable v => Tessellator PolygonContours v
 extractContours windingRule tolerance normal combiner complexPoly = do
@@ -303,12 +339,24 @@ type TriangleVertex v = AnnotatedVertex (v,EdgeFlag)
 
 data Triangle v
    = Triangle (TriangleVertex v) (TriangleVertex v) (TriangleVertex v)
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (Triangle v)
+instance Ord v => Ord (Triangle v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 -- | A triangulation of a complex polygon
 
 newtype Triangulation v = Triangulation [Triangle v]
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (Triangulation v)
+instance Ord v => Ord (Triangulation v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 triangulate :: Storable v => Tessellator Triangulation v
 triangulate windingRule tolerance normal combiner complexPoly = do
@@ -342,10 +390,22 @@ collectTriangles _            = error "triangles left"
 --------------------------------------------------------------------------------
 
 data Primitive v = Primitive PrimitiveMode [AnnotatedVertex v]
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (Primitive v)
+instance Ord v => Ord (Primitive v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 newtype SimplePolygon v = SimplePolygon [Primitive v]
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq v => Eq (SimplePolygon v)
+instance Ord v => Ord (SimplePolygon v)
+#else
    deriving ( Eq, Ord )
+#endif
 
 tessellate :: Storable v => Tessellator SimplePolygon v
 tessellate windingRule tolerance normal combiner complexPoly = do
