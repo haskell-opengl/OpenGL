@@ -1,15 +1,22 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.4 2002/05/31 12:28:19 panne Exp $
+# $Id: Makefile,v 1.5 2003/02/14 21:47:18 panne Exp $
 
 TOP = ../../..
 include $(TOP)/mk/boilerplate.mk
 
 # -----------------------------------------------------------------------------
 
-HC           = $(GHC_INPLACE)
 MKDEPENDHS   = $(GHC_INPLACE)
 HS_PROG      = ConvertEnumSpec
 CLEAN_FILES += Main.hi test.stdout.tmp
+
+SRC_HC_OPTS += -cpp
+
+ghc_ge_504 = $(shell if (test $(GhcCanonVersion) -ge 504); then echo YES; else echo NO; fi)
+
+ifeq "$(ghc_ge_504)" "NO"
+SRC_HC_OPTS += -package data -package text
+endif
 
 test: ConvertEnumSpec
 	$(RM) test.stdout.tmp

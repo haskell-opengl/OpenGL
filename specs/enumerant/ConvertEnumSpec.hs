@@ -14,6 +14,8 @@
 
 module Main ( main ) where
 
+-- UGLY, UGLY, UGLY! This should really die someday...
+#if __GLASGOW_HASKELL__ >= 504
 import Control.Monad       ( liftM, when )
 import Control.Monad.State ( State, runState, evalState, get, put, modify )
 import Data.Char           ( isUpper, toUpper, isLower, toLower, isDigit,
@@ -27,6 +29,21 @@ import Text.ParserCombinators.Parsec
                              string, many, many1, satisfy, option, parse, sepBy,
                              spaces )
 import System.Environment  ( getArgs )
+#else
+import Monad               ( liftM, when )
+import MonadState          ( State, runState, evalState, get, put, modify )
+import Char                ( isUpper, toUpper, isLower, toLower, isDigit,
+                             isHexDigit, isSpace )
+import FiniteMap           ( FiniteMap, emptyFM, addToFM_C, lookupWithDefaultFM )
+import List                ( mapAccumL, isPrefixOf, tails )
+import Set                 ( Set, mkSet, addToSet, elementOf )
+import Numeric             ( readHex )
+import NumExts             ( showHex )
+import Parsec              ( SourceName, Parser, (<|>), (<?>), try, eof, char,
+                             string, many, many1, satisfy, option, parse, sepBy,
+                             spaces )
+import System              ( getArgs )
+#endif
 
 --------------------------------------------------------------------------------
 -- We have two kinds of identifiers, the primary ones are less likely to be
