@@ -14,7 +14,8 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing (
    TextureTarget(..), marshalTextureTarget,
-   PixelInternalFormat(..), marshalPixelInternalFormat
+   PixelInternalFormat(..),
+   marshalPixelInternalFormat, unmarshalPixelInternalFormat
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
@@ -158,3 +159,55 @@ marshalPixelInternalFormat x = case x of
    CompressedIntensity -> 0x84ec
    CompressedRGB -> 0x84ed
    CompressedRGBA -> 0x84ee
+
+unmarshalPixelInternalFormat :: GLenum -> PixelInternalFormat
+unmarshalPixelInternalFormat x
+   | x == 0x1906 = Alpha'
+   | x == 0x1902 = DepthComponent'
+   | x == 0x1909 = Luminance'
+   | x == 0x190a = LuminanceAlpha'
+   | x == 0x1907 = RGB'
+   | x == 0x1908 = RGBA'
+   | x == 0x803b = Alpha4
+   | x == 0x803c = Alpha8
+   | x == 0x803d = Alpha12
+   | x == 0x803e = Alpha16
+   | x == 0x81a5 = DepthComponent16
+   | x == 0x81a6 = DepthComponent24
+   | x == 0x81a7 = DepthComponent32
+   | x == 0x803f = Luminance4
+   | x == 0x8040 = Luminance8
+   | x == 0x8041 = Luminance12
+   | x == 0x8042 = Luminance16
+   | x == 0x8043 = Luminance4Alpha4
+   | x == 0x8044 = Luminance6Alpha2
+   | x == 0x8045 = Luminance8Alpha8
+   | x == 0x8046 = Luminance12Alpha4
+   | x == 0x8047 = Luminance12Alpha12
+   | x == 0x8048 = Luminance16Alpha16
+   | x == 0x8049 = Intensity
+   | x == 0x804a = Intensity4
+   | x == 0x804b = Intensity8
+   | x == 0x804c = Intensity12
+   | x == 0x804d = Intensity16
+   | x == 0x2a10 = R3G3B2
+   | x == 0x804f = RGB4
+   | x == 0x8050 = RGB5
+   | x == 0x8051 = RGB8
+   | x == 0x8052 = RGB10
+   | x == 0x8053 = RGB12
+   | x == 0x8054 = RGB16
+   | x == 0x8055 = RGBA2
+   | x == 0x8056 = RGBA4
+   | x == 0x8057 = RGB5A1
+   | x == 0x8058 = RGBA8
+   | x == 0x8059 = RGB10A2
+   | x == 0x805a = RGBA12
+   | x == 0x805b = RGBA16
+   | x == 0x84e9 = CompressedAlpha
+   | x == 0x84ea = CompressedLuminance
+   | x == 0x84eb = CompressedLuminanceAlpha
+   | x == 0x84ec = CompressedIntensity
+   | x == 0x84ed = CompressedRGB
+   | x == 0x84ee = CompressedRGBA
+   | otherwise = error ("unmarshalPixelInternalFormat: illegal value " ++ show x)

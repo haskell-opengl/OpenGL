@@ -301,6 +301,8 @@ data GetPName =
    | GetConvolution1D
    | GetConvolution2D
    | GetSeparable2D
+   | GetMaxConvolutionWidth
+   | GetMaxConvolutionHeight
    | GetPostConvolutionRedScale
    | GetPostConvolutionGreenScale
    | GetPostConvolutionBlueScale
@@ -673,6 +675,8 @@ marshalGetPName x = case x of
    GetConvolution1D -> 0x8010
    GetConvolution2D -> 0x8011
    GetSeparable2D -> 0x8012
+   GetMaxConvolutionWidth -> 0x801a
+   GetMaxConvolutionHeight -> 0x801b
    GetPostConvolutionRedScale -> 0x801c
    GetPostConvolutionGreenScale -> 0x801d
    GetPostConvolutionBlueScale -> 0x801e
