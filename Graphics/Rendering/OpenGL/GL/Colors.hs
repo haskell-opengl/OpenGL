@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Colors (
    -- * Lighting
-   lighting, Light(..), lightEnabled,
+   lighting, Light(..), light,
    FrontFaceDirection(..), frontFace,
 
    -- * Lighting Parameter Specification
@@ -75,8 +75,8 @@ marshalLight (Light l) = lightIndexToEnum l
 
 --------------------------------------------------------------------------------
 
-lightEnabled :: Light -> StateVar Bool
-lightEnabled (Light l) = makeCapability (CapLight l)
+light :: Light -> StateVar Bool
+light (Light l) = makeCapability (CapLight l)
 
 --------------------------------------------------------------------------------
 
@@ -271,11 +271,11 @@ makeLightVar :: Storable a
              => (GLenum -> GLenum -> Ptr a -> IO ())
              -> (GLenum -> GLenum -> Ptr a -> IO ())
              -> LightParameter -> Light -> StateVar a
-makeLightVar getter setter lightParameter light =
+makeLightVar getter setter lightParameter theLight =
    makeStateVar (alloca $ \buf -> do getter l lp buf ; peek buf)
                 (\val -> with val $ setter l lp)
    where lp = marshalLightParameter lightParameter
-         l  = marshalLight light
+         l  = marshalLight theLight
 
 foreign import CALLCONV unsafe "glGetLightfv" glGetLightfvc ::
    GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
