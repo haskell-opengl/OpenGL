@@ -1,5 +1,6 @@
 Package {
 	name		= "OpenGL",
+	auto		= True,
 #ifdef INSTALLING
 	import_dirs	= [ "$libdir/imports/OpenGL" ],
 #else
