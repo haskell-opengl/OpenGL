@@ -28,7 +28,7 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt (
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat, marshalPixelInternalFormat,
    unmarshalPixelInternalFormat' )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable ( Proxy(..) )

@@ -20,7 +20,7 @@ import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, GLint, GLenum )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt (
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat, marshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget, marshalTextureTarget )

@@ -1,7 +1,7 @@
 -- #hide
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt
+-- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 -- Copyright   :  (c) Sven Panne 2002-2004
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -13,7 +13,7 @@
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt (
+module Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat(..), marshalPixelInternalFormat,
    unmarshalPixelInternalFormat, unmarshalPixelInternalFormat'
 ) where

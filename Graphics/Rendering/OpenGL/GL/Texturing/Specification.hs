@@ -45,7 +45,7 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelIntFmt (
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat(..), marshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData, Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
