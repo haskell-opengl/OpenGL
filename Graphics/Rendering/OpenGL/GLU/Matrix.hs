@@ -24,11 +24,12 @@ import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    unmarshalGLboolean, GLint, GLsizei, GLdouble )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex4(..) )
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
-   MatrixOrder(ColumnMajor), Matrix, MatrixElement(getMatrixElements) )
+   MatrixOrder(ColumnMajor), Matrix, MatrixElement(getMatrixElements),
+   Vector3(..), Position(..), Size(..) )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3(..), Vertex4(..) )
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- matrix setup
 
 foreign import CALLCONV unsafe "gluOrtho2D" ortho2D ::
@@ -37,26 +38,27 @@ foreign import CALLCONV unsafe "gluOrtho2D" ortho2D ::
 foreign import CALLCONV unsafe "gluPerspective" perspective ::
    GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
 
-lookAt :: (GLdouble, GLdouble, GLdouble)
-       -> (GLdouble, GLdouble, GLdouble)
-       -> (GLdouble, GLdouble, GLdouble) -> IO ()
-lookAt (eyeX, eyeY, eyeZ) (centerX, centerY, centerZ) (upX, upY, upZ) =
+lookAt :: Vertex3 GLdouble -> Vertex3 GLdouble -> Vector3 GLdouble -> IO ()
+lookAt (Vertex3 eyeX    eyeY    eyeZ)
+       (Vertex3 centerX centerY centerZ)
+       (Vector3 upX     upY     upZ) =
    gluLookAt eyeX eyeY eyeZ centerX centerY centerZ upX upY upZ
 
 foreign import CALLCONV unsafe "gluLookAt" gluLookAt ::
       GLdouble -> GLdouble -> GLdouble
    -> GLdouble -> GLdouble -> GLdouble
    -> GLdouble -> GLdouble -> GLdouble -> IO ()
-pickMatrix :: (GLdouble, GLdouble) -> (GLdouble, GLdouble)
-           -> (GLint, GLint) -> (GLsizei, GLsizei) -> IO ()
-pickMatrix (x, y) (w, h) (vx, vy) (vw, vh) =
-   with (Vertex4 vx vy (fromIntegral vw) (fromIntegral vh))
-        (pickMatrixAux x y w h)
 
-foreign import CALLCONV unsafe "gluPickMatrix" pickMatrixAux ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> Ptr (Vertex4 GLint) -> IO ()
+pickMatrix ::
+   (GLdouble, GLdouble) -> (GLdouble, GLdouble) -> (Position, Size) -> IO ()
+pickMatrix (x, y) (w, h) (Position vx vy, Size vw vh) =
+   withArray [ vx, vy, fromIntegral vw, fromIntegral vh ] $
+        gluPickMatrix x y w h
 
----------------------------------------------------------------------------
+foreign import CALLCONV unsafe "gluPickMatrix" gluPickMatrix ::
+   GLdouble -> GLdouble -> GLdouble -> GLdouble -> Ptr GLint -> IO ()
+
+--------------------------------------------------------------------------------
 -- coordinate projection
 -- TODO: Missing for GLU 1.3: gluUnProject4
 
