@@ -14,19 +14,21 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.DisplayLists (
-   -- * Resource Management
-   DisplayList, genLists, deleteLists, isList,
-
    -- * Defining Display Lists
-   ListMode(..), defineList, defineNewList, listIndex, listMode, maxListNesting,
+   DisplayList, ListMode(..), defineList, defineNewList, listIndex, listMode,
+   maxListNesting,
 
    -- * Calling Display Lists
-   callList, callLists, listBase
+   callList, callLists, listBase,
+
+   -- * Deprecated Functions
+   genLists, deleteLists, isList,
 ) where
 
 import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLuint, GLsizei, GLenum )
+import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
@@ -42,11 +44,20 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 newtype DisplayList = DisplayList GLuint
    deriving ( Eq, Ord, Show )
 
+instance ObjectName DisplayList where
+   genObjectNames = genLists_
+   deleteObjectNames = deleteLists_
+   isObjectName = isList_
+
 --------------------------------------------------------------------------------
 
+{-# DEPRECATED genLists "use `genObjectNames' instead" #-}
 genLists :: GLsizei -> IO [DisplayList]
-genLists n = do
-   first <- glGenLists n
+genLists = genLists_ . fromIntegral
+
+genLists_ :: Int -> IO [DisplayList]
+genLists_ n = do
+   first <- glGenLists (fromIntegral n)
    return $
       if first == 0
          then []
@@ -56,8 +67,12 @@ foreign import CALLCONV unsafe "glGenLists" glGenLists :: GLsizei -> IO GLuint
 
 --------------------------------------------------------------------------------
 
+{-# DEPRECATED deleteLists "use `deleteObjectNames' instead" #-}
 deleteLists :: [DisplayList] -> IO ()
-deleteLists = mapM_ (uncurry glDeleteLists) . combineConsecutive
+deleteLists = deleteLists_
+
+deleteLists_ :: [DisplayList] -> IO ()
+deleteLists_ = mapM_ (uncurry glDeleteLists) . combineConsecutive
 
 foreign import CALLCONV unsafe "glDeleteLists" glDeleteLists ::
    DisplayList -> GLsizei -> IO ()
@@ -75,8 +90,12 @@ combineConsecutive (z:zs) = (z, len) : combineConsecutive rest
 
 --------------------------------------------------------------------------------
 
+{-# DEPRECATED isList "use `isObjectName' instead" #-}
 isList :: DisplayList -> IO Bool
-isList = liftM unmarshalGLboolean . glIsList
+isList = isList_
+
+isList_ :: DisplayList -> IO Bool
+isList_ = liftM unmarshalGLboolean . glIsList
 
 foreign import CALLCONV unsafe "glIsList" glIsList ::
    DisplayList -> IO GLboolean
