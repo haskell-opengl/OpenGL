@@ -15,8 +15,8 @@
 
 module Graphics.Rendering.OpenGL.GL.DisplayLists (
    -- * Defining Display Lists
-   DisplayList, ListMode(..), defineList, defineNewList, listIndex, listMode,
-   maxListNesting,
+   DisplayList(..), ListMode(..), defineList, defineNewList, listIndex,
+   listMode, maxListNesting,
 
    -- * Calling Display Lists
    callList, callLists, listBase,
@@ -128,19 +128,25 @@ foreign import CALLCONV unsafe "glNewList" glNewList ::
 
 foreign import CALLCONV unsafe "glEndList" glEndList :: IO ()
 
-defineNewList :: ListMode -> IO a -> IO DisplayList
+defineNewList :: ListMode -> IO a -> IO (Maybe DisplayList)
 defineNewList mode action = do
    lists <- genLists 1
    if null lists
-      then return $ DisplayList 0
+      then return Nothing
       else do let lst = head lists
               defineList lst mode action
-              return lst
+              return $ Just lst
 
 --------------------------------------------------------------------------------
 
-listIndex :: GettableStateVar DisplayList
-listIndex = makeGettableStateVar (getEnum1 DisplayList GetListIndex)
+listIndex :: GettableStateVar (Maybe DisplayList)
+listIndex =
+   makeGettableStateVar
+      (do l <- getEnum1 DisplayList GetListIndex
+          return $ if l == noDisplayList then Nothing else Just l)
+
+noDisplayList :: DisplayList
+noDisplayList = DisplayList 0
 
 listMode :: GettableStateVar ListMode
 listMode = makeGettableStateVar (getEnum1 unmarshalListMode GetListMode)

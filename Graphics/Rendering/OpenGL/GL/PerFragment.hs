@@ -33,7 +33,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    depthFunc,
 
    -- * Occlusion Queries
-   QueryObject, QueryTarget(..), beginQuery, endQuery, withQuery,
+   QueryObject(QueryObject), QueryTarget(..), withQuery,
    queryCounterBits, currentQuery,
    queryResult, queryResultAvailable,
 
@@ -285,8 +285,6 @@ endQuery = glEndQueryARB . marshalQueryTarget
 
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glEndQueryARB,GLenum -> IO ())
 
--- | Convenience function
-
 withQuery :: QueryTarget -> QueryObject -> IO a -> IO a
 withQuery t q = bracket_ (beginQuery t q) (endQuery t)
 
@@ -306,8 +304,11 @@ marshalGetQueryPName x = case x of
 queryCounterBits :: QueryTarget -> GettableStateVar GLsizei
 queryCounterBits = getQueryi fromIntegral QueryCounterBits
 
-currentQuery :: QueryTarget -> GettableStateVar QueryObject
-currentQuery = getQueryi (QueryObject . fromIntegral) CurrentQuery
+currentQuery :: QueryTarget -> GettableStateVar (Maybe QueryObject)
+currentQuery =
+   getQueryi
+      (\q -> if q == 0 then Nothing else Just (QueryObject (fromIntegral q)))
+      CurrentQuery
 
 getQueryi :: (GLint -> a) -> GetQueryPName -> QueryTarget -> GettableStateVar a
 getQueryi f p t =

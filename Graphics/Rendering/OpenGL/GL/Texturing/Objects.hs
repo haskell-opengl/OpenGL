@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
-   TextureObject, defaultTextureObject, textureBinding,
+   TextureObject(TextureObject), textureBinding,
    textureResident, areTexturesResident,
    TexturePriority, texturePriority, prioritizeTextures
 ) where
@@ -44,9 +44,6 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
 newtype TextureObject = TextureObject { textureID :: GLuint }
    deriving ( Eq, Ord, Show )
 
-defaultTextureObject :: TextureObject
-defaultTextureObject = TextureObject 0
-
 --------------------------------------------------------------------------------
 
 instance ObjectName TextureObject where
@@ -72,11 +69,15 @@ foreign import CALLCONV unsafe "glIsTexture"
 
 --------------------------------------------------------------------------------
 
-textureBinding :: TextureTarget -> StateVar TextureObject
+textureBinding :: TextureTarget -> StateVar (Maybe TextureObject)
 textureBinding t =
    makeStateVar
-      (getEnum1 TextureObject (textureTargetToGetPName t))
-      (glBindTexture (marshalTextureTarget t) . textureID)
+      (do o <- getEnum1 TextureObject (textureTargetToGetPName t)
+          return $ if o == defaultTextureObject then Nothing else Just o)
+      (glBindTexture (marshalTextureTarget t) . textureID . (maybe defaultTextureObject id))
+
+defaultTextureObject :: TextureObject
+defaultTextureObject = TextureObject 0
 
 textureTargetToGetPName :: TextureTarget -> GetPName
 textureTargetToGetPName x = case x of
