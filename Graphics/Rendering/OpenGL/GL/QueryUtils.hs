@@ -396,7 +396,6 @@ data GetPName =
    | GetMaxMatrixPaletteStackDepth
    | GetMaxPaletteMatrices
    | GetCurrentPaletteMatrix
-   deriving ( Eq, Ord, Show )
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -881,7 +880,6 @@ data GetPointervPName =
    | SelectionBufferPointer
    | WeightArrayPointer
    | MatrixIndexArrayPointer
-   deriving ( Eq, Ord, Show )
 
 marshalGetPointervPName :: GetPointervPName -> GLenum
 marshalGetPointervPName x = case x of
