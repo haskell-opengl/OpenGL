@@ -47,8 +47,8 @@ data TextureFilter =
    | Linear'
    deriving ( Eq, Ord, Show )
 
-marshalTextureFilter :: (TextureFilter, Maybe TextureFilter) -> GLint
-marshalTextureFilter x = case x of
+marshalMinificationFilter :: MinificationFilter -> GLint
+marshalMinificationFilter x = case x of
    (Nearest, Nothing     ) -> 0x2600
    (Linear', Nothing     ) -> 0x2601
    (Nearest, Just Nearest) -> 0x2700
@@ -56,15 +56,15 @@ marshalTextureFilter x = case x of
    (Nearest, Just Linear') -> 0x2702
    (Linear', Just Linear') -> 0x2703
 
-unmarshalTextureFilter :: GLint -> (TextureFilter, Maybe TextureFilter)
-unmarshalTextureFilter x
+unmarshalMinificationFilter :: GLint -> MinificationFilter
+unmarshalMinificationFilter x
    | x ==  0x2600 = (Nearest, Nothing     )
    | x ==  0x2601 = (Linear', Nothing     )
    | x ==  0x2700 = (Nearest, Just Nearest)
    | x ==  0x2701 = (Linear', Just Nearest)
    | x ==  0x2702 = (Nearest, Just Linear')
    | x ==  0x2703 = (Linear', Just Linear')
-   | otherwise = error ("unmarshalTextureFilter: illegal value " ++ show x)
+   | otherwise = error ("unmarshalMinificationFilter: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
@@ -72,16 +72,26 @@ type MinificationFilter = (TextureFilter, Maybe TextureFilter)
 
 type MagnificationFilter = TextureFilter
 
+-- We treat MagnificationFilter as a degenerated case of MinificationFilter
+magToMin :: MagnificationFilter -> MinificationFilter
+magToMin magFilter = (magFilter, Nothing)
+
+minToMag :: MinificationFilter -> MagnificationFilter
+minToMag (magFilter, Nothing) = magFilter
+minToMag minFilter = error ("minToMag: illegal value " ++ show minFilter)
+
+--------------------------------------------------------------------------------
+
 -- ToDo: cube maps
 textureFilter :: TextureTarget -> StateVar (MinificationFilter, MagnificationFilter)
 textureFilter t =
    makeStateVar
-      (do minFilter      <- getTexParameteri unmarshalTextureFilter t TextureMinFilter
-          (magFilter, _) <- getTexParameteri unmarshalTextureFilter t TextureMagFilter
-          return (minFilter, magFilter))
+      (do minFilter      <- getTexParameteri unmarshalMinificationFilter t TextureMinFilter
+          magFilterAsMin <- getTexParameteri unmarshalMinificationFilter t TextureMagFilter
+          return (minFilter, minToMag magFilterAsMin))
       (\(minFilter, magFilter) -> do
-         texParameteri marshalTextureFilter t TextureMinFilter minFilter
-         texParameteri marshalTextureFilter t TextureMagFilter (magFilter, Nothing))
+         texParameteri marshalMinificationFilter t TextureMinFilter minFilter
+         texParameteri marshalMinificationFilter t TextureMagFilter (magToMin magFilter))
 
 --------------------------------------------------------------------------------
 
