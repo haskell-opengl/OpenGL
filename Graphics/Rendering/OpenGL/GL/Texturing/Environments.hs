@@ -14,18 +14,29 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Environments (
-   TextureEnvMode(..), textureEnvMode, textureEnvColor, textureUnitLODBias
+   TextureFunction(..), textureFunction,
+   TextureCombineFunction(..), combineRGB, combineAlpha,
+   ArgNum(..), Arg(..), Src(..), argRGB, argAlpha,
+   rgbScale, alphaScale,
+   constantColor, textureUnitLODBias
 ) where
 
+import Control.Monad ( liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable )
 import Foreign.Marshal.Utils ( with )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum, GLfloat )
+import Graphics.Rendering.OpenGL.GL.BlendingFactor (
+   marshalBlendingFactor, unmarshalBlendingFactor )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.PerFragment ( BlendingFactor )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Parameters ( LOD )
-import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
+   marshalTextureUnit, unmarshalTextureUnit )
+import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..), TextureUnit )
 
 --------------------------------------------------------------------------------
 
@@ -158,47 +169,195 @@ texEnvC4f t p =
 
 --------------------------------------------------------------------------------
 
-data TextureEnvMode =
+data TextureFunction =
      Modulate
    | Decal
    | Blend
    | Replace
-   | Add'
+   | AddUnsigned
    | Combine
    | Combine4
    deriving ( Eq, Ord, Show )
 
-marshalTextureEnvMode :: TextureEnvMode -> GLint
-marshalTextureEnvMode x = case x of
+marshalTextureFunction :: TextureFunction -> GLint
+marshalTextureFunction x = case x of
    Modulate -> 0x2100
    Decal -> 0x2101
    Blend -> 0xbe2
    Replace -> 0x1e01
-   Add' -> 0x104
+   AddUnsigned -> 0x104
    Combine -> 0x8570
    Combine4 -> 0x8503
 
-unmarshalTextureEnvMode :: GLint -> TextureEnvMode
-unmarshalTextureEnvMode x
+unmarshalTextureFunction :: GLint -> TextureFunction
+unmarshalTextureFunction x
    | x == 0x2100 = Modulate
    | x == 0x2101 = Decal
    | x == 0xbe2 = Blend
    | x == 0x1e01 = Replace
-   | x == 0x104 = Add'
+   | x == 0x104 = AddUnsigned
    | x == 0x8570 = Combine
    | x == 0x8503 = Combine4
-   | otherwise = error ("unmarshalTextureEnvMode: illegal value " ++ show x)
+   | otherwise = error ("unmarshalTextureFunction: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
-textureEnvMode :: StateVar TextureEnvMode
-textureEnvMode =
-   texEnvi unmarshalTextureEnvMode marshalTextureEnvMode TextureEnv TexEnvParamTextureEnvMode
+textureFunction :: StateVar TextureFunction
+textureFunction =
+   texEnvi unmarshalTextureFunction marshalTextureFunction TextureEnv TexEnvParamTextureEnvMode
 
 --------------------------------------------------------------------------------
 
-textureEnvColor :: StateVar (Color4 GLfloat)
-textureEnvColor = texEnvC4f TextureEnv TexEnvParamTextureEnvColor
+data TextureCombineFunction =
+     Replace'
+   | Modulate'
+   | AddUnsigned'
+   | AddSigned
+   | Interpolate
+   | Subtract
+   | Dot3RGB
+   | Dot3RGBA
+   deriving ( Eq, Ord, Show )
+
+marshalTextureCombineFunction :: TextureCombineFunction -> GLint
+marshalTextureCombineFunction x = case x of
+   Replace' -> 0x1e01
+   Modulate' -> 0x2100
+   AddUnsigned' -> 0x104
+   AddSigned -> 0x8574
+   Interpolate -> 0x8575
+   Subtract -> 0x84e7
+   Dot3RGB -> 0x86ae
+   Dot3RGBA -> 0x86af
+
+unmarshalTextureCombineFunction :: GLint -> TextureCombineFunction
+unmarshalTextureCombineFunction x
+   | x == 0x1e01 = Replace'
+   | x == 0x2100 = Modulate'
+   | x == 0x104 = AddUnsigned'
+   | x == 0x8574 = AddSigned
+   | x == 0x8575 = Interpolate
+   | x == 0x84e7 = Subtract
+   | x == 0x86ae = Dot3RGB
+   | x == 0x86af = Dot3RGBA
+   | otherwise = error ("unmarshalTextureCombineFunction: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+combineRGB :: StateVar TextureCombineFunction
+combineRGB = combine TexEnvParamCombineRGB
+
+combineAlpha :: StateVar TextureCombineFunction
+combineAlpha = combine TexEnvParamCombineAlpha
+
+combine :: TextureEnvParameter -> StateVar TextureCombineFunction
+combine =
+   texEnvi unmarshalTextureCombineFunction marshalTextureCombineFunction TextureEnv
+
+--------------------------------------------------------------------------------
+
+data ArgNum =
+     Arg0
+   | Arg1
+   | Arg2
+   | Arg3
+   deriving ( Eq, Ord, Show )
+
+argNumToOperandRGB :: ArgNum -> TextureEnvParameter
+argNumToOperandRGB x = case x of
+   Arg0 -> TexEnvParamOperand0RGB
+   Arg1 -> TexEnvParamOperand1RGB
+   Arg2 -> TexEnvParamOperand2RGB
+   Arg3 -> TexEnvParamOperand3RGB
+
+argNumToOperandAlpha :: ArgNum -> TextureEnvParameter
+argNumToOperandAlpha x = case x of
+   Arg0 -> TexEnvParamOperand0Alpha
+   Arg1 -> TexEnvParamOperand1Alpha
+   Arg2 -> TexEnvParamOperand2Alpha
+   Arg3 -> TexEnvParamOperand3Alpha
+
+argNumToSrcRGB :: ArgNum -> TextureEnvParameter
+argNumToSrcRGB x = case x of
+   Arg0 -> TexEnvParamSrc0RGB
+   Arg1 -> TexEnvParamSrc1RGB
+   Arg2 -> TexEnvParamSrc2RGB
+   Arg3 -> TexEnvParamSrc3RGB
+
+argNumToSrcAlpha :: ArgNum -> TextureEnvParameter
+argNumToSrcAlpha x = case x of
+   Arg0 -> TexEnvParamSrc0Alpha
+   Arg1 -> TexEnvParamSrc1Alpha
+   Arg2 -> TexEnvParamSrc2Alpha
+   Arg3 -> TexEnvParamSrc3Alpha
+
+--------------------------------------------------------------------------------
+
+data Arg = Arg BlendingFactor Src
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+data Src =
+     CurrentUnit
+   | Previous
+   | Crossbar TextureUnit
+   | Constant
+   | PrimaryColor
+   deriving ( Eq, Ord, Show )
+
+marshalSrc :: Src -> GLint
+marshalSrc x = case x of
+   CurrentUnit -> 0x1702
+   Previous -> 0x8578
+   Crossbar u -> fromIntegral (marshalTextureUnit u)
+   Constant -> 0x8576
+   PrimaryColor -> 0x8577
+
+unmarshalSrc :: GLint -> Src
+unmarshalSrc x
+   | x == 0x1702 = CurrentUnit
+   | x == 0x8578 = Previous
+   | x == 0x8576 = Constant
+   | x == 0x8577 = PrimaryColor
+   | otherwise = Crossbar (unmarshalTextureUnit (fromIntegral x))
+
+--------------------------------------------------------------------------------
+
+argRGB :: ArgNum -> StateVar Arg
+argRGB n = arg (argNumToOperandRGB n) (argNumToSrcRGB n)
+
+argAlpha :: ArgNum -> StateVar Arg
+argAlpha n = arg (argNumToOperandAlpha n) (argNumToSrcAlpha n)
+
+arg :: TextureEnvParameter -> TextureEnvParameter -> StateVar Arg
+arg op src = combineArg (textureEnvOperand op) (textureEnvSrc src)
+   where combineArg v w = makeStateVar
+                             (liftM2 Arg (get v) (get w))
+                             (\(Arg x y) -> do v $= x; w $= y)
+
+textureEnvOperand :: TextureEnvParameter -> StateVar BlendingFactor
+textureEnvOperand =
+   texEnvi (unmarshalBlendingFactor . fromIntegral) (fromIntegral . marshalBlendingFactor) TextureEnv
+
+textureEnvSrc :: TextureEnvParameter -> StateVar Src
+textureEnvSrc = texEnvi unmarshalSrc marshalSrc TextureEnv
+
+--------------------------------------------------------------------------------
+
+rgbScale :: StateVar GLfloat
+rgbScale = scale TexEnvParamRGBScale
+
+alphaScale :: StateVar GLfloat
+alphaScale = scale TexEnvParamAlphaScale
+
+scale :: TextureEnvParameter -> StateVar GLfloat
+scale = texEnvf id id TextureEnv
+
+--------------------------------------------------------------------------------
+
+constantColor :: StateVar (Color4 GLfloat)
+constantColor = texEnvC4f TextureEnv TexEnvParamTextureEnvColor
 
 --------------------------------------------------------------------------------
 
