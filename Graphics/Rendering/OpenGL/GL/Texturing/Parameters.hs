@@ -15,7 +15,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
-   TextureFilter(..), textureFilter,
+   TextureFilter(..), MinificationFilter, MagnificationFilter, textureFilter,
    Repetition(..), Clamping(..), textureWrapMode,
    textureBorderColor, textureLODRange, textureLevelRange,
    textureMaxAnisotropy, maxTextureMaxAnisotropy
@@ -68,8 +68,12 @@ unmarshalTextureFilter x
 
 --------------------------------------------------------------------------------
 
+type MinificationFilter = (TextureFilter, Maybe TextureFilter)
+
+type MagnificationFilter = TextureFilter
+
 -- ToDo: cube maps
-textureFilter :: TextureTarget -> StateVar ((TextureFilter, Maybe TextureFilter), TextureFilter)
+textureFilter :: TextureTarget -> StateVar (MinificationFilter, MagnificationFilter)
 textureFilter t =
    makeStateVar
       (do minFilter      <- getTexParameteri unmarshalTextureFilter t TextureMinFilter
