@@ -14,7 +14,7 @@
 
 module Graphics.Rendering.OpenGL.GLU.Matrix (
    ortho2D, perspective, lookAt, pickMatrix,
-   project, unProject
+   UnProjFunc, project, unProject
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
