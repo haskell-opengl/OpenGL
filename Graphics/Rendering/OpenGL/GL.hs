@@ -46,7 +46,6 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.StringQueries,
 
    -- * Temporary Modules, will die soon...
-   module Graphics.Rendering.OpenGL.GL.PixelRect,
    module Graphics.Rendering.OpenGL.GL.Texturing
 ) where
 
@@ -76,5 +75,4 @@ import Graphics.Rendering.OpenGL.GL.Hints
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.StringQueries
 
-import Graphics.Rendering.OpenGL.GL.PixelRect
 import Graphics.Rendering.OpenGL.GL.Texturing

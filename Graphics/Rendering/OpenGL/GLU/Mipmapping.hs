@@ -13,16 +13,22 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.Mipmapping (
+   PixelDescriptor(..), -- ToDo: temporary hack
    scaleImage, build1DMipmaps, build2DMipmaps
 ) where
 
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, GLint, GLenum )
-import Graphics.Rendering.OpenGL.GL.PixelRect (
-   PixelDescriptor(..), marshalPixelFormat, marshalPixelType )
+import Graphics.Rendering.OpenGL.GL.PixelRectangles (
+   PixelFormat(..), marshalPixelFormat, PixelType(..), marshalPixelType )
 import Graphics.Rendering.OpenGL.GL.Texturing (
    TextureTarget, marshalTextureTarget,
    PixelInternalFormat, marshalPixelInternalFormat )
+
+---------------------------------------------------------------------------
+
+-- ToDo: temporary hack
+data PixelDescriptor  = PixelDescriptor PixelFormat PixelType (Ptr ())
 
 ---------------------------------------------------------------------------
 -- Section 3.1 (Image Scaling)
