@@ -13,14 +13,31 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Evaluators (
-   maxEvalOrder, autoNormal,
-
+   -- * Defining Evaluator Maps
    map1Vertex, map1Index, map1Color, map1Normal, map1TexCoord,
    map2Vertex, map2Index, map2Color, map2Normal, map2TexCoord,
 
+   -- * Using Evaluator Maps
+
+   -- ** Evaluating an Arbitrary Coordinate Value
    EvalCoord1(..), EvalCoord2(..),
-   map1Gridf, map1Gridd, map2Gridf, map2Gridd,
-   evalPoint1, evalPoint2, evalMesh1, evalMesh2
+
+   -- ** Using Evenly Spaced Coordinate Values
+
+   -- *** Defining a Grid
+   Grid(..),
+
+   -- *** Evaluating a Whole Mesh
+   evalMesh1, evalMesh2,
+
+   -- *** Evaluating a Single Point on a Mesh
+   evalPoint1, evalPoint2,
+
+   -- * Evaluator Limits
+   maxEvalOrder,
+
+   -- * Normal Generation
+   autoNormal
 ) where
 
 import Control.Monad ( liftM )
@@ -55,14 +72,6 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 --------------------------------------------------------------------------------
 
 #include "HsOpenGLTypes.h"
-
---------------------------------------------------------------------------------
-
-maxEvalOrder :: GettableStateVar GLsizei
-maxEvalOrder = makeGettableStateVar (getSizei1 id GetMaxEvalOrder)
-
-autoNormal :: StateVar Capability
-autoNormal = makeCapability CapAutoNormal
 
 --------------------------------------------------------------------------------
 
@@ -281,6 +290,12 @@ getMapf target = glGetMapfv (marshalMapTarget target) . marshalGetMapQuery
 foreign import CALLCONV unsafe "glGetMapfv" glGetMapfv ::
    GLenum -> GLenum -> Ptr GLfloat -> IO ()
 
+getMapd :: MapTarget -> GetMapQuery -> Ptr GLdouble -> IO ()
+getMapd target = glGetMapdv (marshalMapTarget target) . marshalGetMapQuery
+
+foreign import CALLCONV unsafe "glGetMapdv" glGetMapdv ::
+   GLenum -> GLenum -> Ptr GLdouble -> IO ()
+
 getMapi :: MapTarget -> GetMapQuery -> Ptr GLint -> IO ()
 getMapi target = glGetMapiv (marshalMapTarget target) . marshalGetMapQuery
 
@@ -341,66 +356,83 @@ foreign import CALLCONV unsafe "glEvalCoord2dv" glEvalCoord2dv ::
 
 --------------------------------------------------------------------------------
 
-map1Gridf :: StateVar (GLint, GLfloat, GLfloat)
-map1Gridf =
-   makeStateVar
-      (do n <- getInteger1 id GetMap1GridSegments
-          (u1, u2) <- getFloat2 (,) GetMap1GridDomain
-          return (n, u1, u2))
-      (\(n, u1, u2) -> glMapGrid1f n u1 u2)
+class Grid a where
+   map1Grid :: StateVar (GLint, (a, a))
+   map2Grid :: StateVar ((GLint, (a, a)), (GLint, (a, a)))
+
+instance Grid GLfloat_ where
+   map1Grid = map1GridX getFloat2 glMapGrid1f
+   map2Grid = map2GridX getFloat4 glMapGrid2f
 
 foreign import CALLCONV unsafe "glMapGrid1f" glMapGrid1f ::
    GLint -> GLfloat -> GLfloat -> IO ()
 
-map1Gridd :: StateVar (GLint, GLdouble, GLdouble)
-map1Gridd =
-   makeStateVar
-      (do un <- getInteger1 id GetMap1GridSegments
-          (u1, u2) <- getDouble2 (,) GetMap1GridDomain
-          return (un, u1, u2))
-      (\(un, u1, u2) -> glMapGrid1d un u1 u2)
+foreign import CALLCONV unsafe "glMapGrid2f" glMapGrid2f ::
+   GLint -> GLfloat -> GLfloat -> GLint -> GLfloat -> GLfloat -> IO ()
+
+instance Grid GLdouble_ where
+   map1Grid = map1GridX getDouble2 glMapGrid1d
+   map2Grid = map2GridX getDouble4 glMapGrid2d
 
 foreign import CALLCONV unsafe "glMapGrid1d" glMapGrid1d ::
    GLint -> GLdouble -> GLdouble -> IO ()
 
-map2Gridf :: StateVar (GLint, GLfloat, GLfloat, GLint, GLfloat, GLfloat)
-map2Gridf =
-   makeStateVar
-      (do (un, vn) <- getInteger2 (,) GetMap2GridSegments
-          (u1, u2, v1, v2) <- getFloat4 (,,,) GetMap2GridDomain
-          return (un, u1, u2, vn, v1, v2))
-      (\(un, u1, u2, vn, v1, v2) -> glMapGrid2f un u1 u2 vn v1 v2)
-
-foreign import CALLCONV unsafe "glMapGrid2f" glMapGrid2f ::
-   GLint -> GLfloat -> GLfloat -> GLint -> GLfloat -> GLfloat -> IO ()
-
-map2Gridd :: StateVar (GLint, GLdouble, GLdouble, GLint, GLdouble, GLdouble)
-map2Gridd =
-   makeStateVar
-      (do (un, vn) <- getInteger2 (,) GetMap2GridSegments
-          (u1, u2, v1, v2) <- getDouble4 (,,,) GetMap2GridDomain
-          return (un, u1, u2, vn, v1, v2))
-      (\(un, u1, u2, vn, v1, v2) -> glMapGrid2d un u1 u2 vn v1 v2)
-
 foreign import CALLCONV unsafe "glMapGrid2d" glMapGrid2d ::
    GLint -> GLdouble -> GLdouble -> GLint -> GLdouble -> GLdouble -> IO ()
+
+map1GridX ::
+      ((a -> a -> (a, a)) -> GetPName -> IO (a, a))
+   -> (GLint -> a -> a -> IO ())
+   -> StateVar (GLint, (a, a))
+map1GridX get2 glMapGrid1 =
+   makeStateVar
+      (do n <- getInteger1 id GetMap1GridSegments
+          domain <- get2 (,) GetMap1GridDomain
+          return (n, domain))
+      (\(n, (u1, u2)) -> glMapGrid1 n u1 u2)
+
+map2GridX ::
+      ((a -> a -> a -> a -> (a, a, a, a)) -> GetPName -> IO (a, a, a, a))
+   -> (GLint -> a -> a -> GLint -> a -> a -> IO ())
+   -> StateVar ((GLint, (a, a)), (GLint, (a, a)))
+map2GridX get4 glMapGrid2 =
+   makeStateVar
+      (do (un, vn) <- getInteger2 (,) GetMap2GridSegments
+          (u1, u2, v1, v2) <- get4 (,,,) GetMap2GridDomain
+          return ((un, (u1, u2)), (vn, (v1, v2))))
+      (\((un, (u1, u2)), (vn, (v1, v2))) -> glMapGrid2 un u1 u2 vn v1 v2)
+
+--------------------------------------------------------------------------------
+
+evalMesh1 :: PrimitiveMode -> (GLint, GLint) -> IO ()
+evalMesh1 m (p1, p2) = glEvalMesh1 (marshalPrimitiveMode m) p1 p2
+
+foreign import CALLCONV unsafe "glEvalMesh1" glEvalMesh1 ::
+   GLenum -> GLint -> GLint -> IO ()
+
+evalMesh2 :: PrimitiveMode -> (GLint, GLint) -> (GLint, GLint) -> IO ()
+evalMesh2 m (p1, p2) (q1, q2) = glEvalMesh2 (marshalPrimitiveMode m) p1 p2 q1 q2
+
+foreign import CALLCONV unsafe "glEvalMesh2" glEvalMesh2 ::
+   GLenum -> GLint -> GLint -> GLint -> GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glEvalPoint1" evalPoint1 ::
    GLint -> IO ()
 
-foreign import CALLCONV unsafe "glEvalPoint2" evalPoint2 ::
+evalPoint2 :: (GLint, GLint) -> IO ()
+evalPoint2 = uncurry glEvalPoint2
+
+foreign import CALLCONV unsafe "glEvalPoint2" glEvalPoint2 ::
    GLint -> GLint -> IO ()
 
-evalMesh1 :: PrimitiveMode -> GLint -> GLint -> IO ()
-evalMesh1 = glEvalMesh1 . marshalPrimitiveMode
+--------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glEvalMesh1" glEvalMesh1 ::
-   GLenum -> GLint -> GLint -> IO ()
+maxEvalOrder :: GettableStateVar GLsizei
+maxEvalOrder = makeGettableStateVar (getSizei1 id GetMaxEvalOrder)
 
-evalMesh2 :: PrimitiveMode -> GLint -> GLint -> GLint -> GLint -> IO ()
-evalMesh2 = glEvalMesh2 . marshalPrimitiveMode
+--------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glEvalMesh2" glEvalMesh2 ::
-   GLenum -> GLint -> GLint -> GLint -> GLint -> IO ()
+autoNormal :: StateVar Capability
+autoNormal = makeCapability CapAutoNormal
