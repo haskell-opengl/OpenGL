@@ -18,13 +18,15 @@ module Graphics.Rendering.OpenGL.GLU.Matrix (
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( withArray )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    unmarshalGLboolean, GLint, GLsizei, GLdouble )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex4(..) )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( GLmatrix )
+import Graphics.Rendering.OpenGL.GL.CoordTrans (
+   MatrixOrder(ColumnMajor), Matrix, MatrixElement(getMatrixElements) )
 
 ---------------------------------------------------------------------------
 -- matrix setup
@@ -60,12 +62,12 @@ foreign import CALLCONV unsafe "gluPickMatrix" pickMatrixAux ::
 
 type UnProjFunc =
       (GLdouble, GLdouble, GLdouble)
-   -> GLmatrix Double -> GLmatrix Double -> (GLint, GLint) -> (GLsizei, GLsizei)
+   -> Matrix GLdouble -> Matrix GLdouble -> (GLint, GLint) -> (GLsizei, GLsizei)
    -> IO (Maybe (GLdouble, GLdouble, GLdouble))
 
 type UnProjFuncInternal =
       GLdouble -> GLdouble -> GLdouble
-   -> Ptr (GLmatrix GLdouble) -> Ptr (GLmatrix GLdouble) -> Ptr (Vertex4 GLint)
+   -> Ptr GLdouble -> Ptr GLdouble -> Ptr (Vertex4 GLint)
    -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
 
 project :: UnProjFunc
@@ -79,17 +81,19 @@ unProject = projHelper gluUnProject
 foreign import CALLCONV unsafe "gluUnProject" gluUnProject :: UnProjFuncInternal
 
 projHelper :: UnProjFuncInternal -> UnProjFunc
-projHelper upf (objX, objY, objZ) model proj (x, y) (w, h) =
-   with model $ \modelBuf ->
-   with proj  $ \projBuf  ->
-   with (Vertex4 (fromIntegral x) (fromIntegral y) (fromIntegral w) (fromIntegral h)) $ \viewBuf  ->
-   alloca           $ \winXBuf  ->
-   alloca           $ \winYBuf  ->
-   alloca           $ \winZBuf  -> do
-   success  <- upf objX objY objZ modelBuf projBuf viewBuf winXBuf winYBuf winZBuf
-   if unmarshalGLboolean (fromIntegral success)
-      then do winX <- peek winXBuf
-              winY <- peek winYBuf
-              winZ <- peek winZBuf
-              return $ Just (winX, winY, winZ)
-      else return Nothing
+projHelper upf (objX, objY, objZ) model proj (x, y) (w, h) = do
+   modelElems <- getMatrixElements ColumnMajor model -- TODO: Improve this sometimes needless (un-)marshaling
+   withArray modelElems $ \modelBuf -> do
+      projElems <- getMatrixElements ColumnMajor proj
+      withArray projElems $ \projBuf ->
+         with (Vertex4 (fromIntegral x) (fromIntegral y) (fromIntegral w) (fromIntegral h)) $ \viewBuf  ->
+            alloca $ \winXBuf  ->
+            alloca $ \winYBuf  ->
+            alloca $ \winZBuf  -> do
+            success  <- upf objX objY objZ modelBuf projBuf viewBuf winXBuf winYBuf winZBuf
+            if unmarshalGLboolean (fromIntegral success)
+               then do winX <- peek winXBuf
+                       winY <- peek winYBuf
+                       winZ <- peek winZBuf
+                       return $ Just (winX, winY, winZ)
+               else return Nothing

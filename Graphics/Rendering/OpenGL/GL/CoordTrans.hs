@@ -14,19 +14,14 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.CoordTrans (
-   -- * Misc
-   GLcolumn4(..), GLmatrix(..),
-
    -- * Controlling the Viewport
    depthRange,
    Position(..), Size(..), viewport, maxViewportDims,
 
    -- * Matrices
    MatrixMode(..), matrixMode,
-   glLoadMatrixf, glLoadMatrixd, loadTransposeMatrixf, loadTransposeMatrixd,
-   glMultMatrixf, glMultMatrixd, multTransposeMatrixf, multTransposeMatrixd,
+   MatrixOrder(..), Matrix, MatrixElement(..),
    loadIdentity,
-   glRotatef, glRotated, glTranslatef, glTranslated, glScalef, glScaled,
    ortho, frustum,
    activeTexture,
    matrixExcursion,
@@ -35,13 +30,12 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    rescaleNormal, normalize,
 
    -- * Generating Texture Coordinates
-   glTexGeni, glTexGenf, glTexGend, 
-   glTexGeniv, glTexGenfv, glTexGendv, 
-   glGetTexGeniv, glGetTexGenfv, glGetTexGendv,
+   Plane(..), TextureCoordName(..), TextureGenFunc(..)
 ) where
 
-import Control.Monad ( zipWithM_ )
-import Foreign.Ptr ( Ptr, castPtr )
+import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
+import Foreign.Marshal.Array ( peekArray, pokeArray )
+import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd )
@@ -51,10 +45,13 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
-            GetActiveTexture),
-   getInteger1, getInteger2, getInteger4, getDouble2 )
+            GetModelviewMatrix, GetProjectionMatrix, GetTextureMatrix,
+            GetColorMatrix, GetMatrixPalette, GetActiveTexture),
+   getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+   HasGetter(get),
+   GettableStateVar, makeGettableStateVar,
+   StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(TextureUnit) )
 
@@ -132,7 +129,8 @@ data MatrixMode =
      Modelview GLsizei  -- ^ The modelview matrix stack of the specified vertex unit.
    | Projection         -- ^ The projection matrix stack.
    | Texture            -- ^ The texture matrix stack.
-   | MatrixPalette      -- ^ The palette matrix stack.
+   | Color              -- ^ The color matrix stack.
+   | MatrixPalette      -- ^ The matrix palette stack.
    deriving ( Eq, Ord, Show )
 
 marshalMatrixMode :: MatrixMode -> GLenum
@@ -144,6 +142,7 @@ marshalMatrixMode x = case x of
       | otherwise -> error ("marshalMatrixMode: illegal value" ++ show i)
    Projection -> 0x1701
    Texture -> 0x1702
+   Color -> 0x1800
    MatrixPalette -> 0x8840
 
 unmarshalMatrixMode :: GLenum -> MatrixMode
@@ -153,6 +152,7 @@ unmarshalMatrixMode x
    | 0x8722 <= x && x <= 0x873f = Modelview (fromIntegral x - 0x8722)
    | x == 0x1701 = Projection
    | x == 0x1702 = Texture
+   | x == 0x1800 = Color
    | x == 0x8840 = MatrixPalette
    | otherwise = error ("unmarshalMatrixMode: illegal value " ++ show x)
 
@@ -167,6 +167,91 @@ matrixMode =
                 (glMatrixMode . marshalMatrixMode)
 
 foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+data Vector3 a = Vector3 a a a
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+data MatrixOrder = ColumnMajor | RowMajor
+   deriving ( Eq, Ord, Show )
+
+data Matrix a = Matrix MatrixOrder (ForeignPtr a)
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+class Storable a => MatrixElement a where
+   makeMatrix :: MatrixOrder -> [a] -> IO (Matrix a)
+   getMatrixElements :: MatrixOrder -> Matrix a -> IO [a]
+   currentMatrix :: StateVar (Matrix a)
+   multMatrix :: Matrix a -> IO ()
+   rotate :: a -> Vector3 a -> IO ()
+   scale :: a -> a -> a -> IO ()
+   translate :: Vector3 a -> IO ()
+
+   makeMatrix order elements = do
+      fp <- mallocForeignPtrArray 16
+      withForeignPtr fp $ flip pokeArray (take 16 elements)
+      return $ Matrix order fp
+
+   getMatrixElements desiredOrder (Matrix order fp) = do
+      withForeignPtr fp $ \p ->
+        if desiredOrder == order
+           then peekArray 16 p
+           else mapM (peekElemOff p) [ 0, 4,  8, 12,
+                                       1, 5,  9, 13,
+                                       2, 6, 10, 14,
+                                       3, 7, 11, 15 ]
+
+instance MatrixElement GLfloat  where
+   currentMatrix =
+      makeStateVar (getCurrentColumnMajorMatrix getFloatv) loadMatrixf
+
+   multMatrix (Matrix ColumnMajor fp) = withForeignPtr fp $ glMultMatrixf
+   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ multTransposeMatrixf
+
+   rotate a (Vector3 x y z) = glRotatef a x y z
+   translate (Vector3 x y z) = glTranslatef x y z
+   scale = glScalef
+
+loadMatrixf :: Matrix GLfloat -> IO ()
+loadMatrixf (Matrix ColumnMajor fp) = withForeignPtr fp $ glLoadMatrixf
+loadMatrixf (Matrix RowMajor    fp) = withForeignPtr fp $ loadTransposeMatrixf
+
+instance MatrixElement GLdouble where
+   currentMatrix =
+      makeStateVar (getCurrentColumnMajorMatrix getDoublev) loadMatrixd
+
+   multMatrix (Matrix ColumnMajor fp) = withForeignPtr fp $ glMultMatrixd
+   multMatrix (Matrix RowMajor    fp) = withForeignPtr fp $ multTransposeMatrixd
+
+   rotate a (Vector3 x y z) = glRotated a x y z
+   translate (Vector3 x y z) = glTranslated x y z
+   scale = glScaled
+
+loadMatrixd :: Matrix GLdouble -> IO ()
+loadMatrixd (Matrix ColumnMajor fp) = withForeignPtr fp $ glLoadMatrixd
+loadMatrixd (Matrix RowMajor    fp) = withForeignPtr fp $ loadTransposeMatrixd
+
+--------------------------------------------------------------------------------
+
+getCurrentColumnMajorMatrix ::
+   Storable a => (GetPName -> Ptr a -> IO ()) -> IO (Matrix a)
+getCurrentColumnMajorMatrix getV  = do
+   mode <- get matrixMode
+   fp <- mallocForeignPtrArray 16
+   withForeignPtr fp $ getV (getMatrixPName mode)
+   return $ Matrix ColumnMajor fp
+
+getMatrixPName :: MatrixMode -> GetPName
+getMatrixPName (Modelview _) = GetModelviewMatrix -- ???
+getMatrixPName Projection    = GetProjectionMatrix
+getMatrixPName Texture       = GetTextureMatrix
+getMatrixPName Color         = GetColorMatrix
+getMatrixPName MatrixPalette = GetMatrixPalette
 
 --------------------------------------------------------------------------------
 
@@ -232,10 +317,17 @@ foreign import CALLCONV unsafe "glActiveTexture" glActiveTexture ::
 
 --------------------------------------------------------------------------------
 
--- ToDo: Use bracket? Guard against overflow?
+-- | Push the current matrix stack down by one, duplicating the current matrix,
+-- excute the given action, and pop the current matrix stack, replacing the
+-- current matrix with the one below it on the stack (i.e. restoring it to its
+-- previous state). The returned value is that of the given action.
+--
+-- Note that it is currently an error to throw an exception during the execution
+-- of the action or to change the current matrix mode permanently before
+-- returning from it.
 
 matrixExcursion :: IO a -> IO a
-matrixExcursion act = do
+matrixExcursion act = do -- ToDo: Use bracket? Guard against overflow? Save current matrix mode for glPopMatrix?
    glPushMatrix
    ret <- act
    glPopMatrix
@@ -247,11 +339,92 @@ foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
 
 --------------------------------------------------------------------------------
 
+-- | If 'rescaleNormal' contains 'True', normal vectors specified with
+-- 'Graphics.Rendering.OpenGL.GL.VertexSpec.normal' are scaled by a scaling
+-- factor derived from the modelview matrix. 'rescaleNormal' requires that the
+-- originally specified normals were of unit length, and that the modelview
+-- matrix contains only uniform scales for proper results. The initial value of
+-- 'rescaleNormal' is 'False'.
+
 rescaleNormal :: StateVar Bool
 rescaleNormal = makeCapability CapRescaleNormal
 
+-- | If 'normalize' contains 'True', normal vectors specified with
+-- 'Graphics.Rendering.OpenGL.GL.VertexSpec.normal' are scaled to unit length
+-- after transformation. The initial value of 'normalize' is 'False'.
+
 normalize :: StateVar Bool
 normalize = makeCapability CapNormalize
+
+--------------------------------------------------------------------------------
+
+data Plane a = Plane a a a a
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+data TextureCoordName =
+     S
+   | T
+   | R
+   | Q
+   deriving ( Eq, Ord, Show )
+
+marshalTextureCoordName :: TextureCoordName -> GLenum
+marshalTextureCoordName x = case x of
+   S -> 0x2000
+   T -> 0x2001
+   R -> 0x2002
+   Q -> 0x2003
+
+--------------------------------------------------------------------------------
+
+data TextureGenParameter =
+     TextureGenMode
+   | ObjectPlane
+   | EyePlane
+
+marshalTextureGenParameter :: TextureGenParameter -> GLenum
+marshalTextureGenParameter x = case x of
+   TextureGenMode -> 0x2500
+   ObjectPlane -> 0x2501
+   EyePlane -> 0x2502
+
+--------------------------------------------------------------------------------
+
+data TextureGenMode =
+     EyeLinear'
+   | ObjectLinear'
+   | SphereMap'
+   | NormalMap'
+   | ReflectionMap'
+
+marshalTextureGenMode :: TextureGenMode -> GLenum
+marshalTextureGenMode x = case x of
+   EyeLinear' -> 0x2400
+   ObjectLinear' -> 0x2401
+   SphereMap' -> 0x2402
+   NormalMap' -> 0x8511
+   ReflectionMap' -> 0x8512
+
+unmarshalTextureGenMode :: GLenum -> TextureGenMode
+unmarshalTextureGenMode x
+   | x == 0x2400 = EyeLinear'
+   | x == 0x2401 = ObjectLinear'
+   | x == 0x2402 = SphereMap'
+   | x == 0x8511 = NormalMap'
+   | x == 0x8512 = ReflectionMap'
+   | otherwise = error ("unmarshalTextureGenMode: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+data TextureGenFunc =
+     EyeLinear    (Plane GLdouble)
+   | ObjectLinear (Plane GLdouble)
+   | SphereMap
+   | NormalMap
+   | ReflectionMap
+   deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
 
@@ -266,33 +439,3 @@ foreign import CALLCONV unsafe "glTexGendv" glTexGendv :: GLenum -> GLenum -> Pt
 foreign import CALLCONV unsafe "glGetTexGeniv" glGetTexGeniv :: GLenum -> GLenum -> Ptr GLint -> IO ()
 foreign import CALLCONV unsafe "glGetTexGenfv" glGetTexGenfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
 foreign import CALLCONV unsafe "glGetTexGendv" glGetTexGendv :: GLenum -> GLenum -> Ptr GLdouble -> IO ()
-
---------------------------------------------------------------------------------
-
-data GLcolumn4 a = GLcolumn4 a a a a
-
-data GLmatrix a = GLmatrix (GLcolumn4 a) (GLcolumn4 a) (GLcolumn4 a) (GLcolumn4 a)
-
-instance Storable a => Storable (GLmatrix a) where
-   sizeOf    ~(GLmatrix (GLcolumn4 x _ _ _) _ _ _) = 16 * sizeOf x
-   alignment ~(GLmatrix (GLcolumn4 x _ _ _) _ _ _) = alignment x
-
-   peek ptr = do
-      [ a00, a01, a02, a03,
-        a04, a05, a06, a07,
-        a08, a09, a10, a11,
-        a12, a13, a14, a15 ] <- mapM (peekElemOff (castPtr ptr)) [ 0 .. 15 ]
-      return $ GLmatrix (GLcolumn4 a00 a01 a02 a03)
-                        (GLcolumn4 a04 a05 a06 a07)
-                        (GLcolumn4 a08 a09 a10 a11)
-                        (GLcolumn4 a12 a13 a14 a15)
-
-   poke ptr (GLmatrix (GLcolumn4 a00 a01 a02 a03)
-                      (GLcolumn4 a04 a05 a06 a07)
-                      (GLcolumn4 a08 a09 a10 a11)
-                      (GLcolumn4 a12 a13 a14 a15)) =
-      zipWithM_ (pokeElemOff (castPtr ptr)) [ 0 .. ]
-                [ a00, a01, a02, a03,
-                  a04, a05, a06, a07,
-                  a08, a09, a10, a11,
-                  a12, a13, a14, a15 ]

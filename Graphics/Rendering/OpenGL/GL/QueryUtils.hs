@@ -17,8 +17,8 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(..),
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4,
-   getFloat1, getFloat3, getFloat4,
-   getDouble1, getDouble2,
+   getFloat1, getFloat3, getFloat4, getFloatv,
+   getDouble1, getDouble2, getDoublev,
    peek1, peek2, peek3, peek4
 ) where
 
@@ -790,34 +790,40 @@ marshalGetPName x = case x of
 
 getBoolean1 :: (GLboolean -> a) -> GetPName -> IO a
 getBoolean1 f n = alloca $ \buf -> do
-   glGetBooleanv (marshalGetPName n) buf
+   getBooleanv n buf
    peek1 f buf
 
 getBoolean4 :: (GLboolean -> GLboolean -> GLboolean -> GLboolean -> a)
             -> GetPName -> IO a
 getBoolean4 f n = alloca $ \buf -> do
-   glGetBooleanv (marshalGetPName n) buf
+   getBooleanv n buf
    peek4 f buf
 
 foreign import CALLCONV unsafe "glGetBooleanv" glGetBooleanv ::
    GLenum -> Ptr GLboolean -> IO ()
 
+getBooleanv :: GetPName -> Ptr GLboolean -> IO ()
+getBooleanv = glGetBooleanv . marshalGetPName
+
 --------------------------------------------------------------------------------
 
 getInteger1 :: (GLint -> a) -> GetPName -> IO a
 getInteger1 f n = alloca $ \buf -> do
-   glGetIntegerv (marshalGetPName n) buf
+   getIntegerv n buf
    peek1 f buf
 
 getInteger2 :: (GLint -> GLint -> a) -> GetPName -> IO a
 getInteger2 f n = alloca $ \buf -> do
-   glGetIntegerv (marshalGetPName n) buf
+   getIntegerv n buf
    peek2 f buf
 
 getInteger4 :: (GLint -> GLint -> GLint -> GLint -> a) -> GetPName -> IO a
 getInteger4 f n = alloca $ \buf -> do
-   glGetIntegerv (marshalGetPName n) buf
+   getIntegerv n buf
    peek4 f buf
+
+getIntegerv :: GetPName -> Ptr GLint -> IO ()
+getIntegerv = glGetIntegerv . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetIntegerv" glGetIntegerv ::
    GLenum -> Ptr GLint -> IO ()
@@ -826,19 +832,22 @@ foreign import CALLCONV unsafe "glGetIntegerv" glGetIntegerv ::
 
 getFloat1 :: (GLfloat -> a) -> GetPName -> IO a
 getFloat1 f n = alloca $ \buf -> do
-   glGetFloatv (marshalGetPName n) buf
+   getFloatv n buf
    peek1 f buf
 
 getFloat3 :: (GLfloat -> GLfloat -> GLfloat -> a) -> GetPName -> IO a
 getFloat3 f n = alloca $ \buf -> do
-   glGetFloatv (marshalGetPName n) buf
+   getFloatv n buf
    peek3 f buf
 
 getFloat4 ::
    (GLfloat -> GLfloat -> GLfloat -> GLfloat -> a) -> GetPName -> IO a
 getFloat4 f n = alloca $ \buf -> do
-   glGetFloatv (marshalGetPName n) buf
+   getFloatv n buf
    peek4 f buf
+
+getFloatv :: GetPName -> Ptr GLfloat -> IO ()
+getFloatv = glGetFloatv . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetFloatv" glGetFloatv ::
    GLenum -> Ptr GLfloat -> IO ()
@@ -847,13 +856,16 @@ foreign import CALLCONV unsafe "glGetFloatv" glGetFloatv ::
 
 getDouble1 :: (GLdouble -> a) -> GetPName -> IO a
 getDouble1 f n = alloca $ \buf -> do
-   glGetDoublev (marshalGetPName n) buf
+   getDoublev n buf
    peek1 f buf
 
 getDouble2 :: (GLdouble -> GLdouble -> a) -> GetPName -> IO a
 getDouble2 f n = alloca $ \buf -> do
-   glGetDoublev (marshalGetPName n) buf
+   getDoublev n buf
    peek2 f buf
+
+getDoublev :: GetPName -> Ptr GLdouble -> IO ()
+getDoublev = glGetDoublev . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
    GLenum -> Ptr GLdouble -> IO ()

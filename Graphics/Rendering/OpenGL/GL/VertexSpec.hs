@@ -693,7 +693,21 @@ instance NormalComponent GLdouble where
 
 --------------------------------------------------------------------------------
 
--- | Change the current normal.
+-- | Change the current normal. Integral arguments are converted to
+-- floating-point with a linear mapping that maps the most positive
+-- representable integer value to 1.0, and the most negative representable
+-- integer value to -1.0.
+--
+-- Normals specified with 'normal' or 'normalv' need not have unit length.
+-- If 'Graphics.Rendering.OpenGL.GL.CoordTrans.normalize' is enabled, then
+-- normals of any length specified with 'normal' or 'normalv' are normalized
+-- after transformation. If
+-- 'Graphics.Rendering.OpenGL.GL.CoordTrans.rescaleNormal' is enabled, normals
+-- are scaled by a scaling factor derived from the modelview matrix.
+-- 'Graphics.Rendering.OpenGL.GL.CoordTrans.rescaleNormal' requires that the
+-- originally specified normals were of unit length, and that the modelview
+-- matrix contains only uniform scales for proper results. Normalization is 
+-- initially disabled.
 
 class Normal a where
    normal  ::     a -> IO ()
