@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.9 2003/02/10 22:04:54 panne Exp $
+# $Id: Makefile,v 1.10 2003/02/14 21:45:15 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -46,7 +46,7 @@ PACKAGE_CPP_OPTS += -DGL_LIBS='$(patsubst %,$(comma)"%",$(GL_LIBS))'
 ENUM_CONVERTER=specs/enumerant/ConvertEnumSpec$(exeext)
 
 $(ENUM_CONVERTER): $(basename $(ENUM_CONVERTER)).hs
-	  $(MAKE) -C $(dir $(ENUM_CONVERTER)) $(MFLAGS) $(notdir $(ENUM_CONVERTER))
+	$(MAKE) -C $(dir $(ENUM_CONVERTER)) $(MFLAGS) $(notdir $(ENUM_CONVERTER))
 
 # Generate the enumeration constants from the .spec files.
 
