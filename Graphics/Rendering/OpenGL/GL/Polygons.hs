@@ -30,6 +30,8 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLubyte, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.Colors ( Face(..) )
+import Graphics.Rendering.OpenGL.GL.PolygonMode (
+   PolygonMode(..), marshalPolygonMode, unmarshalPolygonMode )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
             GetPolygonOffsetUnits),
@@ -82,27 +84,6 @@ foreign import CALLCONV unsafe "glGetPolygonStipple" glGetPolygonStipple ::
 
 foreign import CALLCONV unsafe "glPolygonStipple" glPolygonStipple ::
    Ptr GLubyte -> IO ()
-
---------------------------------------------------------------------------------
-
-data PolygonMode =
-     Point
-   | Line
-   | Fill
-   deriving ( Eq, Ord, Show )
-
-marshalPolygonMode :: PolygonMode -> GLenum
-marshalPolygonMode x = case x of
-   Point -> 0x1b00
-   Line -> 0x1b01
-   Fill -> 0x1b02
-
-unmarshalPolygonMode :: GLenum -> PolygonMode
-unmarshalPolygonMode x
-   | x == 0x1b00 = Point
-   | x == 0x1b01 = Line
-   | x == 0x1b02 = Fill
-   | otherwise = error ("unmarshalPolygonMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
