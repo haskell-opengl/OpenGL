@@ -45,6 +45,7 @@ clipPlane (ClipPlaneName i) =
           getDoublev (GetClipPlane i) (castPtr buf)
           peek1 id (buf :: Ptr (Plane GLdouble)))
       (\plane -> with plane $ glClipPlane (clipPlaneIndexToEnum i))
+
 foreign import CALLCONV unsafe "glClipPlane" glClipPlane ::
    GLenum -> Ptr (Plane GLdouble) -> IO ()
 

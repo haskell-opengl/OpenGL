@@ -21,7 +21,6 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
    -- * Polygon Edges
    EdgeFlag(..),
    edgeFlag
-      
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLboolean )
