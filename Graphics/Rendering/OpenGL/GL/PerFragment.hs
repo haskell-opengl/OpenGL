@@ -32,6 +32,8 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    -- * Depth Buffer Test
    depthFunc,
 
+   -- * Occlusion Queries
+
    -- * Blending
    BlendEquationMode(..), blendEquation,
    BlendingFactor(..), blendFuncSeparate, blendFunc, blendColor,
@@ -44,6 +46,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 ) where
 
 import Control.Monad ( liftM2, liftM3 )
+import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
              CapSampleCoverage,CapDepthBoundsTest,CapAlphaTest,CapStencilTest,
@@ -257,6 +260,20 @@ depthFunc =
       (glDepthFunc . marshalComparisonFunction)
 
 foreign import CALLCONV unsafe "glDepthFunc" glDepthFunc :: GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGenQueriesARB,GLsizei -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glDeleteQueriesARB,GLsizei -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glIsQueryARB,GLuint -> IO GLboolean)
+
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glBeginQueryARB,GLenum -> GLuint -> IO ())
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glEndQueryARB,GLenum -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryivARB,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryObjectivARB,GLuint -> GLenum -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryObjectuivARB,GLuint -> GLenum -> Ptr GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 
