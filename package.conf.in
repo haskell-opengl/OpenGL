@@ -12,10 +12,11 @@ Package {
 #ifdef INSTALLING
 	library_dirs	= [ "$libdir" ],
 #else
-	library_dirs	= [ "$libdir/libraries/OpenGL" ],
+	library_dirs	= [ "$libdir/libraries/OpenGL"
+	                  , "$libdir/libraries/OpenGL/cbits" ],
 #endif
 	hs_libraries	= [ "HSOpenGL" ],
-	extra_libraries	= [],
+	extra_libraries	= [ "HSOpenGL_cbits"],
 #ifdef INSTALLING
 	include_dirs	= [],
 #else
