@@ -45,6 +45,14 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    ConvolutionBorderMode(..), convolutionBorderMode,
    convolutionFilterScale, convolutionFilterBias,
 
+   -- * Histogram Table
+   Sink(..), histogram, Reset(..), getHistogram, resetHistogram,
+   histogramWidth, histogramFormat, histogramRGBASizes, histogramLuminanceSize,
+   histogramSink,
+
+   -- * Minmax Table
+   minmax, getMinmax, resetMinmax, minmaxFormat, minmaxSink,
+
    -- * Drawing Pixels
    PixelData(..), PixelFormat(..), drawPixels,
 
@@ -52,7 +60,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    pixelZoom
 ) where
 
-import Control.Monad ( liftM, liftM2 )
+import Control.Monad ( liftM2 )
 import Data.List ( zipWith4 )
 import Data.Word
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
@@ -812,17 +820,19 @@ EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameterfv,GLenum -> GLenum -> Ptr
 colorTableFormat :: ColorTable -> GettableStateVar PixelInternalFormat
 colorTableFormat ct =
    makeGettableStateVar $
-      liftM (unmarshalPixelInternalFormat . fromIntegral) $
-         getColorTableParameteri ct ColorTableFormat
+      getColorTableParameteri unmarshalPixelInternalFormat' ct ColorTableFormat
 
-getColorTableParameteri :: ColorTable -> ColorTablePName -> IO GLsizei
-getColorTableParameteri ct p =
+unmarshalPixelInternalFormat' :: GLint -> PixelInternalFormat
+unmarshalPixelInternalFormat' = unmarshalPixelInternalFormat . fromIntegral
+
+getColorTableParameteri :: (GLint -> a) -> ColorTable -> ColorTablePName -> IO a
+getColorTableParameteri f ct p =
    alloca $ \buf -> do
       glGetColorTableParameteriv
          (marshalColorTable ct)
          (marshalColorTablePName p)
          buf
-      liftM fromIntegral $ peek buf
+      peek1 f buf
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
 
@@ -830,26 +840,29 @@ EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameteriv,GLenum -> GLenum -> 
 
 colorTableWidth :: ColorTable -> GettableStateVar GLsizei
 colorTableWidth ct =
-   makeGettableStateVar $ getColorTableParameteri ct ColorTableWidth
+   makeGettableStateVar $
+      getColorTableParameteri fromIntegral ct ColorTableWidth
 
 --------------------------------------------------------------------------------
 
 colorTableRGBASizes :: ColorTable -> GettableStateVar (Color4 GLsizei)
 colorTableRGBASizes ct =
    makeGettableStateVar $ do
-      r <- getColorTableParameteri ct ColorTableRedSize
-      g <- getColorTableParameteri ct ColorTableGreenSize
-      b <- getColorTableParameteri ct ColorTableBlueSize
-      a <- getColorTableParameteri ct ColorTableAlphaSize
+      r <- getColorTableParameteri fromIntegral ct ColorTableRedSize
+      g <- getColorTableParameteri fromIntegral ct ColorTableGreenSize
+      b <- getColorTableParameteri fromIntegral ct ColorTableBlueSize
+      a <- getColorTableParameteri fromIntegral ct ColorTableAlphaSize
       return $ Color4 r g b a
 
 colorTableLuminanceSize :: ColorTable -> GettableStateVar GLsizei
 colorTableLuminanceSize ct =
-   makeGettableStateVar $ getColorTableParameteri ct ColorTableLuminanceSize
+   makeGettableStateVar $
+      getColorTableParameteri fromIntegral ct ColorTableLuminanceSize
 
 colorTableIntesitySize :: ColorTable -> GettableStateVar GLsizei
 colorTableIntesitySize ct =
-   makeGettableStateVar $ getColorTableParameteri ct ColorTableIntensitySize
+   makeGettableStateVar $
+      getColorTableParameteri fromIntegral ct ColorTableIntensitySize
 
 --------------------------------------------------------------------------------
 
@@ -1115,25 +1128,205 @@ EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameterfv,GLenum -> GLenum -> Pt
 
 --------------------------------------------------------------------------------
 
+data HistogramTarget =
+     Histogram
+   | ProxyHistogram
+
+marshalHistogramTarget :: HistogramTarget -> GLenum
+marshalHistogramTarget x = case x of
+   Histogram -> 0x8024
+   ProxyHistogram -> 0x8025
+
+proxyToHistogramTarget :: Proxy -> HistogramTarget
+proxyToHistogramTarget x = case x of
+   NoProxy -> Histogram
+   Proxy -> ProxyHistogram
+
+--------------------------------------------------------------------------------
+
+data Sink =
+     Passthrough
+   | Sink
+   deriving ( Eq, Ord, Show )
+
+marshalSink :: Sink -> GLboolean
+marshalSink x = marshalGLboolean (x == Sink)
+
+unmarshalSink :: GLint -> Sink
+unmarshalSink s =
+   if unmarshalGLboolean (fromIntegral s) then Sink else Passthrough
+
+--------------------------------------------------------------------------------
+
+histogram :: Proxy -> GLsizei -> PixelInternalFormat -> Sink -> IO ()
+histogram proxy w int sink =
+   glHistogram
+      (marshalHistogramTarget (proxyToHistogramTarget proxy))
+      w
+      (marshalPixelInternalFormat int)
+      (marshalSink sink)
+         
 EXTENSION_ENTRY("GL_ARB_imaging",glHistogram,GLenum -> GLsizei -> GLenum -> GLboolean -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_imaging",glResetHistogram,GLenum -> IO ())
+--------------------------------------------------------------------------------
+
+data Reset =
+     NoReset
+   | Reset
+   deriving ( Eq, Ord, Show )
+
+marshalReset :: Reset -> GLboolean
+marshalReset x = marshalGLboolean (x == Reset)
+
+--------------------------------------------------------------------------------
+
+getHistogram :: Reset -> PixelData a -> IO ()
+getHistogram reset pd =
+   withPixelData pd $
+      glGetHistogram
+         (marshalHistogramTarget Histogram)
+         (marshalReset reset)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogram,GLenum -> GLboolean -> GLenum -> GLenum -> Ptr a -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogramParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+--------------------------------------------------------------------------------
+
+resetHistogram :: IO ()
+resetHistogram = glResetHistogram (marshalHistogramTarget Histogram)
+
+EXTENSION_ENTRY("GL_ARB_imaging",glResetHistogram,GLenum -> IO ())
+
+--------------------------------------------------------------------------------
+
+data GetHistogramParameterPName =
+     HistogramWidth
+   | HistogramFormat
+   | HistogramRedSize
+   | HistogramGreenSize
+   | HistogramBlueSize
+   | HistogramAlphaSize
+   | HistogramLuminanceSize
+   | HistogramSink
+
+marshalGetHistogramParameterPName :: GetHistogramParameterPName -> GLenum
+marshalGetHistogramParameterPName x = case x of
+   HistogramWidth -> 0x8026
+   HistogramFormat -> 0x8027
+   HistogramRedSize -> 0x8028
+   HistogramGreenSize -> 0x8029
+   HistogramBlueSize -> 0x802a
+   HistogramAlphaSize -> 0x802b
+   HistogramLuminanceSize -> 0x802c
+   HistogramSink -> 0x802d
+
+--------------------------------------------------------------------------------
+
+histogramWidth :: Proxy -> GettableStateVar GLsizei
+histogramWidth proxy =
+   makeGettableStateVar $
+      getHistogramParameteri fromIntegral proxy HistogramWidth
+
+histogramFormat :: Proxy -> GettableStateVar PixelInternalFormat
+histogramFormat proxy =
+   makeGettableStateVar $
+      getHistogramParameteri unmarshalPixelInternalFormat' proxy HistogramFormat
+
+histogramRGBASizes :: Proxy -> GettableStateVar (Color4 GLsizei)
+histogramRGBASizes proxy =
+   makeGettableStateVar $ do
+      r <- getHistogramParameteri fromIntegral proxy HistogramRedSize
+      g <- getHistogramParameteri fromIntegral proxy HistogramGreenSize
+      b <- getHistogramParameteri fromIntegral proxy HistogramBlueSize
+      a <- getHistogramParameteri fromIntegral proxy HistogramAlphaSize
+      return $ Color4 r g b a
+
+histogramLuminanceSize :: Proxy -> GettableStateVar GLsizei
+histogramLuminanceSize proxy =
+   makeGettableStateVar $
+      getHistogramParameteri id proxy HistogramLuminanceSize
+
+histogramSink :: Proxy -> GettableStateVar Sink
+histogramSink proxy =
+   makeGettableStateVar $
+      getHistogramParameteri unmarshalSink proxy HistogramSink
+
+getHistogramParameteri ::
+   (GLint -> a) -> Proxy -> GetHistogramParameterPName -> IO a
+getHistogramParameteri f proxy p =
+   alloca $ \buf -> do
+      glGetHistogramParameteriv
+         (marshalHistogramTarget (proxyToHistogramTarget proxy))
+         (marshalGetHistogramParameterPName p)
+         buf
+      peek1 f buf
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogramParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
 
 --------------------------------------------------------------------------------
 
+data MinmaxTarget =
+     Minmax
+
+marshalMinmaxTarget :: MinmaxTarget -> GLenum
+marshalMinmaxTarget x = case x of
+   Minmax -> 0x802e
+
+--------------------------------------------------------------------------------
+
+minmax :: PixelInternalFormat -> Sink -> IO ()
+minmax int sink =
+   glMinmax
+      (marshalMinmaxTarget Minmax)
+      (marshalPixelInternalFormat int)
+      (marshalSink sink)
+
 EXTENSION_ENTRY("GL_ARB_imaging",glMinmax,GLenum -> GLenum -> GLboolean -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_imaging",glResetMinmax,GLenum -> IO ())
+--------------------------------------------------------------------------------
+
+getMinmax :: Reset -> PixelData a -> IO ()
+getMinmax reset pd =
+   withPixelData pd $
+      glGetMinmax (marshalMinmaxTarget Minmax) (marshalReset reset)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmax,GLenum -> GLboolean -> GLenum -> GLenum -> Ptr a -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmaxParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+--------------------------------------------------------------------------------
+
+resetMinmax :: IO ()
+resetMinmax = glResetMinmax (marshalMinmaxTarget Minmax)
+
+EXTENSION_ENTRY("GL_ARB_imaging",glResetMinmax,GLenum -> IO ())
+
+--------------------------------------------------------------------------------
+
+data GetMinmaxParameterPName =
+     MinmaxFormat
+   | MinmaxSink
+
+marshalGetMinmaxParameterPName :: GetMinmaxParameterPName -> GLenum
+marshalGetMinmaxParameterPName x = case x of
+   MinmaxFormat -> 0x802f
+   MinmaxSink -> 0x8030
+
+--------------------------------------------------------------------------------
+
+minmaxFormat :: GettableStateVar PixelInternalFormat
+minmaxFormat =
+   makeGettableStateVar $
+      getMinmaxParameteri unmarshalPixelInternalFormat' MinmaxFormat
+
+minmaxSink :: GettableStateVar Sink
+minmaxSink = makeGettableStateVar $ getMinmaxParameteri unmarshalSink MinmaxSink
+
+getMinmaxParameteri :: (GLint -> a) -> GetMinmaxParameterPName -> IO a
+getMinmaxParameteri f p =
+   alloca $ \buf -> do
+      glGetMinmaxParameteriv
+         (marshalMinmaxTarget Minmax)
+         (marshalGetMinmaxParameterPName p)
+         buf
+      peek1 f buf
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmaxParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
 
