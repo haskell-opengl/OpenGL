@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
    DisplayList, genLists, deleteLists, isList,
 
    -- * Defining Display Lists
-   ListMode(..), defineList, defineNewList, listIndex, listMode,
+   ListMode(..), defineList, defineNewList, listIndex, listMode, maxListNesting,
 
    -- * Calling Display Lists
    callList, callLists, listBase
@@ -31,7 +31,8 @@ import Graphics.Rendering.OpenGL.GL.DataType ( DataType, marshalDataType )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetListIndex,GetListMode,GetListBase), getInteger1 )
+   GetPName(GetListIndex,GetListMode,GetMaxListNesting,GetListBase),
+   getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
@@ -39,6 +40,45 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 
 newtype DisplayList = DisplayList GLuint
    deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+genLists :: GLsizei -> IO [DisplayList]
+genLists n = do
+   first <- glGenLists n
+   return $
+      if first == 0
+         then []
+         else [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
+
+foreign import CALLCONV unsafe "glGenLists" glGenLists :: GLsizei -> IO GLuint
+
+--------------------------------------------------------------------------------
+
+deleteLists :: [DisplayList] -> IO ()
+deleteLists = mapM_ (uncurry glDeleteLists) . combineConsecutive
+
+foreign import CALLCONV unsafe "glDeleteLists" glDeleteLists ::
+   DisplayList -> GLsizei -> IO ()
+
+combineConsecutive :: [DisplayList] -> [(DisplayList, GLsizei)]
+combineConsecutive []     = []
+combineConsecutive (z:zs) = (z, len) : combineConsecutive rest
+   where (len, rest) = run 0 z zs
+         run n x xs = case n + 1 of
+                         m -> case xs of
+                                 []                          -> (m, [])
+                                 (y:ys) | x `isFollowedBy` y -> run m y ys
+                                        | otherwise          -> (m, xs)
+         DisplayList x `isFollowedBy` DisplayList y = x + 1 == y
+
+--------------------------------------------------------------------------------
+
+isList :: DisplayList -> IO Bool
+isList = liftM unmarshalGLboolean . glIsList
+
+foreign import CALLCONV unsafe "glIsList" glIsList ::
+   DisplayList -> IO GLboolean
 
 --------------------------------------------------------------------------------
 
@@ -89,6 +129,10 @@ listMode =
    makeGettableStateVar
       (getInteger1 (unmarshalListMode . fromIntegral) GetListMode)
 
+maxListNesting :: GettableStateVar GLsizei
+maxListNesting =
+   makeGettableStateVar (getInteger1 fromIntegral GetMaxListNesting)
+
 --------------------------------------------------------------------------------
 
 foreign import CALLCONV unsafe "glCallList" callList :: DisplayList -> IO ()
@@ -108,42 +152,3 @@ listBase =
       glListBase
 
 foreign import CALLCONV unsafe "glListBase" glListBase :: DisplayList -> IO ()
-
---------------------------------------------------------------------------------
-
-genLists :: GLsizei -> IO [DisplayList]
-genLists n = do
-   first <- glGenLists n
-   return $
-      if first == 0
-         then []
-         else [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
-
-foreign import CALLCONV unsafe "glGenLists" glGenLists :: GLsizei -> IO GLuint
-
---------------------------------------------------------------------------------
-
-isList :: DisplayList -> IO Bool
-isList = liftM unmarshalGLboolean . glIsList
-
-foreign import CALLCONV unsafe "glIsList" glIsList ::
-   DisplayList -> IO GLboolean
-
---------------------------------------------------------------------------------
-
-deleteLists :: [DisplayList] -> IO ()
-deleteLists = mapM_ (uncurry glDeleteLists) . combineConsecutive
-
-foreign import CALLCONV unsafe "glDeleteLists" glDeleteLists ::
-   DisplayList -> GLsizei -> IO ()
-
-combineConsecutive :: [DisplayList] -> [(DisplayList, GLsizei)]
-combineConsecutive []     = []
-combineConsecutive (z:zs) = (z, len) : combineConsecutive rest
-   where (len, rest) = run 0 z zs
-         run n x xs = case n + 1 of
-                         m -> case xs of
-                                 []                          -> (m, [])
-                                 (y:ys) | x `isFollowedBy` y -> run m y ys
-                                        | otherwise          -> (m, xs)
-         DisplayList x `isFollowedBy` DisplayList y = x + 1 == y
