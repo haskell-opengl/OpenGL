@@ -583,13 +583,13 @@ mainWithArgs :: [String] -> IO ()
 mainWithArgs args = do
    let (verbose, fileName, getInput) = parseArguments args
        exec = execute verbose
-   getInput                                                   >>=
-      exec  "preprocessing" id            preprocess          >>=
-      exec "parsing"       show          (parseSpec fileName) >>=
-      exec "expansion"     show          expandSpec           >>=
-      exec "evaluation"    (show . fst)  evaluate             >>=
-      exec "simplify"      show          simplify             >>=
-      exec "renaming"      show          rename               >>=
+   getInput                                                  >>=
+      exec "preprocessing" id           preprocess           >>=
+      exec "parsing"       show         (parseSpec fileName) >>=
+      exec "expansion"     show         expandSpec           >>=
+      exec "evaluation"    (show . fst) evaluate             >>=
+      exec "simplify"      show         simplify             >>=
+      exec "renaming"      show         rename               >>=
       putStr . codeGen
 
 main :: IO ()
