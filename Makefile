@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.2 2002/02/24 19:04:35 panne Exp $
+# $Id: Makefile,v 1.3 2002/02/28 17:42:27 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -9,10 +9,10 @@ include $(TOP)/mk/boilerplate.mk
 SUBDIRS = specs
 
 ALL_DIRS = \
-	Graphics/Drawing \
-	Graphics/Drawing/OpenGL \
-	Graphics/Drawing/OpenGL/GL \
-	Graphics/Drawing/OpenGL/GLU
+	Graphics/Rendering \
+	Graphics/Rendering/OpenGL \
+	Graphics/Rendering/OpenGL/GL \
+	Graphics/Rendering/OpenGL/GLU
 
 PACKAGE = OpenGL
 

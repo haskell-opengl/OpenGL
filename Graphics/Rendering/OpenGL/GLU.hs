@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 -- 
--- Module      :  Graphics.Drawing.OpenGL.GL
+-- Module      :  Graphics.Rendering.OpenGL.GLU
 -- Copyright   :  (c) Sven Panne 2002
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -8,15 +8,14 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- $Id: GL.hs,v 1.1 2002/02/24 17:18:03 panne Exp $
+-- $Id: GLU.hs,v 1.1 2002/02/28 17:42:28 panne Exp $
 --
--- A Haskell binding for OpenGL, the industry's most widely used and
--- supported 2D and 3D graphics API.
+-- A Haskell binding for GLU, OpenGL's accompanying utility library.
 --
 -----------------------------------------------------------------------------
 
-module Graphics.Drawing.OpenGL.GL (
-     module Graphics.Drawing.OpenGL.GL.Dummy
+module Graphics.Rendering.OpenGL.GLU (
+     module Graphics.Rendering.OpenGL.GLU.Dummy
 ) where
 
-import Graphics.Drawing.OpenGL.GL.Dummy
+import Graphics.Rendering.OpenGL.GLU.Dummy
