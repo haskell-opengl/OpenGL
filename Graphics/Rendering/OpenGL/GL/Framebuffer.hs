@@ -39,7 +39,12 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd,
-   Capability )
+#ifdef __HADDOCK__
+   Capability(..)
+#else
+   Capability
+#endif
+   )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,
@@ -142,7 +147,7 @@ foreign import CALLCONV unsafe "glIndexMask" glIndexMask :: GLuint -> IO ()
 --------------------------------------------------------------------------------
 
 -- | Controls whether the individual color components in the framebuffer can or
--- cannot be written. If the red flag is 'False', for example, no change is
+-- cannot be written. If the red flag is 'Disabled', for example, no change is
 -- made to the red component of any pixel in any of the color buffers,
 -- regardless of the drawing operation attempted. Initially, all color
 -- components can be written.
@@ -169,9 +174,8 @@ foreign import CALLCONV unsafe "glColorMask" glColorMask ::
 
 --------------------------------------------------------------------------------
 
--- | Controls whether the depth buffer is enabled for writing. If the flag is
--- 'False', depth buffer writing is disabled. Otherwise, it is enabled (the
--- initial state).
+-- | Controls whether the depth buffer is enabled for writing. The initial state
+-- is 'Enabled'.
 
 depthMask :: StateVar Capability
 depthMask = makeStateVar (getBoolean1 unmarshalCapability GetDepthWritemask)
