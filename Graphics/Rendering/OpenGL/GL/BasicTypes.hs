@@ -8,8 +8,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This module corresponds to section 2.6 (Begin\/End Paradigm) of the
--- OpenGL 1.4 specs.
+-- This module corresponds to section 2.3 (Command Sytax) of the OpenGL 1.4
+-- specs.
 --
 --------------------------------------------------------------------------------
 
