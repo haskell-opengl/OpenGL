@@ -42,6 +42,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_ARB_multisample             | 1.3
 -- GL_ARB_multitexture            | 1.3
 -- GL_ARB_point_parameters        | 1.4
+-- GL_ARB_point_sprite            |
 -- GL_ARB_transpose_matrix        | 1.3
 -- GL_ARB_window_pos              | 1.4
 -- GL_EXT_abgr                    |
@@ -66,7 +67,6 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_NV_fog_distance             |
 -- GL_NV_light_max_exponent       |
 -- GL_NV_packed_depth_stencil     |
--- GL_NV_point_sprite             |
 -- GL_NV_primitive_restart        |
 -- @
 

@@ -14,11 +14,11 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.PointParameter (
-   PointParameter(..), pointParameterf, pointParameterfv, pointParameteri
+   PointParameter(..), pointParameterf, pointParameterfv
 ) where
 
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLfloat, GLint )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 
@@ -33,7 +33,6 @@ data PointParameter =
    | PointSizeMax
    | PointFadeThresholdSize
    | PointDistanceAttenuation
-   | PointSpriteRMode
 
 marshalPointParameter :: PointParameter -> GLenum
 marshalPointParameter x = case x of
@@ -41,7 +40,6 @@ marshalPointParameter x = case x of
    PointSizeMax -> 0x8127
    PointFadeThresholdSize -> 0x8128
    PointDistanceAttenuation -> 0x8129
-   PointSpriteRMode -> 0x8863
 
 --------------------------------------------------------------------------------
 
@@ -54,8 +52,3 @@ pointParameterfv :: PointParameter -> Ptr GLfloat -> IO ()
 pointParameterfv = glPointParameterfvARB . marshalPointParameter
 
 EXTENSION_ENTRY("GL_ARB_point_parameters or OpenGL 1.4",glPointParameterfvARB,GLenum -> Ptr GLfloat -> IO ())
-
-pointParameteri :: PointParameter -> GLint -> IO ()
-pointParameteri = glPointParameteriNV . marshalPointParameter
-
-EXTENSION_ENTRY("GL_NV_point_sprite",glPointParameteriNV,GLenum -> GLint -> IO ())
