@@ -39,6 +39,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getEnum1, getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordOutOfMemory )
 
 --------------------------------------------------------------------------------
 
@@ -59,10 +60,10 @@ genLists = genLists_ . fromIntegral
 genLists_ :: Int -> IO [DisplayList]
 genLists_ n = do
    first <- glGenLists (fromIntegral n)
-   return $
-      if first == 0
-         then []
-         else [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
+   if DisplayList first == noDisplayList
+      then do recordOutOfMemory
+              return []
+      else return [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
 
 foreign import CALLCONV unsafe "glGenLists" glGenLists :: GLsizei -> IO GLuint
 
@@ -129,14 +130,15 @@ foreign import CALLCONV unsafe "glNewList" glNewList ::
 
 foreign import CALLCONV unsafe "glEndList" glEndList :: IO ()
 
-defineNewList :: ListMode -> IO a -> IO (Maybe DisplayList)
+defineNewList :: ListMode -> IO a -> IO DisplayList
 defineNewList mode action = do
    lists <- genLists 1
    if null lists
-      then return Nothing
+      then do recordOutOfMemory
+              return noDisplayList
       else do let lst = head lists
               defineList lst mode action
-              return $ Just lst
+              return lst
 
 --------------------------------------------------------------------------------
 
