@@ -58,7 +58,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Color4(..), Normal3(..), Vertex4(..) )
+   Color4(..), Normal3(..), Vertex4(..), Index1(..) )
 
 --------------------------------------------------------------------------------
 
@@ -200,17 +200,31 @@ foreign import CALLCONV unsafe "glMaterialfv" glMaterialff ::
 
 --------------------------------------------------------------------------------
 
--- Alas, (GLint, GLint, GLint) is not an instance of Storable...
+-- Alas, (Index1 GLint, Index1 GLint, Index1 GLint) is not an instance of
+-- Storable...
 
-materialColorIndexes :: Face -> StateVar (GLint, GLint, GLint)
+materialColorIndexes ::
+   Face -> StateVar (Index1 GLint, Index1 GLint, Index1 GLint)
 materialColorIndexes face =
-   makeStateVar (alloca $ \buf -> do glGetMaterialiv f mp buf ; peek3 (,,) buf)
-                (\(a, d, s) -> withArray [a, d, s] $ glMaterialiv f mp)
-   where mp = marshalMaterialParameter MaterialColorIndexes
-         f  = marshalFace face
+   makeStateVar (getMaterialColorIndexes face) (setMaterialColorIndexes face)
+
+getMaterialColorIndexes :: Face -> IO (Index1 GLint, Index1 GLint, Index1 GLint)
+getMaterialColorIndexes face =
+   alloca $ \buf -> do
+      glGetMaterialiv (marshalFace face)
+                      (marshalMaterialParameter MaterialColorIndexes)
+                      buf
+      peek3 (\a d s -> (Index1 a, Index1 d, Index1 s)) buf
 
 foreign import CALLCONV unsafe "glGetMaterialiv" glGetMaterialiv ::
    GLenum -> GLenum -> Ptr GLint -> IO ()
+
+setMaterialColorIndexes ::
+   Face -> (Index1 GLint, Index1 GLint, Index1 GLint) -> IO ()
+setMaterialColorIndexes face (Index1 a, Index1 d, Index1 s) =
+   withArray [a, d, s] $
+      glMaterialiv (marshalFace face)
+                   (marshalMaterialParameter MaterialColorIndexes)
 
 foreign import CALLCONV unsafe "glMaterialiv" glMaterialiv ::
    GLenum -> GLenum -> Ptr GLint -> IO ()
