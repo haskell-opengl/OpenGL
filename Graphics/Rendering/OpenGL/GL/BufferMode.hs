@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.BufferMode
--- Copyright   :  (c) Sven Panne 2003
+-- Copyright   :  (c) Sven Panne 2002-2004
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
