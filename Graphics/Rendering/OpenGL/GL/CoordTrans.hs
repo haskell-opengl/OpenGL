@@ -34,6 +34,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
+import Control.Exception ( finally )
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
@@ -326,17 +327,12 @@ foreign import CALLCONV unsafe "glActiveTexture" glActiveTexture ::
 -- excute the given action, and pop the current matrix stack, replacing the
 -- current matrix with the one below it on the stack (i.e. restoring it to its
 -- previous state). The returned value is that of the given action.
---
--- Note that it is currently an error to throw an exception during the execution
--- of the action or to change the current matrix mode permanently before
--- returning from it.
 
 matrixExcursion :: IO a -> IO a
-matrixExcursion act = do -- ToDo: Use bracket? Guard against overflow? Save current matrix mode for glPopMatrix?
-   glPushMatrix
-   ret <- act
-   glPopMatrix
-   return ret
+matrixExcursion action = do
+   -- performance paranoia: No (un-)marshaling by avoiding matrixMode
+   mode <- getInteger1 fromIntegral GetMatrixMode
+   (do glPushMatrix ; action) `finally` (do glMatrixMode mode ; glPopMatrix)
 
 foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
 
