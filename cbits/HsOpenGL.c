@@ -26,7 +26,10 @@ hOpenGL_getProcAddress(char *procName)
   if (addr != NULL) {
     return addr;
   }
-#ifdef GLU_VERSION_1_3
+  /* There is no way to get GLU extensions at runtime so we fake this, being
+     careful about GLU headers on WinDoze, which have a bad habit of lying
+     about their actual version. */
+#if defined(GLU_VERSION_1_3) && !defined(_WIN32)
   if (strcmp(procName, "gluUnProject4") == 0) {
     return gluUnProject4;
   }
