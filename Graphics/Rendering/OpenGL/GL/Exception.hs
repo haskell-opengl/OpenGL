@@ -34,7 +34,7 @@ bracket_ :: IO a -> IO b -> IO c -> IO c
 bracket_ = unsafeBracket_
 
 {-# INLINE finallyRet #-}
-finallyRet :: IO a -> IO b -> IO a
+finallyRet :: IO a -> IO b -> IO (a, b)
 finallyRet = liftM2 (,)
 #else
 import Control.Exception ( bracket, bracket_, finally )
