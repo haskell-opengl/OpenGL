@@ -14,15 +14,18 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Environments (
-   TextureEnvMode(..), textureEnvMode, textureUnitLODBias
+   TextureEnvMode(..), textureEnvMode, textureEnvColor, textureUnitLODBias
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Ptr ( Ptr )
+import Foreign.Storable ( Storable )
+import Foreign.Marshal.Utils ( with )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum, GLfloat )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Parameters ( LOD )
+import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 
 --------------------------------------------------------------------------------
 
@@ -47,15 +50,19 @@ data TextureEnvParameter =
    | TexEnvParamSrc0RGB
    | TexEnvParamSrc1RGB
    | TexEnvParamSrc2RGB
+   | TexEnvParamSrc3RGB
    | TexEnvParamSrc0Alpha
    | TexEnvParamSrc1Alpha
    | TexEnvParamSrc2Alpha
+   | TexEnvParamSrc3Alpha
    | TexEnvParamOperand0RGB
    | TexEnvParamOperand1RGB
    | TexEnvParamOperand2RGB
+   | TexEnvParamOperand3RGB
    | TexEnvParamOperand0Alpha
    | TexEnvParamOperand1Alpha
    | TexEnvParamOperand2Alpha
+   | TexEnvParamOperand3Alpha
    | TexEnvParamRGBScale
    | TexEnvParamAlphaScale
    | TexEnvParamLODBias
@@ -69,60 +76,85 @@ marshalTextureEnvParameter x = case x of
    TexEnvParamSrc0RGB -> 0x8580
    TexEnvParamSrc1RGB -> 0x8581
    TexEnvParamSrc2RGB -> 0x8582
+   TexEnvParamSrc3RGB -> 0x8583
    TexEnvParamSrc0Alpha -> 0x8588
    TexEnvParamSrc1Alpha -> 0x8589
    TexEnvParamSrc2Alpha -> 0x858a
+   TexEnvParamSrc3Alpha -> 0x858b
    TexEnvParamOperand0RGB -> 0x8590
    TexEnvParamOperand1RGB -> 0x8591
    TexEnvParamOperand2RGB -> 0x8592
+   TexEnvParamOperand3RGB -> 0x8593
    TexEnvParamOperand0Alpha -> 0x8598
    TexEnvParamOperand1Alpha -> 0x8599
    TexEnvParamOperand2Alpha -> 0x859a
+   TexEnvParamOperand3Alpha -> 0x859b
    TexEnvParamRGBScale -> 0x8573
    TexEnvParamAlphaScale -> 0xd1c
    TexEnvParamLODBias -> 0x8501
 
 --------------------------------------------------------------------------------
 
-texEnvi :: (a -> GLint) -> TextureEnvTarget -> TextureEnvParameter -> a -> IO ()
-texEnvi f t p =
-   glTexEnvi (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) . f
+texEnv :: (GLenum -> GLenum -> b -> IO ())
+       -> (a -> (b -> IO ()) -> IO ())
+       -> TextureEnvTarget -> TextureEnvParameter -> a -> IO ()
+texEnv glTexEnv marshalAct t p x =
+   marshalAct x $
+      glTexEnv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p)
 
 foreign import CALLCONV unsafe "glTexEnvi"
    glTexEnvi :: GLenum -> GLenum ->  GLint -> IO ()
-
-texEnvf :: (a -> GLfloat) -> TextureEnvTarget -> TextureEnvParameter -> a -> IO ()
-texEnvf f t p =
-   glTexEnvf (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) . f
 
 foreign import CALLCONV unsafe "glTexEnvf"
    glTexEnvf :: GLenum -> GLenum ->  GLfloat -> IO ()
 
 foreign import CALLCONV unsafe "glTexEnvfv"
-   glTexEnvfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexEnviv"
-   glTexEnviv :: GLenum -> GLenum -> Ptr GLint -> IO ()
+   glTexEnvC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 
 --------------------------------------------------------------------------------
 
-getTexEnvi :: (GLint -> a) -> TextureEnvTarget -> TextureEnvParameter -> IO a
-getTexEnvi f t p =
+getTexEnv :: Storable b
+          => (GLenum -> GLenum -> Ptr b -> IO ())
+          -> (b -> a)
+          -> TextureEnvTarget -> TextureEnvParameter -> IO a
+getTexEnv glGetTexEnv unmarshal t p =
    alloca $ \buf -> do
-     glGetTexEnviv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) buf
-     peek1 f buf
+     glGetTexEnv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) buf
+     peek1 unmarshal buf
 
 foreign import CALLCONV unsafe "glGetTexEnviv"
    glGetTexEnviv :: GLenum -> GLenum -> Ptr GLint -> IO ()
 
-getTexEnvf :: (GLfloat -> a) -> TextureEnvTarget -> TextureEnvParameter -> IO a
-getTexEnvf f t p =
-   alloca $ \buf -> do
-     glGetTexEnvfv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) buf
-     peek1 f buf
-
 foreign import CALLCONV unsafe "glGetTexEnvfv"
    glGetTexEnvfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
+
+foreign import CALLCONV unsafe "glGetTexEnvfv"
+   glGetTexEnvC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+
+--------------------------------------------------------------------------------
+
+m2a :: (a -> b) -> a -> (b -> IO ()) -> IO ()
+m2a marshal x act = act (marshal x)
+
+texEnvi ::
+   (GLint -> a) -> (a -> GLint) -> TextureEnvTarget -> TextureEnvParameter -> StateVar a
+texEnvi unmarshal marshal t p =
+   makeStateVar
+      (getTexEnv glGetTexEnviv unmarshal     t p)
+      (texEnv    glTexEnvi     (m2a marshal) t p)
+
+texEnvf ::
+   (GLfloat -> a) -> (a -> GLfloat) -> TextureEnvTarget -> TextureEnvParameter -> StateVar a
+texEnvf unmarshal marshal t p =
+   makeStateVar
+      (getTexEnv glGetTexEnvfv unmarshal     t p)
+      (texEnv    glTexEnvf     (m2a marshal) t p)
+
+texEnvC4f :: TextureEnvTarget -> TextureEnvParameter -> StateVar (Color4 GLfloat)
+texEnvC4f t p =
+   makeStateVar
+      (getTexEnv glGetTexEnvC4f id   t p)
+      (texEnv    glTexEnvC4f    with t p)
 
 --------------------------------------------------------------------------------
 
@@ -133,6 +165,7 @@ data TextureEnvMode =
    | Replace
    | Add'
    | Combine
+   | Combine4
    deriving ( Eq, Ord, Show )
 
 marshalTextureEnvMode :: TextureEnvMode -> GLint
@@ -143,6 +176,7 @@ marshalTextureEnvMode x = case x of
    Replace -> 0x1e01
    Add' -> 0x104
    Combine -> 0x8570
+   Combine4 -> 0x8503
 
 unmarshalTextureEnvMode :: GLint -> TextureEnvMode
 unmarshalTextureEnvMode x
@@ -152,20 +186,21 @@ unmarshalTextureEnvMode x
    | x == 0x1e01 = Replace
    | x == 0x104 = Add'
    | x == 0x8570 = Combine
+   | x == 0x8503 = Combine4
    | otherwise = error ("unmarshalTextureEnvMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
 textureEnvMode :: StateVar TextureEnvMode
 textureEnvMode =
-   makeStateVar
-      (getTexEnvi unmarshalTextureEnvMode TextureEnv TexEnvParamTextureEnvMode)
-      (texEnvi    marshalTextureEnvMode   TextureEnv TexEnvParamTextureEnvMode)
+   texEnvi unmarshalTextureEnvMode marshalTextureEnvMode TextureEnv TexEnvParamTextureEnvMode
+
+--------------------------------------------------------------------------------
+
+textureEnvColor :: StateVar (Color4 GLfloat)
+textureEnvColor = texEnvC4f TextureEnv TexEnvParamTextureEnvColor
 
 --------------------------------------------------------------------------------
 
 textureUnitLODBias :: StateVar LOD
-textureUnitLODBias =
-   makeStateVar
-      (getTexEnvf id TextureFilterControl TexEnvParamLODBias)
-      (texEnvf    id TextureFilterControl TexEnvParamLODBias)
+textureUnitLODBias = texEnvf id id TextureFilterControl TexEnvParamLODBias
