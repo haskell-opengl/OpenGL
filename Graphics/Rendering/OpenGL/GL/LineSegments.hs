@@ -14,7 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.LineSegments (
-   lineWidth, lineSmooth, lineStipple
+   lineWidth, aliasedLineWidthRange, smoothLineWidthRange,
+   smoothLineWidthGranularity, lineSmooth, lineStipple
 ) where
 
 import Control.Monad ( liftM2 )
@@ -22,9 +23,12 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLushort, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapLineSmooth,CapLineStipple), makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetLineWidth,GetLineStippleRepeat,GetLineStipplePattern),
-   getInteger1, getFloat1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+   GetPName(GetLineWidth,GetAliasedLineWidthRange,GetSmoothLineWidthRange,
+            GetSmoothLineWidthGranularity,GetLineStippleRepeat,
+            GetLineStipplePattern),
+   getInteger1, getFloat1, getFloat2 )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -37,6 +41,18 @@ foreign import CALLCONV unsafe "glLineWidth" glLineWidth :: GLfloat -> IO ()
 
 lineSmooth :: StateVar Bool
 lineSmooth = makeCapability CapLineSmooth
+
+aliasedLineWidthRange :: GettableStateVar (GLfloat, GLfloat)
+aliasedLineWidthRange =
+   makeGettableStateVar $ getFloat2 (,) GetAliasedLineWidthRange
+
+smoothLineWidthRange :: GettableStateVar (GLfloat, GLfloat)
+smoothLineWidthRange =
+   makeGettableStateVar $ getFloat2 (,) GetSmoothLineWidthRange
+
+smoothLineWidthGranularity :: GettableStateVar (GLfloat, GLfloat)
+smoothLineWidthGranularity =
+   makeGettableStateVar $ getFloat2 (,) GetSmoothLineWidthGranularity
 
 --------------------------------------------------------------------------------
 

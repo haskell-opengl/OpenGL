@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getInteger1, getInteger2, getInteger4,
    getEnum1,
    getSizei1,
-   getFloat1, getFloat3, getFloat4, getFloatv,
+   getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
    getDouble1, getDouble2, getDoublev,
    GetPointervPName(..), getPointer,
    getArrayWith
@@ -858,6 +858,11 @@ getFloat1 :: (GLfloat -> a) -> GetPName -> IO a
 getFloat1 f n = alloca $ \buf -> do
    getFloatv n buf
    peek1 f buf
+
+getFloat2 :: (GLfloat -> GLfloat -> a) -> GetPName -> IO a
+getFloat2 f n = alloca $ \buf -> do
+   getFloatv n buf
+   peek2 f buf
 
 getFloat3 :: (GLfloat -> GLfloat -> GLfloat -> a) -> GetPName -> IO a
 getFloat3 f n = alloca $ \buf -> do

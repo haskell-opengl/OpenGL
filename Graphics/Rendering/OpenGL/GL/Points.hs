@@ -13,10 +13,12 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Points (
-   pointSize, pointSizeRange, pointDistanceAttenuation, pointFadeThresholdSize,
-   pointSmooth
+   pointSize, aliasedPointSizeRange, smoothPointSizeRange,
+   smoothPointSizeGranularity, pointSizeRange, pointDistanceAttenuation,
+   pointFadeThresholdSize, pointSmooth
 ) where
 
+import Control.Monad ( liftM2 )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLfloat )
@@ -25,10 +27,12 @@ import Graphics.Rendering.OpenGL.GL.Capability (
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetPointSize,GetPointSizeMin,GetPointSizeMax,
-            GetPointFadeThresholdSize),
-   getFloat1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+   GetPName(GetPointSize,GetAliasedPointSizeRange,GetSmoothPointSizeRange,
+            GetSmoothPointSizeGranularity,GetPointSizeMin,GetPointSizeMax,
+            GetPointDistanceAttenuation,GetPointFadeThresholdSize),
+   getFloat1, getFloat2, getFloat3 )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -40,6 +44,20 @@ pointSize :: StateVar GLfloat
 pointSize = makeStateVar (getFloat1 id GetPointSize) glPointSize
 
 foreign import CALLCONV unsafe "glPointSize" glPointSize :: GLfloat -> IO ()
+
+--------------------------------------------------------------------------------
+
+aliasedPointSizeRange :: GettableStateVar (GLfloat, GLfloat)
+aliasedPointSizeRange =
+   makeGettableStateVar $ getFloat2 (,) GetAliasedPointSizeRange
+
+smoothPointSizeRange :: GettableStateVar (GLfloat, GLfloat)
+smoothPointSizeRange =
+   makeGettableStateVar $ getFloat2 (,) GetSmoothPointSizeRange
+
+smoothPointSizeGranularity :: GettableStateVar (GLfloat, GLfloat)
+smoothPointSizeGranularity =
+   makeGettableStateVar $ getFloat2 (,) GetSmoothPointSizeGranularity
 
 --------------------------------------------------------------------------------
 
@@ -70,33 +88,21 @@ EXTENSION_ENTRY("GL_ARB_point_parameters or OpenGL 1.4",glPointParameterfvARB,GL
 
 --------------------------------------------------------------------------------
 
-
 pointSizeRange :: StateVar (GLfloat, GLfloat)
-pointSizeRange = makeStateVar getPointSizeRange setPointSizeRange
-
-getPointSizeRange :: IO (GLfloat, GLfloat)
-getPointSizeRange = do
-   sizeMin <- getFloat1 id GetPointSizeMin
-   sizeMax <- getFloat1 id GetPointSizeMax
-   return (sizeMin, sizeMax)
-
-setPointSizeRange :: (GLfloat, GLfloat) -> IO ()
-setPointSizeRange (sizeMin, sizeMax) = do
-  glPointParameterf PointSizeMin sizeMin
-  glPointParameterf PointSizeMax sizeMax
+pointSizeRange =
+   makeStateVar
+   (liftM2 (,) (getFloat1 id GetPointSizeMin) (getFloat1 id GetPointSizeMax))
+   (\(sizeMin, sizeMax) -> do glPointParameterf PointSizeMin sizeMin
+                              glPointParameterf PointSizeMax sizeMax)
 
 --------------------------------------------------------------------------------
 
 pointDistanceAttenuation :: StateVar (GLfloat, GLfloat, GLfloat)
 pointDistanceAttenuation =
-   makeStateVar getPointDistanceAttenuation setPointDistanceAttenuation
-
-getPointDistanceAttenuation :: IO (GLfloat, GLfloat, GLfloat)
-getPointDistanceAttenuation = error ""
-
-setPointDistanceAttenuation :: (GLfloat, GLfloat, GLfloat) -> IO ()
-setPointDistanceAttenuation (a, b, c) = do
-   withArray [a, b, c] $ glPointParameterfv PointDistanceAttenuation
+   makeStateVar
+      (getFloat3 (,,) GetPointDistanceAttenuation)
+      (\(a, b, c) -> withArray [a, b, c] $
+                        glPointParameterfv PointDistanceAttenuation)
 
 --------------------------------------------------------------------------------
 
