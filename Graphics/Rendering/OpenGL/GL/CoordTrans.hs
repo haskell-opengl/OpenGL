@@ -18,7 +18,8 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    GLcolumn4(..), GLmatrix(..),
 
    -- * Controlling the Viewport
-   depthRange, viewport, maxViewportDims,
+   depthRange,
+   Position(..), Size(..), viewport, maxViewportDims,
 
    -- * Matrices
    MatrixMode(..), matrixMode,
@@ -85,6 +86,14 @@ foreign import CALLCONV unsafe "glDepthRange" glDepthRange ::
 
 --------------------------------------------------------------------------------
 
+-- | A 2-dimensional position, measured in pixels.
+data Position = Position GLint GLint
+   deriving ( Eq, Ord, Show )
+
+-- | A 2-dimensional size, measured in pixels.
+data Size = Size GLsizei GLsizei
+   deriving ( Eq, Ord, Show )
+
 -- | Controls the affine transformation from normalized device coordinates to
 -- window coordinates. The viewport state variable consists of the coordinates
 -- (/x/, /y/) of the lower left corner of the viewport rectangle, (in pixels,
@@ -92,7 +101,7 @@ foreign import CALLCONV unsafe "glDepthRange" glDepthRange ::
 -- a GL context is first attached to a window, /width/ and /height/ are set to
 -- the dimensions of that window.
 --
--- Let (/xnd/, /ynd/) be normalized device- coordinates. Then the window
+-- Let (/xnd/, /ynd/) be normalized device coordinates. Then the window
 -- coordinates (/xw/, /yw/) are computed as follows:
 --
 -- /xw/ = (/xnd/ + 1) (/width/  \/ 2) + /x/
@@ -102,17 +111,18 @@ foreign import CALLCONV unsafe "glDepthRange" glDepthRange ::
 -- Viewport width and height are silently clamped to a range that depends on the
 -- implementation, see 'maxViewportDims'.
 
-viewport :: StateVar ((GLint, GLint), (GLsizei, GLsizei))
-viewport = makeStateVar (getInteger4 (\x y w h -> ((x,y), (w,h))) GetViewport)
-                        (\((x,y), (w,h)) -> glViewport x y w h)
+viewport :: StateVar (Position, Size)
+viewport = makeStateVar (getInteger4 makeVp GetViewport)
+                        (\(Position x y, Size w h) -> glViewport x y w h)
+   where makeVp x y w h = (Position x y, Size (fromIntegral w) (fromIntegral h))
 
 foreign import CALLCONV unsafe "glViewport" glViewport ::
    GLint -> GLint -> GLsizei -> GLsizei -> IO ()
 
 -- | The implementation-dependent maximum viewport width and height.
 
-maxViewportDims :: GettableStateVar (GLsizei, GLsizei)
-maxViewportDims = makeGettableStateVar (getInteger2 (,) GetMaxViewportDims)
+maxViewportDims :: GettableStateVar Size
+maxViewportDims = makeGettableStateVar (getInteger2 Size GetMaxViewportDims)
 
 --------------------------------------------------------------------------------
 

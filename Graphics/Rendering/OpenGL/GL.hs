@@ -22,6 +22,7 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.Framebuffer,
      module Graphics.Rendering.OpenGL.GL.PixelRect,
      module Graphics.Rendering.OpenGL.GL.Query,
+     module Graphics.Rendering.OpenGL.GL.Rectangles,
      module Graphics.Rendering.OpenGL.GL.StateVar,
      module Graphics.Rendering.OpenGL.GL.Texturing,
      module Graphics.Rendering.OpenGL.GL.VertexArray,
@@ -39,6 +40,7 @@ import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PixelRect
 import Graphics.Rendering.OpenGL.GL.Query (
    VersionInfo(..), ExtensionsInfo(..) )
+import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing
 import Graphics.Rendering.OpenGL.GL.VertexArray
