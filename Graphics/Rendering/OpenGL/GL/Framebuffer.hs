@@ -304,10 +304,11 @@ foreign import CALLCONV unsafe "glClearAccum" glClearAccum ::
 data AccumOp =
      Accum
      -- ^ Obtains /R/, /G/, /B/, and /A/ values from the buffer currently
-     -- selected for reading (see 'Graphics.Rendering.OpenGL.ToDo.readBuffer').
-     -- Each component value is divided by 2^/n/-1, where /n/ is the number of
-     -- bits allocated to each color component in the currently selected buffer.
-     -- The result is a floating-point value in the range [0, 1], which is
+     -- selected for reading (see
+     -- 'Graphics.Rendering.OpenGL.GL.ReadCopyPixels.readBuffer'). Each
+     -- component value is divided by 2^/n/-1, where /n/ is the number of bits
+     -- allocated to each color component in the currently selected buffer. The
+     -- result is a floating-point value in the range [0, 1], which is
      -- multiplied by the value given to 'accum' and added to the corresponding
      -- pixel component in the accumulation buffer, thereby updating the
      -- accumulation buffer.
@@ -354,10 +355,9 @@ marshalAccumOp x = case x of
 --
 -- Each pixel in the accumulation buffer consists of red, green, blue, and alpha
 -- values. The number of bits per component in the accumulation buffer depends
--- on the implementation (see 'Graphics.Rendering.OpenGL.ToDo.accumBits').
--- Regardless of the number of bits per component, the range of values stored by
--- each component is [-1, 1]. The accumulation buffer pixels are mapped
--- one-to-one with frame buffer pixels.
+-- on the implementation (see 'accumBits'). Regardless of the number of bits per
+-- component, the range of values stored by each component is [-1, 1]. The
+-- accumulation buffer pixels are mapped one-to-one with frame buffer pixels.
 --
 -- 'accum' operates on the accumulation buffer. The first argument selects an
 -- accumulation buffer operation. The second argument, is a floating-point value
