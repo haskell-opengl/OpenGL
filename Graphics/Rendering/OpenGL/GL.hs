@@ -17,6 +17,8 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.BasicTypes,
      module Graphics.Rendering.OpenGL.GL.BeginEnd,
      module Graphics.Rendering.OpenGL.GL.CoordTrans,
+     module Graphics.Rendering.OpenGL.GL.FlushFinish,
+     module Graphics.Rendering.OpenGL.GL.Framebuffer,
      module Graphics.Rendering.OpenGL.GL.PixelRect,
      module Graphics.Rendering.OpenGL.GL.Query,
      module Graphics.Rendering.OpenGL.GL.Texturing,
@@ -24,10 +26,13 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.VertexSpec
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes  hiding ( marshalGLboolean,
-                                                         unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.BeginEnd    hiding ( unmarshalBeginMode )
+import Graphics.Rendering.OpenGL.GL.BasicTypes  hiding (
+   marshalGLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.BeginEnd hiding (
+   unmarshalBeginMode, unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.FlushFinish
+import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PixelRect
 import Graphics.Rendering.OpenGL.GL.Query hiding (
    GetPName(..), parseVersionString, getBoolean1, getInteger1, getFloat1,

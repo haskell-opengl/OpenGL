@@ -21,8 +21,10 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
    withBeginMode,
 
    -- * Polygon Edges
+   EdgeFlag(..),
+   unmarshalEdgeFlag,    -- used only internally
    edgeFlag
-   
+      
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -137,7 +139,8 @@ unmarshalBeginMode x
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.evalPoint',
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.material',
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.callList',
--- and setting 'edgeFlag' are allowed.
+-- and setting 'edgeFlag' are allowed. Writing the respective state variables
+-- is allowed in the delimited action, too.
 --
 -- Regardless of the chosen 'BeginMode', there is no limit to the number of
 -- vertices that can be defined during a single 'withBeginMode'. Lines,
@@ -166,11 +169,24 @@ foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
 
 --------------------------------------------------------------------------------
 
+-- | A vertex can begin an edge which lies in the interior of its polygon or on
+-- the polygon\'s boundary.
+
+data EdgeFlag = BeginsInteriorEdge | BeginsBoundaryEdge
+   deriving ( Eq, Ord, Show )
+
+marshalEdgeFlag :: EdgeFlag -> GLboolean
+marshalEdgeFlag BeginsInteriorEdge = marshalGLboolean False
+marshalEdgeFlag BeginsBoundaryEdge = marshalGLboolean True
+
+unmarshalEdgeFlag :: GLboolean -> EdgeFlag
+unmarshalEdgeFlag f
+   | unmarshalGLboolean f = BeginsBoundaryEdge
+   | otherwise            = BeginsInteriorEdge
+
 -- | Each vertex of a polygon, separate triangle, or separate quadrilateral
 -- specified during 'withBeginMode' is marked as the start of either a boundary
--- or nonboundary edge. If the current edge flag is 'True' when the vertex is
--- specified, the vertex is marked as the start of a boundary edge. Otherwise,
--- the vertex is marked as the start of a nonboundary edge.
+-- or nonboundary (interior) edge.
 --
 -- The vertices of connected triangles and connected quadrilaterals are always
 -- marked as boundary, regardless of the value of the edge flag.
@@ -183,9 +199,9 @@ foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
 -- Note that the current edge flag can be updated at any time, in particular
 -- during 'withBeginMode'.
 
-edgeFlag :: StateVar Bool
+edgeFlag :: StateVar EdgeFlag
 edgeFlag =
-   makeStateVar (getBoolean1 unmarshalGLboolean GetEdgeFlag)
-                (glEdgeFlag . marshalGLboolean)
+   makeStateVar (getBoolean1 unmarshalEdgeFlag GetEdgeFlag)
+                (glEdgeFlag . marshalEdgeFlag)
 
 foreign import CALLCONV unsafe "glEdgeFlag" glEdgeFlag :: GLboolean -> IO ()

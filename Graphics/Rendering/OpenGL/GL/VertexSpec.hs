@@ -15,33 +15,35 @@
 
 module Graphics.Rendering.OpenGL.GL.VertexSpec (
    -- * Vertex Coordinates
-   VertexComponent, Vertex(..),
+   Vertex(..),
+   VertexComponent,
    Vertex2(..), Vertex3(..), Vertex4(..),
 
    -- * Auxiliary Vertex Attributes
    -- $AuxiliaryVertexAttributes
 
    -- ** Texture Coordinates
-   currentTextureCoords,
-   TexCoordComponent, TexCoord(..),
+   currentTextureCoords, TexCoord(..),
+   TexCoordComponent,
    TexCoord1(..), TexCoord2(..), TexCoord3(..), TexCoord4(..),
 
    -- ** Normal
-   currentNormal,
-   NormalComponent, Normal(..),
+   currentNormal, Normal(..),
+   NormalComponent,
    Normal3(..),
 
    -- ** Fog Coordinate
-   currentFogCoordinate,
-   FogCoordComponent, FogCoord(..),
+   currentFogCoordinate, FogCoord(..),
+   FogCoordComponent,
 
    -- ** Color and Secondary Color
-   currentColor, currentSecondaryColor,
-   ColorComponent, Color(..), SecondaryColor(..),
+   currentColor, Color(..),
+   currentSecondaryColor, SecondaryColor(..),
+   ColorComponent,
    Color3(..), Color4(..),
 
-   currentIndex,
-   IndexComponent, Index(..),
+   currentIndex, Index(..),
+   IndexComponent,
    Index1(..),
 
    -- * Texture Units
@@ -198,7 +200,12 @@ instance VertexComponent GLdouble where
 
 --------------------------------------------------------------------------------
 
--- | Specify the (/x/,/y/,/z/,/w/) coordinates of a four-dimensional vertex.
+-- | Specify the (/x/, /y/, /z/, /w/) coordinates of a four-dimensional vertex.
+-- This must only be done during
+-- 'Graphics.Rendering.OpenGL.GL.BeginEnd.withBeginMode', otherwise the
+-- behaviour is unspecified. The current values of the auxiliary vertex
+-- attributes are associated with the vertex.
+-- 
 -- Note that there is no such thing as a \"current vertex\" which could be
 -- retrieved.
 
@@ -267,11 +274,17 @@ instance Storable a => Storable (Vertex4 a) where
 
 --------------------------------------------------------------------------------
 
+-- | The current texture coordinates (/s/, /t/, /r/, /q/) for the current
+-- texture unit (see 'Graphics.Rendering.OpenGL.GL.ToDo.currentTextureUnit').
+-- The initial value is (0,0,0,1) for all texture units.
+
 currentTextureCoords :: StateVar (TexCoord4 GLfloat)
 currentTextureCoords =
    makeStateVar (getFloat4 TexCoord4 GetCurrentTextureCoords) texCoord
 
 --------------------------------------------------------------------------------
+
+-- | The class of all types which can be used as a texture coordinate.
 
 class TexCoordComponent a where
    texCoord1 :: a -> IO ()
@@ -524,11 +537,16 @@ instance TexCoordComponent GLdouble where
 
 --------------------------------------------------------------------------------
 
+-- | Change the current texture coordinates of the current or given texture
+-- unit.
+
 class TexCoord a where
    texCoord       ::                    a -> IO ()
    texCoordv      ::                Ptr a -> IO ()
    multiTexCoord  :: TextureUnit ->     a -> IO ()
    multiTexCoordv :: TextureUnit -> Ptr a -> IO ()
+
+-- | Texture coordinates with /t/=0, /r/=0, and /q/=1.
 
 data TexCoord1 a = TexCoord1 a
    deriving ( Eq, Ord, Show )
@@ -545,6 +563,8 @@ instance Storable a => Storable (TexCoord1 a) where
    peek                     = peek1 TexCoord1
    poke ptr   (TexCoord1 s) = poke1 ptr s
 
+-- | Texture coordinates with /r/=0 and /q/=1.
+
 data TexCoord2 a = TexCoord2 a a
    deriving ( Eq, Ord, Show )
 
@@ -560,6 +580,8 @@ instance Storable a => Storable (TexCoord2 a) where
    peek                       = peek2 TexCoord2
    poke ptr   (TexCoord2 s t) = poke2 ptr s t
 
+-- | Texture coordinates with /q/=1.
+
 data TexCoord3 a = TexCoord3 a a a
    deriving ( Eq, Ord, Show )
 
@@ -574,6 +596,8 @@ instance Storable a => Storable (TexCoord3 a) where
    alignment ~(TexCoord3 s _ _) = alignment s
    peek                         = peek3 TexCoord3
    poke ptr   (TexCoord3 s t r) = poke3 ptr s t r
+
+-- | Fully-fledged four-dimensional texture coordinates.
 
 data TexCoord4 a = TexCoord4 a a a a
    deriving ( Eq, Ord, Show )
@@ -592,10 +616,15 @@ instance Storable a => Storable (TexCoord4 a) where
 
 --------------------------------------------------------------------------------
 
+-- | The current normal (/x/, /y/, /z/). The initial value is the unit vector
+-- (0, 0, 1).
+
 currentNormal :: StateVar (Normal3 GLfloat)
 currentNormal = makeStateVar (getFloat3 Normal3 GetCurrentNormal) normal
 
 --------------------------------------------------------------------------------
+
+-- | The class of all types which can be used as a component of a normal.
 
 class NormalComponent a where
    normal3 :: a -> a -> a -> IO ()
@@ -663,9 +692,13 @@ instance NormalComponent GLdouble where
 
 --------------------------------------------------------------------------------
 
+-- | Change the current normal.
+
 class Normal a where
    normal  ::     a -> IO ()
    normalv :: Ptr a -> IO ()
+
+-- A three-dimensional normal.
 
 data Normal3 a = Normal3 a a a
    deriving ( Eq, Ord, Show )
@@ -682,11 +715,15 @@ instance Storable a => Storable (Normal3 a) where
 
 --------------------------------------------------------------------------------
 
+-- | The current fog coordinate. The initial value is 0.
+
 currentFogCoordinate :: StateVar (FogCoord1 GLfloat)
 currentFogCoordinate =
    makeStateVar (getFloat1 FogCoord1 GetCurrentFogCoordinate) fogCoord
 
 --------------------------------------------------------------------------------
+
+-- | The class of all types which can be used as the fog coordinate.
 
 class FogCoordComponent a where
    fogCoord1 :: a -> IO ()
@@ -712,9 +749,13 @@ instance FogCoordComponent GLdouble where
 
 --------------------------------------------------------------------------------
 
+-- | Change the current fog coordinate.
+
 class FogCoord a where
    fogCoord  ::     a -> IO ()
    fogCoordv :: Ptr a -> IO ()
+
+-- | A fog coordinate.
 
 newtype FogCoord1 a = FogCoord1 a
    deriving ( Eq, Ord, Show )
@@ -725,15 +766,25 @@ instance FogCoordComponent a => FogCoord (FogCoord1 a) where
 
 --------------------------------------------------------------------------------
 
+-- The current color (/R/, /G/, /B/, /A/). The initial value is (1, 1, 1, 1).
+-- Note that this state variable is significant only when the GL is in RGBA
+-- mode.
+
 currentColor :: StateVar (Color4 GLfloat)
 currentColor =
    makeStateVar (getFloat4 Color4 GetCurrentColor) color
+
+-- The current secondary color (/R/, /G/, /B/, /A/). The initial value is
+-- (0, 0, 0, 1). Note that this state variable is significant only when the GL is
+-- in RGBA mode.
 
 currentSecondaryColor :: StateVar (Color4 GLfloat)
 currentSecondaryColor =
    makeStateVar (getFloat4 Color4 GetCurrentSecondaryColor) color
 
 --------------------------------------------------------------------------------
+
+-- | The class of all types which can be used as a color component.
 
 class ColorComponent a where
    color3 :: a -> a -> a -> IO ()
@@ -964,9 +1015,13 @@ instance ColorComponent GLuint where
 
 --------------------------------------------------------------------------------
 
+-- | Change the current color.
+
 class Color a where
    color  ::     a -> IO ()
    colorv :: Ptr a -> IO ()
+
+-- An RGBA color with /A/=1.
 
 data Color3 a = Color3 a a a
    deriving ( Eq, Ord, Show )
@@ -980,6 +1035,8 @@ instance Storable a => Storable (Color3 a) where
    alignment ~(Color3 r _ _) = alignment r
    peek                      = peek3 Color3
    poke ptr   (Color3 r g b) = poke3 ptr r g b
+
+-- | A fully-fledged RGBA color.
 
 data Color4 a = Color4 a a a a
    deriving ( Eq, Ord, Show )
@@ -996,6 +1053,8 @@ instance Storable a => Storable (Color4 a) where
 
 --------------------------------------------------------------------------------
 
+-- | Change the current secondary color.
+
 class SecondaryColor a where
    secondaryColor  ::     a -> IO ()
    secondaryColorv :: Ptr a -> IO ()
@@ -1006,10 +1065,15 @@ instance ColorComponent a => SecondaryColor (Color3 a) where
 
 --------------------------------------------------------------------------------
 
+-- The current color index. The initial value is 1. Note that this state
+-- variable is significant only when the GL is in color index mode.
+
 currentIndex :: StateVar (Index1 GLint)
 currentIndex = makeStateVar (getInteger1 Index1 GetCurrentIndex) index
 
 --------------------------------------------------------------------------------
+
+-- | The class of all types which can be used as a color index.
 
 class IndexComponent a where
    index1 :: a -> IO ()
@@ -1077,10 +1141,13 @@ instance IndexComponent GLubyte where
 
 --------------------------------------------------------------------------------
 
--- Collision with Prelude.index
+-- | Change the current color index.
+
 class Index a where
-   index  ::     a -> IO ()
+   index  ::     a -> IO ()  -- Collision with Prelude.index
    indexv :: Ptr a -> IO ()
+
+-- | A color index.
 
 newtype Index1 a = Index1 a
    deriving ( Eq, Ord, Show )

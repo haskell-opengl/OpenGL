@@ -29,7 +29,7 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
    SimpleContour(..), PolygonContours(..), extractContours,
 
    -- * Triangulation
-   EdgeFlag(..), TriangleVertex, Triangle(..), Triangulation(..), triangulate,
+   TriangleVertex, Triangle(..), Triangulation(..), triangulate,
 
    -- * Tessellation into primitives
    Primitive(..), SimplePolygon(..), tessellate
@@ -45,9 +45,10 @@ import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
 import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, marshalGLboolean, unmarshalGLboolean, GLclampf, GLdouble, GLenum )
+   GLboolean, marshalGLboolean, GLclampf, GLdouble, GLenum )
 import Graphics.Rendering.OpenGL.GL.BeginEnd (
-   BeginMode, unmarshalBeginMode )
+   BeginMode, unmarshalBeginMode,
+   EdgeFlag(BeginsInteriorEdge), unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
 import Graphics.Rendering.OpenGL.GLU.Errors (
@@ -293,17 +294,6 @@ extractContours windingRule tolerance normal combiner complexPoly = do
                   getContours
 
 --------------------------------------------------------------------------------
-
--- | A vertex can begin an edge which lies in the interior of its polygon or on
--- the polygon\'s boundary.
-
-data EdgeFlag = BeginsInteriorEdge | BeginsBoundaryEdge
-   deriving ( Eq, Ord )
-
-unmarshalEdgeFlag :: GLboolean -> EdgeFlag
-unmarshalEdgeFlag f
-   | unmarshalGLboolean f = BeginsBoundaryEdge
-   | otherwise            = BeginsInteriorEdge
 
 -- | A triangle vertex with additional information about the edge it begins
 
