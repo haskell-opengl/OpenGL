@@ -62,13 +62,14 @@ import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 -- Additionally,
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.evalCoord',
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.evalPoint',
--- 'Graphics.Rendering.OpenGL.GL.Color.materialAmbient',
--- 'Graphics.Rendering.OpenGL.GL.Color.materialDiffuse',
--- 'Graphics.Rendering.OpenGL.GL.Color.materialAmbientAndDiffuse',
--- 'Graphics.Rendering.OpenGL.GL.Color.materialSpecular',
--- 'Graphics.Rendering.OpenGL.GL.Color.materialEmission',
--- 'Graphics.Rendering.OpenGL.GL.Color.materialShininess',
--- 'Graphics.Rendering.OpenGL.GL.ToDo.callList',
+-- 'Graphics.Rendering.OpenGL.GL.Colors.materialAmbient',
+-- 'Graphics.Rendering.OpenGL.GL.Colors.materialDiffuse',
+-- 'Graphics.Rendering.OpenGL.GL.Colors.materialAmbientAndDiffuse',
+-- 'Graphics.Rendering.OpenGL.GL.Colors.materialSpecular',
+-- 'Graphics.Rendering.OpenGL.GL.Colors.materialEmission',
+-- 'Graphics.Rendering.OpenGL.GL.Colors.materialShininess',
+-- 'Graphics.Rendering.OpenGL.GL.DisplayLists.callList',
+-- 'Graphics.Rendering.OpenGL.GL.DisplayLists.callLists',
 -- and setting 'edgeFlag' are allowed. Writing the respective state variables
 -- is allowed in the delimited action, too.
 --
