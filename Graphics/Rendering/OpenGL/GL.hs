@@ -31,7 +31,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.LineSegments,
    module Graphics.Rendering.OpenGL.GL.Polygons,
    module Graphics.Rendering.OpenGL.GL.PixelRectangles,
-   module Graphics.Rendering.OpenGL.GL.Texturing
+   module Graphics.Rendering.OpenGL.GL.Texturing,
    module Graphics.Rendering.OpenGL.GL.Fog,
 
    -- * Per-Fragment Operations and the Framebuffer
@@ -46,7 +46,7 @@ module Graphics.Rendering.OpenGL.GL (
 
    -- * State and State Requests
    module Graphics.Rendering.OpenGL.GL.StateVar,
-   module Graphics.Rendering.OpenGL.GL.StringQueries,
+   module Graphics.Rendering.OpenGL.GL.StringQueries
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes
