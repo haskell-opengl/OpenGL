@@ -43,7 +43,32 @@ SRC_HADDOCK_OPTS += -t "HOpenGL Libraries ($(PACKAGE) package)"
 
 # -----------------------------------------------------------------------------
 
+package.conf.inplace \
+package.conf.installed \
 OpenGL/Graphics/Rendering/OpenGL/GL/BasicTypes.$(way_)o : include/HsOpenGLConfig.h
+
+Graphics/Rendering/OpenGL/GL/CoordTrans.$(way_)o \
+Graphics/Rendering/OpenGL/GL/Evaluators.$(way_)o \
+Graphics/Rendering/OpenGL/GL/PixelRectangles/PixelMap.$(way_)o \
+Graphics/Rendering/OpenGL/GL/RasterPos.$(way_)o \
+Graphics/Rendering/OpenGL/GL/Rectangles.$(way_)o \
+Graphics/Rendering/OpenGL/GL/VertexSpec.$(way_)o : include/HsOpenGLConfig.h include/HsOpenGLTypes.h
+
+Graphics/Rendering/OpenGL/GL/BeginEnd.$(way_)o \
+Graphics/Rendering/OpenGL/GL/BufferObjects.$(way_)o \
+Graphics/Rendering/OpenGL/GL/CoordTrans.$(way_)o \
+Graphics/Rendering/OpenGL/GL/PerFragment.$(way_)o \
+Graphics/Rendering/OpenGL/GL/PixelRectangles/ColorTable.$(way_)o \
+Graphics/Rendering/OpenGL/GL/PixelRectangles/Convolution.$(way_)o \
+Graphics/Rendering/OpenGL/GL/PixelRectangles/Histogram.$(way_)o \
+Graphics/Rendering/OpenGL/GL/PixelRectangles/Minmax.$(way_)o \
+Graphics/Rendering/OpenGL/GL/PointParameter.$(way_)o \
+Graphics/Rendering/OpenGL/GL/RasterPos.$(way_)o \
+Graphics/Rendering/OpenGL/GL/Rectangles.$(way_)o \
+Graphics/Rendering/OpenGL/GL/Texturing/Specification.$(way_)o \
+Graphics/Rendering/OpenGL/GL/VertexArrays.$(way_)o \
+Graphics/Rendering/OpenGL/GL/VertexSpec.$(way_)o \
+Graphics/Rendering/OpenGL/GLU/Matrix.$(way_)o \ : include/HsOpenGLExt.h
 
 # -----------------------------------------------------------------------------
 
