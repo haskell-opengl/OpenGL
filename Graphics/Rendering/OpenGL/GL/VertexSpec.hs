@@ -58,7 +58,7 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLdouble )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
-import Graphics.Rendering.OpenGL.GL.Query (
+import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoordinate,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits),

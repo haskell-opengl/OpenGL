@@ -29,7 +29,8 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, marshalGLboolean, unmarshalGLboolean, GLenum )
-import Graphics.Rendering.OpenGL.GL.Query ( getBoolean1, GetPName(GetEdgeFlag) )
+import Graphics.Rendering.OpenGL.GL.QueryUtils (
+   getBoolean1, GetPName(GetEdgeFlag) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------

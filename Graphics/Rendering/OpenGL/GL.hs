@@ -38,8 +38,7 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PixelRect
-import Graphics.Rendering.OpenGL.GL.Query (
-   VersionInfo(..), ExtensionsInfo(..) )
+import Graphics.Rendering.OpenGL.GL.Query hiding ( parseVersionString )
 import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing

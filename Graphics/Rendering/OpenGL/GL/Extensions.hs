@@ -1,4 +1,4 @@
--- #prune
+-- #hide
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Extensions

@@ -38,7 +38,7 @@ module Graphics.Rendering.OpenGL.GL.Colors (
 
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLfloat )
-import Graphics.Rendering.OpenGL.GL.Query (
+import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetFrontFace,GetShadeModel), getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 

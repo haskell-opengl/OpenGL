@@ -49,7 +49,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapRescaleNormal,CapNormalize), makeCapability )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
-import Graphics.Rendering.OpenGL.GL.Query (
+import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
             GetActiveTexture),
    getInteger1, getInteger2, getInteger4, getDouble2 )
