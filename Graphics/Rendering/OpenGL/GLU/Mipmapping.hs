@@ -13,56 +13,51 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.Mipmapping (
-   PixelDescriptor(..), -- ToDo: temporary hack
    scaleImage, build1DMipmaps, build2DMipmaps
 ) where
 
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, GLint, GLenum )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles (
+import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
+import Graphics.Rendering.OpenGL.GL.PixelTypes (
    PixelFormat(..), marshalPixelFormat, PixelType(..), marshalPixelType )
 import Graphics.Rendering.OpenGL.GL.Texturing (
    TextureTarget, marshalTextureTarget,
    PixelInternalFormat, marshalPixelInternalFormat )
 
 ---------------------------------------------------------------------------
-
--- ToDo: temporary hack
-data PixelDescriptor  = PixelDescriptor PixelFormat PixelType (Ptr ())
-
----------------------------------------------------------------------------
 -- Section 3.1 (Image Scaling)
 
-scaleImage :: GLsizei -> GLsizei -> PixelDescriptor
-           -> GLsizei -> GLsizei -> PixelDescriptor -> IO ()
-scaleImage widthIn  heightIn  (PixelDescriptor formatIn  typeIn  addrIn )
-           widthOut heightOut (PixelDescriptor formatOut typeOut addrOut)
+scaleImage :: Size -> PixelFormat -> PixelType -> Ptr a
+           -> Size -> PixelFormat -> PixelType -> Ptr b -> IO ()
+scaleImage (Size widthIn  heightIn)  formatIn  typeIn  addrIn
+           (Size widthOut heightOut) formatOut typeOut addrOut
    | formatIn == formatOut = scaleImageAux (marshalPixelFormat formatIn) widthIn  heightIn  (marshalPixelType typeIn ) addrIn
                                                                          widthOut heightOut (marshalPixelType typeOut) addrOut
    | otherwise = error "scaleImage: pixel formats differ"
 
 foreign import CALLCONV unsafe "gluScaleImage" scaleImageAux ::
-   GLenum -> GLsizei -> GLsizei -> GLenum -> Ptr ()
-          -> GLsizei -> GLsizei -> GLenum -> Ptr () -> IO ()
+   GLenum -> GLsizei -> GLsizei -> GLenum -> Ptr a
+          -> GLsizei -> GLsizei -> GLenum -> Ptr b -> IO ()
 
 ---------------------------------------------------------------------------
 -- Section 3.2 (Automatic Mipmapping)
 -- Missing for GLU 1.3: gluBuild3DMipmaps, gluBuild{1,2,3}DMipmapLevels
 
 build1DMipmaps :: TextureTarget -> PixelInternalFormat -> GLsizei
-               -> PixelDescriptor -> IO ()
-build1DMipmaps target internalFormat height (PixelDescriptor f t a) = do
+               -> PixelFormat -> PixelType -> Ptr a -> IO ()
+build1DMipmaps target internalFormat height f t a = do
    build1DMipmapsAux (marshalTextureTarget target) (fromIntegral (marshalPixelInternalFormat internalFormat)) height (marshalPixelFormat f) (marshalPixelType t) a
    return ()   -- TODO: Should we use the return value?
 
 foreign import CALLCONV unsafe "gluBuild1DMipmaps" build1DMipmapsAux ::
-      GLenum -> GLint -> GLsizei -> GLenum -> GLenum -> Ptr () -> IO GLint
+      GLenum -> GLint -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO GLint
 
 build2DMipmaps :: TextureTarget -> PixelInternalFormat -> GLsizei -> GLsizei
-               -> PixelDescriptor -> IO ()
-build2DMipmaps target internalFormat width height (PixelDescriptor f t a) = do
+               -> PixelFormat -> PixelType -> Ptr a -> IO ()
+build2DMipmaps target internalFormat width height f t a = do
    build2DMipmapsAux (marshalTextureTarget target) (fromIntegral (marshalPixelInternalFormat internalFormat)) width height (marshalPixelFormat f) (marshalPixelType t) a
    return ()   -- TODO: Should we use the return value?
 
 foreign import CALLCONV unsafe "gluBuild2DMipmaps" build2DMipmapsAux ::
-      GLenum -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr () -> IO GLint
+      GLenum -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO GLint

@@ -36,6 +36,7 @@ module Graphics.Rendering.OpenGL.GL (
    -- * Per-Fragment Operations and the Framebuffer
    module Graphics.Rendering.OpenGL.GL.PerFragment,
    module Graphics.Rendering.OpenGL.GL.Framebuffer,
+   module Graphics.Rendering.OpenGL.GL.ReadCopyPixels,
 
    -- * Special Functions
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
@@ -68,6 +69,7 @@ import Graphics.Rendering.OpenGL.GL.Fog
 
 import Graphics.Rendering.OpenGL.GL.PerFragment
 import Graphics.Rendering.OpenGL.GL.Framebuffer
+import Graphics.Rendering.OpenGL.GL.ReadCopyPixels
 
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
