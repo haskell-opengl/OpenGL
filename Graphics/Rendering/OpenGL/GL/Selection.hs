@@ -13,7 +13,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Selection (
-   HitRecord(..), getHitRecords, Name(..), pushName, loadName,
+   HitRecord(..), getHitRecords, Name(..), pushName, loadName, nameStackDepth,
    RenderMode(..), renderMode
 ) where
 
@@ -25,8 +25,12 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.IOState (
    IOState, peekIOState, evalIOState, nTimes )
+import Graphics.Rendering.OpenGL.GL.QueryUtils (
+   GetPName(GetNameStackDepth), getInteger1 )
 import Graphics.Rendering.OpenGL.GL.RenderMode (
    RenderMode(..), withRenderMode, renderMode )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -61,10 +65,10 @@ type Parser a = IOState GLuint a
 
 parseSelectionHit :: Parser HitRecord
 parseSelectionHit = do
-   nameStackDepth <- parseGLuint
+   numNames <- parseGLuint
    minZ <- parseGLfloat
    maxZ <- parseGLfloat
-   nameStack <- nTimes nameStackDepth parseName
+   nameStack <- nTimes numNames parseName
    return $ HitRecord minZ maxZ nameStack
 
 parseGLuint :: Parser GLuint
@@ -89,3 +93,7 @@ foreign import CALLCONV unsafe "glPopName" glPopName :: IO ()
 foreign import CALLCONV unsafe "glPushName" glPushName :: Name -> IO ()
 
 foreign import CALLCONV unsafe "glLoadName" loadName :: Name -> IO ()
+
+nameStackDepth :: GettableStateVar GLuint
+nameStackDepth =
+   makeGettableStateVar (getInteger1 fromIntegral GetNameStackDepth)
