@@ -381,10 +381,9 @@ unmarshalBlendEquationMode x
 
 --------------------------------------------------------------------------------
 
-blendEquation :: StateVar (Maybe BlendEquationMode)
+blendEquation :: StateVar BlendEquationMode
 blendEquation =
-   makeStateVarMaybe
-      (return CapBlend)
+   makeStateVar
       (getEnum1 unmarshalBlendEquationMode GetBlendEquation)
       (glBlendEquationEXT . marshalBlendEquationMode)
 
@@ -393,9 +392,10 @@ EXTENSION_ENTRY("GL_EXT_blend_minmax or GL_EXT_blend_subtract or OpenGL 1.4",glB
 --------------------------------------------------------------------------------
 
 blendFuncSeparate ::
-   StateVar ((BlendingFactor, BlendingFactor), (BlendingFactor, BlendingFactor))
+   StateVar (Maybe ((BlendingFactor, BlendingFactor), (BlendingFactor, BlendingFactor)))
 blendFuncSeparate =
-   makeStateVar
+   makeStateVarMaybe
+      (return CapBlend)
       (do srcRGB   <- getEnum1 unmarshalBlendingFactor GetBlendSrcRGB
           srcAlpha <- getEnum1 unmarshalBlendingFactor GetBlendSrcAlpha
           dstRGB   <- getEnum1 unmarshalBlendingFactor GetBlendDstRGB
@@ -409,9 +409,10 @@ blendFuncSeparate =
 
 EXTENSION_ENTRY("GL_EXT_blend_func_separate or OpenGL 1.4",glBlendFuncSeparateEXT,GLenum -> GLenum -> GLenum -> GLenum -> IO ())
 
-blendFunc :: StateVar (BlendingFactor, BlendingFactor)
+blendFunc :: StateVar (Maybe (BlendingFactor, BlendingFactor))
 blendFunc =
-   makeStateVar
+   makeStateVarMaybe
+      (return CapBlend)
       (liftM2 (,) (getEnum1 unmarshalBlendingFactor GetBlendSrc)
                   (getEnum1 unmarshalBlendingFactor GetBlendDst))
       (\(s, d) ->
