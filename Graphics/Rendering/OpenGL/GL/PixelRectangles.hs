@@ -24,9 +24,8 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    rgbaScale, rgbaBias,
 
    -- * Pixel Maps
-   PixelMapComponent, PixelMap(..), GLpixelmap, maxPixelMapTable,
-   pixelMapIToI, pixelMapSToS, pixelMapIToR, pixelMapIToG, pixelMapIToB,
-   pixelMapIToA, pixelMapRToR, pixelMapGToG, pixelMapBToB, pixelMapAToA,
+   PixelMapTarget(..), PixelMapComponent, PixelMap(..), GLpixelmap,
+   maxPixelMapTable, pixelMap, pixelMapIToRGBA, pixelMapRGBAToRGBA,
 
    -- * Color Tables
    colorTableEnabled, colorTableScale, colorTableBias, colorTableFormat,
@@ -44,6 +43,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 ) where
 
 import Control.Monad ( liftM, liftM2 )
+import Data.List ( zipWith4 )
 import Data.Word
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
@@ -56,7 +56,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
              CapPostColorMatrixColorTable),
    makeCapability, marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLuint, GLsizei, GLfloat, Capability )
+   GLenum, GLushort, GLint, GLuint, GLsizei, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
@@ -91,7 +91,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetZoomX,GetZoomY),
    getBoolean1, getInteger1, getSizei1, getFloat1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+   HasSetter(($=)), HasGetter(get), GettableStateVar, makeGettableStateVar,
+   StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing (
    PixelInternalFormat, unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
@@ -425,43 +426,43 @@ foreign import CALLCONV unsafe "glPixelTransferf" glPixelTransferf ::
 
 --------------------------------------------------------------------------------
 
-data PixelMap' =
-     PixelMapIToI
-   | PixelMapSToS
-   | PixelMapIToR
-   | PixelMapIToG
-   | PixelMapIToB
-   | PixelMapIToA
-   | PixelMapRToR
-   | PixelMapGToG
-   | PixelMapBToB
-   | PixelMapAToA
+data PixelMapTarget =
+     IToI
+   | SToS
+   | IToR
+   | IToG
+   | IToB
+   | IToA
+   | RToR
+   | GToG
+   | BToB
+   | AToA
 
-marshalPixelMap :: PixelMap' -> GLenum
-marshalPixelMap x = case x of
-   PixelMapIToI -> 0xc70
-   PixelMapSToS -> 0xc71
-   PixelMapIToR -> 0xc72
-   PixelMapIToG -> 0xc73
-   PixelMapIToB -> 0xc74
-   PixelMapIToA -> 0xc75
-   PixelMapRToR -> 0xc76
-   PixelMapGToG -> 0xc77
-   PixelMapBToB -> 0xc78
-   PixelMapAToA -> 0xc79
+marshalPixelMapTarget :: PixelMapTarget -> GLenum
+marshalPixelMapTarget x = case x of
+   IToI -> 0xc70
+   SToS -> 0xc71
+   IToR -> 0xc72
+   IToG -> 0xc73
+   IToB -> 0xc74
+   IToA -> 0xc75
+   RToR -> 0xc76
+   GToG -> 0xc77
+   BToB -> 0xc78
+   AToA -> 0xc79
 
-pixelMapToGetPName :: PixelMap' -> GetPName
-pixelMapToGetPName x = case x of
-   PixelMapIToI -> GetPixelMapIToISize
-   PixelMapSToS -> GetPixelMapSToSSize
-   PixelMapIToR -> GetPixelMapIToRSize
-   PixelMapIToG -> GetPixelMapIToGSize
-   PixelMapIToB -> GetPixelMapIToBSize
-   PixelMapIToA -> GetPixelMapIToASize
-   PixelMapRToR -> GetPixelMapRToRSize
-   PixelMapGToG -> GetPixelMapGToGSize
-   PixelMapBToB -> GetPixelMapBToBSize
-   PixelMapAToA -> GetPixelMapAToASize
+pixelMapTargetToGetPName :: PixelMapTarget -> GetPName
+pixelMapTargetToGetPName x = case x of
+   IToI -> GetPixelMapIToISize
+   SToS -> GetPixelMapSToSSize
+   IToR -> GetPixelMapIToRSize
+   IToG -> GetPixelMapIToGSize
+   IToB -> GetPixelMapIToBSize
+   IToA -> GetPixelMapIToASize
+   RToR -> GetPixelMapRToRSize
+   GToG -> GetPixelMapGToGSize
+   BToB -> GetPixelMapBToBSize
+   AToA -> GetPixelMapAToASize
 
 --------------------------------------------------------------------------------
 
@@ -473,6 +474,16 @@ maxPixelMapTable = makeGettableStateVar $ getSizei1 id GetMaxPixelMapTable
 class Storable c => PixelMapComponent c where
    getPixelMapv :: GLenum -> Ptr c -> IO ()
    pixelMapv :: GLenum -> GLsizei -> Ptr c -> IO ()
+
+instance PixelMapComponent GLushort_ where
+   getPixelMapv = glGetPixelMapusv
+   pixelMapv = glPixelMapusv
+
+foreign import CALLCONV unsafe "glGetPixelMapusv" glGetPixelMapusv ::
+   GLenum -> Ptr GLushort -> IO ()
+
+foreign import CALLCONV unsafe "glPixelMapusv" glPixelMapusv ::
+   GLenum -> GLsizei -> Ptr GLushort -> IO ()
 
 instance PixelMapComponent GLuint_ where
    getPixelMapv = glGetPixelMapuiv
@@ -542,42 +553,78 @@ instance PixelMap GLpixelmap where
 
 --------------------------------------------------------------------------------
 
-pixelMapIToI :: PixelMap m => StateVar (m GLuint)
-pixelMapIToI = pixelMapXToY PixelMapIToI
-
-pixelMapSToS :: PixelMap m => StateVar (m GLuint)
-pixelMapSToS = pixelMapXToY PixelMapSToS
-
-pixelMapIToR :: PixelMap m => StateVar (m GLfloat)
-pixelMapIToR = pixelMapXToY PixelMapIToR
-
-pixelMapIToG :: PixelMap m => StateVar (m GLfloat)
-pixelMapIToG = pixelMapXToY PixelMapIToG
-
-pixelMapIToB :: PixelMap m => StateVar (m GLfloat)
-pixelMapIToB = pixelMapXToY PixelMapIToB
-
-pixelMapIToA :: PixelMap m => StateVar (m GLfloat)
-pixelMapIToA = pixelMapXToY PixelMapIToA
-
-pixelMapRToR :: PixelMap m => StateVar (m GLfloat)
-pixelMapRToR = pixelMapXToY PixelMapRToR
-
-pixelMapGToG :: PixelMap m => StateVar (m GLfloat)
-pixelMapGToG = pixelMapXToY PixelMapGToG
-
-pixelMapBToB :: PixelMap m => StateVar (m GLfloat)
-pixelMapBToB = pixelMapXToY PixelMapBToB
-
-pixelMapAToA :: PixelMap m => StateVar (m GLfloat)
-pixelMapAToA = pixelMapXToY PixelMapAToA
-
-pixelMapXToY :: (PixelMap m, PixelMapComponent c) => PixelMap' -> StateVar (m c)
-pixelMapXToY pm =
+pixelMap :: (PixelMap m, PixelMapComponent c) => PixelMapTarget -> StateVar (m c)
+pixelMap pm =
    makeStateVar
-      (do size <- getInteger1 fromIntegral (pixelMapToGetPName pm)
-          withNewPixelMap size $ getPixelMapv (marshalPixelMap pm))
-      (\theMap -> withPixelMap theMap $ pixelMapv (marshalPixelMap pm))
+      (do size <- pixelMapSize pm
+          withNewPixelMap size $ getPixelMapv (marshalPixelMapTarget pm))
+      (\theMap -> withPixelMap theMap $ pixelMapv (marshalPixelMapTarget pm))
+
+pixelMapSize :: PixelMapTarget -> IO GLsizei
+pixelMapSize = getInteger1 fromIntegral . pixelMapTargetToGetPName
+
+--------------------------------------------------------------------------------
+
+-- | Convenience state variable
+
+pixelMapIToRGBA :: PixelMapComponent c => StateVar [Color4 c]
+pixelMapIToRGBA = pixelMapXToY (IToR, IToG, IToB, IToA)
+
+-- | Convenience state variable
+
+pixelMapRGBAToRGBA :: PixelMapComponent c => StateVar [Color4 c]
+pixelMapRGBAToRGBA = pixelMapXToY (RToR, GToG, BToB, AToA)
+
+pixelMapXToY :: PixelMapComponent c =>
+      (PixelMapTarget, PixelMapTarget, PixelMapTarget, PixelMapTarget)
+   -> StateVar [Color4 c]
+pixelMapXToY targets =
+   makeStateVar (getPixelMapXToY targets) (setPixelMapXToY targets)
+
+getPixelMapXToY :: PixelMapComponent c
+   => (PixelMapTarget, PixelMapTarget, PixelMapTarget, PixelMapTarget)
+   -> IO [Color4 c]
+getPixelMapXToY (toR, toG, toB, toA) = do
+   withPixelMapFor toR $ \sizeR bufR ->
+      withPixelMapFor toG $ \sizeG bufG ->
+         withPixelMapFor toB $ \sizeB bufB ->
+            withPixelMapFor toA $ \sizeA bufA -> do
+               let maxSize = sizeR `max` sizeG `max` sizeB `max` sizeA
+               r <- sample bufR sizeR maxSize
+               g <- sample bufG sizeR maxSize
+               b <- sample bufB sizeR maxSize
+               a <- sample bufA sizeR maxSize
+               return $ zipWith4 Color4 r g b a
+
+withPixelMapFor ::
+    PixelMapComponent c => PixelMapTarget -> (GLsizei -> Ptr c -> IO a) -> IO a
+withPixelMapFor target f = do
+    theMap <- get (pixelMap target)
+    withGLpixelmap theMap f
+
+withGLpixelmap :: PixelMapComponent c
+               => GLpixelmap c -> (GLsizei -> Ptr c -> IO a) -> IO a
+withGLpixelmap = withPixelMap
+
+sample :: Storable a => Ptr a -> GLsizei -> GLsizei -> IO [a]
+sample ptr len newLen = f (fromIntegral (newLen - 1)) []
+   where scale :: Float
+         scale = fromIntegral len / fromIntegral newLen
+         f l acc | l < 0     = return acc
+                 | otherwise = do e <- peekElemOff ptr (truncate (l * scale))
+                                  f (l - 1) (e : acc)
+
+setPixelMapXToY :: PixelMapComponent c
+   => (PixelMapTarget, PixelMapTarget, PixelMapTarget, PixelMapTarget)
+   -> [Color4 c] -> IO ()
+setPixelMapXToY (toR, toG, toB, toA) colors = do
+   (pixelMap toR $=) =<< newGLpixelmap [ r | Color4 r _ _ _ <- colors ]
+   (pixelMap toG $=) =<< newGLpixelmap [ g | Color4 _ g _ _ <- colors ]
+   (pixelMap toB $=) =<< newGLpixelmap [ b | Color4 _ _ b _ <- colors ]
+   (pixelMap toA $=) =<< newGLpixelmap [ a | Color4 _ _ _ a <- colors ]
+
+newGLpixelmap :: PixelMapComponent c => [c] -> IO (GLpixelmap c)
+newGLpixelmap = newPixelMap
 
 --------------------------------------------------------------------------------
 
