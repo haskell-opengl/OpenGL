@@ -416,6 +416,7 @@ data GetPName =
    | GetFogDistanceMode
    | GetDepthBounds
    | GetPrimitiveRestartIndex
+   | GetActiveStencilFace
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -797,6 +798,7 @@ marshalGetPName x = case x of
    GetFogDistanceMode -> 0x855a
    GetDepthBounds -> 0x8891
    GetPrimitiveRestartIndex -> 0x8559
+   GetActiveStencilFace -> 0x8911
 
 --------------------------------------------------------------------------------
 

@@ -27,7 +27,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    ComparisonFunction(..), alphaFunc,
 
    -- * Stencil Test
-   stencilFunc, StencilOp(..), stencilOp,
+   stencilFunc, StencilOp(..), stencilOp, stencilTestTwoSide, activeStencilFace,
 
    -- * Depth Buffer Test
    depthFunc,
@@ -49,21 +49,24 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
              CapSampleCoverage,CapDepthBoundsTest,CapAlphaTest,CapStencilTest,
-             CapDepthTest,CapBlend,CapDither,CapIndexLogicOp,CapColorLogicOp),
+             CapStencilTestTwoSide,CapDepthTest,CapBlend,CapDither,
+             CapIndexLogicOp,CapColorLogicOp),
    Capability, makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.Face (
+   Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetScissorBox,GetSampleCoverageValue,GetSampleCoverageInvert,
             GetDepthBounds,GetAlphaTestFunc,GetAlphaTestRef,GetStencilFunc,
             GetStencilRef,GetStencilValueMask,GetStencilFail,
-            GetStencilPassDepthFail,GetStencilPassDepthPass,GetDepthFunc,
-            GetBlendEquation,GetBlendDstRGB,GetBlendSrcRGB,GetBlendDstAlpha,
-            GetBlendSrcAlpha,GetBlendSrc,GetBlendDst,GetBlendColor,
-            GetLogicOpMode),
+            GetStencilPassDepthFail,GetStencilPassDepthPass,
+            GetActiveStencilFace,GetDepthFunc,GetBlendEquation,GetBlendDstRGB,
+            GetBlendSrcRGB,GetBlendDstAlpha,GetBlendSrcAlpha,GetBlendSrc,
+            GetBlendDst,GetBlendColor,GetLogicOpMode),
    getInteger1, getInteger4, getEnum1, getFloat1, getFloat4, getDouble2,
    getBoolean1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -230,6 +233,19 @@ stencilOp =
 
 foreign import CALLCONV unsafe "glStencilOp" glStencilOp ::
    GLenum -> GLenum -> GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+stencilTestTwoSide :: StateVar Capability
+stencilTestTwoSide = makeCapability CapStencilTestTwoSide
+
+activeStencilFace :: StateVar Face
+activeStencilFace =
+   makeStateVar
+      (getEnum1 unmarshalFace GetActiveStencilFace)
+      (glActiveStencilFaceEXT . marshalFace)
+
+EXTENSION_ENTRY("GL_EXT_stencil_two_side",glActiveStencilFaceEXT,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 

@@ -122,6 +122,7 @@ data EnableCap =
    | CapDepthBoundsTest
    | CapPrimitiveRestart -- NOTE: client state!
    | CapPointSprite
+   | CapStencilTestTwoSide
 
 marshalEnableCap :: EnableCap -> GLenum
 marshalEnableCap x = case x of
@@ -207,6 +208,7 @@ marshalEnableCap x = case x of
    CapDepthBoundsTest -> 0x8890
    CapPrimitiveRestart -> 0x8558
    CapPointSprite -> 0x8861
+   CapStencilTestTwoSide -> 0x8910
 
 --------------------------------------------------------------------------------
 
