@@ -18,13 +18,22 @@ module Graphics.Rendering.OpenGL.GLU.NURBS (
    nurbsBeginEndCurve, gluNurbsCurve,
    nurbsBeginEndSurface, gluNurbsSurface,
    nurbsBeginEndTrim, gluPwlCurve,
-   NURBSProperty(..), setNURBSProperty,
-   DisplayMode'(..), SamplingMethod(..), NURBSMode(..)
+   NURBSMode(..), setNURBSMode,
+   setCulling,
+   SamplingMethod(..), setSamplingMethod,
+   loadSamplingMatrices,
+   DisplayMode'(..), setDisplayMode
 ) where
 
 import Control.Monad ( unless )
+import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLfloat )
+import Foreign.Storable ( Storable(..) )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLint, GLfloat, Capability )
+import Graphics.Rendering.OpenGL.GL.Capability ( marshalCapability )
+import Graphics.Rendering.OpenGL.GL.CoordTrans (
+   Position(..), Size(..), MatrixOrder(ColumnMajor), MatrixComponent, Matrix(..) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket, bracket_ )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
@@ -174,55 +183,136 @@ foreign import CALLCONV safe "gluEndTrim"
 --------------------------------------------------------------------------------
 -- chapter 7.6: NURBS Properties
 
-data NURBSProperty' =
-     AutoLoadMatrix'
-   | Culling'
-   | ParametricTolerance'
-   | SamplingTolerance'
+data NURBSProperty =
+     AutoLoadMatrix
+   | Culling
+   | ParametricTolerance
+   | SamplingTolerance
    | DisplayMode'
-   | SamplingMethod'
-   | UStep'
-   | VStep'
-   | NURBSMode'
+   | SamplingMethod
+   | UStep
+   | VStep
+   | NURBSMode
 
-marshalNURBSProperty' :: NURBSProperty' -> GLenum
-marshalNURBSProperty' x = case x of
-   AutoLoadMatrix' -> 100200
-   Culling' -> 100201
-   ParametricTolerance' -> 100202
-   SamplingTolerance' -> 100203
+marshalNURBSProperty :: NURBSProperty -> GLenum
+marshalNURBSProperty x = case x of
+   AutoLoadMatrix -> 100200
+   Culling -> 100201
+   ParametricTolerance -> 100202
+   SamplingTolerance -> 100203
    DisplayMode' -> 100204
-   SamplingMethod' -> 100205
-   UStep' -> 100206
-   VStep' -> 100207
-   NURBSMode' -> 100160
+   SamplingMethod -> 100205
+   UStep -> 100206
+   VStep -> 100207
+   NURBSMode -> 100160
 
 --------------------------------------------------------------------------------
 
-data NURBSProperty =
-     AutoLoadMatrix Bool
-   | Culling Bool
-   | ParametricTolerance GLfloat
-   | SamplingTolerance GLfloat
-   | DisplayMode DisplayMode'
-   | SamplingMethod SamplingMethod
-   | UStep GLfloat
-   | VStep GLfloat
-   | NURBSMode NURBSMode
+setNURBSProperty :: NURBSObj -> NURBSProperty -> GLfloat -> IO ()
+setNURBSProperty nurbsObj = gluNurbsProperty nurbsObj . marshalNURBSProperty
+
+foreign import CALLCONV safe "gluNurbsProperty"
+   gluNurbsProperty :: NURBSObj -> GLenum -> GLfloat -> IO ()
+
+--------------------------------------------------------------------------------
+
+data NURBSMode =
+     NurbsTessellator
+   | NurbsRenderer
    deriving ( Eq, Ord, Show )
 
-setNURBSProperty :: NURBSObj -> NURBSProperty -> IO ()
-setNURBSProperty nurbsObj x = case x of
-   AutoLoadMatrix a -> nurbsProperty AutoLoadMatrix' (marshalGLboolean a)
-   Culling c -> nurbsProperty Culling' (marshalGLboolean c)
-   ParametricTolerance p -> nurbsProperty ParametricTolerance' p
-   SamplingTolerance s -> nurbsProperty SamplingTolerance' s
-   DisplayMode d -> nurbsProperty DisplayMode' (marshalDisplayMode' d)
-   SamplingMethod m -> nurbsProperty SamplingMethod' (marshalSamplingMethod m)
-   UStep u -> nurbsProperty UStep' u
-   VStep v -> nurbsProperty VStep' v
-   NURBSMode m -> nurbsProperty NURBSMode' (marshalNURBSMode m)
-   where nurbsProperty = gluNurbsProperty nurbsObj . marshalNURBSProperty'
+marshalNURBSMode :: NURBSMode -> GLfloat
+marshalNURBSMode x = case x of
+   NurbsTessellator -> 100161
+   NurbsRenderer -> 100162
+
+setNURBSMode :: NURBSObj -> NURBSMode -> IO ()
+setNURBSMode nurbsObj = setNURBSProperty nurbsObj NURBSMode . marshalNURBSMode
+
+--------------------------------------------------------------------------------
+
+setCulling :: NURBSObj -> Capability -> IO ()
+setCulling nurbsObj = setNURBSProperty nurbsObj Culling . fromIntegral . marshalCapability
+
+--------------------------------------------------------------------------------
+
+data SamplingMethod' =
+     PathLength'
+   | ParametricError'
+   | DomainDistance'
+   | ObjectPathLength'
+   | ObjectParametricError'
+
+marshalSamplingMethod' :: SamplingMethod' -> GLfloat
+marshalSamplingMethod' x = case x of
+   PathLength' -> 100215
+   ParametricError' -> 100216
+   DomainDistance' -> 100217
+   ObjectPathLength' -> 100209
+   ObjectParametricError' -> 100208
+
+setSamplingMethod' :: NURBSObj -> SamplingMethod' -> IO ()
+setSamplingMethod' nurbsObj = setNURBSProperty nurbsObj SamplingMethod . marshalSamplingMethod'
+
+--------------------------------------------------------------------------------
+
+data SamplingMethod =
+     PathLength GLfloat
+   | ParametricError GLfloat
+   | DomainDistance GLfloat GLfloat
+   | ObjectPathLength GLfloat
+   | ObjectParametricError GLfloat
+   deriving ( Eq, Ord, Show )
+
+setSamplingMethod :: NURBSObj -> SamplingMethod -> IO ()
+setSamplingMethod nurbsObj x = case x of
+   PathLength s -> do
+      setNURBSProperty nurbsObj SamplingTolerance s
+      setSamplingMethod' nurbsObj PathLength'
+   ParametricError p -> do
+      setNURBSProperty nurbsObj ParametricTolerance p
+      setSamplingMethod' nurbsObj ParametricError'
+   DomainDistance u v -> do
+      setNURBSProperty nurbsObj UStep u
+      setNURBSProperty nurbsObj VStep v
+      setSamplingMethod' nurbsObj DomainDistance'
+   ObjectPathLength s -> do
+      setNURBSProperty nurbsObj SamplingTolerance s
+      setSamplingMethod' nurbsObj ObjectPathLength'
+   ObjectParametricError p -> do
+      setNURBSProperty nurbsObj ParametricTolerance p
+      setSamplingMethod' nurbsObj ObjectParametricError'
+
+--------------------------------------------------------------------------------
+
+setAutoLoadMatrix :: NURBSObj -> Bool -> IO ()
+setAutoLoadMatrix nurbsObj = setNURBSProperty nurbsObj AutoLoadMatrix . marshalGLboolean
+
+loadSamplingMatrices :: (Matrix m1, Matrix m2) => NURBSObj -> Maybe (m1 GLfloat, m2 GLfloat, (Position, Size)) -> IO ()
+loadSamplingMatrices nurbsObj =
+   maybe
+      (setAutoLoadMatrix nurbsObj True)
+      (\(mv, proj, (Position x y, Size w h)) -> do
+          withMatrixColumnMajor mv $ \mvBuf ->
+             withMatrixColumnMajor proj $ \projBuf ->
+                withArray [x, y, w, h] $ \viewportBuf ->
+                  gluLoadSamplingMatrices nurbsObj mvBuf projBuf viewportBuf
+          setAutoLoadMatrix nurbsObj False)
+
+withMatrixColumnMajor :: (Matrix m, MatrixComponent c) => m c -> (Ptr c -> IO a) -> IO a
+withMatrixColumnMajor mat act =
+   withMatrix mat $ \order p ->
+      if order == ColumnMajor
+         then act p
+         else do
+            elems <- mapM (peekElemOff p) [ 0, 4,  8, 12,
+                                            1, 5,  9, 13,
+                                            2, 6, 10, 14,
+                                            3, 7, 11, 15 ]
+            withArray elems act
+
+foreign import CALLCONV safe "gluLoadSamplingMatrices"
+   gluLoadSamplingMatrices :: NURBSObj -> Ptr GLfloat -> Ptr GLfloat -> Ptr GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -238,69 +328,5 @@ marshalDisplayMode' x = case x of
    OutlinePolygon -> 100240
    OutlinePatch -> 100241
 
-unmarshalDisplayMode' :: GLfloat -> DisplayMode'
-unmarshalDisplayMode' x
-   | x == 100012 = Fill'
-   | x == 100240 = OutlinePolygon
-   | x == 100241 = OutlinePatch
-   | otherwise = error ("unmarshalDisplayMode': illegal value " ++ show x)
-
---------------------------------------------------------------------------------
-
-data SamplingMethod =
-     ObjectParametricError
-   | ObjectPathLength
-   | PathLength
-   | ParametricError
-   | DomainDistance
-   deriving ( Eq, Ord, Show )
-
-marshalSamplingMethod :: SamplingMethod -> GLfloat
-marshalSamplingMethod x = case x of
-   ObjectParametricError -> 100208
-   ObjectPathLength -> 100209
-   PathLength -> 100215
-   ParametricError -> 100216
-   DomainDistance -> 100217
-
-unmarshalSamplingMethod :: GLfloat -> SamplingMethod
-unmarshalSamplingMethod x
-   | x == 100208 = ObjectParametricError
-   | x == 100209 = ObjectPathLength
-   | x == 100215 = PathLength
-   | x == 100216 = ParametricError
-   | x == 100217 = DomainDistance
-   | otherwise = error ("unmarshalSamplingMethod: illegal value " ++ show x)
-
---------------------------------------------------------------------------------
-
-data NURBSMode =
-     NurbsTessellator
-   | NurbsRenderer
-   deriving ( Eq, Ord, Show )
-
-marshalNURBSMode :: NURBSMode -> GLfloat
-marshalNURBSMode x = case x of
-   NurbsTessellator -> 100161
-   NurbsRenderer -> 100162
-
-unmarshalNURBSMode :: GLfloat -> NURBSMode
-unmarshalNURBSMode x
-   | x == 100161 = NurbsTessellator
-   | x == 100162 = NurbsRenderer
-   | otherwise = error ("unmarshalNURBSMode: illegal value " ++ show x)
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV safe "gluNurbsProperty"
-   gluNurbsProperty :: NURBSObj -> GLenum -> GLfloat -> IO ()
-
--- GLAPI void GLAPIENTRY gluGetNurbsProperty (GLUnurbs* nurb, GLenum property, GLfloat* data);
-foreign import CALLCONV safe "gluGetNurbsProperty"
-   gluGetNurbsProperty :: NURBSObj -> GLenum -> Ptr GLfloat -> IO ()
-
---------------------------------------------------------------------------------
-
--- GLAPI void GLAPIENTRY gluLoadSamplingMatrices (GLUnurbs* nurb, const GLfloat* model, const GLfloat* perspective, const GLint* view);
-foreign import CALLCONV safe "gluLoadSamplingMatrices"
-   gluLoadSamplingMatrices :: NURBSObj -> Ptr GLfloat -> Ptr GLfloat -> Ptr GLint -> IO ()
+setDisplayMode :: NURBSObj -> DisplayMode' -> IO ()
+setDisplayMode nurbsObj = setNURBSProperty nurbsObj DisplayMode' . marshalDisplayMode'
