@@ -27,6 +27,9 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    pixelMapIToI, pixelMapSToS, pixelMapIToR, pixelMapIToG, pixelMapIToB,
    pixelMapIToA, pixelMapRToR, pixelMapGToG, pixelMapBToB, pixelMapAToA,
 
+   colorTable, postConvolutionColorTable, postColorMatrixColorTable,
+   ColorTableTarget(..),
+
    PixelFormat(..), PixelType(..), drawPixels
 ) where
 
@@ -35,9 +38,15 @@ import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLuint, GLsizei, GLfloat )
+import Graphics.Rendering.OpenGL.GL.Capability (
+   EnableCap(CapColorTable,CapPostConvolutionColorTable,
+             CapPostColorMatrixColorTable),
+   makeCapability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
+import Graphics.Rendering.OpenGL.GL.Extensions (
+   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
-   marshalGLboolean, unmarshalGLboolean )
+   GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PixelTypes (
    PixelFormat(..), marshalPixelFormat, PixelType(..), marshalPixelType )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -64,7 +73,11 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, getInteger1, getSizei1, getFloat1, getArrayWith )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Index1(..) )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), Index1(..) )
+
+--------------------------------------------------------------------------------
+
+#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -253,7 +266,7 @@ indexShift = pixelTransferi GetIndexShift IndexShift
 indexOffset :: StateVar GLint
 indexOffset = pixelTransferi GetIndexOffset IndexOffset
 
-rgbaScale :: StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
+rgbaScale :: StateVar (Color4 GLfloat)
 rgbaScale =
     pixelTransfer4f GetRedScale GetGreenScale GetBlueScale GetAlphaScale
                        RedScale    GreenScale    BlueScale    AlphaScale
@@ -261,7 +274,7 @@ rgbaScale =
 depthScale :: StateVar GLfloat
 depthScale = pixelTransferf GetDepthScale DepthScale
 
-rgbaBias :: StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
+rgbaBias :: StateVar (Color4 GLfloat)
 rgbaBias =
     pixelTransfer4f GetRedBias GetGreenBias GetBlueBias GetAlphaBias
                        RedBias    GreenBias    BlueBias    AlphaBias
@@ -269,25 +282,33 @@ rgbaBias =
 depthBias :: StateVar GLfloat
 depthBias = pixelTransferf GetDepthBias DepthBias
 
-postConvolutionRGBAScale :: StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
+postConvolutionRGBAScale :: StateVar (Color4 GLfloat)
 postConvolutionRGBAScale =
-    pixelTransfer4f GetPostConvolutionRedScale GetPostConvolutionGreenScale GetPostConvolutionBlueScale GetPostConvolutionAlphaScale
-                       PostConvolutionRedScale    PostConvolutionGreenScale    PostConvolutionBlueScale    PostConvolutionAlphaScale
+    pixelTransfer4f GetPostConvolutionRedScale  GetPostConvolutionGreenScale
+                    GetPostConvolutionBlueScale GetPostConvolutionAlphaScale
+                       PostConvolutionRedScale     PostConvolutionGreenScale
+                       PostConvolutionBlueScale    PostConvolutionAlphaScale
 
-postConvolutionRGBABias :: StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
+postConvolutionRGBABias :: StateVar (Color4 GLfloat)
 postConvolutionRGBABias =
-    pixelTransfer4f GetPostConvolutionRedBias GetPostConvolutionGreenBias GetPostConvolutionBlueBias GetPostConvolutionAlphaBias
-                       PostConvolutionRedBias    PostConvolutionGreenBias    PostConvolutionBlueBias    PostConvolutionAlphaBias
+    pixelTransfer4f GetPostConvolutionRedBias  GetPostConvolutionGreenBias
+                    GetPostConvolutionBlueBias GetPostConvolutionAlphaBias
+                       PostConvolutionRedBias     PostConvolutionGreenBias
+                       PostConvolutionBlueBias    PostConvolutionAlphaBias
 
-postColorMatrixRGBAScale :: StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
+postColorMatrixRGBAScale :: StateVar (Color4 GLfloat)
 postColorMatrixRGBAScale =
-    pixelTransfer4f GetPostColorMatrixRedScale GetPostColorMatrixGreenScale GetPostColorMatrixBlueScale GetPostColorMatrixAlphaScale
-                       PostColorMatrixRedScale    PostColorMatrixGreenScale    PostColorMatrixBlueScale    PostColorMatrixAlphaScale
+    pixelTransfer4f GetPostColorMatrixRedScale  GetPostColorMatrixGreenScale
+                    GetPostColorMatrixBlueScale GetPostColorMatrixAlphaScale
+                       PostColorMatrixRedScale     PostColorMatrixGreenScale
+                       PostColorMatrixBlueScale    PostColorMatrixAlphaScale
 
-postColorMatrixRGBABias :: StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
+postColorMatrixRGBABias :: StateVar (Color4 GLfloat)
 postColorMatrixRGBABias =
-    pixelTransfer4f GetPostColorMatrixRedBias GetPostColorMatrixGreenBias GetPostColorMatrixBlueBias GetPostColorMatrixAlphaBias
-                       PostColorMatrixRedBias    PostColorMatrixGreenBias    PostColorMatrixBlueBias    PostColorMatrixAlphaBias
+    pixelTransfer4f GetPostColorMatrixRedBias  GetPostColorMatrixGreenBias
+                    GetPostColorMatrixBlueBias GetPostColorMatrixAlphaBias
+                       PostColorMatrixRedBias     PostColorMatrixGreenBias
+                       PostColorMatrixBlueBias    PostColorMatrixAlphaBias
 
 --------------------------------------------------------------------------------
 
@@ -314,21 +335,21 @@ pixelTransferf pn pt =
       (glPixelTransferf (marshalPixelTransfer pt))
 
 pixelTransfer4f ::
-      GetPName -> GetPName -> GetPName -> GetPName
+      GetPName      -> GetPName      -> GetPName      -> GetPName
    -> PixelTransfer -> PixelTransfer -> PixelTransfer -> PixelTransfer
-   -> StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
-pixelTransfer4f pn1 pn2 pn3 pn4 pt1 pt2 pt3 pt4 = makeStateVar get4f set4f
+   -> StateVar (Color4 GLfloat)
+pixelTransfer4f pr pg pb pa tr tg tb ta = makeStateVar get4f set4f
    where get4f = do
-            x1 <- getFloat1 id pn1
-            x2 <- getFloat1 id pn2
-            x3 <- getFloat1 id pn3
-            x4 <- getFloat1 id pn4
-            return (x1, x2, x3, x4)
-         set4f (x1, x2, x3, x4) = do
-            glPixelTransferf (marshalPixelTransfer pt1) x1
-            glPixelTransferf (marshalPixelTransfer pt2) x2
-            glPixelTransferf (marshalPixelTransfer pt3) x3
-            glPixelTransferf (marshalPixelTransfer pt4) x4
+            r <- getFloat1 id pr
+            g <- getFloat1 id pg
+            b <- getFloat1 id pb
+            a <- getFloat1 id pa
+            return $ Color4 r g b a
+         set4f (Color4 r g b a) = do
+            glPixelTransferf (marshalPixelTransfer tr) r
+            glPixelTransferf (marshalPixelTransfer tg) g
+            glPixelTransferf (marshalPixelTransfer tb) b
+            glPixelTransferf (marshalPixelTransfer ta) a
 
 foreign import CALLCONV unsafe "glPixelTransferf" glPixelTransferf ::
    GLenum -> GLfloat -> IO ()
@@ -441,6 +462,113 @@ foreign import CALLCONV unsafe "glGetPixelMapuiv" glGetPixelMapuiv ::
 
 foreign import CALLCONV unsafe "glGetPixelMapfv" glGetPixelMapfv ::
    GLenum -> Ptr GLfloat -> IO ()
+
+--------------------------------------------------------------------------------
+
+data ColorTableTarget =
+     ColorTable
+   | PostConvolutionColorTable
+   | PostColorMatrixColorTable
+   | ProxyColorTable
+   | ProxyPostConvolutionColorTable
+   | ProxyPostColorMatrixColorTable
+   deriving ( Eq, Ord, Show )
+
+marshalColorTableTarget :: ColorTableTarget -> GLenum
+marshalColorTableTarget x = case x of
+   ColorTable -> 0x80d0
+   PostConvolutionColorTable -> 0x80d1
+   PostColorMatrixColorTable -> 0x80d2
+   ProxyColorTable -> 0x80d3
+   ProxyPostConvolutionColorTable -> 0x80d4
+   ProxyPostColorMatrixColorTable -> 0x80d5
+
+unmarshalColorTableTarget :: GLenum -> ColorTableTarget
+unmarshalColorTableTarget x
+   | x == 0x80d0 = ColorTable
+   | x == 0x80d1 = PostConvolutionColorTable
+   | x == 0x80d2 = PostColorMatrixColorTable
+   | x == 0x80d3 = ProxyColorTable
+   | x == 0x80d4 = ProxyPostConvolutionColorTable
+   | x == 0x80d5 = ProxyPostColorMatrixColorTable
+   | otherwise = error ("unmarshalColorTableTarget: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+colorTable :: StateVar Bool
+colorTable = makeCapability CapColorTable
+
+postConvolutionColorTable :: StateVar Bool
+postConvolutionColorTable = makeCapability CapPostConvolutionColorTable
+
+postColorMatrixColorTable :: StateVar Bool
+postColorMatrixColorTable = makeCapability CapPostColorMatrixColorTable
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorTable,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorSubTable,GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorSubTable,GLenum -> GLsizei -> GLint -> GLint -> GLsizei -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorTable,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTable,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glHistogram,GLenum -> GLsizei -> GLenum -> GLboolean -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glResetHistogram,GLenum -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogram,GLenum -> GLboolean -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogramParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogramParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glMinmax,GLenum -> GLenum -> GLboolean -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glResetMinmax,GLenum -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmax,GLenum -> GLboolean -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmaxParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmaxParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter1D,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter2D,GLenum -> GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameterf,GLenum -> GLenum -> GLfloat -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameteri,GLenum -> GLenum -> GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyConvolutionFilter1D,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyConvolutionFilter2D,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionFilter,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionParameterfv,GLenum -> GLenum -> Ptr GLfloat -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glSeparableFilter2D,GLenum -> GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> Ptr a -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetSeparableFilter,GLenum -> GLenum -> GLenum -> Ptr a -> Ptr a -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
