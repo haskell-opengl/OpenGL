@@ -1,0 +1,33 @@
+This directory contains:
+
+* ConvertEnumSpec.hs:
+
+  A converter for the transformation of OpenGL enumerant spec files into Haskell
+  data types, including (un)marshaling functions.
+
+
+* EBNF.txt:
+
+  An LL(1) grammar for enumerant spec files in ISO Extended BNF. The LL(1)
+  property has been checked with the RDP parser generator, see
+
+     http://www.cs.rhbnc.ac.uk/research/languages/projects/rdp.shtml
+
+  For a draft (= free :-) paper of ISO/IEC 14977:1996, see
+
+     http://www.cl.cam.ac.uk/~mgk25/iso-ebnf.html
+
+
+* enum.spec:
+
+  An OpenGL 1.3 enumerant specification, including extensions. This is a heavily
+  modified version of the SI's enum.spec (rev. 1.3), cf.
+
+     http://oss.sgi.com/cgi-bin/cvsweb.cgi/projects/ogl-sample/main/gfx/include/gl/spec/enum.spec?rev=1.3
+
+
+* enumglu.spec:
+
+  An unmodified GLU 1.3 spec straight from the SI (rev. 1.1), see:
+
+     http://oss.sgi.com/cgi-bin/cvsweb.cgi/projects/ogl-sample/main/doc/registry/specs/enumglu.spec?rev=1.1
