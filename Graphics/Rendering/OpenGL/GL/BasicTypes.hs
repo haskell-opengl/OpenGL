@@ -27,7 +27,7 @@ import Foreign.C.Types ( CPtrdiff ) -- TODO: Use autoconf stuff for this!
 
 --------------------------------------------------------------------------------
 
-#include "MachDeps.h"
+#include "config.h"
 
 -- | Enumerated binary integer value (min. 32 bits)
 type GLenum = HTYPE_GLENUM
