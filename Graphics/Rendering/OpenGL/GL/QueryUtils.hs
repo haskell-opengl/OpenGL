@@ -413,6 +413,7 @@ data GetPName =
    | GetArrayElementLockCount
    | GetMaxShininess
    | GetMaxSpotExponent
+   | GetFogDistanceMode
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -791,6 +792,7 @@ marshalGetPName x = case x of
    GetArrayElementLockCount -> 0x81a9
    GetMaxShininess -> 0x8504
    GetMaxSpotExponent -> 0x8505
+   GetFogDistanceMode -> 0x855a
 
 --------------------------------------------------------------------------------
 

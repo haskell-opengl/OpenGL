@@ -16,7 +16,8 @@ module Graphics.Rendering.OpenGL.GL.Fog (
    fog,
    FogMode(..), fogMode,
    fogColor, fogIndex,
-   FogCoordinateSource(..), fogCoordinateSource
+   FogCoordinateSource(..), fogCoordinateSource,
+   FogDistanceMode(..), fogDistanceMode
 ) where
 
 import Foreign.Marshal.Utils ( with )
@@ -26,7 +27,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    Capability, EnableCap(CapFog), makeCapability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetFogIndex,GetFogDensity,GetFogStart,GetFogEnd,GetFogMode,
-   GetFogColor,GetFogCoordinateSource),
+   GetFogColor,GetFogCoordinateSource,GetFogDistanceMode),
    getInteger1, getFloat1, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
@@ -47,6 +48,7 @@ data FogParameter =
    | FogMode
    | FogColor
    | FogCoordinateSource
+   | FogDistanceMode
 
 marshalFogParameter :: FogParameter -> GLenum
 marshalFogParameter x = case x of
@@ -57,6 +59,7 @@ marshalFogParameter x = case x of
    FogMode -> 0xb65
    FogColor -> 0xb66
    FogCoordinateSource -> 0x8450
+   FogDistanceMode -> 0x855a
 
 --------------------------------------------------------------------------------
 
@@ -171,3 +174,32 @@ fogCoordinateSource =
    makeStateVar
       (getInteger1 unmarshalFogCoordinateSource GetFogCoordinateSource)
       (fogi FogCoordinateSource . marshalFogCoordinateSource)
+
+--------------------------------------------------------------------------------
+
+data FogDistanceMode =
+     EyeRadial
+   | EyePlaneSigned
+   | EyePlaneAbsolute
+   deriving ( Eq, Ord, Show )
+
+marshalFogDistanceMode :: FogDistanceMode -> GLint
+marshalFogDistanceMode x = case x of
+   EyeRadial -> 0x855b
+   EyePlaneSigned -> 0x2502
+   EyePlaneAbsolute -> 0x855c
+
+unmarshalFogDistanceMode :: GLint -> FogDistanceMode
+unmarshalFogDistanceMode x
+   | x== 0x855b = EyeRadial
+   | x == 0x2502 = EyePlaneSigned
+   | x == 0x855c = EyePlaneAbsolute
+   | otherwise = error ("unmarshalFogDistanceMode: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+fogDistanceMode :: StateVar FogDistanceMode
+fogDistanceMode =
+   makeStateVar
+      (getInteger1 unmarshalFogDistanceMode GetFogDistanceMode)
+      (fogi FogDistanceMode . marshalFogDistanceMode)
