@@ -26,7 +26,7 @@ import Data.Word
 
 --------------------------------------------------------------------------------
 
-#include "config.h"
+#include "ghcconfig.h"
 
 -- | Enumerated binary integer value (min. 32 bits)
 type GLenum = HTYPE_GLENUM

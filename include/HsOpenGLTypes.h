@@ -15,7 +15,7 @@
 #ifndef HSOPENGLTYPES_H
 #define HSOPENGLTYPES_H
 
-#include "config.h"
+#include "ghcconfig.h"
 
 /* Using a type synonym in an instance head is not Haskell98, but it is much
    better for a useful documentation. */
