@@ -40,6 +40,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.ReadCopyPixels,
 
    -- * Special Functions
+   module Graphics.Rendering.OpenGL.GL.Evaluators,
    module Graphics.Rendering.OpenGL.GL.Selection,
    module Graphics.Rendering.OpenGL.GL.Feedback,
    module Graphics.Rendering.OpenGL.GL.DisplayLists,
@@ -73,6 +74,7 @@ import Graphics.Rendering.OpenGL.GL.PerFragment
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.ReadCopyPixels
 
+import Graphics.Rendering.OpenGL.GL.Evaluators
 import Graphics.Rendering.OpenGL.GL.Selection
 import Graphics.Rendering.OpenGL.GL.Feedback
 import Graphics.Rendering.OpenGL.GL.DisplayLists

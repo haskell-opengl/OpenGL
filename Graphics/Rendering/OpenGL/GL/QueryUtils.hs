@@ -21,7 +21,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getEnum1,
    getSizei1,
    getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
-   getDouble1, getDouble2, getDoublev,
+   getDouble1, getDouble2, getDouble4, getDoublev,
    GetPointervPName(..), getPointer,
    getArrayWith
 ) where
@@ -892,6 +892,12 @@ getDouble2 :: (GLdouble -> GLdouble -> a) -> GetPName -> IO a
 getDouble2 f n = alloca $ \buf -> do
    getDoublev n buf
    peek2 f buf
+
+getDouble4 ::
+   (GLdouble -> GLdouble -> GLdouble -> GLdouble -> a) -> GetPName -> IO a
+getDouble4 f n = alloca $ \buf -> do
+   getDoublev n buf
+   peek4 f buf
 
 getDoublev :: GetPName -> Ptr GLdouble -> IO ()
 getDoublev = glGetDoublev . marshalGetPName
