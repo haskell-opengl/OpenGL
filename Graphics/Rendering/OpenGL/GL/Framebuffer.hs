@@ -37,8 +37,9 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd )
 import Graphics.Rendering.OpenGL.GL.BufferMode (
    BufferMode(..), marshalBufferMode, unmarshalBufferMode )
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   GLboolean, marshalGLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.Capability (
+   Capability, marshalCapability, unmarshalCapability )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,
             GetBlueBits,GetAlphaBits,GetStencilBits,GetDepthBits,
@@ -149,18 +150,18 @@ foreign import CALLCONV unsafe "glIndexMask" glIndexMask :: GLuint -> IO ()
 -- changes are either enabled or disabled for entire color components.
 -- Furthermore, this mask is used only in RGBA mode.
 
-colorMask :: StateVar (Color4 Bool)
+colorMask :: StateVar (Color4 Capability)
 colorMask =
    makeStateVar
-      (getBoolean4 (\r g b a -> Color4 (unmarshalGLboolean r)
-                                       (unmarshalGLboolean g)
-                                       (unmarshalGLboolean b)
-                                       (unmarshalGLboolean a))
+      (getBoolean4 (\r g b a -> Color4 (unmarshalCapability r)
+                                       (unmarshalCapability g)
+                                       (unmarshalCapability b)
+                                       (unmarshalCapability a))
                                       GetColorWritemask)
-      (\(Color4 r g b a) -> glColorMask (marshalGLboolean r)
-                                        (marshalGLboolean g)
-                                        (marshalGLboolean b)
-                                        (marshalGLboolean a))
+      (\(Color4 r g b a) -> glColorMask (marshalCapability r)
+                                        (marshalCapability g)
+                                        (marshalCapability b)
+                                        (marshalCapability a))
 
 foreign import CALLCONV unsafe "glColorMask" glColorMask ::
    GLboolean -> GLboolean -> GLboolean -> GLboolean -> IO ()
@@ -171,9 +172,9 @@ foreign import CALLCONV unsafe "glColorMask" glColorMask ::
 -- 'False', depth buffer writing is disabled. Otherwise, it is enabled (the
 -- initial state).
 
-depthMask :: StateVar Bool
-depthMask = makeStateVar (getBoolean1 unmarshalGLboolean GetDepthWritemask)
-                         (glDepthMask . marshalGLboolean)
+depthMask :: StateVar Capability
+depthMask = makeStateVar (getBoolean1 unmarshalCapability GetDepthWritemask)
+                         (glDepthMask . marshalCapability)
 
 foreign import CALLCONV unsafe "glDepthMask" glDepthMask :: GLboolean -> IO ()
 

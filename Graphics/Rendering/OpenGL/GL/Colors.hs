@@ -45,12 +45,11 @@ import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability,
+   Capability, marshalCapability, unmarshalCapability,
+   EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability,
    makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek3 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxLights, GetFrontFace,GetShadeModel,
@@ -358,25 +357,24 @@ foreign import CALLCONV unsafe "glLightModelfv" glLightModelfv ::
 
 --------------------------------------------------------------------------------
 
-lightModelLocalViewer :: StateVar Bool
+lightModelLocalViewer :: StateVar Capability
 lightModelLocalViewer =
-   makeLightModelBoolVar GetLightModelLocalViewer LightModelLocalViewer
+   makeLightModelCapVar GetLightModelLocalViewer LightModelLocalViewer
 
-makeLightModelBoolVar :: GetPName -> LightModelParameter -> StateVar Bool
-makeLightModelBoolVar pname lightModelParameter =
+makeLightModelCapVar :: GetPName -> LightModelParameter -> StateVar Capability
+makeLightModelCapVar pname lightModelParameter =
    makeStateVar
-      (getBoolean1 unmarshalGLboolean pname)
+      (getBoolean1 unmarshalCapability pname)
       (glLightModeli (marshalLightModelParameter lightModelParameter) .
-                     fromIntegral . marshalGLboolean)
+                     fromIntegral . marshalCapability)
 
 foreign import CALLCONV unsafe "glLightModeli" glLightModeli ::
    GLenum -> GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
-lightModelTwoSide :: StateVar Bool
-lightModelTwoSide =
-   makeLightModelBoolVar GetLightModelTwoSide LightModelTwoSide
+lightModelTwoSide :: StateVar Capability
+lightModelTwoSide = makeLightModelCapVar GetLightModelTwoSide LightModelTwoSide
 
 --------------------------------------------------------------------------------
 

@@ -15,17 +15,27 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Capability (
-   Capability(..), EnableCap(..), makeCapability, makeStateVarMaybe
+   Capability(..), marshalCapability, unmarshalCapability,
+   EnableCap(..), makeCapability, makeStateVarMaybe
 ) where
 
 import Control.Monad ( liftM )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLsizei, Capability(..) )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.GLboolean (
+   GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
+
+--------------------------------------------------------------------------------
+
+marshalCapability :: Capability -> GLboolean
+marshalCapability = marshalGLboolean . (Enabled ==)
+
+unmarshalCapability :: GLboolean -> Capability
+unmarshalCapability x = if unmarshalGLboolean x then Enabled else Disabled
 
 --------------------------------------------------------------------------------
 
@@ -199,10 +209,6 @@ makeCapability cap = makeStateVar (isEnabled cap) (enable cap)
 
 isEnabled :: EnableCap -> IO Capability
 isEnabled = liftM unmarshalCapability . glIsEnabled . marshalEnableCap
-
-unmarshalCapability :: GLboolean -> Capability
-unmarshalCapability x | unmarshalGLboolean x = Enabled
-                      | otherwise            = Disabled
 
 foreign import CALLCONV unsafe "glIsEnabled" glIsEnabled ::
    GLenum -> IO GLboolean

@@ -29,10 +29,8 @@ data EdgeFlag = BeginsInteriorEdge | BeginsBoundaryEdge
    deriving ( Eq, Ord, Show )
 
 marshalEdgeFlag :: EdgeFlag -> GLboolean
-marshalEdgeFlag BeginsInteriorEdge = marshalGLboolean False
-marshalEdgeFlag BeginsBoundaryEdge = marshalGLboolean True
+marshalEdgeFlag = marshalGLboolean . (BeginsBoundaryEdge ==)
 
 unmarshalEdgeFlag :: GLboolean -> EdgeFlag
-unmarshalEdgeFlag f
-   | unmarshalGLboolean f = BeginsBoundaryEdge
-   | otherwise            = BeginsInteriorEdge
+unmarshalEdgeFlag f =
+   if unmarshalGLboolean f then BeginsBoundaryEdge else BeginsBoundaryEdge
