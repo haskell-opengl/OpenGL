@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
    TextureObject, defaultTextureObject, textureBinding,
-   areTexturesResident, prioritizeTextures
+   textureResident, areTexturesResident, texturePriority, prioritizeTextures
 ) where
 
 import Control.Monad ( liftM )
@@ -31,7 +31,11 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetTextureBinding1D,GetTextureBinding2D,GetTextureBinding3D,
             GetTextureBindingCubeMap,GetTextureBindingRectangle),
    getEnum1)
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
+   TexParameter(TextureResident,TexturePriority),
+   texParameterf, getTexParameteri, getTexParameterf )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget(..), marshalTextureTarget )
 
@@ -87,6 +91,11 @@ foreign import CALLCONV unsafe "glBindTexture"
 
 --------------------------------------------------------------------------------
 
+textureResident :: TextureTarget -> GettableStateVar Bool
+textureResident t =
+   makeGettableStateVar $
+      getTexParameteri (unmarshalGLboolean . fromIntegral) t TextureResident
+
 areTexturesResident :: [TextureObject] -> IO ([TextureObject],[TextureObject])
 areTexturesResident texObjs = do
    let len = length texObjs
@@ -105,6 +114,12 @@ foreign import CALLCONV unsafe "glAreTexturesResident"
    glAreTexturesResident :: GLsizei -> Ptr GLuint -> Ptr GLboolean -> IO GLboolean
 
 --------------------------------------------------------------------------------
+
+texturePriority :: TextureTarget -> StateVar GLclampf
+texturePriority t =
+   makeStateVar
+      (getTexParameterf t TexturePriority)
+      (texParameterf t TexturePriority)
 
 prioritizeTextures :: [(TextureObject,GLclampf)] -> IO ()
 prioritizeTextures tps =
