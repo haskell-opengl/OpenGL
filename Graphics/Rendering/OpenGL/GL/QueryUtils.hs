@@ -411,6 +411,8 @@ data GetPName =
    | GetUnpackCMYKHint
    | GetArrayElementLockFirst
    | GetArrayElementLockCount
+   | GetMaxShininess
+   | GetMaxSpotExponent
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -787,6 +789,8 @@ marshalGetPName x = case x of
    GetUnpackCMYKHint -> 0x800f
    GetArrayElementLockFirst -> 0x81a8
    GetArrayElementLockCount -> 0x81a9
+   GetMaxShininess -> 0x8504
+   GetMaxSpotExponent -> 0x8505
 
 --------------------------------------------------------------------------------
 

@@ -21,10 +21,12 @@ module Graphics.Rendering.OpenGL.GL.Colors (
    -- * Lighting Parameter Specification
    Face(..),
    materialAmbient, materialDiffuse, materialAmbientAndDiffuse,
-   materialSpecular, materialEmission, materialShininess, materialColorIndexes,
+   materialSpecular, materialEmission, materialShininess, maxShininess,
+   materialColorIndexes,
 
    ambient, diffuse, specular,
-   position, spotDirection, spotExponent, spotCutoff, attenuation,
+   position, spotDirection, spotExponent, maxSpotExponent, spotCutoff,
+   attenuation,
 
    lightModelAmbient, lightModelLocalViewer, lightModelTwoSide,
    LightModelColorControl(..), lightModelColorControl,
@@ -55,8 +57,9 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxLights, GetFrontFace,GetShadeModel,
             GetLightModelAmbient, GetLightModelLocalViewer,
             GetLightModelTwoSide, GetLightModelColorControl,
-            GetColorMaterialFace,GetColorMaterialParameter),
-   getBoolean1, getEnum1, getSizei1, getFloat4, lightIndexToEnum )
+            GetColorMaterialFace,GetColorMaterialParameter,
+            GetMaxShininess,GetMaxSpotExponent),
+   getBoolean1, getEnum1, getSizei1, getFloat1, getFloat4, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)),
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
@@ -183,6 +186,9 @@ foreign import CALLCONV unsafe "glGetMaterialfv" glGetMaterialfvf ::
 foreign import CALLCONV unsafe "glMaterialfv" glMaterialff ::
    GLenum -> GLenum -> Ptr GLfloat -> IO ()
 
+maxShininess :: GettableStateVar GLfloat
+maxShininess = makeGettableStateVar $ getFloat1 id GetMaxShininess
+
 --------------------------------------------------------------------------------
 
 -- Alas, (Index1 GLint, Index1 GLint, Index1 GLint) is not an instance of
@@ -300,6 +306,9 @@ foreign import CALLCONV unsafe "glLightfv" glLightfv ::
 
 foreign import CALLCONV unsafe "glGetLightfv" glGetLightfv ::
    GLenum -> GLenum -> Ptr GLfloat -> IO ()
+
+maxSpotExponent :: GettableStateVar GLfloat
+maxSpotExponent = makeGettableStateVar $ getFloat1 id GetMaxSpotExponent
 
 --------------------------------------------------------------------------------
 
