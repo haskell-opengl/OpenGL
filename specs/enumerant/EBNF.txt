@@ -16,5 +16,5 @@ digit          = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 typeName       = word;
 identifier     = word - "use";
 word           = wordChar, { wordChar };
-wordChar       = character - (" " | punctuation);
-punctuation    = ";" | ":" | "," | "=" | "+" | "$" ;
+wordChar       = character - (" " | punctuation );
+punctuation    = ";" | ":" | "," | "=" | "+" | "$";
