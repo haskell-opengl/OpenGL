@@ -13,7 +13,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.Quadrics (
-   QuadricNormal(..), QuadricTexture(..), QuadricOrientation(..),
+   QuadricNormal, QuadricTexture(..), QuadricOrientation(..),
    QuadricDrawStyle(..), QuadricStyle(..),
    Radius, Height, Angle, Slices, Stacks, Loops, QuadricPrimitive(..),
    renderQuadric
@@ -24,6 +24,7 @@ import Data.IORef        ( newIORef, readIORef, modifyIORef )
 import Foreign.Ptr       ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, marshalGLboolean, GLenum, GLint, GLdouble )
+import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GLU.Errors (
    Error(..), ErrorCategory(..), makeError )
 
@@ -55,17 +56,12 @@ marshalQuadricCallback x = case x of
 
 --------------------------------------------------------------------------------
 
-data QuadricNormal =
-     Smooth
-   | Flat
-   | None
-   deriving ( Eq, Ord, Show )
+type QuadricNormal = Maybe ShadingModel
 
 marshalQuadricNormal :: QuadricNormal -> GLenum
-marshalQuadricNormal x = case x of
-   Smooth -> 0x186a0
-   Flat -> 0x186a1
-   None -> 0x186a2
+marshalQuadricNormal (Just Smooth) = 0x186a0
+marshalQuadricNormal (Just Flat  ) = 0x186a1
+marshalQuadricNormal Nothing       = 0x186a2
 
 --------------------------------------------------------------------------------
 

@@ -10,7 +10,7 @@
 -- Portability :  portable
 --
 -- This is a purely internal module for handling the OpenGL extension
---  mechanism.
+-- mechanism.
 --
 --------------------------------------------------------------------------------
 

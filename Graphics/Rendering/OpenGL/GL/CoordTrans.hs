@@ -13,7 +13,7 @@
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.CoordTrans(
+module Graphics.Rendering.OpenGL.GL.CoordTrans (
    -- * Misc
    GLcolumn4(..), GLmatrix(..),
 
@@ -21,19 +21,45 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans(
    depthRange, viewport, maxViewportDims,
 
    -- * Matrices
-   MatrixMode(..), matrixMode
+   MatrixMode(..), matrixMode,
+   glLoadMatrixf, glLoadMatrixd, loadTransposeMatrixf, loadTransposeMatrixd,
+   glMultMatrixf, glMultMatrixd, multTransposeMatrixf, multTransposeMatrixd,
+   loadIdentity,
+   glRotatef, glRotated, glTranslatef, glTranslated, glScalef, glScaled,
+   ortho, frustum,
+   activeTexture,
+   matrixExcursion,
+
+   -- * Normal Transformation
+   rescaleNormal, normalize,
+
+   -- * Generating Texture Coordinates
+   glTexGeni, glTexGenf, glTexGend, 
+   glTexGeniv, glTexGenfv, glTexGendv, 
+   glGetTexGeniv, glGetTexGenfv, glGetTexGendv,
 ) where
 
 import Control.Monad ( zipWithM_ )
-import Foreign.Ptr ( castPtr )
+import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLclampd )
+   GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd )
+import Graphics.Rendering.OpenGL.GL.Capability (
+   EnableCap(CapRescaleNormal,CapNormalize), makeCapability )
+import Graphics.Rendering.OpenGL.GL.Extensions (
+   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.Query (
-   GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode),
+   GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
+            GetActiveTexture),
    getInteger1, getInteger2, getInteger4, getDouble2 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.VertexSpec (
+   TextureUnit(TextureUnit) )
+
+--------------------------------------------------------------------------------
+
+#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -131,6 +157,105 @@ matrixMode =
                 (glMatrixMode . marshalMatrixMode)
 
 foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+foreign import CALLCONV unsafe "glLoadMatrixf" glLoadMatrixf :: Ptr GLfloat -> IO ()
+foreign import CALLCONV unsafe "glLoadMatrixd" glLoadMatrixd :: Ptr GLdouble -> IO ()
+
+loadTransposeMatrixf :: Ptr GLfloat -> IO ()
+loadTransposeMatrixf = dynLoadTransposeMatrixf ptrLoadTransposeMatrixf
+
+EXTENSION_ENTRY("GL_ARB_transpose_matrix","glLoadTransposeMatrixf",dynLoadTransposeMatrixf,ptrLoadTransposeMatrixf,Ptr GLfloat -> IO ())
+
+loadTransposeMatrixd :: Ptr GLdouble -> IO ()
+loadTransposeMatrixd = dynLoadTransposeMatrixd ptrLoadTransposeMatrixd
+
+EXTENSION_ENTRY("GL_ARB_transpose_matrix","glLoadTransposeMatrixd",dynLoadTransposeMatrixd,ptrLoadTransposeMatrixd,Ptr GLdouble -> IO ())
+
+foreign import CALLCONV unsafe "glMultMatrixf" glMultMatrixf :: Ptr GLfloat -> IO ()
+foreign import CALLCONV unsafe "glMultMatrixd" glMultMatrixd :: Ptr GLdouble -> IO ()
+
+multTransposeMatrixf :: Ptr GLfloat -> IO ()
+multTransposeMatrixf = dynMultTransposeMatrixf ptrMultTransposeMatrixf
+
+EXTENSION_ENTRY("GL_ARB_transpose_matrix","glMultTransposeMatrixf",dynMultTransposeMatrixf,ptrMultTransposeMatrixf,Ptr GLfloat -> IO ())
+
+multTransposeMatrixd :: Ptr GLdouble -> IO ()
+multTransposeMatrixd = dynMultTransposeMatrixd ptrMultTransposeMatrixd
+
+EXTENSION_ENTRY("GL_ARB_transpose_matrix","glMultTransposeMatrixd",dynMultTransposeMatrixd,ptrMultTransposeMatrixd,Ptr GLdouble -> IO ())
+
+--------------------------------------------------------------------------------
+
+foreign import CALLCONV unsafe "glLoadIdentity" loadIdentity :: IO ()
+
+--------------------------------------------------------------------------------
+
+foreign import CALLCONV unsafe "glRotatef" glRotatef :: GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
+foreign import CALLCONV unsafe "glRotated" glRotated :: GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+
+foreign import CALLCONV unsafe "glTranslatef" glTranslatef :: GLfloat -> GLfloat -> GLfloat -> IO ()
+foreign import CALLCONV unsafe "glTranslated" glTranslated :: GLdouble -> GLdouble -> GLdouble -> IO ()
+
+foreign import CALLCONV unsafe "glScalef" glScalef :: GLfloat -> GLfloat -> GLfloat -> IO ()
+foreign import CALLCONV unsafe "glScaled" glScaled :: GLdouble -> GLdouble -> GLdouble -> IO ()
+
+--------------------------------------------------------------------------------
+
+foreign import CALLCONV unsafe "glOrtho" ortho ::
+   GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+
+foreign import CALLCONV unsafe "glFrustum" frustum ::
+   GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+
+--------------------------------------------------------------------------------
+
+activeTexture :: StateVar TextureUnit
+activeTexture =
+   makeStateVar
+     (getInteger1 (TextureUnit . fromIntegral) GetActiveTexture)
+     (\(TextureUnit u) -> glActiveTexture u)
+
+foreign import CALLCONV unsafe "glActiveTexture" glActiveTexture ::
+   GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+-- ToDo: Use bracket? Guard against overflow?
+
+matrixExcursion :: IO a -> IO a
+matrixExcursion act = do
+   glPushMatrix
+   ret <- act
+   glPopMatrix
+   return ret
+
+foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
+
+foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
+
+--------------------------------------------------------------------------------
+
+rescaleNormal :: StateVar Bool
+rescaleNormal = makeCapability CapRescaleNormal
+
+normalize :: StateVar Bool
+normalize = makeCapability CapNormalize
+
+--------------------------------------------------------------------------------
+
+foreign import CALLCONV unsafe "glTexGeni" glTexGeni :: GLenum -> GLenum -> GLint -> IO ()
+foreign import CALLCONV unsafe "glTexGenf" glTexGenf :: GLenum -> GLenum -> GLfloat -> IO ()
+foreign import CALLCONV unsafe "glTexGend" glTexGend :: GLenum -> GLenum -> GLdouble -> IO ()
+
+foreign import CALLCONV unsafe "glTexGeniv" glTexGeniv :: GLenum -> GLenum -> Ptr GLint -> IO ()
+foreign import CALLCONV unsafe "glTexGenfv" glTexGenfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
+foreign import CALLCONV unsafe "glTexGendv" glTexGendv :: GLenum -> GLenum -> Ptr GLdouble -> IO ()
+
+foreign import CALLCONV unsafe "glGetTexGeniv" glGetTexGeniv :: GLenum -> GLenum -> Ptr GLint -> IO ()
+foreign import CALLCONV unsafe "glGetTexGenfv" glGetTexGenfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
+foreign import CALLCONV unsafe "glGetTexGendv" glGetTexGendv :: GLenum -> GLenum -> Ptr GLdouble -> IO ()
 
 --------------------------------------------------------------------------------
 

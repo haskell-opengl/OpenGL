@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Framebuffer (
    -- * Querying the Buffer Configuration
-   numAuxBuffers, doubleBuffered, stereoscopic,
+   auxBuffers, doublebuffer, stereo,
 
    -- * Selecting a Buffer for Writing
    DrawBufferMode(..), drawBuffer,
@@ -49,21 +49,21 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 -- | The implementation and context dependent number of auxiliary buffers.
 
-numAuxBuffers :: GettableStateVar GLsizei
-numAuxBuffers =
+auxBuffers :: GettableStateVar GLsizei
+auxBuffers =
    makeGettableStateVar (getInteger1 fromIntegral GetAuxBuffers)
 
 -- | 'True' if front and back buffers exist.
 
-doubleBuffered :: GettableStateVar Bool
-doubleBuffered =
+doublebuffer :: GettableStateVar Bool
+doublebuffer =
    makeGettableStateVar (getBoolean1 unmarshalGLboolean GetDoublebuffer)
 
 -- | 'True' if left and right buffers exist.
 
-stereoscopic :: GettableStateVar Bool
-stereoscopic =
-   makeGettableStateVar (getBoolean1 unmarshalGLboolean GetStereo)
+stereo :: GettableStateVar Bool
+stereo =
+    makeGettableStateVar (getBoolean1 unmarshalGLboolean GetStereo)
 
 --------------------------------------------------------------------------------
 
