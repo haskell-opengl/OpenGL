@@ -38,7 +38,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 import Control.Monad ( liftM )
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( peekArray, pokeArray )
+import Foreign.Marshal.Array ( peekArray, pokeArray, allocaArray, withArray )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(..) )
@@ -48,7 +48,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapRescaleNormal, CapNormalize,
              CapTextureGenS, CapTextureGenT,
              CapTextureGenR, CapTextureGenQ),
-   Capability, makeCapability, makeStateVarMaybe )
+   Capability(..), makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
@@ -282,17 +282,27 @@ class Matrix m where
       MatrixComponent c => MatrixOrder -> (Ptr c -> IO ()) -> IO (m c)
 
    -- | Call the action with the given matrix. /Note:/ The action is /not/
-   -- allowed to modify the matrix elments!
+   -- allowed to modify the matrix elements!
    withMatrix ::
       MatrixComponent c => m c -> (MatrixOrder -> Ptr c -> IO a) -> IO a
 
-   matrix :: MatrixComponent c => MatrixOrder -> [c] -> m c
-   matrixElements :: MatrixComponent c => MatrixOrder -> m c -> [c]
+   newMatrix :: MatrixComponent c => MatrixOrder -> [c] -> IO (m c)
+   getMatrixCompoments :: MatrixComponent c => MatrixOrder -> m c -> IO [c]
 
-   matrix order elements = unsafePerformIO $
-      withNewMatrix order $ flip pokeArray (take 16 elements)
+   withNewMatrix order act =
+      allocaArray 16 $ \p -> do
+         act p
+         components <- peekArray 16 p
+         newMatrix order components
 
-   matrixElements desiredOrder mat = unsafePerformIO $ do
+   withMatrix mat act = do
+      components <- getMatrixCompoments ColumnMajor mat
+      withArray components $ act ColumnMajor
+
+   newMatrix order components =
+      withNewMatrix order $ flip pokeArray (take 16 components)
+
+   getMatrixCompoments desiredOrder mat =
       withMatrix mat $ \order p ->
         if desiredOrder == order
            then peekArray 16 p

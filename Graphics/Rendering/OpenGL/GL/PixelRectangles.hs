@@ -46,7 +46,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 import Control.Monad ( liftM, liftM2 )
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( peekArray, pokeArray )
+import Foreign.Marshal.Array ( peekArray, pokeArray, allocaArray, withArray )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
@@ -498,13 +498,23 @@ class PixelMap m where
       PixelMapComponent c => GLsizei -> (Ptr c -> IO ()) -> IO (m c)
    withPixelMap ::
       PixelMapComponent c => m c -> (GLsizei -> Ptr c -> IO a) -> IO a
-   pixelMap :: PixelMapComponent c => [c] -> m c
-   pixelMapElements :: PixelMapComponent c => m c -> [c]
+   newPixelMap :: PixelMapComponent c => [c] -> IO (m c)
+   getPixelMapComponents :: PixelMapComponent c => m c -> IO [c]
 
-   pixelMap elements = unsafePerformIO $
+   withNewPixelMap size act =
+      allocaArray (fromIntegral size) $ \p -> do
+         act p
+         components <- peekArray (fromIntegral size) p
+         newPixelMap components
+
+   withPixelMap m act = do
+      components <- getPixelMapComponents m
+      withArray components $ act (fromIntegral (length components))
+
+   newPixelMap elements =
       withNewPixelMap (fromIntegral (length elements)) $ flip pokeArray elements
 
-   pixelMapElements m = unsafePerformIO $ do
+   getPixelMapComponents m =
       withPixelMap m $ (peekArray . fromIntegral)
 
 --------------------------------------------------------------------------------
