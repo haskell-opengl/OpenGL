@@ -16,7 +16,7 @@
 #
 # Original Code. The Original Code is: OpenGL Sample Implementation,
 # Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
-# Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
+# Inc. The Original Code is Copyright (c) 1991-2002 Silicon Graphics, Inc.
 # Copyright in any portions created by third parties is as indicated
 # elsewhere herein. All Rights Reserved.
 #
