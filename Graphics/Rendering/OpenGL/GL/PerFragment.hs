@@ -60,7 +60,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
              CapIndexLogicOp,CapColorLogicOp),
    makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLuint, GLsizei, GLenum, GLclampf, GLclampd, Capability )
+   GLboolean, GLint, GLuint, GLsizei, GLenum, GLclampf, GLclampd, Capability )
 import Graphics.Rendering.OpenGL.GL.BlendingFactor (
    BlendingFactor(..), marshalBlendingFactor, unmarshalBlendingFactor )
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction ( ComparisonFunction(..),
@@ -72,7 +72,7 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
 import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.Colors ( Face )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
-   GLboolean, marshalGLboolean, unmarshalGLboolean )
+   marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetScissorBox,GetSampleCoverageValue,GetSampleCoverageInvert,
@@ -337,8 +337,7 @@ queryResult :: QueryObject -> GettableStateVar GLuint
 queryResult = getQueryObjectui id QueryResult
 
 queryResultAvailable :: QueryObject -> GettableStateVar Bool
-queryResultAvailable =
-   getQueryObjectui (unmarshalGLboolean . fromIntegral) QueryResultAvailable
+queryResultAvailable = getQueryObjectui unmarshalGLboolean QueryResultAvailable
 
 getQueryObjectui ::
    (GLuint -> a) -> GetQueryObjectPName -> QueryObject -> GettableStateVar a

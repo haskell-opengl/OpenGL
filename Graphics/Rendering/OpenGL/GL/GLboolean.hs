@@ -14,16 +14,14 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.GLboolean (
-   GLboolean, marshalGLboolean, unmarshalGLboolean
+   marshalGLboolean, unmarshalGLboolean
 ) where
-
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean )
 
 --------------------------------------------------------------------------------
 
-marshalGLboolean :: Bool -> GLboolean
+marshalGLboolean :: Num a => Bool -> a
 marshalGLboolean False = 0
 marshalGLboolean True  = 1
 
-unmarshalGLboolean :: GLboolean -> Bool
+unmarshalGLboolean :: Num a => a -> Bool
 unmarshalGLboolean = (/= 0)

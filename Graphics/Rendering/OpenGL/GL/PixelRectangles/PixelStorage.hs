@@ -116,7 +116,7 @@ pixelStoreb :: GetPName -> PixelStore -> StateVar Bool
 pixelStoreb pn ps =
    makeStateVar
       (getBoolean1 unmarshalGLboolean pn)
-      (glPixelStorei (marshalPixelStore ps) . fromIntegral . marshalGLboolean)
+      (glPixelStorei (marshalPixelStore ps) . marshalGLboolean)
 
 pixelStorei :: GetPName -> PixelStore -> StateVar GLint
 pixelStorei pn ps =

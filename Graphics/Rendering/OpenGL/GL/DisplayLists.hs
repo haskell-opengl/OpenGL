@@ -27,12 +27,13 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
 
 import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLuint, GLsizei, GLenum )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLboolean, GLuint, GLsizei, GLenum )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetListIndex,GetListMode,GetMaxListNesting,GetListBase),
    getEnum1, getSizei1 )

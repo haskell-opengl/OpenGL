@@ -24,10 +24,9 @@ import Data.List ( partition )
 import Foreign.Marshal.Array ( withArray, withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLuint, GLsizei, GLenum, GLclampf )
+   GLboolean, GLuint, GLsizei, GLenum, GLclampf )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   GLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetTextureBinding1D,GetTextureBinding2D,GetTextureBinding3D,
             GetTextureBindingCubeMap,GetTextureBindingRectangle),
@@ -97,7 +96,7 @@ foreign import CALLCONV unsafe "glBindTexture"
 textureResident :: TextureTarget -> GettableStateVar Bool
 textureResident t =
    makeGettableStateVar $
-      getTexParameteri (unmarshalGLboolean . fromIntegral) t TextureResident
+      getTexParameteri unmarshalGLboolean t TextureResident
 
 areTexturesResident :: [TextureObject] -> IO ([TextureObject],[TextureObject])
 areTexturesResident texObjs = do

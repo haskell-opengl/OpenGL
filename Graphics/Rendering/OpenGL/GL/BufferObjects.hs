@@ -37,11 +37,11 @@ import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr, nullPtr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLintptr, GLuint, GLsizei, GLsizeiptr )
+   GLboolean, GLenum, GLint, GLintptr, GLuint, GLsizei, GLsizeiptr )
 import Graphics.Rendering.OpenGL.GL.Exception ( finallyRet )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetArrayBufferBinding,GetElementArrayBufferBinding,
@@ -312,4 +312,4 @@ bufferAccess t = makeGettableStateVar $
 
 bufferMapped :: BufferTarget -> GettableStateVar Bool
 bufferMapped t = makeGettableStateVar $
-   getBufferParameter t (unmarshalGLboolean . fromIntegral) GetBufferMapped
+   getBufferParameter t unmarshalGLboolean GetBufferMapped

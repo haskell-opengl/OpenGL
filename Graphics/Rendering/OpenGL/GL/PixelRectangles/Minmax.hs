@@ -21,10 +21,9 @@ import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapMinmax), makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean, GLenum, GLint )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (

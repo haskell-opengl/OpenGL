@@ -17,9 +17,9 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
    Sink(..), marshalSink, unmarshalSink
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean, GLint )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
-   GLboolean, marshalGLboolean, unmarshalGLboolean )
+   marshalGLboolean, unmarshalGLboolean )
 
 --------------------------------------------------------------------------------
 
@@ -32,5 +32,4 @@ marshalSink :: Sink -> GLboolean
 marshalSink x = marshalGLboolean (x == Sink)
 
 unmarshalSink :: GLint -> Sink
-unmarshalSink s =
-   if unmarshalGLboolean (fromIntegral s) then Sink else PassThrough
+unmarshalSink s = if unmarshalGLboolean s then Sink else PassThrough

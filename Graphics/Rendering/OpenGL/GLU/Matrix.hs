@@ -132,7 +132,7 @@ getVertex3 act =
    alloca $ \yBuf ->
    alloca $ \zBuf -> do
    ok <- act xBuf yBuf zBuf
-   if unmarshalGLboolean (fromIntegral ok)
+   if unmarshalGLboolean ok
       then do x <- peek xBuf
               y <- peek yBuf
               z <- peek zBuf
@@ -147,7 +147,7 @@ getVertex4 act =
    alloca $ \zBuf ->
    alloca $ \wBuf -> do
    ok <- act xBuf yBuf zBuf wBuf
-   if unmarshalGLboolean (fromIntegral ok)
+   if unmarshalGLboolean ok
       then do x <- peek xBuf
               y <- peek yBuf
               z <- peek zBuf

@@ -42,10 +42,11 @@ import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
 import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLclampf, GLdouble, GLenum )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLboolean, GLclampf, GLdouble, GLenum )
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.BeginEnd (
    PrimitiveMode, EdgeFlag(BeginsInteriorEdge) )
@@ -677,7 +678,7 @@ setWindingRule tessObj =
 
 setBoundaryOnly :: TessellatorObj -> Bool -> IO ()
 setBoundaryOnly tessObj =
-   tessProperty tessObj TessBoundaryOnly . fromIntegral . marshalGLboolean
+   tessProperty tessObj TessBoundaryOnly . marshalGLboolean
 
 setTolerance :: TessellatorObj -> Tolerance -> IO ()
 setTolerance tessObj =

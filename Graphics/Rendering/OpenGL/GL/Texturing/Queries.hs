@@ -140,7 +140,7 @@ textureDepthBits t level =
 textureCompressedImageSize :: TextureQuery (Maybe GLsizei)
 textureCompressedImageSize t level =
    makeGettableStateVar $ do
-      isCompressed <- getTexLevelParameteri (unmarshalGLboolean . fromIntegral) NoProxy t level TextureCompressed
+      isCompressed <- getTexLevelParameteri unmarshalGLboolean NoProxy t level TextureCompressed
       if isCompressed
          then getTexLevelParameteri (Just . fromIntegral) NoProxy t level TextureCompressedImageSize
          else return Nothing
@@ -148,7 +148,7 @@ textureCompressedImageSize t level =
 textureProxyOK :: TextureQuery Bool
 textureProxyOK t level =
    makeGettableStateVar $
-      getTexLevelParameteri (/= 0) Proxy t level TextureWidth
+      getTexLevelParameteri unmarshalGLboolean Proxy t level TextureWidth
 
 getTexLevelParameteri :: (GLint -> a) -> Proxy -> Either TextureTarget CubeMapTarget -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteri f proxy t level p =

@@ -21,9 +21,9 @@ module Graphics.Rendering.OpenGL.GL.Capability (
 
 import Control.Monad ( liftM )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLsizei, Capability(..) )
+   GLboolean, GLenum, GLsizei, Capability(..) )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
-   GLboolean, marshalGLboolean, unmarshalGLboolean )
+   marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (

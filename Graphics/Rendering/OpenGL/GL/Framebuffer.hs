@@ -38,14 +38,15 @@ import Graphics.Rendering.OpenGL.GL.BufferMode (
 import Graphics.Rendering.OpenGL.GL.Capability (
    marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd,
+   GLboolean, GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf,
+   GLclampd,
 #ifdef __HADDOCK__
    Capability(..)
 #else
    Capability
 #endif
    )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,
             GetBlueBits,GetAlphaBits,GetStencilBits,GetDepthBits,
