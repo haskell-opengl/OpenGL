@@ -34,6 +34,16 @@ data PixelFormat =
    | RGBA
    | Luminance
    | LuminanceAlpha
+   | ABGR
+   | BGR
+   | BGRA
+   | CMYK
+   | CMYKA
+   | FourTwoTwo
+   | FourTwoTwoRev
+   | FourTwoTwoAverage
+   | FourTwoTwoRevAverage
+   | YCBCR422
    deriving ( Eq, Ord, Show )
 
 marshalPixelFormat :: PixelFormat -> GLenum
@@ -49,6 +59,16 @@ marshalPixelFormat x = case x of
    RGBA -> 0x1908
    Luminance -> 0x1909
    LuminanceAlpha -> 0x190a
+   ABGR -> 0x8000
+   BGR -> 0x80E0
+   BGRA -> 0x80E1
+   CMYK -> 0x800C
+   CMYKA -> 0x800D
+   FourTwoTwo -> 0x80CC
+   FourTwoTwoRev -> 0x80CD
+   FourTwoTwoAverage -> 0x80CE
+   FourTwoTwoRevAverage -> 0x80CF
+   YCBCR422 -> 0x85B9
 
 unmarshalPixelFormat :: GLenum -> PixelFormat
 unmarshalPixelFormat x
@@ -63,6 +83,16 @@ unmarshalPixelFormat x
    | x == 0x1908 = RGBA
    | x == 0x1909 = Luminance
    | x == 0x190a = LuminanceAlpha
+   | x == 0x8000 = ABGR
+   | x == 0x80E0 = BGR
+   | x == 0x80E1 = BGRA
+   | x == 0x800C = CMYK
+   | x == 0x800D = CMYKA
+   | x == 0x80CC = FourTwoTwo
+   | x == 0x80CD = FourTwoTwoRev
+   | x == 0x80CE = FourTwoTwoAverage
+   | x == 0x80CF = FourTwoTwoRevAverage
+   | x == 0x85B9 = YCBCR422
    | otherwise = error ("unmarshalPixelFormat: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -76,8 +106,6 @@ data PixelType =
    | PixelInt
    | PixelUnsignedInt
    | PixelFloat
-   | PixelBGR
-   | PixelBGRA
    | PixelUnsignedByte332
    | PixelUnsignedShort4444
    | PixelUnsignedShort5551
@@ -90,6 +118,8 @@ data PixelType =
    | PixelUnsignedShort1555Rev
    | PixelUnsignedInt8888Rev
    | PixelUnsignedInt2101010Rev
+   | PixelUnsignedShort88
+   | PixelUnsignedShort88Rev
    deriving ( Eq, Ord, Show )
 
 marshalPixelType :: PixelType -> GLenum
@@ -102,8 +132,6 @@ marshalPixelType x = case x of
    PixelInt -> 0x1404
    PixelUnsignedInt -> 0x1405
    PixelFloat -> 0x1406
-   PixelBGR -> 0x80e0
-   PixelBGRA -> 0x80e1
    PixelUnsignedByte332 -> 0x8032
    PixelUnsignedShort4444 -> 0x8033
    PixelUnsignedShort5551 -> 0x8034
@@ -116,6 +144,8 @@ marshalPixelType x = case x of
    PixelUnsignedShort1555Rev -> 0x8366
    PixelUnsignedInt8888Rev -> 0x8367
    PixelUnsignedInt2101010Rev -> 0x8368
+   PixelUnsignedShort88 -> 0x85ba
+   PixelUnsignedShort88Rev -> 0x85bb
 
 unmarshalPixelType :: GLenum -> PixelType
 unmarshalPixelType x
@@ -127,8 +157,6 @@ unmarshalPixelType x
    | x == 0x1404 = PixelInt
    | x == 0x1405 = PixelUnsignedInt
    | x == 0x1406 = PixelFloat
-   | x == 0x80e0 = PixelBGR
-   | x == 0x80e1 = PixelBGRA
    | x == 0x8032 = PixelUnsignedByte332
    | x == 0x8033 = PixelUnsignedShort4444
    | x == 0x8034 = PixelUnsignedShort5551
@@ -141,4 +169,6 @@ unmarshalPixelType x
    | x == 0x8366 = PixelUnsignedShort1555Rev
    | x == 0x8367 = PixelUnsignedInt8888Rev
    | x == 0x8368 = PixelUnsignedInt2101010Rev
+   | x == 0x85ba = PixelUnsignedShort88
+   | x == 0x85bb = PixelUnsignedShort88Rev
    | otherwise = error ("unmarshalPixelType: illegal value " ++ show x)

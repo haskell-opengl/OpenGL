@@ -15,14 +15,15 @@
 module Graphics.Rendering.OpenGL.GL.Hints (
    HintMode(..),
    perspectiveCorrectionHint, pointSmoothHint, lineSmoothHint,
-   polygonSmoothHint, fogHint, generateMipmapHint, textureCompressionHint
+   polygonSmoothHint, fogHint, generateMipmapHint, textureCompressionHint,
+   packCMYKHint, unpackCMYKHint
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetPerspectiveCorrectionHint,GetPointSmoothHint,GetLineSmoothHint,
             GetPolygonSmoothHint,GetFogHint,GetGenerateMipmapHint,
-            GetTextureCompressionHint),
+            GetTextureCompressionHint,GetPackCMYKHint,GetUnpackCMYKHint),
    getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
@@ -57,6 +58,8 @@ data HintTarget =
    | FogHint
    | GenerateMipmapHint
    | TextureCompressionHint
+   | PackCMYKHint
+   | UnpackCMYKHint
 
 marshalHintTarget :: HintTarget -> GLenum
 marshalHintTarget x = case x of
@@ -67,6 +70,8 @@ marshalHintTarget x = case x of
    FogHint -> 0xc54
    GenerateMipmapHint -> 0x8192
    TextureCompressionHint -> 0x84ef
+   PackCMYKHint -> 0x800e
+   UnpackCMYKHint -> 0x800f
 
 --------------------------------------------------------------------------------
 
@@ -100,3 +105,9 @@ generateMipmapHint = makeHint GetGenerateMipmapHint GenerateMipmapHint
 textureCompressionHint :: StateVar HintMode
 textureCompressionHint =
    makeHint GetTextureCompressionHint TextureCompressionHint
+
+packCMYKHint :: StateVar HintMode
+packCMYKHint = makeHint GetPackCMYKHint PackCMYKHint
+
+unpackCMYKHint :: StateVar HintMode
+unpackCMYKHint = makeHint GetUnpackCMYKHint UnpackCMYKHint
