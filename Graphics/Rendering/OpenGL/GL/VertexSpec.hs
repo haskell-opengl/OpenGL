@@ -1195,6 +1195,12 @@ instance IndexComponent a => Index (Index1 a) where
    index (Index1 i) = index1 i
    indexv = index1v . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
+instance Storable a => Storable (Index1 a) where
+   sizeOf    ~(Index1 s) = sizeOf s
+   alignment ~(Index1 s) = alignment s
+   peek                  = peek1 Index1
+   poke ptr   (Index1 s) = poke1 ptr s
+
 --------------------------------------------------------------------------------
 
 -- | Identifies a texture unit via its number, which must be in the range of
