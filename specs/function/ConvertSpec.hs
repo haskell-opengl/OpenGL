@@ -98,8 +98,10 @@ newtype ParameterName = ParameterName String
 instance Show Spec where
    showsPrec _ (Spec reqProps validProps categories) =
       punctuate (showString "\n\n")
-                (vcat (map shows reqProps ++ map shows validProps) :
+                (vcat (showReq reqProps ++ map shows validProps) :
                  map shows categories)
+      where showReq [] = []
+            showReq ps = [ hsep (showString "required-props:" : map shows ps) ]
 
 instance Show ValidProperty where
    showsPrec _ (ValidProperty name values) =
