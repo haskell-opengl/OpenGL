@@ -34,7 +34,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.Specification ( Level )
+import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
+   Level, TextureTarget(..) )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
                 TextureWrapR,TextureBorderColor,TextureMinLOD,TextureMaxLOD,
@@ -46,8 +47,6 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat, marshalPixelInternalFormat,
    unmarshalPixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 

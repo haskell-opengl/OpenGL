@@ -26,15 +26,15 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLsizei, GLenum )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat(..), unmarshalPixelInternalFormat )
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles ( Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
-   Level, Border, TextureSize1D(..), TextureSize2D(..), TextureSize3D(..) )
+   PixelInternalFormat(..), TextureTarget(..), CubeMapTarget, Level, Border,
+   TextureSize1D(..), TextureSize2D(..), TextureSize3D(..) )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalProxyTextureTarget,
-   CubeMapTarget, marshalCubeMapTarget )
+   marshalProxyTextureTarget, marshalCubeMapTarget )
 import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 
 --------------------------------------------------------------------------------

@@ -36,8 +36,10 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureResident,TexturePriority), texParamf, getTexParameteri )
+import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
+   TextureTarget(..) )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalTextureTarget )
+   marshalTextureTarget )
 
 --------------------------------------------------------------------------------
 

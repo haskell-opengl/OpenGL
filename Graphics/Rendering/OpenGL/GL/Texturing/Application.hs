@@ -17,11 +17,12 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Application (
    texture
 ) where
 
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( Capability )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapTexture1D,CapTexture2D,CapTexture3D,CapTextureCubeMap),
-   Capability, makeCapability )
+   makeCapability )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
+import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    TextureTarget(..) )
 
 --------------------------------------------------------------------------------
