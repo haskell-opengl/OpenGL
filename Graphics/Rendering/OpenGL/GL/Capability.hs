@@ -261,4 +261,4 @@ getStateVarMaybe getCap act = do
 setStateVarMaybe :: IO EnableCap -> (a -> IO ()) -> Maybe a -> IO ()
 setStateVarMaybe getCap act val = do
    capability <- liftM makeCapability getCap
-   maybe (capability $= Disabled) (\x -> capability $= Enabled >> act x) val
+   maybe (capability $= Disabled) (\x -> act x >> capability $= Enabled) val
