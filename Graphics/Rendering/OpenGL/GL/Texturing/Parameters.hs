@@ -31,13 +31,15 @@ import Graphics.Rendering.OpenGL.GL.ComparisonFunction (
    marshalComparisonFunction, unmarshalComparisonFunction )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( TextureCoordName(..) )
 import Graphics.Rendering.OpenGL.GL.PerFragment ( ComparisonFunction )
+import Graphics.Rendering.OpenGL.GL.PixelRectangles (
+   PixelInternalFormat(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxTextureMaxAnisotropy,GetMaxTextureLODBias), getFloat1)
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
-   Level, TextureTarget(..), PixelInternalFormat )
+   Level, TextureTarget(..) )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
                 TextureWrapR,TextureBorderColor,TextureMinLOD,TextureMaxLOD,

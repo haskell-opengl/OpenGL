@@ -25,12 +25,13 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean, GLenum, GLint )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
+   PixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
     PixelData(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat, marshalPixelInternalFormat',
-   unmarshalPixelInternalFormat )
+   marshalPixelInternalFormat', unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram (
    Reset(..), Sink )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset (

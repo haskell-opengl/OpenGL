@@ -16,7 +16,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    -- * Texture-related Data Types
-   TextureTarget(..), CubeMapTarget(..), Level, PixelInternalFormat(..), Border,
+   TextureTarget(..), CubeMapTarget(..), Level, Border,
    TexturePosition1D(..), TexturePosition2D(..), TexturePosition3D(..),
    TextureSize1D(..), TextureSize2D(..), TextureSize3D(..),
 
@@ -46,9 +46,9 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat(..), marshalPixelInternalFormat,
-   marshalPixelInternalFormat' )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData, Proxy(..) )
+   marshalPixelInternalFormat, marshalPixelInternalFormat' )
+import Graphics.Rendering.OpenGL.GL.PixelRectangles (
+   PixelInternalFormat, PixelData, Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetNumCompressedTextureFormats,GetCompressedTextureFormats),
    getInteger1, getIntegerv)

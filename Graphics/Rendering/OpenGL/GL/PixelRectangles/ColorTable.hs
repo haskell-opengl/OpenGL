@@ -15,8 +15,8 @@
 
 module Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
    ColorTableStage(..), colorTableStage,
-   Proxy(..), ColorTable(..), colorTable, getColorTable,
-   copyColorTable, colorSubTable, copyColorSubTable,
+   Proxy(..), ColorTable(..), PixelInternalFormat(..),
+   colorTable, getColorTable, copyColorTable, colorSubTable, copyColorSubTable,
    colorTableScale, colorTableBias, colorTableFormat, colorTableWidth,
    colorTableRGBASizes, colorTableLuminanceSize, colorTableIntesitySize,
 ) where
@@ -39,7 +39,7 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
     PixelData(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat, marshalPixelInternalFormat',
+   PixelInternalFormat(..), marshalPixelInternalFormat',
    unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
