@@ -524,15 +524,20 @@ tickify ident n = primaryID (ident ++ ('\'' : show n))
 
 codeGen :: SimpleSpec -> String
 codeGen (SimpleSpec defs) = foldr (.) id (map gen defs) ""
-   where gen d@(SimpleTypeDefinition _ Enum   _) = genType   "GLenum"     d
-         gen d@(SimpleTypeDefinition _ Mask   _) = genType   "GLbitfield" d
-         gen d@(SimpleTypeDefinition _ Float  _) = genValues "GLfloat"    d
-         gen d@(SimpleTypeDefinition _ Define _) = genValues "GLenum"     d
+   where gen d@(SimpleTypeDefinition t _ _) =
+            showSeparator . 
+            showIfdef "IMPORT_" t (genSimpleTypeDef d) .
+            showEOL
+
+genSimpleTypeDef :: SimpleTypeDefinition -> ShowS
+genSimpleTypeDef d@(SimpleTypeDefinition _ Enum   _) = genType   "GLenum"     d
+genSimpleTypeDef d@(SimpleTypeDefinition _ Mask   _) = genType   "GLbitfield" d
+genSimpleTypeDef d@(SimpleTypeDefinition _ Float  _) = genValues "GLfloat"    d
+genSimpleTypeDef d@(SimpleTypeDefinition _ Define _) = genValues "GLenum"     d
 
 genType :: String -> SimpleTypeDefinition -> ShowS
 genType _           (SimpleTypeDefinition _ _ []) = id
 genType haskellType simpleDef =
-   showSeparator .
    genDataType simpleDef . showEOL .
    genMarshaler haskellType simpleDef . showEOL .
    genUnmarshaler haskellType simpleDef . showEOL
@@ -547,31 +552,41 @@ genDataType (SimpleTypeDefinition t _ eqs) =
 
 genMarshaler :: String -> SimpleTypeDefinition -> ShowS
 genMarshaler haskellType (SimpleTypeDefinition t _ eqs) =
-   showString "marshal" . shows t . showString " :: " . shows t .
-   showString " -> " . showString haskellType . showEOL .
-   showString "marshal" . shows t . showString " x = case x of" . showEOL .
-   vcat [ showString "   " . shows i . showString " -> " . showHex n |
-          SimpleEquation i (Number n) <- eqs ]
+   showIfdef "IMPORT_marshal" t $
+      showString "marshal" . shows t . showString " :: " . shows t .
+      showString " -> " . showString haskellType . showEOL .
+      showString "marshal" . shows t . showString " x = case x of" . showEOL .
+      vcat [ showString "   " . shows i . showString " -> " . showHex n |
+             SimpleEquation i (Number n) <- eqs ] .
+      showEOL
 
 genUnmarshaler :: String -> SimpleTypeDefinition -> ShowS
 genUnmarshaler haskellType (SimpleTypeDefinition t _ eqs) =
-   showString "unmarshal" . shows t . showString " :: " .
-   showString haskellType . showString " -> " . shows t . showEOL .
-   showString "unmarshal" . shows t . showString " x" . showEOL .
-   vcat [ showString "   | x == " . showHex n . showString " = " . shows i |
-          SimpleEquation i (Number n) <- eqs ] .
-   showString "   | otherwise = error (\"unmarshal" . shows t .
-   showString ": illegal value \" ++ show x)" . showEOL
+   showIfdef "IMPORT_unmarshal" t $
+      showString "unmarshal" . shows t . showString " :: " .
+      showString haskellType . showString " -> " . shows t . showEOL .
+      showString "unmarshal" . shows t . showString " x" . showEOL .
+      vcat [ showString "   | x == " . showHex n . showString " = " . shows i |
+             SimpleEquation i (Number n) <- eqs ] .
+      showString "   | otherwise = error (\"unmarshal" . shows t .
+      showString ": illegal value \" ++ show x)" . showEOL .
+      showEOL
 
 genValues :: String -> SimpleTypeDefinition -> ShowS
 genValues _           (SimpleTypeDefinition _ _ [])  = id
 genValues haskellType (SimpleTypeDefinition t _ eqs) =
-   showSeparator .
    showString "-- " . shows t . showEOL .
    vcat [ showString ident . showString " :: " . showString haskellType . showEOL .
           showString ident . showString " = " . shows n |
           SimpleEquation i (Number n) <- eqs,
           let ident = nameOf i ] . showEOL
+
+showIfdef :: String -> TypeName -> ShowS -> ShowS
+showIfdef prefix tn wrappedStuff =
+   showString "#ifdef HOPENGL_" . showString prefix . shows tn . showEOL .
+   showEOL .
+   wrappedStuff .
+   showString "#endif" . showEOL
 
 showSeparator :: ShowS
 showSeparator =

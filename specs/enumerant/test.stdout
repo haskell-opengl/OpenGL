@@ -239,6 +239,8 @@ TypeDefine define:
 
 --------------------------------------------------------------------------------
 
+#ifdef HOPENGL_IMPORT_TypeMask
+
 data TypeMask =
      MaskA
    | MaskB
@@ -250,6 +252,8 @@ data TypeMask =
    | Right'
    deriving ( Eq, Ord, Show )
 
+#ifdef HOPENGL_IMPORT_marshalTypeMask
+
 marshalTypeMask :: TypeMask -> GLbitfield
 marshalTypeMask x = case x of
    MaskA -> 0x1
@@ -260,6 +264,10 @@ marshalTypeMask x = case x of
    EnumC' -> 0x2a
    Left'2 -> 0x5
    Right' -> 0x20
+
+#endif
+
+#ifdef HOPENGL_IMPORT_unmarshalTypeMask
 
 unmarshalTypeMask :: GLbitfield -> TypeMask
 unmarshalTypeMask x
@@ -273,7 +281,13 @@ unmarshalTypeMask x
    | x == 0x20 = Right'
    | otherwise = error ("unmarshalTypeMask: illegal value " ++ show x)
 
+#endif
+
+#endif
+
 --------------------------------------------------------------------------------
+
+#ifdef HOPENGL_IMPORT_TypeEnum
 
 data TypeEnum =
      EnumA
@@ -290,6 +304,8 @@ data TypeEnum =
    | Right'2
    deriving ( Eq, Ord, Show )
 
+#ifdef HOPENGL_IMPORT_marshalTypeEnum
+
 marshalTypeEnum :: TypeEnum -> GLenum
 marshalTypeEnum x = case x of
    EnumA -> 0x0
@@ -304,6 +320,10 @@ marshalTypeEnum x = case x of
    EnumJ -> 0x2d
    Left' -> 0x5
    Right'2 -> 0x20
+
+#endif
+
+#ifdef HOPENGL_IMPORT_unmarshalTypeEnum
 
 unmarshalTypeEnum :: GLenum -> TypeEnum
 unmarshalTypeEnum x
@@ -321,7 +341,13 @@ unmarshalTypeEnum x
    | x == 0x20 = Right'2
    | otherwise = error ("unmarshalTypeEnum: illegal value " ++ show x)
 
+#endif
+
+#endif
+
 --------------------------------------------------------------------------------
+
+#ifdef HOPENGL_IMPORT_TypeDefine
 
 -- TypeDefine
 defineA :: GLenum
@@ -338,4 +364,6 @@ enumC :: GLenum
 enumC = 42
 enumH :: GLenum
 enumH = 4
+
+#endif
 
