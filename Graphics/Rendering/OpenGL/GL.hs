@@ -29,7 +29,10 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes  hiding ( marshalGLboolean,
 import Graphics.Rendering.OpenGL.GL.BeginEnd    hiding ( unmarshalBeginMode )
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelRect
-import Graphics.Rendering.OpenGL.GL.Query
+import Graphics.Rendering.OpenGL.GL.Query       hiding ( GetPName(..),
+                                                         parseVersionString,
+                                                         getBoolean, getInteger,
+                                                         getFloat, getDouble )
 import Graphics.Rendering.OpenGL.GL.Texturing
 import Graphics.Rendering.OpenGL.GL.VertexArray
 import Graphics.Rendering.OpenGL.GL.VertexSpec

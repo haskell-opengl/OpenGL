@@ -34,7 +34,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color3(..), Color4(..),
 
    IndexComponent, Index(..),
-   Index1(..),
+   Index1(..)
 ) where
 
 import Foreign.Ptr ( Ptr, castPtr )

@@ -21,12 +21,14 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
    withBeginMode,
 
    -- * Polygon Edges
-   edgeFlag, edgeFlagv
+   edgeFlag
    
 ) where
 
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean, GLenum )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLboolean, marshalGLboolean, GLenum )
+import Graphics.Rendering.OpenGL.GL.Query ( getBoolean, GetPName(GetEdgeFlag) )
+import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -135,7 +137,7 @@ unmarshalBeginMode x
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.evalPoint',
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.material',
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.callList',
--- 'edgeFlag', and 'edgeFlagv' are allowed.
+-- and setting 'edgeFlag' are allowed.
 --
 -- Regardless of the chosen 'BeginMode', there is no limit to the number of
 -- vertices that can be defined during a single 'withBeginMode'. Lines,
@@ -164,14 +166,11 @@ foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
 
 --------------------------------------------------------------------------------
 
--- | Flag edges as either boundary or nonboundary.
---
--- Each vertex of a polygon, separate triangle, or separate quadrilateral
+-- | Each vertex of a polygon, separate triangle, or separate quadrilateral
 -- specified during 'withBeginMode' is marked as the start of either a boundary
 -- or nonboundary edge. If the current edge flag is 'True' when the vertex is
 -- specified, the vertex is marked as the start of a boundary edge. Otherwise,
--- the vertex is marked as the start of a nonboundary edge. 'edgeFlag' sets the
--- edge flag bit to the given value.
+-- the vertex is marked as the start of a nonboundary edge.
 --
 -- The vertices of connected triangles and connected quadrilaterals are always
 -- marked as boundary, regardless of the value of the edge flag.
@@ -181,11 +180,10 @@ foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.Point' or
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.Line'.
 --
--- Note that the current edge flag can be updated at any time. In particular,
--- 'edgeFlag' can be called during 'withBeginMode'.
+-- Note that the current edge flag can be updated at any time, in particular
+-- during 'withBeginMode'.
 
-foreign import CALLCONV unsafe "glEdgeFlag" edgeFlag :: GLboolean -> IO ()
+edgeFlag :: StateVar Bool
+edgeFlag = makeStateVar (getBoolean GetEdgeFlag) (glEdgeFlag . marshalGLboolean)
 
--- | A pointer variant of 'edgeFlag'. Use with care.
-
-foreign import CALLCONV unsafe "glEdgeFlagv" edgeFlagv :: Ptr GLboolean -> IO ()
+foreign import CALLCONV unsafe "glEdgeFlag" glEdgeFlag :: GLboolean -> IO ()
