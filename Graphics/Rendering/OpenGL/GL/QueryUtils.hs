@@ -396,6 +396,10 @@ data GetPName =
    | GetMaxMatrixPaletteStackDepth
    | GetMaxPaletteMatrices
    | GetCurrentPaletteMatrix
+   | GetBlendDstRGB
+   | GetBlendSrcRGB
+   | GetBlendDstAlpha
+   | GetBlendSrcAlpha
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -762,6 +766,10 @@ marshalGetPName x = case x of
    GetMaxMatrixPaletteStackDepth -> 0x8841
    GetMaxPaletteMatrices -> 0x8842
    GetCurrentPaletteMatrix -> 0x8843
+   GetBlendDstRGB -> 0x80C8
+   GetBlendSrcRGB -> 0x80C9
+   GetBlendDstAlpha -> 0x80CA
+   GetBlendSrcAlpha -> 0x80CB
 
 --------------------------------------------------------------------------------
 

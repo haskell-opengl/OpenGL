@@ -20,12 +20,11 @@ module Graphics.Rendering.OpenGL.GL.LineSegments (
 import Control.Monad ( liftM2 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLushort, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapLineSmooth,CapLineStipple), makeCapability )
+   EnableCap(CapLineSmooth,CapLineStipple), makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetLineWidth,GetLineStippleRepeat,GetLineStipplePattern),
    getInteger1, getFloat1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   StateVar, makeStateVar, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -44,7 +43,7 @@ lineSmooth = makeCapability CapLineSmooth
 lineStipple :: StateVar (Maybe (GLint, GLushort))
 lineStipple =
    makeStateVarMaybe
-      (makeCapability CapLineStipple)
+      (return CapLineStipple)
       (liftM2 (,) (getInteger1 id GetLineStippleRepeat)
                   (getInteger1 fromIntegral GetLineStipplePattern))
       (uncurry glLineStipple)

@@ -26,15 +26,14 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple,
              CapPolygonOffsetPoint,CapPolygonOffsetLine,CapPolygonOffsetFill),
-   makeCapability )
+   makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
             GetPolygonOffsetUnits),
    getInteger1, getInteger2, getFloat1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   StateVar, makeStateVar, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -46,7 +45,7 @@ polygonSmooth = makeCapability CapPolygonSmooth
 cullFace :: StateVar (Maybe Face)
 cullFace =
    makeStateVarMaybe
-      (makeCapability CapCullFace)
+      (return CapCullFace)
       (getInteger1 (unmarshalFace . fromIntegral) GetCullFaceMode)
       (glCullFace . marshalFace)
 
@@ -75,7 +74,7 @@ getPolygonStippleBytes (PolygonStipple pattern) = pattern
 polygonStipple :: StateVar (Maybe PolygonStipple)
 polygonStipple =
    makeStateVarMaybe
-      (makeCapability CapPolygonStipple)
+      (return CapPolygonStipple)
       (liftM PolygonStipple $
        allocaArray numPolygonStippleBytes $ \buf -> do
           glGetPolygonStipple buf

@@ -15,7 +15,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(..), makeCapability   -- used only internally
+   EnableCap(..), makeCapability, makeStateVarMaybe
 ) where
 
 import Control.Monad ( liftM )
@@ -23,7 +23,8 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLsizei )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -211,3 +212,24 @@ enable cap True  = glEnable  (marshalEnableCap cap)
 foreign import CALLCONV unsafe "glEnable" glEnable :: GLenum -> IO ()
 
 foreign import CALLCONV unsafe "glDisable" glDisable :: GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+makeStateVarMaybe :: IO EnableCap -> IO a -> (a -> IO ()) -> StateVar (Maybe a)
+makeStateVarMaybe getCap getAct setAct =
+   makeStateVar
+      (getStateVarMaybe getCap getAct)
+      (setStateVarMaybe getCap setAct)
+
+getStateVarMaybe :: IO EnableCap -> IO a -> IO (Maybe a)
+getStateVarMaybe getCap act = do
+   var <- liftM makeCapability getCap
+   enabled <- get var
+   if enabled
+      then liftM Just act
+      else return Nothing
+
+setStateVarMaybe :: IO EnableCap -> (a -> IO ()) -> Maybe a -> IO ()
+setStateVarMaybe getCap act val = do
+   var <- liftM makeCapability getCap
+   maybe (var $= False) (\x -> var $= True >> act x) val

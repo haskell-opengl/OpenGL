@@ -21,14 +21,14 @@ import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr, castPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLsizei, GLdouble )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapClipPlane), makeCapability )
+   EnableCap(CapClipPlane), makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Plane(..) )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetClipPlane,GetMaxClipPlanes),
    clipPlaneIndexToEnum, getDoublev, getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVarMaybe )
+   GettableStateVar, makeGettableStateVar, StateVar )
 
 --------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ newtype ClipPlaneName = ClipPlaneName GLsizei
 clipPlane :: ClipPlaneName -> StateVar (Maybe (Plane GLdouble))
 clipPlane (ClipPlaneName i) =
    makeStateVarMaybe
-      (makeCapability (CapClipPlane i))
+      (return (CapClipPlane i))
       (alloca $ \buf -> do
           getDoublev (GetClipPlane i) (castPtr buf)
           peek1 id (buf :: Ptr (Plane GLdouble)))

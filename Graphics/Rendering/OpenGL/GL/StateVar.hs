@@ -15,10 +15,8 @@ module Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar,
    HasSetter(..), set,
    SettableStateVar, makeSettableStateVar,
-   StateVar, makeStateVar, makeStateVarMaybe
+   StateVar, makeStateVar
 ) where
-
-import Control.Monad ( liftM )
 
 --------------------------------------------------------------------------------
 
@@ -70,19 +68,3 @@ instance HasSetter StateVar where
 
 makeStateVar :: IO a -> (a -> IO ()) -> StateVar a
 makeStateVar g s = StateVar (makeGettableStateVar g) (makeSettableStateVar s)
-
---------------------------------------------------------------------------------
-
-makeStateVarMaybe :: StateVar Bool -> IO a -> (a -> IO ()) -> StateVar (Maybe a)
-makeStateVarMaybe var getAct setAct =
-   makeStateVar (getStateVarMaybe var getAct) (setStateVarMaybe var setAct)
-
-getStateVarMaybe :: StateVar Bool -> IO a -> IO (Maybe a)
-getStateVarMaybe var act = do
-   enabled <- get var
-   if enabled
-      then liftM Just act
-      else return Nothing
-
-setStateVarMaybe :: StateVar Bool -> (a -> IO ()) -> Maybe a -> IO ()
-setStateVarMaybe var act = maybe (var $= False) (\x -> var $= True >> act x)

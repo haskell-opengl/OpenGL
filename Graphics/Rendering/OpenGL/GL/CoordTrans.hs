@@ -54,7 +54,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapRescaleNormal, CapNormalize,
              CapTextureGenS, CapTextureGenT,
              CapTextureGenR, CapTextureGenQ),
-   makeCapability )
+   makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
@@ -69,7 +69,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar,
-   StateVar, makeStateVar, makeStateVarMaybe )
+   StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(TextureUnit) )
 
@@ -499,7 +499,7 @@ marshalTextureGenMode = marshalTextureGenMode' . convertMode
 textureGenMode :: TextureCoordName -> StateVar (Maybe TextureGenMode)
 textureGenMode coord =
    makeStateVarMaybe
-      (makeCapability (textureCoordNameToEnableCap coord))
+      (return $ textureCoordNameToEnableCap coord)
       (do mode <- getMode coord
           case mode of
              EyeLinear'     -> liftM EyeLinear $ getPlane coord EyePlane

@@ -46,7 +46,8 @@ import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability )
+   EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability,
+   makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
@@ -59,8 +60,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetColorMaterialFace,GetColorMaterialParameter),
    getBoolean1, getInteger1, getFloat4, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar,
-   StateVar, makeStateVar, makeStateVarMaybe )
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(..), Normal3(..), Vertex4(..), Index1(..) )
 
@@ -427,7 +427,7 @@ unmarshalColorMaterialParameter x
 colorMaterial :: StateVar (Maybe (Face, ColorMaterialParameter))
 colorMaterial =
    makeStateVarMaybe
-      (makeCapability CapColorMaterial)
+      (return CapColorMaterial)
       (liftM2 (,)
               (getInteger1 (unmarshalFace . fromIntegral) GetColorMaterialFace)
               (getInteger1 (unmarshalColorMaterialParameter . fromIntegral)
