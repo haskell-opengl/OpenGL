@@ -267,12 +267,12 @@ foreign import CALLCONV unsafe "glLoadMatrixd" glLoadMatrixd :: Ptr GLdouble -> 
 loadTransposeMatrixf :: Ptr GLfloat -> IO ()
 loadTransposeMatrixf = dynLoadTransposeMatrixf ptrLoadTransposeMatrixf
 
-EXTENSION_ENTRY("GL_ARB_transpose_matrix","glLoadTransposeMatrixf",dynLoadTransposeMatrixf,ptrLoadTransposeMatrixf,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glLoadTransposeMatrixfARB",dynLoadTransposeMatrixf,ptrLoadTransposeMatrixf,Ptr GLfloat -> IO ())
 
 loadTransposeMatrixd :: Ptr GLdouble -> IO ()
 loadTransposeMatrixd = dynLoadTransposeMatrixd ptrLoadTransposeMatrixd
 
-EXTENSION_ENTRY("GL_ARB_transpose_matrix","glLoadTransposeMatrixd",dynLoadTransposeMatrixd,ptrLoadTransposeMatrixd,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glLoadTransposeMatrixdARB",dynLoadTransposeMatrixd,ptrLoadTransposeMatrixd,Ptr GLdouble -> IO ())
 
 foreign import CALLCONV unsafe "glMultMatrixf" glMultMatrixf :: Ptr GLfloat -> IO ()
 foreign import CALLCONV unsafe "glMultMatrixd" glMultMatrixd :: Ptr GLdouble -> IO ()
@@ -280,12 +280,12 @@ foreign import CALLCONV unsafe "glMultMatrixd" glMultMatrixd :: Ptr GLdouble -> 
 multTransposeMatrixf :: Ptr GLfloat -> IO ()
 multTransposeMatrixf = dynMultTransposeMatrixf ptrMultTransposeMatrixf
 
-EXTENSION_ENTRY("GL_ARB_transpose_matrix","glMultTransposeMatrixf",dynMultTransposeMatrixf,ptrMultTransposeMatrixf,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glMultTransposeMatrixfARB",dynMultTransposeMatrixf,ptrMultTransposeMatrixf,Ptr GLfloat -> IO ())
 
 multTransposeMatrixd :: Ptr GLdouble -> IO ()
 multTransposeMatrixd = dynMultTransposeMatrixd ptrMultTransposeMatrixd
 
-EXTENSION_ENTRY("GL_ARB_transpose_matrix","glMultTransposeMatrixd",dynMultTransposeMatrixd,ptrMultTransposeMatrixd,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3","glMultTransposeMatrixdARB",dynMultTransposeMatrixd,ptrMultTransposeMatrixd,Ptr GLdouble -> IO ())
 
 --------------------------------------------------------------------------------
 

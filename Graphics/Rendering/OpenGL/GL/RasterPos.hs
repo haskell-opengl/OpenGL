@@ -189,22 +189,22 @@ class WindowPosComponent a where
 windowPos2s :: GLshort -> GLshort -> IO ()
 windowPos2s = dynWindowPos2s ptrWindowPos2s
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2s",dynWindowPos2s,ptrWindowPos2s,GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2sARB",dynWindowPos2s,ptrWindowPos2s,GLshort -> GLshort -> IO ())
 
 windowPos3s :: GLshort -> GLshort -> GLshort -> IO ()
 windowPos3s = dynWindowPos3s ptrWindowPos3s
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3s",dynWindowPos3s,ptrWindowPos3s,GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3sARB",dynWindowPos3s,ptrWindowPos3s,GLshort -> GLshort -> GLshort -> IO ())
 
 windowPos2sv :: Ptr GLshort -> IO ()
 windowPos2sv = dynWindowPos2sv ptrWindowPos2sv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2sv",dynWindowPos2sv,ptrWindowPos2sv,Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2svARB",dynWindowPos2sv,ptrWindowPos2sv,Ptr GLshort -> IO ())
 
 windowPos3sv :: Ptr GLshort -> IO ()
 windowPos3sv = dynWindowPos3sv ptrWindowPos3sv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3sv",dynWindowPos3sv,ptrWindowPos3sv,Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3svARB",dynWindowPos3sv,ptrWindowPos3sv,Ptr GLshort -> IO ())
 
 instance WindowPosComponent GLshort where
    windowPos2 = windowPos2s
@@ -218,22 +218,22 @@ instance WindowPosComponent GLshort where
 windowPos2i :: GLint -> GLint -> IO ()
 windowPos2i = dynWindowPos2i ptrWindowPos2i
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2i",dynWindowPos2i,ptrWindowPos2i,GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2iARB",dynWindowPos2i,ptrWindowPos2i,GLint -> GLint -> IO ())
 
 windowPos3i :: GLint -> GLint -> GLint -> IO ()
 windowPos3i = dynWindowPos3i ptrWindowPos3i
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3i",dynWindowPos3i,ptrWindowPos3i,GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3iARB",dynWindowPos3i,ptrWindowPos3i,GLint -> GLint -> GLint -> IO ())
 
 windowPos2iv :: Ptr GLint -> IO ()
 windowPos2iv = dynWindowPos2iv ptrWindowPos2iv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2iv",dynWindowPos2iv,ptrWindowPos2iv,Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2ivARB",dynWindowPos2iv,ptrWindowPos2iv,Ptr GLint -> IO ())
 
 windowPos3iv :: Ptr GLint -> IO ()
 windowPos3iv = dynWindowPos3iv ptrWindowPos3iv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3iv",dynWindowPos3iv,ptrWindowPos3iv,Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3ivARB",dynWindowPos3iv,ptrWindowPos3iv,Ptr GLint -> IO ())
 
 instance WindowPosComponent GLint where
    windowPos2 = windowPos2i
@@ -247,22 +247,22 @@ instance WindowPosComponent GLint where
 windowPos2f :: GLfloat -> GLfloat -> IO ()
 windowPos2f = dynWindowPos2f ptrWindowPos2f
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2f",dynWindowPos2f,ptrWindowPos2f,GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2fARB",dynWindowPos2f,ptrWindowPos2f,GLfloat -> GLfloat -> IO ())
 
 windowPos3f :: GLfloat -> GLfloat -> GLfloat -> IO ()
 windowPos3f = dynWindowPos3f ptrWindowPos3f
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3f",dynWindowPos3f,ptrWindowPos3f,GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3fARB",dynWindowPos3f,ptrWindowPos3f,GLfloat -> GLfloat -> GLfloat -> IO ())
 
 windowPos2fv :: Ptr GLfloat -> IO ()
 windowPos2fv = dynWindowPos2fv ptrWindowPos2fv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2fv",dynWindowPos2fv,ptrWindowPos2fv,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2fvARB",dynWindowPos2fv,ptrWindowPos2fv,Ptr GLfloat -> IO ())
 
 windowPos3fv :: Ptr GLfloat -> IO ()
 windowPos3fv = dynWindowPos3fv ptrWindowPos3fv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3fv",dynWindowPos3fv,ptrWindowPos3fv,Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3fvARB",dynWindowPos3fv,ptrWindowPos3fv,Ptr GLfloat -> IO ())
 
 instance WindowPosComponent GLfloat where
    windowPos2 = windowPos2f
@@ -276,22 +276,22 @@ instance WindowPosComponent GLfloat where
 windowPos2d :: GLdouble -> GLdouble -> IO ()
 windowPos2d = dynWindowPos2d ptrWindowPos2d
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2d",dynWindowPos2d,ptrWindowPos2d,GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2dARB",dynWindowPos2d,ptrWindowPos2d,GLdouble -> GLdouble -> IO ())
 
 windowPos3d :: GLdouble -> GLdouble -> GLdouble -> IO ()
 windowPos3d = dynWindowPos3d ptrWindowPos3d
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3d",dynWindowPos3d,ptrWindowPos3d,GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3dARB",dynWindowPos3d,ptrWindowPos3d,GLdouble -> GLdouble -> GLdouble -> IO ())
 
 windowPos2dv :: Ptr GLdouble -> IO ()
 windowPos2dv = dynWindowPos2dv ptrWindowPos2dv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos2dv",dynWindowPos2dv,ptrWindowPos2dv,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos2dvARB",dynWindowPos2dv,ptrWindowPos2dv,Ptr GLdouble -> IO ())
 
 windowPos3dv :: Ptr GLdouble -> IO ()
 windowPos3dv = dynWindowPos3dv ptrWindowPos3dv
 
-EXTENSION_ENTRY("GL_ARB_window_pos","glWindowPos3dv",dynWindowPos3dv,ptrWindowPos3dv,Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4","glWindowPos3dvARB",dynWindowPos3dv,ptrWindowPos3dv,Ptr GLdouble -> IO ())
 
 instance WindowPosComponent GLdouble where
    windowPos2 = windowPos2d
