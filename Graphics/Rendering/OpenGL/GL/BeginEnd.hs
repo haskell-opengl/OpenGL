@@ -34,9 +34,6 @@ import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, GetPName(GetEdgeFlag) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
-#ifdef __HADDOCK__
-import Graphics.Rendering.OpenGL.GL.Polygons ( PolygonMode(..), polygonMode )
-#endif
 
 --------------------------------------------------------------------------------
 
