@@ -2,7 +2,7 @@
 
 THISPKG       = OpenGL
 SEARCH        = -package base
-EXTRA_H_FLAGS = -Iinclude -DCALLCONV=ccall +RTS -K4M -RTS
+EXTRA_H_FLAGS = -Iinclude -DCALLCONV=ccall
 SRCS          = \
 	Graphics/Rendering/OpenGL.hs \
 	Graphics/Rendering/OpenGL/GL.hs \
