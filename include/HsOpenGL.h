@@ -17,6 +17,7 @@
 
 /* for the prototype of wglGetProcAddress */
 #include <windows.h>
+#include <GL/glu.h>
 
 #else
 
