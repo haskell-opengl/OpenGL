@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.7 2003/01/24 18:54:33 panne Exp $
+# $Id: Makefile,v 1.8 2003/01/26 12:46:43 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -32,6 +32,51 @@ SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)"
 comma = ,
 PACKAGE_CPP_OPTS += -DGL_CFLAGS='$(patsubst %,$(comma)"%",$(GL_CFLAGS))'
 PACKAGE_CPP_OPTS += -DGL_LIBS='$(patsubst %,$(comma)"%",$(GL_LIBS))'
+
+# -----------------------------------------------------------------------------
+# Hmmm, the following stuff for generating the Haskell files containing the
+# GL/GLU enumeration constants is more than ugly, but the build system descends
+# into SUBDIRS *after* the target in the current directory is updated.
+#
+# TODO: Is there a better solution for all these hacks?
+# -----------------------------------------------------------------------------
+
+# Make sure our enumeration .spec converter is up-to-date
+
+ENUM_CONVERTER=specs/enumerant/ConvertEnumSpec$(exeext)
+
+$(ENUM_CONVERTER): $(basename $(ENUM_CONVERTER)).hs
+	  $(MAKE) -C $(dir $(ENUM_CONVERTER)) $(MFLAGS) $(notdir $(ENUM_CONVERTER))
+
+# At "make boot" time, the Constant.incl files do not yet exist, so leave out
+# the files #including it at "make boot" time and explicitly state their
+# dependencies.
+
+MKDEPENDHS_SRCS=$(filter-out Graphics/Rendering/OpenGL/GL/Constants.hs \
+                             Graphics/Rendering/OpenGL/GLU/Constants.hs, \
+                             $(HS_SRCS))
+
+Graphics/Rendering/OpenGL/GL/Constants.$(way_)o: \
+    Graphics/Rendering/OpenGL/GL/Constants.hs \
+    Graphics/Rendering/OpenGL/GL/Constants.incl \
+    Graphics/Rendering/OpenGL/GL/BasicTypes.$(way_)hi
+
+Graphics/Rendering/OpenGL/GLU/Constants.$(way_)o: \
+    Graphics/Rendering/OpenGL/GLU/Constants.hs \
+    Graphics/Rendering/OpenGL/GLU/Constants.incl \
+    Graphics/Rendering/OpenGL/GL/BasicTypes.$(way_)hi
+
+# Generate the enumeration constants from the .spec files.
+
+Graphics/Rendering/OpenGL/GL/Constants.incl: \
+    $(dir $(ENUM_CONVERTER))enum.spec $(ENUM_CONVERTER)
+	$(RM) $@
+	./$(ENUM_CONVERTER) $< > $@
+
+Graphics/Rendering/OpenGL/GLU/Constants.incl: \
+    $(dir $(ENUM_CONVERTER))enumglu.spec $(ENUM_CONVERTER)
+	$(RM) $@
+	./$(ENUM_CONVERTER) $< > $@
 
 # -----------------------------------------------------------------------------
 
