@@ -16,14 +16,12 @@ ALL_DIRS = \
 PACKAGE = OpenGL
 PACKAGE_DEPS = base
 
-ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
-GL_CFLAGS := $(subst -mno-cygwin,,$(GL_CFLAGS))
-endif
 SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp $(GL_CFLAGS)
 
 # WinDoze DLL hell
 ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
 SRC_HC_OPTS += -DCALLCONV=stdcall '-DGET_PROC_ADDRESS="wglGetProcAddress"'
+SRC_HC_OPTS := $(subst -mno-cygwin,,$(SRC_HC_OPTS))
 else
 SRC_HC_OPTS += -DCALLCONV=ccall '-DGET_PROC_ADDRESS="glXGetProcAddressARB"'
 endif
