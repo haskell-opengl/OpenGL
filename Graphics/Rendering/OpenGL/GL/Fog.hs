@@ -15,7 +15,8 @@
 module Graphics.Rendering.OpenGL.GL.Fog (
    fog,
    FogMode(..), fogMode,
-   fogColor, fogIndex
+   fogColor, fogIndex,
+   FogCoordinateSource(..), fogCoordinateSource
 ) where
 
 import Foreign.Marshal.Utils ( with )
@@ -79,28 +80,10 @@ unmarshalFogMode' x
 
 --------------------------------------------------------------------------------
 
-data FogCoordinate =
-     FogCoordinate'
-   | FragmentDepth
-
-marshalFogCoordinate :: FogCoordinate -> GLint
-marshalFogCoordinate x = case x of
-   FogCoordinate' -> 0x8451
-   FragmentDepth -> 0x8452
-
-unmarshalFogCoordinate :: GLint -> FogCoordinate
-unmarshalFogCoordinate x
-   | x == 0x8451 = FogCoordinate'
-   | x == 0x8452 = FragmentDepth
-   | otherwise = error ("unmarshalFogCoordinate: illegal value " ++ show x)
-
---------------------------------------------------------------------------------
-
 data FogMode =
      Linear GLfloat GLfloat
    | Exp GLfloat
    | Exp2 GLfloat
-   | FogCoordinate
    deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
@@ -110,35 +93,26 @@ fogMode = makeStateVar getFogMode setFogMode
 
 getFogMode :: IO FogMode
 getFogMode = do
-   src <- getInteger1 unmarshalFogCoordinate GetFogCoordinateSource
-   case src of
-      FogCoordinate' -> return FogCoordinate
-      FragmentDepth -> do
-         mode <- getInteger1 unmarshalFogMode' GetFogMode
-         case mode of
-            Linear' -> do
-               start <- getFloat1 id GetFogStart
-               end <- getFloat1 id GetFogEnd
-               return $ Linear start end
-            Exp' -> getFloat1 Exp GetFogDensity
-            Exp2' -> getFloat1 Exp2 GetFogDensity
+   mode <- getInteger1 unmarshalFogMode' GetFogMode
+   case mode of
+      Linear' -> do
+         start <- getFloat1 id GetFogStart
+         end <- getFloat1 id GetFogEnd
+         return $ Linear start end
+      Exp' -> getFloat1 Exp GetFogDensity
+      Exp2' -> getFloat1 Exp2 GetFogDensity
 
 setFogMode :: FogMode -> IO ()
 setFogMode (Linear start end) = do
-   fogi FogCoordinateSource (marshalFogCoordinate FragmentDepth)
    fogi FogMode (marshalFogMode' Linear')
    fogf FogStart start
    fogf FogEnd end
 setFogMode (Exp density) = do
-   fogi FogCoordinateSource (marshalFogCoordinate FragmentDepth)
    fogi FogMode (marshalFogMode' Exp')
    fogf FogDensity density
 setFogMode (Exp2 density) = do
-   fogi FogCoordinateSource (marshalFogCoordinate FragmentDepth)
    fogi FogMode (marshalFogMode' Exp2')
    fogf FogDensity density
-setFogMode FogCoordinate =
-   fogi FogCoordinateSource (marshalFogCoordinate FogCoordinate')
 
 --------------------------------------------------------------------------------
 
@@ -171,3 +145,29 @@ fogIndex =
    makeStateVar
       (getInteger1 Index1 GetFogIndex)
       (\(Index1 i) -> fogi FogIndex i)
+
+--------------------------------------------------------------------------------
+
+data FogCoordinateSource =
+     FogCoordinate
+   | FragmentDepth
+   deriving ( Eq, Ord, Show )
+
+marshalFogCoordinateSource :: FogCoordinateSource -> GLint
+marshalFogCoordinateSource x = case x of
+   FogCoordinate -> 0x8451
+   FragmentDepth -> 0x8452
+
+unmarshalFogCoordinateSource :: GLint -> FogCoordinateSource
+unmarshalFogCoordinateSource x
+   | x == 0x8451 = FogCoordinate
+   | x == 0x8452 = FragmentDepth
+   | otherwise = error ("unmarshalFogCoordinateSource: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+fogCoordinateSource :: StateVar FogCoordinateSource
+fogCoordinateSource =
+   makeStateVar
+      (getInteger1 unmarshalFogCoordinateSource GetFogCoordinateSource)
+      (fogi FogCoordinateSource . marshalFogCoordinateSource)
