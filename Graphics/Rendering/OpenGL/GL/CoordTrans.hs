@@ -288,7 +288,7 @@ class Matrix m where
       MatrixComponent c => m c -> (MatrixOrder -> Ptr c -> IO a) -> IO a
 
    newMatrix :: MatrixComponent c => MatrixOrder -> [c] -> IO (m c)
-   getMatrixCompoments :: MatrixComponent c => MatrixOrder -> m c -> IO [c]
+   getMatrixComponents :: MatrixComponent c => MatrixOrder -> m c -> IO [c]
 
    withNewMatrix order act =
       allocaArray 16 $ \p -> do
@@ -297,13 +297,13 @@ class Matrix m where
          newMatrix order components
 
    withMatrix mat act = do
-      components <- getMatrixCompoments ColumnMajor mat
+      components <- getMatrixComponents ColumnMajor mat
       withArray components $ act ColumnMajor
 
    newMatrix order components =
       withNewMatrix order $ flip pokeArray (take 16 components)
 
-   getMatrixCompoments desiredOrder mat =
+   getMatrixComponents desiredOrder mat =
       withMatrix mat $ \order p ->
         if desiredOrder == order
            then peekArray 16 p
