@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Environments (
-   TextureEnvMode(..), textureEnvMode
+   TextureEnvMode(..), textureEnvMode, textureUnitLODBias
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
@@ -22,6 +22,7 @@ import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum, GLfloat )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.Texturing.Parameters ( LOD )
 
 --------------------------------------------------------------------------------
 
@@ -57,6 +58,7 @@ data TextureEnvParameter =
    | TexEnvParamOperand2Alpha
    | TexEnvParamRGBScale
    | TexEnvParamAlphaScale
+   | TexEnvParamLODBias
 
 marshalTextureEnvParameter :: TextureEnvParameter -> GLenum
 marshalTextureEnvParameter x = case x of
@@ -78,11 +80,9 @@ marshalTextureEnvParameter x = case x of
    TexEnvParamOperand2Alpha -> 0x859a
    TexEnvParamRGBScale -> 0x8573
    TexEnvParamAlphaScale -> 0xd1c
+   TexEnvParamLODBias -> 0x8501
 
 --------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glTexEnvf"
-   glTexEnvf :: GLenum -> GLenum ->  GLfloat -> IO ()
 
 texEnvi :: (a -> GLint) -> TextureEnvTarget -> TextureEnvParameter -> a -> IO ()
 texEnvi f t p =
@@ -90,6 +90,13 @@ texEnvi f t p =
 
 foreign import CALLCONV unsafe "glTexEnvi"
    glTexEnvi :: GLenum -> GLenum ->  GLint -> IO ()
+
+texEnvf :: (a -> GLfloat) -> TextureEnvTarget -> TextureEnvParameter -> a -> IO ()
+texEnvf f t p =
+   glTexEnvf (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) . f
+
+foreign import CALLCONV unsafe "glTexEnvf"
+   glTexEnvf :: GLenum -> GLenum ->  GLfloat -> IO ()
 
 foreign import CALLCONV unsafe "glTexEnvfv"
    glTexEnvfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
@@ -99,9 +106,6 @@ foreign import CALLCONV unsafe "glTexEnviv"
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glGetTexEnvfv"
-   glGetTexEnvfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
 getTexEnvi :: (GLint -> a) -> TextureEnvTarget -> TextureEnvParameter -> IO a
 getTexEnvi f t p =
    alloca $ \buf -> do
@@ -110,6 +114,16 @@ getTexEnvi f t p =
 
 foreign import CALLCONV unsafe "glGetTexEnviv"
    glGetTexEnviv :: GLenum -> GLenum -> Ptr GLint -> IO ()
+
+getTexEnvf :: (GLfloat -> a) -> TextureEnvTarget -> TextureEnvParameter -> IO a
+getTexEnvf f t p =
+   alloca $ \buf -> do
+     glGetTexEnvfv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) buf
+     peek1 f buf
+
+foreign import CALLCONV unsafe "glGetTexEnvfv"
+   glGetTexEnvfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
+
 --------------------------------------------------------------------------------
 
 data TextureEnvMode =
@@ -147,3 +161,11 @@ textureEnvMode =
    makeStateVar
       (getTexEnvi unmarshalTextureEnvMode TextureEnv TexEnvParamTextureEnvMode)
       (texEnvi    marshalTextureEnvMode   TextureEnv TexEnvParamTextureEnvMode)
+
+--------------------------------------------------------------------------------
+
+textureUnitLODBias :: StateVar LOD
+textureUnitLODBias =
+   makeStateVar
+      (getTexEnvf id TextureFilterControl TexEnvParamLODBias)
+      (texEnvf    id TextureFilterControl TexEnvParamLODBias)

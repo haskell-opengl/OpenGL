@@ -17,22 +17,24 @@
 module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    TextureFilter(..), MinificationFilter, MagnificationFilter, textureFilter,
    Repetition(..), Clamping(..), textureWrapMode,
-   textureBorderColor, LOD, textureLODRange, textureLevelRange,
-   textureMaxAnisotropy, maxTextureMaxAnisotropy
+   textureBorderColor, LOD, textureObjectLODBias, maxTextureLODBias,
+   textureLODRange, textureMaxAnisotropy, maxTextureMaxAnisotropy,
+   textureLevelRange
 ) where
 
 import Control.Monad ( liftM2 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLfloat )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( TextureCoordName(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxTextureMaxAnisotropy), getFloat1)
+   GetPName(GetMaxTextureMaxAnisotropy,GetMaxTextureLODBias), getFloat1)
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification ( Level )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
                 TextureWrapR,TextureBorderColor,TextureMinLOD,TextureMaxLOD,
-                TextureBaseLevel,TextureMaxLevel,TextureMaxAnisotropy),
+                TextureBaseLevel,TextureMaxLevel,TextureMaxAnisotropy,
+                TextureLODBias),
    texParameteri, texParameterf, texParameterC4f,
    getTexParameteri, getTexParameterf, getTexParameterC4f )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
@@ -161,6 +163,17 @@ textureBorderColor t =
 type LOD = GLfloat
 
 -- ToDo: cube maps
+textureObjectLODBias :: TextureTarget -> StateVar LOD
+textureObjectLODBias t =
+   makeStateVar
+      (getTexParameterf t TextureLODBias)
+      (texParameterf t TextureLODBias)
+
+maxTextureLODBias :: GettableStateVar LOD
+maxTextureLODBias =
+   makeGettableStateVar (getFloat1 id GetMaxTextureLODBias)
+
+-- ToDo: cube maps
 textureLODRange :: TextureTarget -> StateVar (LOD,LOD)
 textureLODRange t =
    makeStateVar
@@ -169,18 +182,6 @@ textureLODRange t =
        (\(minLOD,maxLOD) -> do
           texParameterf t TextureMinLOD minLOD
           texParameterf t TextureMaxLOD maxLOD)
-
---------------------------------------------------------------------------------
-
--- ToDo: cube maps
-textureLevelRange :: TextureTarget -> StateVar (Level,Level)
-textureLevelRange t =
-   makeStateVar
-       (liftM2 (,) (getTexParameteri id t TextureBaseLevel)
-                   (getTexParameteri id t TextureMaxLevel))
-       (\(baseLevel,maxLevel) -> do
-          texParameteri id t TextureBaseLevel baseLevel
-          texParameteri id t TextureMaxLevel  maxLevel)
 
 --------------------------------------------------------------------------------
 
@@ -194,3 +195,15 @@ textureMaxAnisotropy t =
 maxTextureMaxAnisotropy :: GettableStateVar GLfloat
 maxTextureMaxAnisotropy =
    makeGettableStateVar (getFloat1 id GetMaxTextureMaxAnisotropy)
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+textureLevelRange :: TextureTarget -> StateVar (Level,Level)
+textureLevelRange t =
+   makeStateVar
+       (liftM2 (,) (getTexParameteri id t TextureBaseLevel)
+                   (getTexParameteri id t TextureMaxLevel))
+       (\(baseLevel,maxLevel) -> do
+          texParameteri id t TextureBaseLevel baseLevel
+          texParameteri id t TextureMaxLevel  maxLevel)
