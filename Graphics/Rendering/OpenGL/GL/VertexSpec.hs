@@ -233,8 +233,8 @@ instance VertexComponent a => Vertex (Vertex2 a) where
 instance Storable a => Storable (Vertex2 a) where
    sizeOf    ~(Vertex2 x _) = 2 * sizeOf x
    alignment ~(Vertex2 x _) = alignment x
-   peek                     = peek2 Vertex2
-   poke ptr   (Vertex2 x y) = poke2 ptr x y
+   peek                     = peek2 Vertex2 . castPtr
+   poke ptr   (Vertex2 x y) = poke2 (castPtr ptr) x y
 
 -- | A vertex with /w/=1.
 data Vertex3 a = Vertex3 a a a
@@ -247,8 +247,8 @@ instance VertexComponent a => Vertex (Vertex3 a) where
 instance Storable a => Storable (Vertex3 a) where
    sizeOf    ~(Vertex3 x _ _) = 3 * sizeOf x
    alignment ~(Vertex3 x _ _) = alignment x
-   peek                       = peek3 Vertex3
-   poke ptr   (Vertex3 x y z) = poke3 ptr x y z
+   peek                       = peek3 Vertex3 . castPtr
+   poke ptr   (Vertex3 x y z) = poke3 (castPtr ptr) x y z
 
 -- | A fully-fledged four-dimensional vertex.
 data Vertex4 a = Vertex4 a a a a
@@ -261,8 +261,8 @@ instance VertexComponent a => Vertex (Vertex4 a) where
 instance Storable a => Storable (Vertex4 a) where
    sizeOf    ~(Vertex4 x _ _ _) = 4 * sizeOf x
    alignment ~(Vertex4 x _ _ _) = alignment x
-   peek                         = peek4 Vertex4
-   poke ptr   (Vertex4 x y z w) = poke4 ptr x y z w
+   peek                         = peek4 Vertex4 . castPtr
+   poke ptr   (Vertex4 x y z w) = poke4 (castPtr ptr) x y z w
 
 --------------------------------------------------------------------------------
 -- $AuxiliaryVertexAttributes
@@ -571,8 +571,8 @@ instance TexCoordComponent a => TexCoord (TexCoord1 a) where
 instance Storable a => Storable (TexCoord1 a) where
    sizeOf    ~(TexCoord1 s) = sizeOf s
    alignment ~(TexCoord1 s) = alignment s
-   peek                     = peek1 TexCoord1
-   poke ptr   (TexCoord1 s) = poke1 ptr s
+   peek                     = peek1 TexCoord1 . castPtr
+   poke ptr   (TexCoord1 s) = poke1 (castPtr ptr) s
 
 -- | Texture coordinates with /r/=0 and /q/=1.
 
@@ -590,8 +590,8 @@ instance TexCoordComponent a => TexCoord (TexCoord2 a) where
 instance Storable a => Storable (TexCoord2 a) where
    sizeOf    ~(TexCoord2 s _) = 2 * sizeOf s
    alignment ~(TexCoord2 s _) = alignment s
-   peek                       = peek2 TexCoord2
-   poke ptr   (TexCoord2 s t) = poke2 ptr s t
+   peek                       = peek2 TexCoord2 . castPtr
+   poke ptr   (TexCoord2 s t) = poke2 (castPtr ptr) s t
 
 -- | Texture coordinates with /q/=1.
 
@@ -609,8 +609,8 @@ instance TexCoordComponent a => TexCoord (TexCoord3 a) where
 instance Storable a => Storable (TexCoord3 a) where
    sizeOf    ~(TexCoord3 s _ _) = 3 * sizeOf s
    alignment ~(TexCoord3 s _ _) = alignment s
-   peek                         = peek3 TexCoord3
-   poke ptr   (TexCoord3 s t r) = poke3 ptr s t r
+   peek                         = peek3 TexCoord3 . castPtr
+   poke ptr   (TexCoord3 s t r) = poke3 (castPtr ptr) s t r
 
 -- | Fully-fledged four-dimensional texture coordinates.
 
@@ -628,8 +628,8 @@ instance TexCoordComponent a => TexCoord (TexCoord4 a) where
 instance Storable a => Storable (TexCoord4 a) where
    sizeOf    ~(TexCoord4 s _ _ _) = 4 * sizeOf s
    alignment ~(TexCoord4 s _ _ _) = alignment s
-   peek                           = peek4 TexCoord4
-   poke ptr   (TexCoord4 s t r q) = poke4 ptr s t r q
+   peek                           = peek4 TexCoord4 . castPtr
+   poke ptr   (TexCoord4 s t r q) = poke4 (castPtr ptr) s t r q
 
 --------------------------------------------------------------------------------
 
@@ -741,8 +741,8 @@ instance NormalComponent a => Normal (Normal3 a) where
 instance Storable a => Storable (Normal3 a) where
    sizeOf    ~(Normal3 x _ _) = 3 * sizeOf x
    alignment ~(Normal3 x _ _) = alignment x
-   peek                       = peek3 Normal3
-   poke ptr   (Normal3 x y z) = poke3 ptr x y z
+   peek                       = peek3 Normal3 . castPtr
+   poke ptr   (Normal3 x y z) = poke3 (castPtr ptr) x y z
 
 --------------------------------------------------------------------------------
 
@@ -1072,8 +1072,8 @@ instance ColorComponent a => Color (Color3 a) where
 instance Storable a => Storable (Color3 a) where
    sizeOf    ~(Color3 r _ _) = 3 * sizeOf r
    alignment ~(Color3 r _ _) = alignment r
-   peek                      = peek3 Color3
-   poke ptr   (Color3 r g b) = poke3 ptr r g b
+   peek                      = peek3 Color3 . castPtr
+   poke ptr   (Color3 r g b) = poke3 (castPtr ptr) r g b
 
 -- | A fully-fledged RGBA color.
 
@@ -1087,8 +1087,8 @@ instance ColorComponent a => Color (Color4 a) where
 instance Storable a => Storable (Color4 a) where
    sizeOf    ~(Color4 r _ _ _) = 4 * sizeOf r
    alignment ~(Color4 r _ _ _) = alignment r
-   peek                        = peek4 Color4
-   poke ptr   (Color4 r g b a) = poke4 ptr r g b a
+   peek                        = peek4 Color4 . castPtr
+   poke ptr   (Color4 r g b a) = poke4 (castPtr ptr) r g b a
 
 --------------------------------------------------------------------------------
 
@@ -1198,8 +1198,8 @@ instance IndexComponent a => Index (Index1 a) where
 instance Storable a => Storable (Index1 a) where
    sizeOf    ~(Index1 s) = sizeOf s
    alignment ~(Index1 s) = alignment s
-   peek                  = peek1 Index1
-   poke ptr   (Index1 s) = poke1 ptr s
+   peek                  = peek1 Index1 . castPtr
+   poke ptr   (Index1 s) = poke1 (castPtr ptr) s
 
 --------------------------------------------------------------------------------
 

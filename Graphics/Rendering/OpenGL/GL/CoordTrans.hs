@@ -40,7 +40,7 @@ import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
 import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapRescaleNormal, CapNormalize,CapDepthClamp,
@@ -440,8 +440,8 @@ data Plane a = Plane a a a a
 instance Storable a => Storable (Plane a) where
    sizeOf    ~(Plane a _ _ _) = 4 * sizeOf a
    alignment ~(Plane a _ _ _) = alignment a
-   peek                       = peek4 Plane
-   poke ptr   (Plane a b c d) = poke4 ptr a b c d
+   peek                       = peek4 Plane . castPtr
+   poke ptr   (Plane a b c d) = poke4 (castPtr ptr) a b c d
 
 --------------------------------------------------------------------------------
 

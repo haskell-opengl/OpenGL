@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PeekPoke (
    peek1, peek2, peek3, peek4
 ) where
 
-import Foreign.Ptr ( Ptr, castPtr )
+import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peekElemOff,pokeElemOff) )
 
 --------------------------------------------------------------------------------
@@ -28,59 +28,59 @@ import Foreign.Storable ( Storable(peekElemOff,pokeElemOff) )
 --------------------------------------------------------------------------------
 
 {-# INLINE poke1 #-}
-poke1 :: Storable b => Ptr a -> b -> IO ()
+poke1 :: Storable a => Ptr a -> a -> IO ()
 poke1 ptr x =
-   pokeElemOff (castPtr ptr) 0 x
+   pokeElemOff ptr 0 x
 
 {-# INLINE poke2 #-}
-poke2 :: Storable b => Ptr a -> b -> b -> IO ()
+poke2 :: Storable a => Ptr a -> a -> a -> IO ()
 poke2 ptr x y = do
-   pokeElemOff (castPtr ptr) 0 x
-   pokeElemOff (castPtr ptr) 1 y
+   pokeElemOff ptr 0 x
+   pokeElemOff ptr 1 y
 
 {-# INLINE poke3 #-}
-poke3 :: Storable b => Ptr a -> b -> b -> b -> IO ()
+poke3 :: Storable a => Ptr a -> a -> a -> a -> IO ()
 poke3 ptr x y z = do
-   pokeElemOff (castPtr ptr) 0 x
-   pokeElemOff (castPtr ptr) 1 y
-   pokeElemOff (castPtr ptr) 2 z
+   pokeElemOff ptr 0 x
+   pokeElemOff ptr 1 y
+   pokeElemOff ptr 2 z
 
 {-# INLINE poke4 #-}
-poke4 :: Storable b => Ptr a -> b -> b -> b -> b -> IO ()
+poke4 :: Storable a => Ptr a -> a -> a -> a -> a -> IO ()
 poke4 ptr x y z w = do
-   pokeElemOff (castPtr ptr) 0 x
-   pokeElemOff (castPtr ptr) 1 y
-   pokeElemOff (castPtr ptr) 2 z
-   pokeElemOff (castPtr ptr) 3 w
+   pokeElemOff ptr 0 x
+   pokeElemOff ptr 1 y
+   pokeElemOff ptr 2 z
+   pokeElemOff ptr 3 w
 
 --------------------------------------------------------------------------------
 
 {-# INLINE peek1 #-}
-peek1 :: Storable a => (a -> b) -> Ptr c -> IO b
+peek1 :: Storable a => (a -> b) -> Ptr a -> IO b
 peek1 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
+   x <- peekElemOff ptr 0
    return $ f x
 
 {-# INLINE peek2 #-}
-peek2 :: Storable a => (a -> a -> b) -> Ptr c -> IO b
+peek2 :: Storable a => (a -> a -> b) -> Ptr a -> IO b
 peek2 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
+   x <- peekElemOff ptr 0
+   y <- peekElemOff ptr 1
    return $ f x y
 
 {-# INLINE peek3 #-}
-peek3 :: Storable a => (a -> a -> a -> b) -> Ptr c -> IO b
+peek3 :: Storable a => (a -> a -> a -> b) -> Ptr a -> IO b
 peek3 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   z <- peekElemOff (castPtr ptr) 2
+   x <- peekElemOff ptr 0
+   y <- peekElemOff ptr 1
+   z <- peekElemOff ptr 2
    return $ f x y z
 
 {-# INLINE peek4 #-}
-peek4 :: Storable a => (a -> a -> a -> a -> b) -> Ptr c -> IO b
+peek4 :: Storable a => (a -> a -> a -> a -> b) -> Ptr a -> IO b
 peek4 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   z <- peekElemOff (castPtr ptr) 2
-   w <- peekElemOff (castPtr ptr) 3
+   x <- peekElemOff ptr 0
+   y <- peekElemOff ptr 1
+   z <- peekElemOff ptr 2
+   w <- peekElemOff ptr 3
    return $ f x y z w
