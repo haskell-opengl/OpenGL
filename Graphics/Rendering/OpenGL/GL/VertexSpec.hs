@@ -58,11 +58,14 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLdouble )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.PeekPoke (
+   poke1, poke2, poke3, poke4,
+   peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoordinate,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits),
-   getInteger1, getFloat1, getFloat3, getFloat4, peek1, peek2, peek3, peek4 )
+   getInteger1, getFloat1, getFloat3, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
@@ -1187,33 +1190,3 @@ maxTextureUnit :: GettableStateVar TextureUnit
 maxTextureUnit =
    makeGettableStateVar
      (getInteger1 (TextureUnit . fromIntegral) GetMaxTextureUnits)
-
---------------------------------------------------------------------------------
--- Utilities (a little bit verbose/redundant, but seems to generate better
--- code than mapM/zipWithM_)
-
-{-# INLINE poke1 #-}
-poke1 :: Storable b => Ptr a -> b -> IO ()
-poke1 ptr x =
-   pokeElemOff (castPtr ptr) 0 x
-
-{-# INLINE poke2 #-}
-poke2 :: Storable b => Ptr a -> b -> b -> IO ()
-poke2 ptr x y = do
-   pokeElemOff (castPtr ptr) 0 x
-   pokeElemOff (castPtr ptr) 1 y
-
-{-# INLINE poke3 #-}
-poke3 :: Storable b => Ptr a -> b -> b -> b -> IO ()
-poke3 ptr x y z = do
-   pokeElemOff (castPtr ptr) 0 x
-   pokeElemOff (castPtr ptr) 1 y
-   pokeElemOff (castPtr ptr) 2 z
-
-{-# INLINE poke4 #-}
-poke4 :: Storable b => Ptr a -> b -> b -> b -> b -> IO ()
-poke4 ptr x y z w = do
-   pokeElemOff (castPtr ptr) 0 x
-   pokeElemOff (castPtr ptr) 1 y
-   pokeElemOff (castPtr ptr) 2 z
-   pokeElemOff (castPtr ptr) 3 w

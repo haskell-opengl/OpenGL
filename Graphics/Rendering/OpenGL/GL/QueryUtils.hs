@@ -18,17 +18,16 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4,
    getFloat1, getFloat3, getFloat4, getFloatv,
-   getDouble1, getDouble2, getDoublev,
-   peek1, peek2, peek3, peek4
+   getDouble1, getDouble2, getDoublev
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr, castPtr )
-import Foreign.Storable ( Storable(peekElemOff) )
+import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLenum, GLint, GLfloat, GLdouble )
+import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 data GetPName =
      GetCurrentColor
@@ -869,37 +868,3 @@ getDoublev = glGetDoublev . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
    GLenum -> Ptr GLdouble -> IO ()
-
---------------------------------------------------------------------------------
--- Utilities (a little bit verbose/redundant, but seems to generate better
--- code than mapM/zipWithM_)
-
-{-# INLINE peek1 #-}
-peek1 :: Storable a => (a -> b) -> Ptr c -> IO b
-peek1 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   return $ f x
-
-{-# INLINE peek2 #-}
-peek2 :: Storable a => (a -> a -> b) -> Ptr c -> IO b
-peek2 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   return $ f x y
-
-{-# INLINE peek3 #-}
-peek3 :: Storable a => (a -> a -> a -> b) -> Ptr c -> IO b
-peek3 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   z <- peekElemOff (castPtr ptr) 2
-   return $ f x y z
-
-{-# INLINE peek4 #-}
-peek4 :: Storable a => (a -> a -> a -> a -> b) -> Ptr c -> IO b
-peek4 f ptr = do
-   x <- peekElemOff (castPtr ptr) 0
-   y <- peekElemOff (castPtr ptr) 1
-   z <- peekElemOff (castPtr ptr) 2
-   w <- peekElemOff (castPtr ptr) 3
-   return $ f x y z w
