@@ -23,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    InterleavedArrays(..), interleavedArrays,
 
    -- * Enabling Arrays
-   ClientArrayType(..), clientState,
+   ClientArrayType(..), clientState, clientActiveTexture,
 
    -- * Dereferencing and Rendering
    arrayElement, drawArrays, multiDrawArrays, drawElements, multiDrawElements,
@@ -52,7 +52,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetFogCoordinateArrayType,GetFogCoordinateArrayStride,
             GetTextureCoordArraySize,GetTextureCoordArrayType,
             GetTextureCoordArrayStride,GetEdgeFlagArrayStride,
-            GetMaxElementsVertices,GetMaxElementsIndices),
+            GetMaxElementsVertices,GetMaxElementsIndices,
+            GetClientActiveTexture),
    getInteger1,
    GetPointervPName(VertexArrayPointer,NormalArrayPointer,ColorArrayPointer,
                     SecondaryColorArrayPointer,IndexArrayPointer,
@@ -62,6 +63,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get),
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.VertexSpec (
+   TextureUnit(TextureUnit) )
 
 --------------------------------------------------------------------------------
 
@@ -369,6 +372,16 @@ foreign import CALLCONV unsafe "glEnableClientState" glEnableClientState ::
 
 foreign import CALLCONV unsafe "glDisableClientState" glDisableClientState ::
    GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+clientActiveTexture :: StateVar TextureUnit
+clientActiveTexture =
+   makeStateVar
+     (getInteger1 (TextureUnit . fromIntegral) GetClientActiveTexture)
+     (\(TextureUnit u) -> glClientActiveTextureARB u)
+
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glClientActiveTextureARB,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 

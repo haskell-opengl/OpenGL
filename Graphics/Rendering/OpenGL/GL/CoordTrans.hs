@@ -24,7 +24,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    MatrixOrder(..), Matrix, withNewMatrix, withMatrix, MatrixElement(..),
    loadIdentity,
    ortho, frustum,
-   activeTexture, clientActiveTexture,
+   activeTexture,
    matrixExcursion, unsafeMatrixExcursion,
 
    -- * Normal Transformation
@@ -56,8 +56,7 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
             GetModelviewMatrix,GetProjectionMatrix,GetTextureMatrix,
-            GetColorMatrix,GetMatrixPalette,
-            GetActiveTexture,GetClientActiveTexture),
+            GetColorMatrix,GetMatrixPalette,GetActiveTexture),
    getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)),
@@ -322,14 +321,6 @@ activeTexture =
      (\(TextureUnit u) -> glActiveTextureARB u)
 
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum -> IO ())   
-
-clientActiveTexture :: StateVar TextureUnit
-clientActiveTexture =
-   makeStateVar
-     (getInteger1 (TextureUnit . fromIntegral) GetClientActiveTexture)
-     (\(TextureUnit u) -> glClientActiveTextureARB u)
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glClientActiveTextureARB,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 
