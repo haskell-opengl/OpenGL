@@ -206,7 +206,7 @@ instance VertexComponent GLdouble where
 
 -- | Specify the (/x/, /y/, /z/, /w/) coordinates of a four-dimensional vertex.
 -- This must only be done during
--- 'Graphics.Rendering.OpenGL.GL.BeginEnd.withBeginMode', otherwise the
+-- 'Graphics.Rendering.OpenGL.GL.BeginEnd.renderPrimitive', otherwise the
 -- behaviour is unspecified. The current values of the auxiliary vertex
 -- attributes are associated with the vertex.
 -- 

@@ -34,7 +34,7 @@ module Graphics.Rendering.OpenGL.GL (
 import Graphics.Rendering.OpenGL.GL.BasicTypes  hiding (
    marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.BeginEnd hiding (
-   unmarshalBeginMode, unmarshalEdgeFlag )
+   unmarshalPrimitiveMode, unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Clipping
 import Graphics.Rendering.OpenGL.GL.Colors
 import Graphics.Rendering.OpenGL.GL.CoordTrans

@@ -33,7 +33,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex2(..) )
 -- following sequence:
 --
 -- @
---    'Graphics.Rendering.OpenGL.GL.BeginEnd.withBeginMode' 'Graphics.Rendering.OpenGL.GL.BeginEnd.Polygon' $ do
+--    'Graphics.Rendering.OpenGL.GL.BeginEnd.renderPrimitive' 'Graphics.Rendering.OpenGL.GL.BeginEnd.Polygon' $ do
 --        'Graphics.Rendering.OpenGL.GL.VertexSpec.vertex' ('Vertex2' x1 y1)
 --        'Graphics.Rendering.OpenGL.GL.VertexSpec.vertex' ('Vertex2' x2 y1)
 --        'Graphics.Rendering.OpenGL.GL.VertexSpec.vertex' ('Vertex2' x2 y2)

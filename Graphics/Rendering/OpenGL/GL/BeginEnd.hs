@@ -16,9 +16,9 @@
 
 module Graphics.Rendering.OpenGL.GL.BeginEnd (
    -- * Begin and End Objects
-   BeginMode(..),
-   unmarshalBeginMode,   -- used only internally
-   withBeginMode,
+   PrimitiveMode(..),
+   unmarshalPrimitiveMode,   -- used only internally
+   renderPrimitive,
 
    -- * Polygon Edges
    EdgeFlag(..),
@@ -35,11 +35,11 @@ import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
--- | Specification of the way the vertices given during 'withBeginMode' are
+-- | Specification of the way the vertices given during 'renderPrimitive' are
 -- interpreted. In the description of the constructors, /n/ is an integer count
 -- starting at one, and /N/ is the total number of vertices specified.
 
-data BeginMode =
+data PrimitiveMode =
      Points
      -- ^ Treats each vertex as a single point. Vertex /n/ defines point /n/.
      -- /N/ points are drawn.
@@ -82,8 +82,8 @@ data BeginMode =
      -- polygon.
    deriving ( Eq, Ord, Show )
 
-marshalBeginMode :: BeginMode -> GLenum
-marshalBeginMode x = case x of
+marshalPrimitiveMode :: PrimitiveMode -> GLenum
+marshalPrimitiveMode x = case x of
    Points -> 0x0
    Lines -> 0x1
    LineLoop -> 0x2
@@ -95,8 +95,8 @@ marshalBeginMode x = case x of
    QuadStrip -> 0x8
    Polygon -> 0x9
 
-unmarshalBeginMode :: GLenum -> BeginMode
-unmarshalBeginMode x
+unmarshalPrimitiveMode :: GLenum -> PrimitiveMode
+unmarshalPrimitiveMode x
    | x == 0x0 = Points
    | x == 0x1 = Lines
    | x == 0x2 = LineLoop
@@ -107,7 +107,7 @@ unmarshalBeginMode x
    | x == 0x7 = Quads
    | x == 0x8 = QuadStrip
    | x == 0x9 = Polygon
-   | otherwise = error ("unmarshalBeginMode: illegal value " ++ show x)
+   | otherwise = error ("unmarshalPrimitiveMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
@@ -143,8 +143,8 @@ unmarshalBeginMode x
 -- and setting 'edgeFlag' are allowed. Writing the respective state variables
 -- is allowed in the delimited action, too.
 --
--- Regardless of the chosen 'BeginMode', there is no limit to the number of
--- vertices that can be defined during a single 'withBeginMode'. Lines,
+-- Regardless of the chosen 'PrimitiveMode', there is no limit to the number of
+-- vertices that can be defined during a single 'renderPrimitive'. Lines,
 -- triangles, quadrilaterals, and polygons that are incompletely specified are
 -- not drawn. Incomplete specification results when either too few vertices are
 -- provided to specify even a single primitive or when an incorrect multiple of
@@ -156,10 +156,10 @@ unmarshalBeginMode x
 -- a polygon. Modes that require a certain multiple of vertices are 'Lines' (2),
 -- 'Triangles' (3), 'Quads' (4), and 'QuadStrip' (2).
 
-withBeginMode :: BeginMode -> IO a -> IO a
-withBeginMode beginMode action = do
+renderPrimitive :: PrimitiveMode -> IO a -> IO a
+renderPrimitive beginMode action = do
    -- ToDo: Should we use bracket here or is it too costly?
-   glBegin (marshalBeginMode beginMode)
+   glBegin (marshalPrimitiveMode beginMode)
    val <- action
    glEnd
    return val
@@ -186,7 +186,7 @@ unmarshalEdgeFlag f
    | otherwise            = BeginsInteriorEdge
 
 -- | Each vertex of a polygon, separate triangle, or separate quadrilateral
--- specified during 'withBeginMode' is marked as the start of either a boundary
+-- specified during 'renderPrimitive' is marked as the start of either a boundary
 -- or nonboundary (interior) edge.
 --
 -- The vertices of connected triangles and connected quadrilaterals are always
@@ -198,7 +198,7 @@ unmarshalEdgeFlag f
 -- 'Graphics.Rendering.OpenGL.GL.ToDo.Line'.
 --
 -- Note that the current edge flag can be updated at any time, in particular
--- during 'withBeginMode'.
+-- during 'renderPrimitive'.
 
 edgeFlag :: StateVar EdgeFlag
 edgeFlag =

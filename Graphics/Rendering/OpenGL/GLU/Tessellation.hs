@@ -47,7 +47,7 @@ import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, marshalGLboolean, GLclampf, GLdouble, GLenum )
 import Graphics.Rendering.OpenGL.GL.BeginEnd (
-   BeginMode, unmarshalBeginMode,
+   PrimitiveMode, unmarshalPrimitiveMode,
    EdgeFlag(BeginsInteriorEdge), unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
@@ -341,7 +341,7 @@ collectTriangles _            = error "triangles left"
 
 --------------------------------------------------------------------------------
 
-data Primitive v = Primitive BeginMode [AnnotatedVertex v]
+data Primitive v = Primitive PrimitiveMode [AnnotatedVertex v]
    deriving ( Eq, Ord )
 
 newtype SimplePolygon v = SimplePolygon [Primitive v]
@@ -351,7 +351,7 @@ tessellate :: Storable v => Tessellator SimplePolygon v
 tessellate windingRule tolerance normal combiner complexPoly = do
 
    beginModeState <- newIORef undefined
-   let setBeginMode = writeIORef beginModeState
+   let setPrimitiveMode = writeIORef beginModeState
 
    vertices <- newIORef []
    let addVertex v = modifyIORef vertices (v:)
@@ -367,7 +367,7 @@ tessellate windingRule tolerance normal combiner complexPoly = do
 
    withTessellatorObj $ \tessObj -> do
       setTessellatorProperties tessObj windingRule tolerance normal False
-      withBeginCallback tessObj setBeginMode $
+      withBeginCallback tessObj setPrimitiveMode $
          withVertexCallback tessObj addVertex $
             withEndCallback tessObj finishPrimitive $
                checkForError tessObj $
@@ -459,13 +459,13 @@ foreign import CALLCONV safe "gluTessVertex" gluTessVertex ::
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (begin)
 
-type BeginCallback  = BeginMode -> IO ()
+type BeginCallback  = PrimitiveMode -> IO ()
 
 type BeginCallback' = GLenum -> IO ()
 
 withBeginCallback :: TessellatorObj v -> BeginCallback -> IO a -> IO a
 withBeginCallback tessObj beginCallback action = do
-   callbackPtr <- makeBeginCallback (beginCallback . unmarshalBeginMode)
+   callbackPtr <- makeBeginCallback (beginCallback . unmarshalPrimitiveMode)
    setBeginCallback tessObj (marshalTessCallback TessBegin) callbackPtr
    action `finally` freeHaskellFunPtr callbackPtr
 
