@@ -318,10 +318,9 @@ activeTexture :: StateVar TextureUnit
 activeTexture =
    makeStateVar
      (getInteger1 (TextureUnit . fromIntegral) GetActiveTexture)
-     (\(TextureUnit u) -> glActiveTexture u)
+     (\(TextureUnit u) -> glActiveTextureARB u)
 
-foreign import CALLCONV unsafe "glActiveTexture" glActiveTexture ::
-   GLenum -> IO ()
+EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum -> IO ())   
 
 --------------------------------------------------------------------------------
 
