@@ -30,13 +30,18 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLubyte, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.Colors ( Face(..) )
+import Graphics.Rendering.OpenGL.GL.PixelRectangles (
+   PixelStoreDirection(..), rowLength, skipRows, skipPixels )
 import Graphics.Rendering.OpenGL.GL.PolygonMode (
    PolygonMode(..), marshalPolygonMode, unmarshalPolygonMode )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
             GetPolygonOffsetUnits),
    getInteger2, getEnum1, getFloat1, getArrayWith )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.SavingState (
+   ClientAttributeGroup(PixelStoreAttributes), preservingClientAttrib )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   HasSetter(($=)), StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -74,13 +79,30 @@ getPolygonStippleBytes (PolygonStipple pattern) = pattern
 
 polygonStipple :: StateVar (Maybe PolygonStipple)
 polygonStipple =
-   makeStateVarMaybe
-      (return CapPolygonStipple)
-      (getArrayWith PolygonStipple numPolygonStippleBytes glGetPolygonStipple)
-      (\(PolygonStipple pattern) -> withArray pattern $ glPolygonStipple)
+   makeStateVarMaybe (return CapPolygonStipple)
+                     getPolygonStipple
+                     setPolygonStipple
+
+getPolygonStipple :: IO PolygonStipple
+getPolygonStipple = withoutGaps Pack $
+   getArrayWith PolygonStipple numPolygonStippleBytes glGetPolygonStipple
+
+-- Note: No need to set rowAlignment, our memory allocator always returns a
+-- region which is at least 8-byte aligned (the maximum)
+withoutGaps :: PixelStoreDirection -> IO a -> IO a
+withoutGaps direction action =
+   preservingClientAttrib [ PixelStoreAttributes ] $ do
+      rowLength  direction $= 0
+      skipRows   direction $= 0
+      skipPixels direction $= 0
+      action
 
 foreign import CALLCONV unsafe "glGetPolygonStipple" glGetPolygonStipple ::
    Ptr GLubyte -> IO ()
+
+setPolygonStipple :: PolygonStipple -> IO ()
+setPolygonStipple (PolygonStipple pattern) = withoutGaps Unpack $
+   withArray pattern $ glPolygonStipple
 
 foreign import CALLCONV unsafe "glPolygonStipple" glPolygonStipple ::
    Ptr GLubyte -> IO ()
