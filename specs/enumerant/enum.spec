@@ -796,10 +796,10 @@ GetPName enum:
 	use TextureTarget TEXTURE_3D					# 1 I
 	MAX_3D_TEXTURE_SIZE				= 0x8073	# 1 I
 
-	use EnableCap MULTISAMPLE_SGIS					# 1 I, ARB Extension #5: ARB_multisample
-	use EnableCap SAMPLE_ALPHA_TO_MASK_SGIS				# 1 I, ARB Extension #5: ARB_multisample
-	use EnableCap SAMPLE_ALPHA_TO_ONE_SGIS				# 1 I, ARB Extension #5: ARB_multisample
-	use EnableCap SAMPLE_MASK_SGIS					# 1 I, ARB Extension #5: ARB_multisample
+	use EnableCap MULTISAMPLE					# 1 I, ARB Extension #5: ARB_multisample
+	use EnableCap SAMPLE_ALPHA_TO_COVERAGE				# 1 I, ARB Extension #5: ARB_multisample
+	use EnableCap SAMPLE_ALPHA_TO_ONE				# 1 I, ARB Extension #5: ARB_multisample
+	use EnableCap SAMPLE_COVERAGE					# 1 I, ARB Extension #5: ARB_multisample
 	SAMPLE_BUFFERS					= 0x80A8	# 1 I, ARB Extension #5: ARB_multisample
 	SAMPLES						= 0x80A9	# 1 I, ARB Extension #5: ARB_multisample
 	SAMPLE_COVERAGE_VALUE				= 0x80AA	# 1 F, ARB Extension #5: ARB_multisample
@@ -1399,38 +1399,38 @@ TextureEnvSource enum:
 	CONSTANT					= 0x8576	# ARB Extension #17: ARB_texture_env_combine
 	PRIMARY_COLOR					= 0x8577	# ARB Extension #17: ARB_texture_env_combine
 	PREVIOUS					= 0x8578	# ARB Extension #17: ARB_texture_env_combine
-	use TextureUnit TEXTURE0			= 0x84C0	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE1			= 0x84C1	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE2			= 0x84C2	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE3			= 0x84C3	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE4			= 0x84C4	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE5			= 0x84C5	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE6			= 0x84C6	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE7			= 0x84C7	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE8			= 0x84C8	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE9			= 0x84C9	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE10			= 0x84CA	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE11			= 0x84CB	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE12			= 0x84CC	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE13			= 0x84CD	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE14			= 0x84CE	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE15			= 0x84CF	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE16			= 0x84D0	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE17			= 0x84D1	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE18			= 0x84D2	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE19			= 0x84D3	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE20			= 0x84D4	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE21			= 0x84D5	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE22			= 0x84D6	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE23			= 0x84D7	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE24			= 0x84D8	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE25			= 0x84D9	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE26			= 0x84DA	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE27			= 0x84DB	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE28			= 0x84DC	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE29			= 0x84DD	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE30			= 0x84DE	# ARB Extension #18: ARB_texture_env_crossbar
-	use TextureUnit TEXTURE31			= 0x84DF	# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE0					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE1					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE2					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE3					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE4					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE5					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE6					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE7					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE8					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE9					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE10					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE11					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE12					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE13					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE14					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE15					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE16					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE17					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE18					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE19					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE20					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE21					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE22					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE23					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE24					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE25					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE26					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE27					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE28					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE29					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE30					# ARB Extension #18: ARB_texture_env_crossbar
+	use TextureUnit TEXTURE31					# ARB Extension #18: ARB_texture_env_crossbar
 
 TextureEnvTarget enum:
 	TEXTURE_ENV					= 0x2300
