@@ -8,15 +8,15 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for glGetTexLevelParameter-related stuff.
+-- This module offers various texture queries.
 --
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
-   textureInternalFormat, textureSize1D, textureSize2D, textureSize3D,
-   textureBorder, textureRGBASizes, textureIntensitySize, textureLuminanceSize,
-   textureIndexSize, textureDepthBits, textureCompressedImageSize,
-   textureProxyOK
+   TextureQuery, textureInternalFormat, textureSize1D, textureSize2D,
+   textureSize3D, textureBorder, textureRGBASizes, textureIntensitySize,
+   textureLuminanceSize, textureIndexSize, textureDepthBits,
+   textureCompressedImageSize, textureProxyOK
 ) where
 
 import Control.Monad ( liftM2, liftM3, liftM4 )
@@ -75,20 +75,22 @@ marshalTexLevelParameter x = case x of
 
 --------------------------------------------------------------------------------
 
+type TextureQuery a = TextureTarget -> Level -> GettableStateVar a
+
 -- ToDo: cube maps
-textureInternalFormat :: TextureTarget -> Level -> GettableStateVar PixelInternalFormat
+textureInternalFormat :: TextureQuery PixelInternalFormat
 textureInternalFormat t level =
    makeGettableStateVar $
       getTexLevelParameteri (unmarshalPixelInternalFormat . fromIntegral) NoProxy t level TextureInternalFormat
 
 -- ToDo: cube maps
-textureSize1D :: TextureTarget -> Level -> GettableStateVar TextureSize1D
+textureSize1D :: TextureQuery TextureSize1D
 textureSize1D t level =
    makeGettableStateVar $
       getTexLevelParameteri (TextureSize1D . fromIntegral) NoProxy t level TextureWidth
 
 -- ToDo: cube maps
-textureSize2D :: TextureTarget -> Level -> GettableStateVar TextureSize2D
+textureSize2D :: TextureQuery TextureSize2D
 textureSize2D t level =
    makeGettableStateVar $
       liftM2 TextureSize2D
@@ -96,7 +98,7 @@ textureSize2D t level =
              (getTexLevelParameteri fromIntegral NoProxy t level TextureHeight)
 
 -- ToDo: cube maps
-textureSize3D :: TextureTarget -> Level -> GettableStateVar TextureSize3D
+textureSize3D :: TextureQuery TextureSize3D
 textureSize3D t level =
    makeGettableStateVar $
       liftM3 TextureSize3D
@@ -105,13 +107,13 @@ textureSize3D t level =
              (getTexLevelParameteri fromIntegral NoProxy t level TextureDepth )
 
 -- ToDo: cube maps
-textureBorder :: TextureTarget -> Level -> GettableStateVar Border
+textureBorder :: TextureQuery Border
 textureBorder t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureBorder
 
 -- ToDo: cube maps
-textureRGBASizes :: TextureTarget -> Level -> GettableStateVar (Color4 GLsizei)
+textureRGBASizes :: TextureQuery (Color4 GLsizei)
 textureRGBASizes t level =
    makeGettableStateVar $
       liftM4 Color4
@@ -121,31 +123,31 @@ textureRGBASizes t level =
              (getTexLevelParameteri fromIntegral NoProxy t level TextureAlphaSize)
 
 -- ToDo: cube maps
-textureIntensitySize :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureIntensitySize :: TextureQuery GLsizei
 textureIntensitySize t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureIntensitySize
 
 -- ToDo: cube maps
-textureLuminanceSize :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureLuminanceSize :: TextureQuery GLsizei
 textureLuminanceSize t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureLuminanceSize
 
 -- ToDo: cube maps
-textureIndexSize :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureIndexSize :: TextureQuery GLsizei
 textureIndexSize t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level TextureIndexSize
 
 -- ToDo: cube maps
-textureDepthBits :: TextureTarget -> Level -> GettableStateVar GLsizei
+textureDepthBits :: TextureQuery GLsizei
 textureDepthBits t level =
    makeGettableStateVar $
       getTexLevelParameteri fromIntegral NoProxy t level DepthBits
 
 -- ToDo: cube maps
-textureCompressedImageSize :: TextureTarget -> Level -> GettableStateVar (Maybe GLsizei)
+textureCompressedImageSize :: TextureQuery (Maybe GLsizei)
 textureCompressedImageSize t level =
    makeGettableStateVar $ do
       isCompressed <- getTexLevelParameteri (unmarshalGLboolean . fromIntegral) NoProxy t level TextureCompressed
@@ -154,7 +156,7 @@ textureCompressedImageSize t level =
          else return Nothing
 
 -- ToDo: cube maps
-textureProxyOK :: TextureTarget -> Level -> GettableStateVar Bool
+textureProxyOK :: TextureQuery Bool
 textureProxyOK t level =
    makeGettableStateVar $
       getTexLevelParameteri (unmarshalGLboolean . fromIntegral) Proxy t level TextureWidth
