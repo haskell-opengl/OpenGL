@@ -16,7 +16,7 @@
 module Graphics.Rendering.OpenGL.GL.BeginEnd (
    -- * Begin and End Objects
    PrimitiveMode(..),
-   renderPrimitive,
+   renderPrimitive, unsafeRenderPrimitive,
 
    -- * Polygon Edges
    EdgeFlag(..),
@@ -24,7 +24,9 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
       
 ) where
 
+#ifndef __NHC__
 import Control.Exception ( finally )
+#endif
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLboolean )
 import Graphics.Rendering.OpenGL.GL.BeginEndInternal (
    PrimitiveMode(..), marshalPrimitiveMode,
@@ -81,12 +83,25 @@ import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 -- 'Triangles' (3), 'Quads' (4), and 'QuadStrip' (2).
 
 renderPrimitive :: PrimitiveMode -> IO a -> IO a
+#ifdef __NHC__
+renderPrimitive = unsafeRenderPrimitive
+#else
 renderPrimitive beginMode action =
    (do glBegin (marshalPrimitiveMode beginMode) ; action) `finally` glEnd
-
+#endif
 foreign import CALLCONV unsafe "glBegin" glBegin :: GLenum -> IO ()
 
 foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
+
+-- | A more efficient, but potentially dangerous version of 'renderPrimitive':
+-- The given action is not allowed to throw an exception.
+
+unsafeRenderPrimitive :: PrimitiveMode -> IO a -> IO a
+unsafeRenderPrimitive beginMode action = do
+   glBegin (marshalPrimitiveMode beginMode)
+   ret <- action
+   glEnd
+   return ret
 
 --------------------------------------------------------------------------------
 

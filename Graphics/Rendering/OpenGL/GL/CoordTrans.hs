@@ -25,7 +25,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    loadIdentity,
    ortho, frustum,
    activeTexture,
-   matrixExcursion,
+   matrixExcursion, unsafeMatrixExcursion,
 
    -- * Normal Transformation
    rescaleNormal, normalize,
@@ -34,7 +34,9 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
+#ifndef __NHC__
 import Control.Exception ( finally )
+#endif
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
@@ -329,14 +331,29 @@ foreign import CALLCONV unsafe "glActiveTexture" glActiveTexture ::
 -- previous state). The returned value is that of the given action.
 
 matrixExcursion :: IO a -> IO a
+#ifdef __NHC__
+matrixExcursion = unsafeMatrixExcursion
+#else
 matrixExcursion action = do
    -- performance paranoia: No (un-)marshaling by avoiding matrixMode
    mode <- getInteger1 fromIntegral GetMatrixMode
    (do glPushMatrix ; action) `finally` (do glMatrixMode mode ; glPopMatrix)
+#endif
 
 foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
 
 foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
+
+-- | A more efficient, but potentially dangerous version of 'matrixExcursion':
+-- The given action is not allowed to throw an exception or change the
+-- current matrix mode permanently.
+
+unsafeMatrixExcursion :: IO a -> IO a
+unsafeMatrixExcursion action = do
+   glPushMatrix
+   ret <- action
+   glPopMatrix
+   return ret
 
 --------------------------------------------------------------------------------
 
