@@ -15,18 +15,23 @@
 module Graphics.Rendering.OpenGL.GL.Polygons (
    polygonSmooth, cullFace,
    PolygonStipple, makePolygonStipple, getPolygonStippleBytes, polygonStipple,
-   PolygonMode(..), polygonMode
+   PolygonMode(..), polygonMode, polygonOffset,
+   polygonOffsetPoint, polygonOffsetLine, polygonOffsetFill
 ) where
 
 import Foreign.Marshal.Array ( allocaArray, peekArray, withArray )
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple), makeCapability )
+   EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple,
+             CapPolygonOffsetPoint,CapPolygonOffsetLine,CapPolygonOffsetFill),
+   makeCapability )
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetCullFaceMode,GetPolygonMode), getInteger1, getInteger2 )
+   GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
+            GetPolygonOffsetUnits),
+   getInteger1, getInteger2, getFloat1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
 
@@ -143,3 +148,31 @@ setPolygonMode (front, back) = do
 
 foreign import CALLCONV unsafe "glPolygonMode" glPolygonMode ::
    GLenum -> GLenum -> IO ()
+
+--------------------------------------------------------------------------------
+
+polygonOffset :: StateVar (GLfloat, GLfloat)
+polygonOffset = makeStateVar getPolygonOffset setPolygonOffset
+
+getPolygonOffset :: IO (GLfloat, GLfloat)
+getPolygonOffset = do
+   factor <- getFloat1 id GetPolygonOffsetFactor
+   units  <- getFloat1 id GetPolygonOffsetUnits
+   return (factor, units)
+
+setPolygonOffset :: (GLfloat, GLfloat) -> IO ()
+setPolygonOffset (factor, units) = glPolygonOffset factor units
+
+foreign import CALLCONV unsafe "glPolygonOffset" glPolygonOffset ::
+   GLfloat -> GLfloat -> IO ()
+
+--------------------------------------------------------------------------------
+
+polygonOffsetPoint :: StateVar Bool
+polygonOffsetPoint = makeCapability CapPolygonOffsetPoint
+
+polygonOffsetLine :: StateVar Bool
+polygonOffsetLine = makeCapability CapPolygonOffsetLine
+
+polygonOffsetFill :: StateVar Bool
+polygonOffsetFill = makeCapability CapPolygonOffsetFill
