@@ -1,14 +1,14 @@
 --------------------------------------------------------------------------------
 -- 
 -- Program     :  Preprocess
--- Copyright   :  (c) Sven Panne 2002
+-- Copyright   :  (c) Sven Panne 2003
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven_panne@yahoo.com
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- $Id: Preprocess.hs,v 1.1 2002/03/02 15:50:54 panne Exp $
+-- $Id: Preprocess.hs,v 1.2 2003/03/30 13:15:09 panne Exp $
 --
 -- The .spec files from the SI are normally processed by Perl/AWK scripts and
 -- have  therefore a rather ugly line-oriented syntax. To make things more
