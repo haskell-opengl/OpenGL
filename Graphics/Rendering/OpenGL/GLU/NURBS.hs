@@ -14,7 +14,8 @@
 
 module Graphics.Rendering.OpenGL.GLU.NURBS (
    withNURBSObj,
-   checkForError,
+   withBeginCallback, withVertexCallback, withNormalCallback, withColorCallback,
+   withEndCallback, checkForError,
    nurbsBeginEndCurve, gluNurbsCurve,
    nurbsBeginEndSurface, gluNurbsSurface,
    nurbsBeginEndTrim, gluPwlCurve,
@@ -36,6 +37,9 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans (
    Position(..), Size(..), MatrixOrder(ColumnMajor), MatrixComponent, Matrix(..) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket, bracket_ )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3, Normal3, Color4 )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordOutOfMemory )
 
@@ -98,6 +102,104 @@ safeDeleteNurbsRenderer nurbsObj =
 
 foreign import CALLCONV safe "gluDeleteNurbsRenderer"
    gluDeleteNurbsRenderer :: NURBSObj -> IO ()
+
+--------------------------------------------------------------------------------
+-- chapter 7.2: Callbacks (begin)
+
+type BeginCallback = PrimitiveMode -> IO ()
+
+type BeginCallback' = GLenum -> IO ()
+
+withBeginCallback :: NURBSObj -> BeginCallback -> IO a -> IO a
+withBeginCallback nurbsObj beginCallback action =
+   bracket (makeBeginCallback (beginCallback . unmarshalPrimitiveMode))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setBeginCallback nurbsObj (marshalNURBSCallback Begin) callbackPtr
+      action
+
+foreign import ccall "wrapper" makeBeginCallback ::
+   BeginCallback' -> IO (FunPtr BeginCallback')
+
+foreign import CALLCONV safe "gluNurbsCallback"
+   setBeginCallback :: NURBSObj -> GLenum -> FunPtr BeginCallback' -> IO ()
+
+--------------------------------------------------------------------------------
+-- chapter 7.2: Callbacks (vertex)
+
+type VertexCallback = Vertex3 GLfloat -> IO ()
+
+type VertexCallback' = Ptr (Vertex3 GLfloat) -> IO ()
+
+withVertexCallback :: NURBSObj -> VertexCallback -> IO a -> IO a
+withVertexCallback nurbsObj vertexCallback action =
+   bracket (makeVertexCallback (\p -> peek p >>= vertexCallback))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setVertexCallback nurbsObj (marshalNURBSCallback Vertex) callbackPtr
+      action
+
+foreign import ccall "wrapper" makeVertexCallback ::
+   VertexCallback' -> IO (FunPtr VertexCallback')
+
+foreign import CALLCONV safe "gluNurbsCallback"
+   setVertexCallback :: NURBSObj -> GLenum -> FunPtr VertexCallback' -> IO ()
+
+--------------------------------------------------------------------------------
+-- chapter 7.2: Callbacks (normal)
+
+type NormalCallback = Normal3 GLfloat -> IO ()
+
+type NormalCallback' = Ptr (Normal3 GLfloat) -> IO ()
+
+withNormalCallback :: NURBSObj -> NormalCallback -> IO a -> IO a
+withNormalCallback nurbsObj normalCallback action =
+   bracket (makeNormalCallback (\p -> peek p >>= normalCallback))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setNormalCallback nurbsObj (marshalNURBSCallback Normal) callbackPtr
+      action
+
+foreign import ccall "wrapper" makeNormalCallback ::
+   NormalCallback' -> IO (FunPtr NormalCallback')
+
+foreign import CALLCONV safe "gluNurbsCallback"
+   setNormalCallback :: NURBSObj -> GLenum -> FunPtr NormalCallback' -> IO ()
+
+--------------------------------------------------------------------------------
+-- chapter 7.2: Callbacks (color)
+
+type ColorCallback = Color4 GLfloat -> IO ()
+
+type ColorCallback' = Ptr (Color4 GLfloat) -> IO ()
+
+withColorCallback :: NURBSObj -> ColorCallback -> IO a -> IO a
+withColorCallback nurbsObj colorCallback action =
+   bracket (makeColorCallback (\p -> peek p >>= colorCallback))
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setColorCallback nurbsObj (marshalNURBSCallback Color) callbackPtr
+      action
+
+foreign import ccall "wrapper" makeColorCallback ::
+   ColorCallback' -> IO (FunPtr ColorCallback')
+
+foreign import CALLCONV safe "gluNurbsCallback"
+   setColorCallback :: NURBSObj -> GLenum -> FunPtr ColorCallback' -> IO ()
+
+--------------------------------------------------------------------------------
+-- chapter 7.2: Callbacks (end)
+
+type EndCallback = IO ()
+
+withEndCallback :: NURBSObj -> EndCallback -> IO a -> IO a
+withEndCallback nurbsObj endCallback action =
+   bracket (makeEndCallback endCallback)
+           freeHaskellFunPtr $ \callbackPtr -> do
+      setEndCallback nurbsObj (marshalNURBSCallback End) callbackPtr
+      action
+
+foreign import ccall "wrapper" makeEndCallback ::
+   EndCallback -> IO (FunPtr EndCallback)
+
+foreign import CALLCONV safe "gluNurbsCallback"
+   setEndCallback :: NURBSObj -> GLenum -> FunPtr EndCallback -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (error)
@@ -217,14 +319,14 @@ foreign import CALLCONV safe "gluNurbsProperty"
 --------------------------------------------------------------------------------
 
 data NURBSMode =
-     NurbsTessellator
-   | NurbsRenderer
+     NURBSTessellator
+   | NURBSRenderer
    deriving ( Eq, Ord, Show )
 
 marshalNURBSMode :: NURBSMode -> GLfloat
 marshalNURBSMode x = case x of
-   NurbsTessellator -> 100161
-   NurbsRenderer -> 100162
+   NURBSTessellator -> 100161
+   NURBSRenderer -> 100162
 
 setNURBSMode :: NURBSObj -> NURBSMode -> IO ()
 setNURBSMode nurbsObj = setNURBSProperty nurbsObj NURBSMode . marshalNURBSMode
