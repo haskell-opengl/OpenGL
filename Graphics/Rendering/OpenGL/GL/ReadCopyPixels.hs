@@ -34,6 +34,7 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelFormat )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetReadBuffer), getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
 --------------------------------------------------------------------------------
 
@@ -47,8 +48,10 @@ foreign import CALLCONV unsafe "glReadPixels" glReadPixels ::
 --------------------------------------------------------------------------------
 
 readBuffer :: StateVar BufferMode
-readBuffer = makeStateVar (getEnum1 unmarshalBufferMode GetReadBuffer)
-                          (glReadBuffer . marshalBufferMode)
+readBuffer =
+   makeStateVar
+      (getEnum1 unmarshalBufferMode GetReadBuffer)
+      (maybe recordInvalidValue glReadBuffer . marshalBufferMode)
 
 foreign import CALLCONV unsafe "glReadBuffer" glReadBuffer :: GLenum -> IO ()
 

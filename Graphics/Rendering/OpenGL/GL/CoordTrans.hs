@@ -70,6 +70,8 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(TextureUnit) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
+   recordInvalidEnum, recordInvalidValue )
 
 --------------------------------------------------------------------------------
 
@@ -150,17 +152,17 @@ data MatrixMode =
    | MatrixPalette      -- ^ The matrix palette stack.
    deriving ( Eq, Ord, Show )
 
-marshalMatrixMode :: MatrixMode -> GLenum
+marshalMatrixMode :: MatrixMode -> Maybe GLenum
 marshalMatrixMode x = case x of
    Modelview i
-      | i == 0    -> 0x1700
-      | i == 1    -> 0x850a
-      | i <= 31   -> 0x8722 + fromIntegral i
-      | otherwise -> error ("marshalMatrixMode: illegal value " ++ show i)
-   Projection -> 0x1701
-   Texture -> 0x1702
-   Color -> 0x1800
-   MatrixPalette -> 0x8840
+      | i == 0    -> Just 0x1700
+      | i == 1    -> Just 0x850a
+      | i <= 31   -> Just (0x8722 + fromIntegral i)
+      | otherwise -> Nothing
+   Projection -> Just 0x1701
+   Texture -> Just 0x1702
+   Color -> Just 0x1800
+   MatrixPalette -> Just 0x8840
 
 unmarshalMatrixMode :: GLenum -> MatrixMode
 unmarshalMatrixMode x
@@ -187,8 +189,7 @@ matrixModeToGetStackDepth x =  case x of
    Projection    -> GetProjectionStackDepth
    Texture       -> GetTextureStackDepth
    Color         -> GetColorMatrixStackDepth
-   MatrixPalette ->
-    error "OpenGL provides no way to get the current matrix palette stack depth"
+   MatrixPalette -> error "matrixModeToGetStackDepth: impossible"
 
 matrixModeToGetMaxStackDepth :: MatrixMode -> GetPName
 matrixModeToGetMaxStackDepth x = case x of
@@ -206,7 +207,7 @@ matrixModeToGetMaxStackDepth x = case x of
 matrixMode :: StateVar MatrixMode
 matrixMode =
    makeStateVar (getEnum1 unmarshalMatrixMode GetMatrixMode)
-                (glMatrixMode . marshalMatrixMode)
+                (maybe recordInvalidValue glMatrixMode . marshalMatrixMode)
 
 foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
 
@@ -423,7 +424,10 @@ foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
 --------------------------------------------------------------------------------
 
 stackDepth :: MatrixMode -> GettableStateVar GLsizei
-stackDepth = makeGettableStateVar . getSizei1 id . matrixModeToGetStackDepth
+stackDepth m =
+   makeGettableStateVar $ case m of
+      MatrixPalette -> do recordInvalidEnum ; return 0
+      _ -> getSizei1 id (matrixModeToGetStackDepth m)
 
 maxStackDepth :: MatrixMode -> GettableStateVar GLsizei
 maxStackDepth =

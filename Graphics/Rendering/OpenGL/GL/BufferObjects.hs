@@ -54,6 +54,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( ClientArrayType(..) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -204,11 +205,13 @@ clientArrayTypeToGetPName x = case x of
    EdgeFlagArray -> GetEdgeFlagArrayBufferBinding
    FogCoordArray -> GetFogCoordArrayBufferBinding
    SecondaryColorArray -> GetSecondaryColorArrayBufferBinding
-   MatrixIndexArray -> error "clientArrayTypeToGetPName: MatrixIndexArray"
+   MatrixIndexArray -> error "clientArrayTypeToGetPName: impossible"
 
 arrayBufferBinding :: ClientArrayType -> GettableStateVar (Maybe BufferObject)
-arrayBufferBinding =
-   makeGettableStateVar . bufferQuery clientArrayTypeToGetPName
+arrayBufferBinding t =
+   makeGettableStateVar $ case t of
+      MatrixIndexArray -> do recordInvalidEnum ; return Nothing
+      _ -> bufferQuery clientArrayTypeToGetPName t
 
 --------------------------------------------------------------------------------
 

@@ -61,21 +61,21 @@ data BufferMode =
      -- ^ Only the given auxiliary color buffer no. /i/ is selected.
    deriving ( Eq, Ord, Show )
 
-marshalBufferMode :: BufferMode -> GLenum
+marshalBufferMode :: BufferMode -> Maybe GLenum
 marshalBufferMode x = case x of
-   NoBuffers -> 0x0
-   FrontLeftBuffer -> 0x400
-   FrontRightBuffer -> 0x401
-   BackLeftBuffer -> 0x402
-   BackRightBuffer -> 0x403
-   FrontBuffers -> 0x404
-   BackBuffers -> 0x405
-   LeftBuffers -> 0x406
-   RightBuffers -> 0x407
-   FrontAndBackBuffers -> 0x408
+   NoBuffers -> Just 0x0
+   FrontLeftBuffer -> Just 0x400
+   FrontRightBuffer -> Just 0x401
+   BackLeftBuffer -> Just 0x402
+   BackRightBuffer -> Just 0x403
+   FrontBuffers -> Just 0x404
+   BackBuffers -> Just 0x405
+   LeftBuffers -> Just 0x406
+   RightBuffers -> Just 0x407
+   FrontAndBackBuffers -> Just 0x408
    AuxBuffer i
-      | i <= 246  -> 0x409 + fromIntegral i
-      | otherwise -> error ("marshalBufferMode: illegal value " ++ show i)
+      | i <= 246  -> Just (0x409 + fromIntegral i)
+      | otherwise -> Nothing
 
 unmarshalBufferMode :: GLenum -> BufferMode
 unmarshalBufferMode x

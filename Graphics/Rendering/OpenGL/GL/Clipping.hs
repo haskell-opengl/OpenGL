@@ -29,6 +29,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, getDoublev, getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -44,7 +45,8 @@ clipPlane (ClipPlaneName i) =
       (alloca $ \buf -> do
           getDoublev (GetClipPlane i) (castPtr buf)
           peek1 id (buf :: Ptr (Plane GLdouble)))
-      (\plane -> with plane $ glClipPlane (clipPlaneIndexToEnum i))
+      (\plane -> maybe recordInvalidEnum (with plane . glClipPlane)
+                       (clipPlaneIndexToEnum i))
 
 foreign import CALLCONV unsafe "glClipPlane" glClipPlane ::
    GLenum -> Ptr (Plane GLdouble) -> IO ()

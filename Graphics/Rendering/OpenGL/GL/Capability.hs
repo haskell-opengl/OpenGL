@@ -28,6 +28,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -125,92 +126,92 @@ data EnableCap =
    | CapStencilTestTwoSide
    | CapRasterPositionUnclipped
 
-marshalEnableCap :: EnableCap -> GLenum
+marshalEnableCap :: EnableCap -> Maybe GLenum
 marshalEnableCap x = case x of
-   CapFog -> 0xb60
-   CapLighting -> 0xb50
-   CapTexture1D -> 0xde0
-   CapTexture2D -> 0xde1
-   CapLineStipple -> 0xb24
-   CapPolygonStipple -> 0xb42
-   CapCullFace -> 0xb44
-   CapAlphaTest -> 0xbc0
-   CapBlend -> 0xbe2
-   CapIndexLogicOp -> 0xbf1
-   CapColorLogicOp -> 0xbf2
-   CapDither -> 0xbd0
-   CapStencilTest -> 0xb90
-   CapDepthTest -> 0xb71
+   CapFog -> Just 0xb60
+   CapLighting -> Just 0xb50
+   CapTexture1D -> Just 0xde0
+   CapTexture2D -> Just 0xde1
+   CapLineStipple -> Just 0xb24
+   CapPolygonStipple -> Just 0xb42
+   CapCullFace -> Just 0xb44
+   CapAlphaTest -> Just 0xbc0
+   CapBlend -> Just 0xbe2
+   CapIndexLogicOp -> Just 0xbf1
+   CapColorLogicOp -> Just 0xbf2
+   CapDither -> Just 0xbd0
+   CapStencilTest -> Just 0xb90
+   CapDepthTest -> Just 0xb71
    CapClipPlane i -> clipPlaneIndexToEnum i
    CapLight i -> lightIndexToEnum i
-   CapTextureGenS -> 0xc60
-   CapTextureGenT -> 0xc61
-   CapTextureGenR -> 0xc62
-   CapTextureGenQ -> 0xc63
-   CapMap1Vertex3 -> 0xd97
-   CapMap1Vertex4 -> 0xd98
-   CapMap1Color4 -> 0xd90
-   CapMap1Index -> 0xd91
-   CapMap1Normal -> 0xd92
-   CapMap1TextureCoord1 -> 0xd93
-   CapMap1TextureCoord2 -> 0xd94
-   CapMap1TextureCoord3 -> 0xd95
-   CapMap1TextureCoord4 -> 0xd96
-   CapMap2Vertex3 -> 0xdb7
-   CapMap2Vertex4 -> 0xdb8
-   CapMap2Color4 -> 0xdb0
-   CapMap2Index -> 0xdb1
-   CapMap2Normal -> 0xdb2
-   CapMap2TextureCoord1 -> 0xdb3
-   CapMap2TextureCoord2 -> 0xdb4
-   CapMap2TextureCoord3 -> 0xdb5
-   CapMap2TextureCoord4 -> 0xdb6
-   CapPointSmooth -> 0xb10
-   CapLineSmooth -> 0xb20
-   CapPolygonSmooth -> 0xb41
-   CapScissorTest -> 0xc11
-   CapColorMaterial -> 0xb57
-   CapNormalize -> 0xba1
-   CapAutoNormal -> 0xd80
-   CapPolygonOffsetPoint -> 0x2a01
-   CapPolygonOffsetLine -> 0x2a02
-   CapPolygonOffsetFill -> 0x8037
-   CapVertexArray -> 0x8074
-   CapNormalArray -> 0x8075
-   CapColorArray -> 0x8076
-   CapIndexArray -> 0x8077
-   CapTextureCoordArray -> 0x8078
-   CapEdgeFlagArray -> 0x8079
-   CapFogCoordArray -> 0x8457
-   CapSecondaryColorArray -> 0x845e
-   CapMatrixIndexArray -> 0x8844
-   CapConvolution1D -> 0x8010
-   CapConvolution2D -> 0x8011
-   CapSeparable2D -> 0x8012
-   CapHistogram -> 0x8024
-   CapMinmax -> 0x802e
-   CapRescaleNormal -> 0x803a
-   CapSharedTexturePalette -> 0x81fb
-   CapTexture3D -> 0x806f
-   CapMultisample -> 0x809d
-   CapSampleAlphaToCoverage -> 0x809e
-   CapSampleAlphaToOne -> 0x809f
-   CapSampleCoverage -> 0x80a0
-   CapColorTable -> 0x80d0
-   CapPostConvolutionColorTable -> 0x80d1
-   CapPostColorMatrixColorTable -> 0x80d2
-   CapColorSum -> 0x8458
-   CapTextureCubeMap -> 0x8513
-   CapWeightSumUnity -> 0x86a6
-   CapVertexBlend -> 0x86a7
-   CapWeightArray -> 0x86ad
-   CapMatrixPalette -> 0x8840
-   CapDepthClamp -> 0x864f
-   CapDepthBoundsTest -> 0x8890
-   CapPrimitiveRestart -> 0x8558
-   CapPointSprite -> 0x8861
-   CapStencilTestTwoSide -> 0x8910
-   CapRasterPositionUnclipped -> 0x19262
+   CapTextureGenS -> Just 0xc60
+   CapTextureGenT -> Just 0xc61
+   CapTextureGenR -> Just 0xc62
+   CapTextureGenQ -> Just 0xc63
+   CapMap1Vertex3 -> Just 0xd97
+   CapMap1Vertex4 -> Just 0xd98
+   CapMap1Color4 -> Just 0xd90
+   CapMap1Index -> Just 0xd91
+   CapMap1Normal -> Just 0xd92
+   CapMap1TextureCoord1 -> Just 0xd93
+   CapMap1TextureCoord2 -> Just 0xd94
+   CapMap1TextureCoord3 -> Just 0xd95
+   CapMap1TextureCoord4 -> Just 0xd96
+   CapMap2Vertex3 -> Just 0xdb7
+   CapMap2Vertex4 -> Just 0xdb8
+   CapMap2Color4 -> Just 0xdb0
+   CapMap2Index -> Just 0xdb1
+   CapMap2Normal -> Just 0xdb2
+   CapMap2TextureCoord1 -> Just 0xdb3
+   CapMap2TextureCoord2 -> Just 0xdb4
+   CapMap2TextureCoord3 -> Just 0xdb5
+   CapMap2TextureCoord4 -> Just 0xdb6
+   CapPointSmooth -> Just 0xb10
+   CapLineSmooth -> Just 0xb20
+   CapPolygonSmooth -> Just 0xb41
+   CapScissorTest -> Just 0xc11
+   CapColorMaterial -> Just 0xb57
+   CapNormalize -> Just 0xba1
+   CapAutoNormal -> Just 0xd80
+   CapPolygonOffsetPoint -> Just 0x2a01
+   CapPolygonOffsetLine -> Just 0x2a02
+   CapPolygonOffsetFill -> Just 0x8037
+   CapVertexArray -> Just 0x8074
+   CapNormalArray -> Just 0x8075
+   CapColorArray -> Just 0x8076
+   CapIndexArray -> Just 0x8077
+   CapTextureCoordArray -> Just 0x8078
+   CapEdgeFlagArray -> Just 0x8079
+   CapFogCoordArray -> Just 0x8457
+   CapSecondaryColorArray -> Just 0x845e
+   CapMatrixIndexArray -> Just 0x8844
+   CapConvolution1D -> Just 0x8010
+   CapConvolution2D -> Just 0x8011
+   CapSeparable2D -> Just 0x8012
+   CapHistogram -> Just 0x8024
+   CapMinmax -> Just 0x802e
+   CapRescaleNormal -> Just 0x803a
+   CapSharedTexturePalette -> Just 0x81fb
+   CapTexture3D -> Just 0x806f
+   CapMultisample -> Just 0x809d
+   CapSampleAlphaToCoverage -> Just 0x809e
+   CapSampleAlphaToOne -> Just 0x809f
+   CapSampleCoverage -> Just 0x80a0
+   CapColorTable -> Just 0x80d0
+   CapPostConvolutionColorTable -> Just 0x80d1
+   CapPostColorMatrixColorTable -> Just 0x80d2
+   CapColorSum -> Just 0x8458
+   CapTextureCubeMap -> Just 0x8513
+   CapWeightSumUnity -> Just 0x86a6
+   CapVertexBlend -> Just 0x86a7
+   CapWeightArray -> Just 0x86ad
+   CapMatrixPalette -> Just 0x8840
+   CapDepthClamp -> Just 0x864f
+   CapDepthBoundsTest -> Just 0x8890
+   CapPrimitiveRestart -> Just 0x8558
+   CapPointSprite -> Just 0x8861
+   CapStencilTestTwoSide -> Just 0x8910
+   CapRasterPositionUnclipped -> Just 0x19262
 
 --------------------------------------------------------------------------------
 
@@ -220,7 +221,10 @@ makeCapability cap = makeStateVar (isEnabled cap) (enable cap)
 --------------------------------------------------------------------------------
 
 isEnabled :: EnableCap -> IO Capability
-isEnabled = liftM unmarshalCapability . glIsEnabled . marshalEnableCap
+isEnabled =
+   maybe (do recordInvalidEnum; return Disabled)
+         (liftM unmarshalCapability . glIsEnabled) .
+   marshalEnableCap
 
 foreign import CALLCONV unsafe "glIsEnabled" glIsEnabled ::
    GLenum -> IO GLboolean
@@ -228,12 +232,13 @@ foreign import CALLCONV unsafe "glIsEnabled" glIsEnabled ::
 --------------------------------------------------------------------------------
 
 enable :: EnableCap -> Capability -> IO ()
-enable cap Disabled = glDisable (marshalEnableCap cap)
-enable cap Enabled  = glEnable  (marshalEnableCap cap)
-
-foreign import CALLCONV unsafe "glEnable" glEnable :: GLenum -> IO ()
+enable cap state = maybe recordInvalidEnum (f state) (marshalEnableCap cap)
+   where f Disabled = glDisable
+         f Enabled  = glEnable
 
 foreign import CALLCONV unsafe "glDisable" glDisable :: GLenum -> IO ()
+
+foreign import CALLCONV unsafe "glEnable" glEnable :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 

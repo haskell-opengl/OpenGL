@@ -32,6 +32,7 @@ import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLenum, GLint, GLsizei, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -428,417 +429,417 @@ data GetPName =
    -- GetWeightArrayBufferBinding
    -- GetVertexAttribArrayBufferBinding
 
-marshalGetPName :: GetPName -> GLenum
+marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
-   GetCurrentColor -> 0xb00
-   GetCurrentIndex -> 0xb01
-   GetCurrentNormal -> 0xb02
-   GetCurrentTextureCoords -> 0xb03
-   GetCurrentRasterColor -> 0xb04
-   GetCurrentRasterIndex -> 0xb05
-   GetCurrentRasterTextureCoords -> 0xb06
-   GetCurrentRasterPosition -> 0xb07
-   GetCurrentRasterPositionValid -> 0xb08
-   GetCurrentRasterDistance -> 0xb09
-   GetCurrentMatrixIndex -> 0x8845
-   GetPointSmooth -> 0xb10
-   GetPointSize -> 0xb11
-   GetPointSizeRange -> 0xb12
-   GetPointSizeGranularity -> 0xb13
-   GetLineSmooth -> 0xb20
-   GetLineWidth -> 0xb21
-   GetLineWidthRange -> 0xb22
-   GetLineWidthGranularity -> 0xb23
-   GetLineStipple -> 0xb24
-   GetLineStipplePattern -> 0xb25
-   GetLineStippleRepeat -> 0xb26
-   GetSmoothPointSizeRange -> 0xb12
-   GetSmoothPointSizeGranularity -> 0xb13
-   GetSmoothLineWidthRange -> 0xb22
-   GetSmoothLineWidthGranularity -> 0xb23
-   GetAliasedPointSizeRange -> 0x846d
-   GetAliasedLineWidthRange -> 0x846e
-   GetListMode -> 0xb30
-   GetMaxListNesting -> 0xb31
-   GetListBase -> 0xb32
-   GetListIndex -> 0xb33
-   GetPolygonMode -> 0xb40
-   GetPolygonSmooth -> 0xb41
-   GetPolygonStipple -> 0xb42
-   GetEdgeFlag -> 0xb43
-   GetCullFace -> 0xb44
-   GetCullFaceMode -> 0xb45
-   GetFrontFace -> 0xb46
-   GetLighting -> 0xb50
-   GetLightModelLocalViewer -> 0xb51
-   GetLightModelTwoSide -> 0xb52
-   GetLightModelAmbient -> 0xb53
-   GetShadeModel -> 0xb54
-   GetColorMaterialFace -> 0xb55
-   GetColorMaterialParameter -> 0xb56
-   GetColorMaterial -> 0xb57
-   GetFog -> 0xb60
-   GetFogIndex -> 0xb61
-   GetFogDensity -> 0xb62
-   GetFogStart -> 0xb63
-   GetFogEnd -> 0xb64
-   GetFogMode -> 0xb65
-   GetFogColor -> 0xb66
-   GetFogCoordSrc -> 0x8450
-   GetCurrentFogCoord -> 0x8453
-   GetDepthRange -> 0xb70
-   GetDepthTest -> 0xb71
-   GetDepthWritemask -> 0xb72
-   GetDepthClearValue -> 0xb73
-   GetDepthFunc -> 0xb74
-   GetAccumClearValue -> 0xb80
-   GetStencilTest -> 0xb90
-   GetStencilClearValue -> 0xb91
-   GetStencilFunc -> 0xb92
-   GetStencilValueMask -> 0xb93
-   GetStencilFail -> 0xb94
-   GetStencilPassDepthFail -> 0xb95
-   GetStencilPassDepthPass -> 0xb96
-   GetStencilRef -> 0xb97
-   GetStencilWritemask -> 0xb98
-   GetMatrixMode -> 0xba0
-   GetNormalize -> 0xba1
-   GetViewport -> 0xba2
-   GetModelviewStackDepth -> 0xba3
-   GetProjectionStackDepth -> 0xba4
-   GetTextureStackDepth -> 0xba5
-   GetModelviewMatrix -> 0xba6
-   GetProjectionMatrix -> 0xba7
-   GetTextureMatrix -> 0xba8
-   GetAttribStackDepth -> 0xbb0
-   GetClientAttribStackDepth -> 0xbb1
-   GetAlphaTest -> 0xbc0
-   GetAlphaTestFunc -> 0xbc1
-   GetAlphaTestRef -> 0xbc2
-   GetDither -> 0xbd0
-   GetBlendDst -> 0xbe0
-   GetBlendSrc -> 0xbe1
-   GetBlend -> 0xbe2
-   GetLogicOpMode -> 0xbf0
-   GetIndexLogicOp -> 0xbf1
-   GetLogicOp -> 0xbf1
-   GetColorLogicOp -> 0xbf2
-   GetAuxBuffers -> 0xc00
-   GetDrawBuffer -> 0xc01
-   GetReadBuffer -> 0xc02
-   GetScissorBox -> 0xc10
-   GetScissorTest -> 0xc11
-   GetIndexClearValue -> 0xc20
-   GetIndexWritemask -> 0xc21
-   GetColorClearValue -> 0xc22
-   GetColorWritemask -> 0xc23
-   GetIndexMode -> 0xc30
-   GetRGBAMode -> 0xc31
-   GetDoublebuffer -> 0xc32
-   GetStereo -> 0xc33
-   GetRenderMode -> 0xc40
-   GetPerspectiveCorrectionHint -> 0xc50
-   GetPointSmoothHint -> 0xc51
-   GetLineSmoothHint -> 0xc52
-   GetPolygonSmoothHint -> 0xc53
-   GetFogHint -> 0xc54
-   GetGenerateMipmapHint -> 0x8192
-   GetTextureCompressionHint -> 0x84ef
-   GetTextureGenS -> 0xc60
-   GetTextureGenT -> 0xc61
-   GetTextureGenR -> 0xc62
-   GetTextureGenQ -> 0xc63
-   GetPixelMapIToISize -> 0xcb0
-   GetPixelMapSToSSize -> 0xcb1
-   GetPixelMapIToRSize -> 0xcb2
-   GetPixelMapIToGSize -> 0xcb3
-   GetPixelMapIToBSize -> 0xcb4
-   GetPixelMapIToASize -> 0xcb5
-   GetPixelMapRToRSize -> 0xcb6
-   GetPixelMapGToGSize -> 0xcb7
-   GetPixelMapBToBSize -> 0xcb8
-   GetPixelMapAToASize -> 0xcb9
-   GetUnpackSwapBytes -> 0xcf0
-   GetUnpackLSBFirst -> 0xcf1
-   GetUnpackRowLength -> 0xcf2
-   GetUnpackSkipRows -> 0xcf3
-   GetUnpackSkipPixels -> 0xcf4
-   GetUnpackAlignment -> 0xcf5
-   GetPackSwapBytes -> 0xd00
-   GetPackLSBFirst -> 0xd01
-   GetPackRowLength -> 0xd02
-   GetPackSkipRows -> 0xd03
-   GetPackSkipPixels -> 0xd04
-   GetPackAlignment -> 0xd05
-   GetMapColor -> 0xd10
-   GetMapStencil -> 0xd11
-   GetIndexShift -> 0xd12
-   GetIndexOffset -> 0xd13
-   GetRedScale -> 0xd14
-   GetRedBias -> 0xd15
-   GetZoomX -> 0xd16
-   GetZoomY -> 0xd17
-   GetGreenScale -> 0xd18
-   GetGreenBias -> 0xd19
-   GetBlueScale -> 0xd1a
-   GetBlueBias -> 0xd1b
-   GetAlphaScale -> 0xd1c
-   GetAlphaBias -> 0xd1d
-   GetDepthScale -> 0xd1e
-   GetDepthBias -> 0xd1f
-   GetMaxEvalOrder -> 0xd30
-   GetMaxLights -> 0xd31
-   GetMaxClipPlanes -> 0xd32
-   GetMaxTextureSize -> 0xd33
-   GetMaxPixelMapTable -> 0xd34
-   GetMaxAttribStackDepth -> 0xd35
-   GetMaxModelviewStackDepth -> 0xd36
-   GetMaxNameStackDepth -> 0xd37
-   GetMaxProjectionStackDepth -> 0xd38
-   GetMaxTextureStackDepth -> 0xd39
-   GetMaxViewportDims -> 0xd3a
-   GetMaxClientAttribStackDepth -> 0xd3b
-   GetSubpixelBits -> 0xd50
-   GetIndexBits -> 0xd51
-   GetRedBits -> 0xd52
-   GetGreenBits -> 0xd53
-   GetBlueBits -> 0xd54
-   GetAlphaBits -> 0xd55
-   GetDepthBits -> 0xd56
-   GetStencilBits -> 0xd57
-   GetAccumRedBits -> 0xd58
-   GetAccumGreenBits -> 0xd59
-   GetAccumBlueBits -> 0xd5a
-   GetAccumAlphaBits -> 0xd5b
-   GetNameStackDepth -> 0xd70
-   GetAutoNormal -> 0xd80
-   GetMap1Color4 -> 0xd90
-   GetMap1Index -> 0xd91
-   GetMap1Normal -> 0xd92
-   GetMap1TextureCoord1 -> 0xd93
-   GetMap1TextureCoord2 -> 0xd94
-   GetMap1TextureCoord3 -> 0xd95
-   GetMap1TextureCoord4 -> 0xd96
-   GetMap1Vertex3 -> 0xd97
-   GetMap1Vertex4 -> 0xd98
-   GetMap2Color4 -> 0xdb0
-   GetMap2Index -> 0xdb1
-   GetMap2Normal -> 0xdb2
-   GetMap2TextureCoord1 -> 0xdb3
-   GetMap2TextureCoord2 -> 0xdb4
-   GetMap2TextureCoord3 -> 0xdb5
-   GetMap2TextureCoord4 -> 0xdb6
-   GetMap2Vertex3 -> 0xdb7
-   GetMap2Vertex4 -> 0xdb8
-   GetMap1GridDomain -> 0xdd0
-   GetMap1GridSegments -> 0xdd1
-   GetMap2GridDomain -> 0xdd2
-   GetMap2GridSegments -> 0xdd3
-   GetTexture1D -> 0xde0
-   GetTexture2D -> 0xde1
-   GetFeedbackBufferSize -> 0xdf1
-   GetFeedbackBufferType -> 0xdf2
-   GetSelectionBufferSize -> 0xdf4
-   GetPolygonOffsetUnits -> 0x2a00
-   GetPolygonOffsetPoint -> 0x2a01
-   GetPolygonOffsetLine -> 0x2a02
-   GetPolygonOffsetFill -> 0x8037
-   GetPolygonOffsetFactor -> 0x8038
-   GetTextureBinding1D -> 0x8068
-   GetTextureBinding2D -> 0x8069
-   GetTextureBinding3D -> 0x806a
-   GetVertexArray -> 0x8074
-   GetNormalArray -> 0x8075
-   GetColorArray -> 0x8076
-   GetIndexArray -> 0x8077
-   GetTextureCoordArray -> 0x8078
-   GetEdgeFlagArray -> 0x8079
-   GetFogCoordArray -> 0x8457
-   GetSecondaryColorArray -> 0x845e
-   GetMatrixIndexArray -> 0x8844
-   GetVertexArraySize -> 0x807a
-   GetVertexArrayType -> 0x807b
-   GetVertexArrayStride -> 0x807c
-   GetNormalArrayType -> 0x807e
-   GetNormalArrayStride -> 0x807f
-   GetColorArraySize -> 0x8081
-   GetColorArrayType -> 0x8082
-   GetColorArrayStride -> 0x8083
-   GetIndexArrayType -> 0x8085
-   GetIndexArrayStride -> 0x8086
-   GetTextureCoordArraySize -> 0x8088
-   GetTextureCoordArrayType -> 0x8089
-   GetTextureCoordArrayStride -> 0x808a
-   GetEdgeFlagArrayStride -> 0x808c
-   GetFogCoordArrayType -> 0x8454
-   GetFogCoordArrayStride -> 0x8455
-   GetSecondaryColorArraySize -> 0x845a
-   GetSecondaryColorArrayType -> 0x845b
-   GetSecondaryColorArrayStride -> 0x845c
-   GetMatrixIndexArraySize -> 0x8846
-   GetMatrixIndexArrayType -> 0x8847
-   GetMatrixIndexArrayStride -> 0x8848
+   GetCurrentColor -> Just 0xb00
+   GetCurrentIndex -> Just 0xb01
+   GetCurrentNormal -> Just 0xb02
+   GetCurrentTextureCoords -> Just 0xb03
+   GetCurrentRasterColor -> Just 0xb04
+   GetCurrentRasterIndex -> Just 0xb05
+   GetCurrentRasterTextureCoords -> Just 0xb06
+   GetCurrentRasterPosition -> Just 0xb07
+   GetCurrentRasterPositionValid -> Just 0xb08
+   GetCurrentRasterDistance -> Just 0xb09
+   GetCurrentMatrixIndex -> Just 0x8845
+   GetPointSmooth -> Just 0xb10
+   GetPointSize -> Just 0xb11
+   GetPointSizeRange -> Just 0xb12
+   GetPointSizeGranularity -> Just 0xb13
+   GetLineSmooth -> Just 0xb20
+   GetLineWidth -> Just 0xb21
+   GetLineWidthRange -> Just 0xb22
+   GetLineWidthGranularity -> Just 0xb23
+   GetLineStipple -> Just 0xb24
+   GetLineStipplePattern -> Just 0xb25
+   GetLineStippleRepeat -> Just 0xb26
+   GetSmoothPointSizeRange -> Just 0xb12
+   GetSmoothPointSizeGranularity -> Just 0xb13
+   GetSmoothLineWidthRange -> Just 0xb22
+   GetSmoothLineWidthGranularity -> Just 0xb23
+   GetAliasedPointSizeRange -> Just 0x846d
+   GetAliasedLineWidthRange -> Just 0x846e
+   GetListMode -> Just 0xb30
+   GetMaxListNesting -> Just 0xb31
+   GetListBase -> Just 0xb32
+   GetListIndex -> Just 0xb33
+   GetPolygonMode -> Just 0xb40
+   GetPolygonSmooth -> Just 0xb41
+   GetPolygonStipple -> Just 0xb42
+   GetEdgeFlag -> Just 0xb43
+   GetCullFace -> Just 0xb44
+   GetCullFaceMode -> Just 0xb45
+   GetFrontFace -> Just 0xb46
+   GetLighting -> Just 0xb50
+   GetLightModelLocalViewer -> Just 0xb51
+   GetLightModelTwoSide -> Just 0xb52
+   GetLightModelAmbient -> Just 0xb53
+   GetShadeModel -> Just 0xb54
+   GetColorMaterialFace -> Just 0xb55
+   GetColorMaterialParameter -> Just 0xb56
+   GetColorMaterial -> Just 0xb57
+   GetFog -> Just 0xb60
+   GetFogIndex -> Just 0xb61
+   GetFogDensity -> Just 0xb62
+   GetFogStart -> Just 0xb63
+   GetFogEnd -> Just 0xb64
+   GetFogMode -> Just 0xb65
+   GetFogColor -> Just 0xb66
+   GetFogCoordSrc -> Just 0x8450
+   GetCurrentFogCoord -> Just 0x8453
+   GetDepthRange -> Just 0xb70
+   GetDepthTest -> Just 0xb71
+   GetDepthWritemask -> Just 0xb72
+   GetDepthClearValue -> Just 0xb73
+   GetDepthFunc -> Just 0xb74
+   GetAccumClearValue -> Just 0xb80
+   GetStencilTest -> Just 0xb90
+   GetStencilClearValue -> Just 0xb91
+   GetStencilFunc -> Just 0xb92
+   GetStencilValueMask -> Just 0xb93
+   GetStencilFail -> Just 0xb94
+   GetStencilPassDepthFail -> Just 0xb95
+   GetStencilPassDepthPass -> Just 0xb96
+   GetStencilRef -> Just 0xb97
+   GetStencilWritemask -> Just 0xb98
+   GetMatrixMode -> Just 0xba0
+   GetNormalize -> Just 0xba1
+   GetViewport -> Just 0xba2
+   GetModelviewStackDepth -> Just 0xba3
+   GetProjectionStackDepth -> Just 0xba4
+   GetTextureStackDepth -> Just 0xba5
+   GetModelviewMatrix -> Just 0xba6
+   GetProjectionMatrix -> Just 0xba7
+   GetTextureMatrix -> Just 0xba8
+   GetAttribStackDepth -> Just 0xbb0
+   GetClientAttribStackDepth -> Just 0xbb1
+   GetAlphaTest -> Just 0xbc0
+   GetAlphaTestFunc -> Just 0xbc1
+   GetAlphaTestRef -> Just 0xbc2
+   GetDither -> Just 0xbd0
+   GetBlendDst -> Just 0xbe0
+   GetBlendSrc -> Just 0xbe1
+   GetBlend -> Just 0xbe2
+   GetLogicOpMode -> Just 0xbf0
+   GetIndexLogicOp -> Just 0xbf1
+   GetLogicOp -> Just 0xbf1
+   GetColorLogicOp -> Just 0xbf2
+   GetAuxBuffers -> Just 0xc00
+   GetDrawBuffer -> Just 0xc01
+   GetReadBuffer -> Just 0xc02
+   GetScissorBox -> Just 0xc10
+   GetScissorTest -> Just 0xc11
+   GetIndexClearValue -> Just 0xc20
+   GetIndexWritemask -> Just 0xc21
+   GetColorClearValue -> Just 0xc22
+   GetColorWritemask -> Just 0xc23
+   GetIndexMode -> Just 0xc30
+   GetRGBAMode -> Just 0xc31
+   GetDoublebuffer -> Just 0xc32
+   GetStereo -> Just 0xc33
+   GetRenderMode -> Just 0xc40
+   GetPerspectiveCorrectionHint -> Just 0xc50
+   GetPointSmoothHint -> Just 0xc51
+   GetLineSmoothHint -> Just 0xc52
+   GetPolygonSmoothHint -> Just 0xc53
+   GetFogHint -> Just 0xc54
+   GetGenerateMipmapHint -> Just 0x8192
+   GetTextureCompressionHint -> Just 0x84ef
+   GetTextureGenS -> Just 0xc60
+   GetTextureGenT -> Just 0xc61
+   GetTextureGenR -> Just 0xc62
+   GetTextureGenQ -> Just 0xc63
+   GetPixelMapIToISize -> Just 0xcb0
+   GetPixelMapSToSSize -> Just 0xcb1
+   GetPixelMapIToRSize -> Just 0xcb2
+   GetPixelMapIToGSize -> Just 0xcb3
+   GetPixelMapIToBSize -> Just 0xcb4
+   GetPixelMapIToASize -> Just 0xcb5
+   GetPixelMapRToRSize -> Just 0xcb6
+   GetPixelMapGToGSize -> Just 0xcb7
+   GetPixelMapBToBSize -> Just 0xcb8
+   GetPixelMapAToASize -> Just 0xcb9
+   GetUnpackSwapBytes -> Just 0xcf0
+   GetUnpackLSBFirst -> Just 0xcf1
+   GetUnpackRowLength -> Just 0xcf2
+   GetUnpackSkipRows -> Just 0xcf3
+   GetUnpackSkipPixels -> Just 0xcf4
+   GetUnpackAlignment -> Just 0xcf5
+   GetPackSwapBytes -> Just 0xd00
+   GetPackLSBFirst -> Just 0xd01
+   GetPackRowLength -> Just 0xd02
+   GetPackSkipRows -> Just 0xd03
+   GetPackSkipPixels -> Just 0xd04
+   GetPackAlignment -> Just 0xd05
+   GetMapColor -> Just 0xd10
+   GetMapStencil -> Just 0xd11
+   GetIndexShift -> Just 0xd12
+   GetIndexOffset -> Just 0xd13
+   GetRedScale -> Just 0xd14
+   GetRedBias -> Just 0xd15
+   GetZoomX -> Just 0xd16
+   GetZoomY -> Just 0xd17
+   GetGreenScale -> Just 0xd18
+   GetGreenBias -> Just 0xd19
+   GetBlueScale -> Just 0xd1a
+   GetBlueBias -> Just 0xd1b
+   GetAlphaScale -> Just 0xd1c
+   GetAlphaBias -> Just 0xd1d
+   GetDepthScale -> Just 0xd1e
+   GetDepthBias -> Just 0xd1f
+   GetMaxEvalOrder -> Just 0xd30
+   GetMaxLights -> Just 0xd31
+   GetMaxClipPlanes -> Just 0xd32
+   GetMaxTextureSize -> Just 0xd33
+   GetMaxPixelMapTable -> Just 0xd34
+   GetMaxAttribStackDepth -> Just 0xd35
+   GetMaxModelviewStackDepth -> Just 0xd36
+   GetMaxNameStackDepth -> Just 0xd37
+   GetMaxProjectionStackDepth -> Just 0xd38
+   GetMaxTextureStackDepth -> Just 0xd39
+   GetMaxViewportDims -> Just 0xd3a
+   GetMaxClientAttribStackDepth -> Just 0xd3b
+   GetSubpixelBits -> Just 0xd50
+   GetIndexBits -> Just 0xd51
+   GetRedBits -> Just 0xd52
+   GetGreenBits -> Just 0xd53
+   GetBlueBits -> Just 0xd54
+   GetAlphaBits -> Just 0xd55
+   GetDepthBits -> Just 0xd56
+   GetStencilBits -> Just 0xd57
+   GetAccumRedBits -> Just 0xd58
+   GetAccumGreenBits -> Just 0xd59
+   GetAccumBlueBits -> Just 0xd5a
+   GetAccumAlphaBits -> Just 0xd5b
+   GetNameStackDepth -> Just 0xd70
+   GetAutoNormal -> Just 0xd80
+   GetMap1Color4 -> Just 0xd90
+   GetMap1Index -> Just 0xd91
+   GetMap1Normal -> Just 0xd92
+   GetMap1TextureCoord1 -> Just 0xd93
+   GetMap1TextureCoord2 -> Just 0xd94
+   GetMap1TextureCoord3 -> Just 0xd95
+   GetMap1TextureCoord4 -> Just 0xd96
+   GetMap1Vertex3 -> Just 0xd97
+   GetMap1Vertex4 -> Just 0xd98
+   GetMap2Color4 -> Just 0xdb0
+   GetMap2Index -> Just 0xdb1
+   GetMap2Normal -> Just 0xdb2
+   GetMap2TextureCoord1 -> Just 0xdb3
+   GetMap2TextureCoord2 -> Just 0xdb4
+   GetMap2TextureCoord3 -> Just 0xdb5
+   GetMap2TextureCoord4 -> Just 0xdb6
+   GetMap2Vertex3 -> Just 0xdb7
+   GetMap2Vertex4 -> Just 0xdb8
+   GetMap1GridDomain -> Just 0xdd0
+   GetMap1GridSegments -> Just 0xdd1
+   GetMap2GridDomain -> Just 0xdd2
+   GetMap2GridSegments -> Just 0xdd3
+   GetTexture1D -> Just 0xde0
+   GetTexture2D -> Just 0xde1
+   GetFeedbackBufferSize -> Just 0xdf1
+   GetFeedbackBufferType -> Just 0xdf2
+   GetSelectionBufferSize -> Just 0xdf4
+   GetPolygonOffsetUnits -> Just 0x2a00
+   GetPolygonOffsetPoint -> Just 0x2a01
+   GetPolygonOffsetLine -> Just 0x2a02
+   GetPolygonOffsetFill -> Just 0x8037
+   GetPolygonOffsetFactor -> Just 0x8038
+   GetTextureBinding1D -> Just 0x8068
+   GetTextureBinding2D -> Just 0x8069
+   GetTextureBinding3D -> Just 0x806a
+   GetVertexArray -> Just 0x8074
+   GetNormalArray -> Just 0x8075
+   GetColorArray -> Just 0x8076
+   GetIndexArray -> Just 0x8077
+   GetTextureCoordArray -> Just 0x8078
+   GetEdgeFlagArray -> Just 0x8079
+   GetFogCoordArray -> Just 0x8457
+   GetSecondaryColorArray -> Just 0x845e
+   GetMatrixIndexArray -> Just 0x8844
+   GetVertexArraySize -> Just 0x807a
+   GetVertexArrayType -> Just 0x807b
+   GetVertexArrayStride -> Just 0x807c
+   GetNormalArrayType -> Just 0x807e
+   GetNormalArrayStride -> Just 0x807f
+   GetColorArraySize -> Just 0x8081
+   GetColorArrayType -> Just 0x8082
+   GetColorArrayStride -> Just 0x8083
+   GetIndexArrayType -> Just 0x8085
+   GetIndexArrayStride -> Just 0x8086
+   GetTextureCoordArraySize -> Just 0x8088
+   GetTextureCoordArrayType -> Just 0x8089
+   GetTextureCoordArrayStride -> Just 0x808a
+   GetEdgeFlagArrayStride -> Just 0x808c
+   GetFogCoordArrayType -> Just 0x8454
+   GetFogCoordArrayStride -> Just 0x8455
+   GetSecondaryColorArraySize -> Just 0x845a
+   GetSecondaryColorArrayType -> Just 0x845b
+   GetSecondaryColorArrayStride -> Just 0x845c
+   GetMatrixIndexArraySize -> Just 0x8846
+   GetMatrixIndexArrayType -> Just 0x8847
+   GetMatrixIndexArrayStride -> Just 0x8848
    GetClipPlane i -> clipPlaneIndexToEnum i
    GetLight i -> lightIndexToEnum i
-   GetTransposeModelviewMatrix -> 0x84e3
-   GetTransposeProjectionMatrix -> 0x84e4
-   GetTransposeTextureMatrix -> 0x84e5
-   GetTransposeColorMatrix -> 0x84e6
-   GetLightModelColorControl -> 0x81f8
-   GetBlendColor -> 0x8005
-   GetBlendEquation -> 0x8009
-   GetColorTable -> 0x80d0
-   GetPostConvolutionColorTable -> 0x80d1
-   GetPostColorMatrixColorTable -> 0x80d2
-   GetConvolution1D -> 0x8010
-   GetConvolution2D -> 0x8011
-   GetSeparable2D -> 0x8012
-   GetMaxConvolutionWidth -> 0x801a
-   GetMaxConvolutionHeight -> 0x801b
-   GetPostConvolutionRedScale -> 0x801c
-   GetPostConvolutionGreenScale -> 0x801d
-   GetPostConvolutionBlueScale -> 0x801e
-   GetPostConvolutionAlphaScale -> 0x801f
-   GetPostConvolutionRedBias -> 0x8020
-   GetPostConvolutionGreenBias -> 0x8021
-   GetPostConvolutionBlueBias -> 0x8022
-   GetPostConvolutionAlphaBias -> 0x8023
-   GetHistogram -> 0x8024
-   GetMinmax -> 0x802e
-   GetColorSum -> 0x8458
-   GetCurrentSecondaryColor -> 0x8459
-   GetRescaleNormal -> 0x803a
-   GetSharedTexturePalette -> 0x81fb
-   GetTexture3DBinding -> 0x806a
-   GetPackSkipImages -> 0x806b
-   GetPackImageHeight -> 0x806c
-   GetUnpackSkipImages -> 0x806d
-   GetUnpackImageHeight -> 0x806e
-   GetTexture3D -> 0x806f
-   GetMax3DTextureSize -> 0x8073
-   GetMaxTextureLodBias -> 0x84fd
-   GetMaxTextureMaxAnisotropy -> 0x84ff
-   GetMultisample -> 0x809d
-   GetSampleAlphaToCoverage -> 0x809e
-   GetSampleAlphaToOne -> 0x809f
-   GetSampleCoverage -> 0x80a0
-   GetSampleBuffers -> 0x80a8
-   GetSamples -> 0x80a9
-   GetSampleCoverageValue -> 0x80aa
-   GetSampleCoverageInvert -> 0x80ab
-   GetPointSizeMin -> 0x8126
-   GetPointSizeMax -> 0x8127
-   GetPointFadeThresholdSize -> 0x8128
-   GetPointDistanceAttenuation -> 0x8129
-   GetColorMatrix -> 0x80b1
-   GetColorMatrixStackDepth -> 0x80b2
-   GetMaxColorMatrixStackDepth -> 0x80b3
-   GetPostColorMatrixRedScale -> 0x80b4
-   GetPostColorMatrixGreenScale -> 0x80b5
-   GetPostColorMatrixBlueScale -> 0x80b6
-   GetPostColorMatrixAlphaScale -> 0x80b7
-   GetPostColorMatrixRedBias -> 0x80b8
-   GetPostColorMatrixGreenBias -> 0x80b9
-   GetPostColorMatrixBlueBias -> 0x80ba
-   GetPostColorMatrixAlphaBias -> 0x80bb
-   GetMaxElementsVertices -> 0x80e8
-   GetMaxElementsIndices -> 0x80e9
-   GetActiveTexture -> 0x84e0
-   GetClientActiveTexture -> 0x84e1
-   GetMaxTextureUnits -> 0x84e2
-   GetTextureCubeMap -> 0x8513
-   GetMaxCubeMapTextureSize -> 0x851c
-   GetNumCompressedTextureFormats -> 0x86a2
-   GetCompressedTextureFormats -> 0x86a3
-   GetMaxVertexUnits -> 0x86a4
-   GetActiveVertexUnits -> 0x86a5
-   GetWeightSumUnity -> 0x86a6
-   GetVertexBlend -> 0x86a7
-   GetModelview0 -> 0x1700
-   GetModelview1 -> 0x850a
-   GetModelview2 -> 0x8722
-   GetModelview3 -> 0x8723
-   GetModelview4 -> 0x8724
-   GetModelview5 -> 0x8725
-   GetModelview6 -> 0x8726
-   GetModelview7 -> 0x8727
-   GetModelview8 -> 0x8728
-   GetModelview9 -> 0x8729
-   GetModelview10 -> 0x872a
-   GetModelview11 -> 0x872b
-   GetModelview12 -> 0x872c
-   GetModelview13 -> 0x872d
-   GetModelview14 -> 0x872e
-   GetModelview15 -> 0x872f
-   GetModelview16 -> 0x8730
-   GetModelview17 -> 0x8731
-   GetModelview18 -> 0x8732
-   GetModelview19 -> 0x8733
-   GetModelview20 -> 0x8734
-   GetModelview21 -> 0x8735
-   GetModelview22 -> 0x8736
-   GetModelview23 -> 0x8737
-   GetModelview24 -> 0x8738
-   GetModelview25 -> 0x8739
-   GetModelview26 -> 0x873a
-   GetModelview27 -> 0x873b
-   GetModelview28 -> 0x873c
-   GetModelview29 -> 0x873d
-   GetModelview30 -> 0x873e
-   GetModelview31 -> 0x873f
-   GetCurrentWeight -> 0x86a8
-   GetWeightArrayType -> 0x86a9
-   GetWeightArrayStride -> 0x86aa
-   GetWeightArraySize -> 0x86ab
-   GetWeightArray -> 0x86ad
-   GetMatrixPalette -> 0x8840
-   GetMaxMatrixPaletteStackDepth -> 0x8841
-   GetMaxPaletteMatrices -> 0x8842
-   GetCurrentPaletteMatrix -> 0x8843
-   GetBlendDstRGB -> 0x80c8
-   GetBlendSrcRGB -> 0x80c9
-   GetBlendDstAlpha -> 0x80ca
-   GetBlendSrcAlpha -> 0x80cb
-   GetPackCMYKHint -> 0x800e
-   GetUnpackCMYKHint -> 0x800f
-   GetArrayElementLockFirst -> 0x81a8
-   GetArrayElementLockCount -> 0x81a9
-   GetMaxShininess -> 0x8504
-   GetMaxSpotExponent -> 0x8505
-   GetFogDistanceMode -> 0x855a
-   GetDepthBounds -> 0x8891
-   GetPrimitiveRestartIndex -> 0x8559
-   GetActiveStencilFace -> 0x8911
-   GetArrayBufferBinding -> 0x8894
-   GetElementArrayBufferBinding -> 0x8895
-   GetVertexArrayBufferBinding -> 0x8896
-   GetNormalArrayBufferBinding -> 0x8897
-   GetColorArrayBufferBinding -> 0x8898
-   GetIndexArrayBufferBinding -> 0x8899
-   GetTextureCoordArrayBufferBinding -> 0x889a
-   GetEdgeFlagArrayBufferBinding -> 0x889b
-   GetSecondaryColorArrayBufferBinding -> 0x889c
-   GetFogCoordArrayBufferBinding -> 0x889d
-   -- GetWeightArrayBufferBinding -> 0x889e
-   -- GetVertexAttribArrayBufferBinding -> 0x889f
+   GetTransposeModelviewMatrix -> Just 0x84e3
+   GetTransposeProjectionMatrix -> Just 0x84e4
+   GetTransposeTextureMatrix -> Just 0x84e5
+   GetTransposeColorMatrix -> Just 0x84e6
+   GetLightModelColorControl -> Just 0x81f8
+   GetBlendColor -> Just 0x8005
+   GetBlendEquation -> Just 0x8009
+   GetColorTable -> Just 0x80d0
+   GetPostConvolutionColorTable -> Just 0x80d1
+   GetPostColorMatrixColorTable -> Just 0x80d2
+   GetConvolution1D -> Just 0x8010
+   GetConvolution2D -> Just 0x8011
+   GetSeparable2D -> Just 0x8012
+   GetMaxConvolutionWidth -> Just 0x801a
+   GetMaxConvolutionHeight -> Just 0x801b
+   GetPostConvolutionRedScale -> Just 0x801c
+   GetPostConvolutionGreenScale -> Just 0x801d
+   GetPostConvolutionBlueScale -> Just 0x801e
+   GetPostConvolutionAlphaScale -> Just 0x801f
+   GetPostConvolutionRedBias -> Just 0x8020
+   GetPostConvolutionGreenBias -> Just 0x8021
+   GetPostConvolutionBlueBias -> Just 0x8022
+   GetPostConvolutionAlphaBias -> Just 0x8023
+   GetHistogram -> Just 0x8024
+   GetMinmax -> Just 0x802e
+   GetColorSum -> Just 0x8458
+   GetCurrentSecondaryColor -> Just 0x8459
+   GetRescaleNormal -> Just 0x803a
+   GetSharedTexturePalette -> Just 0x81fb
+   GetTexture3DBinding -> Just 0x806a
+   GetPackSkipImages -> Just 0x806b
+   GetPackImageHeight -> Just 0x806c
+   GetUnpackSkipImages -> Just 0x806d
+   GetUnpackImageHeight -> Just 0x806e
+   GetTexture3D -> Just 0x806f
+   GetMax3DTextureSize -> Just 0x8073
+   GetMaxTextureLodBias -> Just 0x84fd
+   GetMaxTextureMaxAnisotropy -> Just 0x84ff
+   GetMultisample -> Just 0x809d
+   GetSampleAlphaToCoverage -> Just 0x809e
+   GetSampleAlphaToOne -> Just 0x809f
+   GetSampleCoverage -> Just 0x80a0
+   GetSampleBuffers -> Just 0x80a8
+   GetSamples -> Just 0x80a9
+   GetSampleCoverageValue -> Just 0x80aa
+   GetSampleCoverageInvert -> Just 0x80ab
+   GetPointSizeMin -> Just 0x8126
+   GetPointSizeMax -> Just 0x8127
+   GetPointFadeThresholdSize -> Just 0x8128
+   GetPointDistanceAttenuation -> Just 0x8129
+   GetColorMatrix -> Just 0x80b1
+   GetColorMatrixStackDepth -> Just 0x80b2
+   GetMaxColorMatrixStackDepth -> Just 0x80b3
+   GetPostColorMatrixRedScale -> Just 0x80b4
+   GetPostColorMatrixGreenScale -> Just 0x80b5
+   GetPostColorMatrixBlueScale -> Just 0x80b6
+   GetPostColorMatrixAlphaScale -> Just 0x80b7
+   GetPostColorMatrixRedBias -> Just 0x80b8
+   GetPostColorMatrixGreenBias -> Just 0x80b9
+   GetPostColorMatrixBlueBias -> Just 0x80ba
+   GetPostColorMatrixAlphaBias -> Just 0x80bb
+   GetMaxElementsVertices -> Just 0x80e8
+   GetMaxElementsIndices -> Just 0x80e9
+   GetActiveTexture -> Just 0x84e0
+   GetClientActiveTexture -> Just 0x84e1
+   GetMaxTextureUnits -> Just 0x84e2
+   GetTextureCubeMap -> Just 0x8513
+   GetMaxCubeMapTextureSize -> Just 0x851c
+   GetNumCompressedTextureFormats -> Just 0x86a2
+   GetCompressedTextureFormats -> Just 0x86a3
+   GetMaxVertexUnits -> Just 0x86a4
+   GetActiveVertexUnits -> Just 0x86a5
+   GetWeightSumUnity -> Just 0x86a6
+   GetVertexBlend -> Just 0x86a7
+   GetModelview0 -> Just 0x1700
+   GetModelview1 -> Just 0x850a
+   GetModelview2 -> Just 0x8722
+   GetModelview3 -> Just 0x8723
+   GetModelview4 -> Just 0x8724
+   GetModelview5 -> Just 0x8725
+   GetModelview6 -> Just 0x8726
+   GetModelview7 -> Just 0x8727
+   GetModelview8 -> Just 0x8728
+   GetModelview9 -> Just 0x8729
+   GetModelview10 -> Just 0x872a
+   GetModelview11 -> Just 0x872b
+   GetModelview12 -> Just 0x872c
+   GetModelview13 -> Just 0x872d
+   GetModelview14 -> Just 0x872e
+   GetModelview15 -> Just 0x872f
+   GetModelview16 -> Just 0x8730
+   GetModelview17 -> Just 0x8731
+   GetModelview18 -> Just 0x8732
+   GetModelview19 -> Just 0x8733
+   GetModelview20 -> Just 0x8734
+   GetModelview21 -> Just 0x8735
+   GetModelview22 -> Just 0x8736
+   GetModelview23 -> Just 0x8737
+   GetModelview24 -> Just 0x8738
+   GetModelview25 -> Just 0x8739
+   GetModelview26 -> Just 0x873a
+   GetModelview27 -> Just 0x873b
+   GetModelview28 -> Just 0x873c
+   GetModelview29 -> Just 0x873d
+   GetModelview30 -> Just 0x873e
+   GetModelview31 -> Just 0x873f
+   GetCurrentWeight -> Just 0x86a8
+   GetWeightArrayType -> Just 0x86a9
+   GetWeightArrayStride -> Just 0x86aa
+   GetWeightArraySize -> Just 0x86ab
+   GetWeightArray -> Just 0x86ad
+   GetMatrixPalette -> Just 0x8840
+   GetMaxMatrixPaletteStackDepth -> Just 0x8841
+   GetMaxPaletteMatrices -> Just 0x8842
+   GetCurrentPaletteMatrix -> Just 0x8843
+   GetBlendDstRGB -> Just 0x80c8
+   GetBlendSrcRGB -> Just 0x80c9
+   GetBlendDstAlpha -> Just 0x80ca
+   GetBlendSrcAlpha -> Just 0x80cb
+   GetPackCMYKHint -> Just 0x800e
+   GetUnpackCMYKHint -> Just 0x800f
+   GetArrayElementLockFirst -> Just 0x81a8
+   GetArrayElementLockCount -> Just 0x81a9
+   GetMaxShininess -> Just 0x8504
+   GetMaxSpotExponent -> Just 0x8505
+   GetFogDistanceMode -> Just 0x855a
+   GetDepthBounds -> Just 0x8891
+   GetPrimitiveRestartIndex -> Just 0x8559
+   GetActiveStencilFace -> Just 0x8911
+   GetArrayBufferBinding -> Just 0x8894
+   GetElementArrayBufferBinding -> Just 0x8895
+   GetVertexArrayBufferBinding -> Just 0x8896
+   GetNormalArrayBufferBinding -> Just 0x8897
+   GetColorArrayBufferBinding -> Just 0x8898
+   GetIndexArrayBufferBinding -> Just 0x8899
+   GetTextureCoordArrayBufferBinding -> Just 0x889a
+   GetEdgeFlagArrayBufferBinding -> Just 0x889b
+   GetSecondaryColorArrayBufferBinding -> Just 0x889c
+   GetFogCoordArrayBufferBinding -> Just 0x889d
+   -- GetWeightArrayBufferBinding -> Just 0x889e
+   -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 
 --------------------------------------------------------------------------------
 
 -- 0x3000 through 0x3FFF are reserved for clip planes
 
-clipPlaneIndexToEnum :: GLsizei -> GLenum
+clipPlaneIndexToEnum :: GLsizei -> Maybe GLenum
 clipPlaneIndexToEnum i
-   | 0 <= i && i <= 0xFFF = 0x3000 + fromIntegral i
-   | otherwise = error ("clipPlaneIndexToEnum : illegal clip plane " ++ show i)
+   | 0 <= i && i <= 0xFFF = Just (0x3000 + fromIntegral i)
+   | otherwise = Nothing
 
 --------------------------------------------------------------------------------
 
 -- 0x4000 through 0x4FFF are reserved for light numbers
 
-lightIndexToEnum :: GLsizei -> GLenum
+lightIndexToEnum :: GLsizei -> Maybe GLenum
 lightIndexToEnum i
-   | 0 <= i && i <= 0xFFF = 0x4000 + fromIntegral i
-   | otherwise = error ("clipPlaneIndexToEnum : illegal clip plane " ++ show i)
+   | 0 <= i && i <= 0xFFF = Just (0x4000 + fromIntegral i)
+   | otherwise = Nothing
 
 --------------------------------------------------------------------------------
 
@@ -857,7 +858,11 @@ foreign import CALLCONV unsafe "glGetBooleanv" glGetBooleanv ::
    GLenum -> Ptr GLboolean -> IO ()
 
 getBooleanv :: GetPName -> Ptr GLboolean -> IO ()
-getBooleanv = glGetBooleanv . marshalGetPName
+getBooleanv = makeGetter glGetBooleanv
+
+{-# INLINE makeGetter #-}
+makeGetter :: (GLenum -> Ptr a -> IO ()) -> GetPName -> Ptr a -> IO ()
+makeGetter f = maybe (const recordInvalidEnum) f . marshalGetPName
 
 --------------------------------------------------------------------------------
 
@@ -877,7 +882,7 @@ getInteger4 f n = allocaArray 4 $ \buf -> do
    peek4 f buf
 
 getIntegerv :: GetPName -> Ptr GLint -> IO ()
-getIntegerv = glGetIntegerv . marshalGetPName
+getIntegerv = maybe (const recordInvalidEnum) glGetIntegerv . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetIntegerv" glGetIntegerv ::
    GLenum -> Ptr GLint -> IO ()
@@ -914,7 +919,7 @@ getFloat4 f n = allocaArray 4 $ \buf -> do
    peek4 f buf
 
 getFloatv :: GetPName -> Ptr GLfloat -> IO ()
-getFloatv = glGetFloatv . marshalGetPName
+getFloatv = maybe (const recordInvalidEnum) glGetFloatv . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetFloatv" glGetFloatv ::
    GLenum -> Ptr GLfloat -> IO ()
@@ -938,7 +943,7 @@ getDouble4 f n = allocaArray 4 $ \buf -> do
    peek4 f buf
 
 getDoublev :: GetPName -> Ptr GLdouble -> IO ()
-getDoublev = glGetDoublev . marshalGetPName
+getDoublev = maybe (const recordInvalidEnum) glGetDoublev . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
    GLenum -> Ptr GLdouble -> IO ()

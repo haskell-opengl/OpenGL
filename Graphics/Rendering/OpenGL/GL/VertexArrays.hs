@@ -32,8 +32,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
 ) where
 
 import Control.Monad ( liftM )
-import Data.List ( intersperse )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( Ptr, nullPtr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
              CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordArray,
@@ -70,6 +69,8 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(TextureUnit) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
+   recordInvalidEnum, recordInvalidValue )
 
 --------------------------------------------------------------------------------
 
@@ -91,6 +92,9 @@ instance Show (VertexArrayDescriptor a)
 #else
    deriving ( Eq, Ord, Show )
 #endif
+
+noVertexArrayDescriptor :: VertexArrayDescriptor a
+noVertexArrayDescriptor = VertexArrayDescriptor 0 Byte 0 nullPtr
 
 --------------------------------------------------------------------------------
 
@@ -143,14 +147,13 @@ arrayPointer t = case t of
    EdgeFlagArray -> edgeFlagPointer
    FogCoordArray -> fogCoordPointer
    SecondaryColorArray -> secondaryColorPointer
-   MatrixIndexArray -> error ("arrayPointer: MatrixIndexArray")
+   MatrixIndexArray ->
+      makeStateVar
+        (do recordInvalidEnum ; return noVertexArrayDescriptor)
+        (const recordInvalidEnum)
 
-check :: (Eq a, Show a) => [a] -> a -> b -> b
-check ns n val
-   | n `elem` ns = val
-   | otherwise =
-      error ("arrayPointer: expected " ++ alts ++ " components, got " ++ show n)
-      where alts = concat . intersperse " or " . map show $ ns
+check :: Bool -> IO () -> IO ()
+check flag val = if flag then val else recordInvalidValue
 
 --------------------------------------------------------------------------------
 
@@ -186,7 +189,7 @@ getNormalPointer = do
 
 setNormalPointer :: VertexArrayDescriptor a -> IO ()
 setNormalPointer (VertexArrayDescriptor n d s p) =
-   check [3] n $ glNormalPointer (marshalDataType d) s p
+   check (n == 3) $ glNormalPointer (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glNormalPointer" glNormalPointer ::
    GLenum -> GLsizei -> Ptr a -> IO ()
@@ -206,7 +209,7 @@ getColorPointer = do
 
 setColorPointer :: VertexArrayDescriptor a -> IO ()
 setColorPointer (VertexArrayDescriptor n d s p) =
-   check [3,4] n $ glColorPointer n (marshalDataType d) s p
+   check (n == 3 || n == 4) $ glColorPointer n (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glColorPointer" glColorPointer ::
    GLint -> GLenum -> GLsizei -> Ptr a -> IO ()
@@ -225,7 +228,7 @@ getIndexPointer = do
 
 setIndexPointer :: VertexArrayDescriptor a -> IO ()
 setIndexPointer (VertexArrayDescriptor n d s p) =
-   check [1] n $ glIndexPointer (marshalDataType d) s p
+   check (n == 1) $ glIndexPointer (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glIndexPointer" glIndexPointer ::
    GLenum -> GLsizei -> Ptr a -> IO ()
@@ -263,7 +266,7 @@ getEdgeFlagPointer = do
 
 setEdgeFlagPointer :: VertexArrayDescriptor a -> IO ()
 setEdgeFlagPointer (VertexArrayDescriptor n d s p) =
-   check [1] n $ check [UnsignedByte] d $ glEdgeFlagPointer s p
+   check (n == 1 && d == UnsignedByte) $ glEdgeFlagPointer s p
 
 foreign import CALLCONV unsafe "glEdgeFlagPointer" glEdgeFlagPointer ::
    GLsizei -> Ptr a -> IO ()
@@ -282,7 +285,7 @@ getFogCoordPointer = do
 
 setFogCoordPointer :: VertexArrayDescriptor a -> IO ()
 setFogCoordPointer (VertexArrayDescriptor n d s p) =
-   check [1] n $ glFogCoordPointerEXT (marshalDataType d) s p
+   check (n == 1) $ glFogCoordPointerEXT (marshalDataType d) s p
 
 EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordPointerEXT,GLenum -> GLsizei -> Ptr a -> IO ())
 

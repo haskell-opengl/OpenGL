@@ -60,6 +60,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(Color4), Index1(Index1) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
 --------------------------------------------------------------------------------
 
@@ -120,8 +121,10 @@ accumBits =
 -- 'BackBuffers' for double-buffered contexts.
 
 drawBuffer :: StateVar BufferMode
-drawBuffer = makeStateVar (getEnum1 unmarshalBufferMode GetDrawBuffer)
-                          (glDrawBuffer . marshalBufferMode)
+drawBuffer =
+   makeStateVar
+      (getEnum1 unmarshalBufferMode GetDrawBuffer)
+      (maybe recordInvalidValue glDrawBuffer . marshalBufferMode)
 
 foreign import CALLCONV unsafe "glDrawBuffer" glDrawBuffer ::
    GLenum -> IO ()

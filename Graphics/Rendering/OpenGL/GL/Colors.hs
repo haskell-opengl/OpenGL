@@ -65,6 +65,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(..), Normal3(..), Vertex4(..), Index1(..) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -76,7 +77,7 @@ lighting = makeCapability CapLighting
 data Light = Light GLsizei
    deriving ( Eq, Ord, Show )
 
-marshalLight :: Light -> GLenum
+marshalLight :: Light -> Maybe GLenum
 marshalLight (Light l) = lightIndexToEnum l
 
 --------------------------------------------------------------------------------
@@ -250,23 +251,28 @@ marshalLightParameter x = case x of
 --------------------------------------------------------------------------------
 
 ambient :: Light -> StateVar (Color4 GLfloat)
-ambient = makeLightVar glGetLightfvc glLightfvc Ambient'
+ambient = makeLightVar glGetLightfvc glLightfvc Ambient' black
+
+black :: Color4 GLfloat
+black = Color4 0 0 0 0
 
 diffuse :: Light -> StateVar (Color4 GLfloat)
-diffuse = makeLightVar glGetLightfvc glLightfvc Diffuse'
+diffuse = makeLightVar glGetLightfvc glLightfvc Diffuse' black
 
 specular :: Light -> StateVar (Color4 GLfloat)
-specular = makeLightVar glGetLightfvc glLightfvc Specular'
+specular = makeLightVar glGetLightfvc glLightfvc Specular' black
 
 makeLightVar :: Storable a
              => (GLenum -> GLenum -> Ptr a -> IO ())
              -> (GLenum -> GLenum -> Ptr a -> IO ())
-             -> LightParameter -> Light -> StateVar a
-makeLightVar getter setter lightParameter theLight =
-   makeStateVar (alloca $ \buf -> do getter l lp buf ; peek buf)
-                (\val -> with val $ setter l lp)
-   where lp = marshalLightParameter lightParameter
-         l  = marshalLight theLight
+             -> LightParameter -> a -> Light -> StateVar a
+makeLightVar getter setter lightParameter defaultValue theLight =
+   makeStateVar (maybe (return defaultValue) getLightVar ml)
+                (\val -> maybe recordInvalidEnum (setLightVar val) ml)
+   where lp          = marshalLightParameter lightParameter
+         ml          = marshalLight theLight
+         getLightVar = \l -> alloca $ \buf -> do getter l lp buf ; peek buf
+         setLightVar = \val l -> with val $ setter l lp
 
 foreign import CALLCONV unsafe "glGetLightfv" glGetLightfvc ::
    GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
@@ -277,7 +283,7 @@ foreign import CALLCONV unsafe "glLightfv" glLightfvc ::
 --------------------------------------------------------------------------------
 
 position :: Light -> StateVar (Vertex4 GLfloat)
-position = makeLightVar glGetLightfvv glLightfvv Position
+position = makeLightVar glGetLightfvv glLightfvv Position (Vertex4 0 0 0 0)
 
 foreign import CALLCONV unsafe "glLightfv" glLightfvv ::
    GLenum -> GLenum -> Ptr (Vertex4 GLfloat) -> IO ()
@@ -288,7 +294,8 @@ foreign import CALLCONV unsafe "glGetLightfv" glGetLightfvv ::
 --------------------------------------------------------------------------------
 
 spotDirection :: Light -> StateVar (Normal3 GLfloat)
-spotDirection = makeLightVar glGetLightfvn glLightfvn SpotDirection
+spotDirection =
+   makeLightVar glGetLightfvn glLightfvn SpotDirection (Normal3 0 0 0)
 
 foreign import CALLCONV unsafe "glLightfv" glLightfvn ::
    GLenum -> GLenum -> Ptr (Normal3 GLfloat) -> IO ()
@@ -299,7 +306,7 @@ foreign import CALLCONV unsafe "glGetLightfv" glGetLightfvn ::
 --------------------------------------------------------------------------------
 
 spotExponent :: Light -> StateVar GLfloat
-spotExponent = makeLightVar glGetLightfv glLightfv SpotExponent
+spotExponent = makeLightVar glGetLightfv glLightfv SpotExponent 0
 
 foreign import CALLCONV unsafe "glLightfv" glLightfv ::
    GLenum -> GLenum -> Ptr GLfloat -> IO ()
@@ -313,7 +320,7 @@ maxSpotExponent = makeGettableStateVar $ getFloat1 id GetMaxSpotExponent
 --------------------------------------------------------------------------------
 
 spotCutoff :: Light -> StateVar GLfloat
-spotCutoff = makeLightVar glGetLightfv glLightfv SpotCutoff
+spotCutoff = makeLightVar glGetLightfv glLightfv SpotCutoff 0
 
 --------------------------------------------------------------------------------
 
@@ -329,13 +336,14 @@ attenuation theLight =
          quadraticAttenuation theLight $= quadratic)
 
 constantAttenuation :: Light -> StateVar GLfloat
-constantAttenuation = makeLightVar glGetLightfv glLightfv ConstantAttenuation
+constantAttenuation = makeLightVar glGetLightfv glLightfv ConstantAttenuation 0
 
 linearAttenuation :: Light -> StateVar GLfloat
-linearAttenuation = makeLightVar glGetLightfv glLightfv LinearAttenuation
+linearAttenuation = makeLightVar glGetLightfv glLightfv LinearAttenuation 0
 
 quadraticAttenuation :: Light -> StateVar GLfloat
-quadraticAttenuation = makeLightVar glGetLightfv glLightfv QuadraticAttenuation
+quadraticAttenuation =
+   makeLightVar glGetLightfv glLightfv QuadraticAttenuation 0
 
 --------------------------------------------------------------------------------
 

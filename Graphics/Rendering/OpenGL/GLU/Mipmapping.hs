@@ -26,6 +26,7 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelFormat )
 import Graphics.Rendering.OpenGL.GL.Texturing (
    TextureTarget, marshalTextureTarget,
    PixelInternalFormat, marshalPixelInternalFormat )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
 ---------------------------------------------------------------------------
 -- Section 3.1 (Image Scaling)
@@ -36,7 +37,7 @@ scaleImage (Size widthIn  heightIn)  formatIn  typeIn  addrIn
            (Size widthOut heightOut) formatOut typeOut addrOut
    | formatIn == formatOut = scaleImageAux (marshalPixelFormat formatIn) widthIn  heightIn  (marshalDataType typeIn ) addrIn
                                                                          widthOut heightOut (marshalDataType typeOut) addrOut
-   | otherwise = error "scaleImage: pixel formats differ"
+   | otherwise = recordInvalidValue
 
 foreign import CALLCONV unsafe "gluScaleImage" scaleImageAux ::
    GLenum -> GLsizei -> GLsizei -> GLenum -> Ptr a

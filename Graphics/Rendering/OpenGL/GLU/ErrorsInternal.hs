@@ -15,7 +15,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   Error(..), ErrorCategory(..), getErrors, recordErrorCode, recordOutOfMemory
+   Error(..), ErrorCategory(..), getErrors,
+   recordErrorCode, recordInvalidEnum, recordInvalidValue, recordOutOfMemory
 ) where
 
 import Foreign.Ptr ( Ptr, castPtr )
@@ -225,6 +226,12 @@ recordErrorCode :: GLenum -> IO ()
 recordErrorCode e = do
    getErrorCodesAux (\es -> (if null es then [e] else [], False))
    return ()
+
+recordInvalidEnum :: IO ()
+recordInvalidEnum = recordErrorCode (gl_marshalErrorCode GL_InvalidEnum)
+
+recordInvalidValue :: IO ()
+recordInvalidValue = recordErrorCode (gl_marshalErrorCode GL_InvalidValue)
 
 recordOutOfMemory :: IO ()
 recordOutOfMemory = recordErrorCode (glu_marshalErrorCode GLU_OutOfMemory)
