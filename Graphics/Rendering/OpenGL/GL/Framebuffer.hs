@@ -16,21 +16,23 @@
 module Graphics.Rendering.OpenGL.GL.Framebuffer (
    -- * Querying the Buffer Configuration
    auxBuffers, doublebuffer, stereo,
+   rgbaBits, stencilBits, depthBits, accumBits,
 
    -- * Selecting a Buffer for Writing
    BufferMode(..), drawBuffer,
 
    -- * Fine Control of Buffer Updates
-   indexMask, colorMask, depthMask, stencilMask,
+   indexMask, colorMask, stencilMask, depthMask,
 
    -- * Clearing the Buffers
    ClearBuffer(..), clear,
-   clearColor, clearIndex, clearDepth, clearStencil, clearAccum,
+   clearColor, clearIndex, clearStencil, clearDepth, clearAccum,
 
    -- * The Accumulation Buffer
    AccumOp(..), accum
 ) where
 
+import Control.Monad ( liftM4 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf, GLclampd )
 import Graphics.Rendering.OpenGL.GL.BufferMode (
@@ -38,10 +40,13 @@ import Graphics.Rendering.OpenGL.GL.BufferMode (
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetDrawBuffer,
-            GetIndexWritemask,GetColorWritemask,GetDepthWritemask,
-            GetStencilWritemask,GetColorClearValue,GetIndexClearValue,
-            GetDepthClearValue,GetStencilClearValue,GetAccumClearValue),
+   GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,
+            GetBlueBits,GetAlphaBits,GetStencilBits,GetDepthBits,
+            GetAccumRedBits,GetAccumGreenBits,GetAccumBlueBits,
+            GetAccumAlphaBits,GetDrawBuffer,GetIndexWritemask,GetColorWritemask,
+            GetDepthWritemask,GetStencilWritemask,GetColorClearValue,
+            GetIndexClearValue,GetDepthClearValue,GetStencilClearValue,
+            GetAccumClearValue),
    getInteger1, getBoolean1, getBoolean4, getEnum1, getSizei1, getFloat1,
    getFloat4, getDouble1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -54,19 +59,41 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 -- | The implementation and context dependent number of auxiliary buffers.
 
 auxBuffers :: GettableStateVar GLsizei
-auxBuffers = makeGettableStateVar (getSizei1 id GetAuxBuffers)
+auxBuffers = makeGettableStateVar $ getSizei1 id GetAuxBuffers
 
 -- | 'True' if front and back buffers exist.
 
 doublebuffer :: GettableStateVar Bool
 doublebuffer =
-   makeGettableStateVar (getBoolean1 unmarshalGLboolean GetDoublebuffer)
+   makeGettableStateVar $ getBoolean1 unmarshalGLboolean GetDoublebuffer
 
 -- | 'True' if left and right buffers exist.
 
 stereo :: GettableStateVar Bool
 stereo =
-    makeGettableStateVar (getBoolean1 unmarshalGLboolean GetStereo)
+    makeGettableStateVar $ getBoolean1 unmarshalGLboolean GetStereo
+
+rgbaBits :: GettableStateVar (Color4 GLsizei)
+rgbaBits =
+   makeGettableStateVar $
+      liftM4 Color4 (getSizei1 id GetRedBits)
+                    (getSizei1 id GetGreenBits)
+                    (getSizei1 id GetBlueBits)
+                    (getSizei1 id GetAlphaBits)
+
+stencilBits :: GettableStateVar GLsizei
+stencilBits = makeGettableStateVar $ getSizei1 id GetStencilBits
+
+depthBits :: GettableStateVar GLsizei
+depthBits = makeGettableStateVar $ getSizei1 id GetDepthBits
+
+accumBits :: GettableStateVar (Color4 GLsizei)
+accumBits =
+   makeGettableStateVar $
+      liftM4 Color4 (getSizei1 id GetAccumRedBits)
+                    (getSizei1 id GetAccumGreenBits)
+                    (getSizei1 id GetAccumBlueBits)
+                    (getSizei1 id GetAccumAlphaBits)
 
 --------------------------------------------------------------------------------
 
