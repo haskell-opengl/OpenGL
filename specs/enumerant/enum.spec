@@ -5,14 +5,17 @@
 #
 # This file was created in the following way:
 # 
-# 1) Use the SI's enum.spec (rev. 1.3) as a basis (it's OpenGL 1.2.1 compliant).
-# 2) Apply some bug fixes, see http://haskell.org/HOpenGL/spec_bugs.html.
-# 3) Inline the 1.1, 1.2, and 1.2.1 changes.
-# 4) Make OpenGL 1.3 changes according to Appendix F of the 1.3 specs.
-# 5) Make OpenGL 1.4 changes according to Appendix G of the 1.4 specs.
-# 6) Remove the extensions part.
-# 7) Rearrange definitions and declarations to get a better naming.
-# 8) Merge the extension registry's enumext.spec (ongoing).
+#  1) Use the SI's enum.spec (rev. 1.3) as a basis (it's OpenGL 1.2.1 compliant).
+#  2) Apply some bug fixes, see http://haskell.org/HOpenGL/spec_bugs.html.
+#  3) Inline the 1.1, 1.2, and 1.2.1 changes.
+#  4) Make OpenGL 1.3 changes according to Appendix F of the 1.3 specs.
+#  5) Make OpenGL 1.4 changes according to Appendix G of the 1.4 specs.
+#  6) Remove the extensions part.
+#  7) Rearrange definitions and declarations to get a better naming.
+#  8) Merge the extension registry's enumext.spec (ongoing).
+#  9) Unify ColorMaterialFace, CullFaceMode, and MaterialFace into Face.
+# 10) Unify AlphaFunction, DepthFunction, and StencilFunction into ComparisonFunction.
+# 11) Add USE_PREFIX special comments until constructors are unique.
 #
 # For the original files, see SGI's OpenGL sample implementation at:
 #
@@ -27,17 +30,8 @@ AccumOp enum:
 	MULT						= 0x0103
 	ADD						= 0x0104
 
-AlphaFunction enum:
-	NEVER						= 0x0200
-	LESS						= 0x0201
-	EQUAL						= 0x0202
-	LEQUAL						= 0x0203
-	GREATER						= 0x0204
-	NOTEQUAL					= 0x0205
-	GEQUAL						= 0x0206
-	ALWAYS						= 0x0207
-
 # it's an enum: in the registry, not a mask:
+# USE_PREFIX Server
 AttribMask mask:
 	CURRENT_BIT					= 0x00000001
 	POINT_BIT					= 0x00000002
@@ -82,6 +76,7 @@ BlendEquationMode enum:
 	FUNC_SUBTRACT					= 0x800A
 	FUNC_REVERSE_SUBTRACT				= 0x800B
 
+# USE_PREFIX DstFactor
 BlendingFactorDest enum:
 	ZERO						= 0
 	ONE						= 1
@@ -96,6 +91,7 @@ BlendingFactorDest enum:
 	CONSTANT_ALPHA					= 0x8003
 	ONE_MINUS_CONSTANT_ALPHA			= 0x8004
 
+# USE_PREFIX SrcFactor
 BlendingFactorSrc enum:
 	use BlendingFactorDest ZERO
 	use BlendingFactorDest ONE
@@ -111,6 +107,7 @@ BlendingFactorSrc enum:
 	use BlendingFactorDest CONSTANT_ALPHA
 	use BlendingFactorDest ONE_MINUS_CONSTANT_ALPHA
 
+# USE_PREFIX Boolean
 Boolean enum:
 	FALSE						= 0
 	TRUE						= 1
@@ -148,11 +145,7 @@ ClipPlaneName enum:
 	CLIP_PLANE4					= 0x3004
 	CLIP_PLANE5					= 0x3005
 
-ColorMaterialFace enum:
-	use DrawBufferMode FRONT
-	use DrawBufferMode BACK
-	use DrawBufferMode FRONT_AND_BACK
-
+# USE_PREFIX ColorMaterial
 ColorMaterialParameter enum:
 	use LightParameter AMBIENT
 	use LightParameter DIFFUSE
@@ -160,6 +153,7 @@ ColorMaterialParameter enum:
 	use MaterialParameter EMISSION
 	use MaterialParameter AMBIENT_AND_DIFFUSE
 
+# USE_PREFIX Color
 ColorPointerType enum:
 	use DataType BYTE
 	use DataType UNSIGNED_BYTE
@@ -182,6 +176,16 @@ ColorTableTarget enum:
 	PROXY_POST_CONVOLUTION_COLOR_TABLE		= 0x80D4
 	PROXY_POST_COLOR_MATRIX_COLOR_TABLE		= 0x80D5
 
+ComparisonFunction enum:
+	NEVER						= 0x0200
+	LESS						= 0x0201
+	EQUAL						= 0x0202
+	LEQUAL						= 0x0203
+	GREATER						= 0x0204
+	NOTEQUAL					= 0x0205
+	GEQUAL						= 0x0206
+	ALWAYS						= 0x0207
+
 ConvolutionBorderMode enum:
 	REDUCE						= 0x8016
 	CONSTANT_BORDER					= 0x8151
@@ -197,11 +201,6 @@ ConvolutionTarget enum:
 	CONVOLUTION_1D					= 0x8010
 	CONVOLUTION_2D					= 0x8011
 
-CullFaceMode enum:
-	use DrawBufferMode FRONT
-	use DrawBufferMode BACK
-	use DrawBufferMode FRONT_AND_BACK
-
 DataType enum:
 	BYTE						= 0x1400
 	UNSIGNED_BYTE					= 0x1401
@@ -215,16 +214,7 @@ DataType enum:
 	4_BYTES						= 0x1409
 	DOUBLE						= 0x140A
 
-DepthFunction enum:
-	use AlphaFunction NEVER
-	use AlphaFunction LESS
-	use AlphaFunction EQUAL
-	use AlphaFunction LEQUAL
-	use AlphaFunction GREATER
-	use AlphaFunction NOTEQUAL
-	use AlphaFunction GEQUAL
-	use AlphaFunction ALWAYS
-
+# USE_PREFIX DrawBuffer
 DrawBufferMode enum:
 	NONE						= 0
 	FRONT_LEFT					= 0x0400
@@ -241,6 +231,7 @@ DrawBufferMode enum:
 	AUX2						= 0x040B
 	AUX3						= 0x040C
 
+# USE_PREFIX Cap
 EnableCap enum:
 	FOG						= 0x0B60
 	LIGHTING					= 0x0B50
@@ -356,6 +347,11 @@ ErrorCode enum:
 	OUT_OF_MEMORY					= 0x0505
 	TABLE_TOO_LARGE					= 0x8031
 
+Face enum:
+	use DrawBufferMode FRONT
+	use DrawBufferMode BACK
+	use DrawBufferMode FRONT_AND_BACK
+
 FeedBackType enum:
 	2D						= 0x0600
 	3D						= 0x0601
@@ -395,6 +391,7 @@ FrontFaceDirection enum:
 	CW						= 0x0900
 	CCW						= 0x0901
 
+# USE_PREFIX Get
 GetColorTableParameterPName enum:
 	use ColorTableParameterPName COLOR_TABLE_SCALE
 	use ColorTableParameterPName COLOR_TABLE_BIAS
@@ -407,6 +404,7 @@ GetColorTableParameterPName enum:
 	COLOR_TABLE_LUMINANCE_SIZE			= 0x80DE
 	COLOR_TABLE_INTENSITY_SIZE			= 0x80DF
 
+# USE_PREFIX Get
 GetConvolutionParameter enum:
 	CONVOLUTION_BORDER_COLOR			= 0x8154	# Not in the registry, but in the OpenGL 1.3 spec
 	use ConvolutionParameterPName CONVOLUTION_BORDER_MODE
@@ -437,6 +435,7 @@ GetMinmaxParameterPName enum:
 	MINMAX_FORMAT					= 0x802F
 	MINMAX_SINK					= 0x8030
 
+# USE_PREFIX Get
 GetPixelMap enum:
 	use PixelMap PIXEL_MAP_I_TO_I
 	use PixelMap PIXEL_MAP_S_TO_S
@@ -463,6 +462,7 @@ GetPointervPName enum:
 	WEIGHT_ARRAY_POINTER				= 0x86AC	# ARB Extension #15: ARB_vertex_blend
 	MATRIX_INDEX_ARRAY_POINTER			= 0x8849	# ARB Extension #16: ARB_matrix_palette
 
+# USE_PREFIX Get
 GetPName enum:
 	CURRENT_COLOR					= 0x0B00	# 4 F
 	CURRENT_INDEX					= 0x0B01	# 1 F
@@ -913,6 +913,7 @@ GetPName enum:
 	MAX_PALETTE_MATRICES				= 0x8842	# ARB Extension #16: ARB_matrix_palette
 	CURRENT_PALETTE_MATRIX				= 0x8843	# ARB Extension #16: ARB_matrix_palette
 
+# USE_PREFIX Get
 GetTextureParameter enum:
 	use TextureParameterName TEXTURE_MAG_FILTER
 	use TextureParameterName TEXTURE_MIN_FILTER
@@ -976,6 +977,7 @@ HistogramTarget enum:
 	HISTOGRAM					= 0x8024
 	PROXY_HISTOGRAM					= 0x8025
 
+# USE_PREFIX Index
 IndexPointerType enum:
 	use DataType SHORT
 	use DataType INT
@@ -1035,6 +1037,7 @@ ListMode enum:
 	COMPILE						= 0x1300
 	COMPILE_AND_EXECUTE				= 0x1301
 
+# USE_PREFIX ListName
 ListNameType enum:
 	use DataType BYTE
 	use DataType UNSIGNED_BYTE
@@ -1087,11 +1090,7 @@ MapTarget enum:
 	MAP2_VERTEX_3					= 0x0DB7
 	MAP2_VERTEX_4					= 0x0DB8
 
-MaterialFace enum:
-	use DrawBufferMode FRONT
-	use DrawBufferMode BACK
-	use DrawBufferMode FRONT_AND_BACK
-
+# USE_PREFIX Material
 MaterialParameter enum:
 	EMISSION					= 0x1600
 	SHININESS					= 0x1601
@@ -1139,10 +1138,12 @@ MatrixMode enum:
 	MODELVIEW31					= 0x873F	# ARB Extension #15: ARB_vertex_blend
 	MATRIX_PALETTE					= 0x8840	# ARB Extension #16: ARB_matrix_palette
 
+# USE_PREFIX Mesh1
 MeshMode1 enum:
 	use PolygonMode POINT
 	use PolygonMode LINE
 
+# USE_PREFIX Mesh2
 MeshMode2 enum:
 	use PolygonMode POINT
 	use PolygonMode LINE
@@ -1151,6 +1152,7 @@ MeshMode2 enum:
 MinmaxTarget enum:
 	MINMAX						= 0x802E
 
+# USE_PREFIX Normal
 NormalPointerType enum:
 	use DataType BYTE
 	use DataType SHORT
@@ -1286,6 +1288,7 @@ PixelTransfer enum:
 	POST_COLOR_MATRIX_BLUE_BIAS			= 0x80BA
 	POST_COLOR_MATRIX_ALPHA_BIAS			= 0x80BB
 
+# USE_PREFIX Pixel
 PixelType enum:
 	BITMAP						= 0x1A00
 	use DataType BYTE
@@ -1321,6 +1324,7 @@ PolygonMode enum:
 	LINE						= 0x1B01
 	FILL						= 0x1B02
 
+# USE_PREFIX ReadBuffer
 ReadBufferMode enum:
 	use DrawBufferMode FRONT_LEFT
 	use DrawBufferMode FRONT_RIGHT
@@ -1347,16 +1351,7 @@ ShadingModel enum:
 	FLAT						= 0x1D00
 	SMOOTH						= 0x1D01
 
-StencilFunction enum:
-	use AlphaFunction NEVER
-	use AlphaFunction LESS
-	use AlphaFunction EQUAL
-	use AlphaFunction LEQUAL
-	use AlphaFunction GREATER
-	use AlphaFunction NOTEQUAL
-	use AlphaFunction GEQUAL
-	use AlphaFunction ALWAYS
-
+# USE_PREFIX Op
 StencilOp enum:
 	use BlendingFactorDest ZERO
 	KEEP						= 0x1E00
@@ -1376,6 +1371,7 @@ StringName enum:
 TextureCompareMode enum:
 	COMPARE_R_TO_TEXTURE				= 0x884E	# ARB Extension #23: ARB_shadow (promoted to core in 1.4)
 
+# USE_PREFIX TexCoord
 TexCoordPointerType enum:
 	use DataType SHORT
 	use DataType INT
@@ -1388,6 +1384,7 @@ TextureCoordName enum:
 	R						= 0x2002
 	Q						= 0x2003
 
+# USE_PREFIX Mode
 TextureEnvMode enum:
 	MODULATE					= 0x2100
 	DECAL						= 0x2101
@@ -1396,6 +1393,7 @@ TextureEnvMode enum:
 	use AccumOp ADD							# ARB Extension #6: ARB_texture_env_add
 	COMBINE						= 0x8570	# ARB Extension #17: ARB_texture_env_combine
 
+# USE_PREFIX Combine
 TextureEnvCombine enum:
 	use TextureEnvMode REPLACE					# ARB Extension #17: ARB_texture_env_combine
 	use TextureEnvMode MODULATE					# ARB Extension #17: ARB_texture_env_combine
@@ -1412,6 +1410,7 @@ TextureEnvOperand enum:
 	use BlendingFactorDest SRC_ALPHA				# ARB Extension #17: ARB_texture_env_combine
 	use BlendingFactorDest ONE_MINUS_SRC_ALPHA			# ARB Extension #17: ARB_texture_env_combine
 
+# USE_PREFIX TexEnvParam
 TextureEnvParameter enum:
 	TEXTURE_ENV_MODE				= 0x2200
 	TEXTURE_ENV_COLOR				= 0x2201
@@ -1432,6 +1431,7 @@ TextureEnvParameter enum:
 	RGB_SCALE					= 0x8573
 	use PixelTransfer ALPHA_SCALE					# ARB Extension #17: ARB_texture_env_combine
 
+# USE_PREFIX Source
 TextureEnvSource enum:
 	use MatrixMode TEXTURE						# ARB Extension #17: ARB_texture_env_combine
 	CONSTANT					= 0x8576	# ARB Extension #17: ARB_texture_env_combine
@@ -1489,10 +1489,12 @@ TextureGenParameter enum:
 	OBJECT_PLANE					= 0x2501
 	EYE_PLANE					= 0x2502
 
+# USE_PREFIX Mag
 TextureMagFilter enum:
 	use TextureMinFilter NEAREST
 	use TextureMinFilter LINEAR
 
+# USE_PREFIX Min
 TextureMinFilter enum:
 	NEAREST						= 0x2600
 	LINEAR						= 0x2601
@@ -1586,6 +1588,7 @@ TextureWrapMode enum:
 	CLAMP_TO_BORDER					= 0x812D	# ARB Extension #13: ARB_texture_border_clamp
 	MIRRORED_REPEAT					= 0x8370	# ARB Extension #21: ARB_texture_mirrored_repeat (promoted to core in 1.4)
 
+# USE_PREFIX Vertex
 VertexPointerType enum:
 	use DataType SHORT
 	use DataType INT
