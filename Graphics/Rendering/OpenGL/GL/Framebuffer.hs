@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Framebuffer (
    -- * Querying the Buffer Configuration
-   auxBuffers, doublebuffer, stereo,
+   auxBuffers, doubleBuffer, stereoBuffer,
    rgbaBits, stencilBits, depthBits, accumBits,
 
    -- * Selecting a Buffer for Writing
@@ -65,14 +65,14 @@ auxBuffers = makeGettableStateVar $ getSizei1 id GetAuxBuffers
 
 -- | 'True' if front and back buffers exist.
 
-doublebuffer :: GettableStateVar Bool
-doublebuffer =
+doubleBuffer :: GettableStateVar Bool
+doubleBuffer =
    makeGettableStateVar $ getBoolean1 unmarshalGLboolean GetDoublebuffer
 
 -- | 'True' if left and right buffers exist.
 
-stereo :: GettableStateVar Bool
-stereo =
+stereoBuffer :: GettableStateVar Bool
+stereoBuffer =
     makeGettableStateVar $ getBoolean1 unmarshalGLboolean GetStereo
 
 rgbaBits :: GettableStateVar (Color4 GLsizei)
