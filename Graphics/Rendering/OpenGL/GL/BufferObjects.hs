@@ -81,8 +81,8 @@ newtype BufferObject = BufferObject { bufferID :: GLuint }
 instance ObjectName BufferObject where
    genObjectNames n =
       allocaArray n $ \buf -> do
-      glGenBuffersARB (fromIntegral n) buf
-      liftM (map BufferObject) $ peekArray n buf
+        glGenBuffersARB (fromIntegral n) buf
+        liftM (map BufferObject) $ peekArray n buf
 
    deleteObjectNames bufferObjects = do
       withArray (map bufferID bufferObjects) $
