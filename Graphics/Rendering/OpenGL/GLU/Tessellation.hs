@@ -76,7 +76,6 @@ data TessCallback =
    | TessErrorData
    | TessEdgeFlagData
    | TessCombineData
-   deriving ( Eq, Ord, Show )
 
 marshalTessCallback :: TessCallback -> GLenum
 marshalTessCallback x = case x of
@@ -104,7 +103,6 @@ data TessProperty =
      TessWindingRule
    | TessBoundaryOnly
    | TessTolerance
-   deriving ( Eq, Ord, Show )
 
 marshalTessProperty :: TessProperty -> GLenum
 marshalTessProperty x = case x of
