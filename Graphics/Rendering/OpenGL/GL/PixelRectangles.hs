@@ -167,7 +167,7 @@ skipRows Unpack = pixelStorei GetUnpackSkipRows UnpackSkipRows
 
 skipPixels :: PixelStoreDirection -> StateVar GLint
 skipPixels Pack   = pixelStorei GetPackSkipPixels PackSkipPixels
-skipPixels Unpack = pixelStorei GetUnpackSkipPixels PackSkipPixels
+skipPixels Unpack = pixelStorei GetUnpackSkipPixels UnpackSkipPixels
 
 rowAlignment :: PixelStoreDirection -> StateVar GLint
 rowAlignment Pack   = pixelStorei GetPackAlignment PackAlignment
@@ -175,11 +175,11 @@ rowAlignment Unpack = pixelStorei GetUnpackAlignment UnpackAlignment
 
 imageHeight :: PixelStoreDirection -> StateVar GLint
 imageHeight Pack   = pixelStorei GetPackImageHeight PackImageHeight
-imageHeight Unpack = pixelStorei GetUnpackImageHeight PackImageHeight
+imageHeight Unpack = pixelStorei GetUnpackImageHeight UnpackImageHeight
 
 skipImages :: PixelStoreDirection -> StateVar GLint
 skipImages Pack   = pixelStorei GetPackSkipImages PackSkipImages
-skipImages Unpack = pixelStorei GetUnpackSkipImages PackSkipImages
+skipImages Unpack = pixelStorei GetUnpackSkipImages UnpackSkipImages
 
 --------------------------------------------------------------------------------
 
