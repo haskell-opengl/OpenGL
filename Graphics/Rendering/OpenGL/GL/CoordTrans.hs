@@ -38,9 +38,6 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
-#ifndef __NHC__
-import Control.Exception ( finally )
-#endif
 import Control.Monad ( liftM )
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
@@ -55,6 +52,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
              CapTextureGenS, CapTextureGenT,
              CapTextureGenR, CapTextureGenQ),
    makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
@@ -338,14 +336,10 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum ->
 -- previous state). The returned value is that of the given action.
 
 matrixExcursion :: IO a -> IO a
-#ifdef __NHC__
-matrixExcursion = unsafeMatrixExcursion
-#else
 matrixExcursion action = do
    -- performance paranoia: No (un-)marshaling by avoiding matrixMode
    mode <- getInteger1 fromIntegral GetMatrixMode
    (do glPushMatrix ; action) `finally` (do glMatrixMode mode ; glPopMatrix)
-#endif
 
 foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
 

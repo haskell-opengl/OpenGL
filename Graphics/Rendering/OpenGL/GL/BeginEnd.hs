@@ -24,13 +24,11 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
       
 ) where
 
-#ifndef __NHC__
-import Control.Exception ( finally )
-#endif
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLboolean )
 import Graphics.Rendering.OpenGL.GL.BeginEndInternal (
    PrimitiveMode(..), marshalPrimitiveMode,
    EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag )
+import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, GetPName(GetEdgeFlag) )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
@@ -88,12 +86,9 @@ import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 -- 'Triangles' (3), 'Quads' (4), and 'QuadStrip' (2).
 
 renderPrimitive :: PrimitiveMode -> IO a -> IO a
-#ifdef __NHC__
-renderPrimitive = unsafeRenderPrimitive
-#else
 renderPrimitive beginMode action =
    (do glBegin (marshalPrimitiveMode beginMode) ; action) `finally` glEnd
-#endif
+
 foreign import CALLCONV unsafe "glBegin" glBegin :: GLenum -> IO ()
 
 foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()

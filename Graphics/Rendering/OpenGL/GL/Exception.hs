@@ -1,7 +1,7 @@
 -- #hide
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GLU.Exception
+-- Module      :  Graphics.Rendering.OpenGL.GL.Exception
 -- Copyright   :  (c) Sven Panne 2003
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -14,7 +14,7 @@
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GLU.Exception (
+module Graphics.Rendering.OpenGL.GL.Exception (
    finally
 ) where
 
