@@ -13,7 +13,7 @@
 #ifndef HSOPENGL_H
 #define HSOPENGL_H
 
-#include "config.h"
+#include "ghcconfig.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 
