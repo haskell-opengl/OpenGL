@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    ObjectName(..),
 
    -- * Buffer Objects
-   BufferObject, noBufferObject,
+   BufferObject,
 
    -- * Binding Buffer Objects
    BufferTarget(..), bindBuffer, arrayBufferBinding,
@@ -74,9 +74,6 @@ class ObjectName a where
 
 newtype BufferObject = BufferObject { bufferID :: GLuint }
    deriving ( Eq, Ord, Show )
-
-noBufferObject :: BufferObject
-noBufferObject = BufferObject 0
 
 --------------------------------------------------------------------------------
 
@@ -177,15 +174,23 @@ unmarshalBufferAccess x
 
 --------------------------------------------------------------------------------
 
-bindBuffer :: BufferTarget -> StateVar BufferObject
+bindBuffer :: BufferTarget -> StateVar (Maybe BufferObject)
 bindBuffer t = makeStateVar (getBindBuffer t) (setBindBuffer t)
 
-getBindBuffer :: BufferTarget -> IO BufferObject
-getBindBuffer =
-   getInteger1 (BufferObject . fromIntegral) . bufferTargetToGetPName
+getBindBuffer :: BufferTarget -> IO (Maybe BufferObject)
+getBindBuffer = bufferQuery bufferTargetToGetPName
 
-setBindBuffer :: BufferTarget -> BufferObject -> IO ()
-setBindBuffer t = glBindBufferARB (marshalBufferTarget t) . bufferID
+bufferQuery :: (a -> GetPName) -> a -> IO (Maybe BufferObject)
+bufferQuery func t = do
+   buf <- getInteger1 (BufferObject . fromIntegral) (func t)
+   return $ if buf == noBufferObject then Nothing else Just buf
+
+noBufferObject :: BufferObject
+noBufferObject = BufferObject 0
+
+setBindBuffer :: BufferTarget -> Maybe BufferObject -> IO ()
+setBindBuffer t =
+   glBindBufferARB (marshalBufferTarget t) . bufferID . maybe noBufferObject id
 
 EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glBindBufferARB,GLenum -> GLuint -> IO ())
 
@@ -201,10 +206,9 @@ clientArrayTypeToGetPName x = case x of
    SecondaryColorArray -> GetSecondaryColorArrayBufferBinding
    MatrixIndexArray -> error "clientArrayTypeToGetPName: MatrixIndexArray"
 
-arrayBufferBinding :: ClientArrayType -> GettableStateVar BufferObject
-arrayBufferBinding t =
-   makeGettableStateVar $
-      getInteger1 (BufferObject . fromIntegral ) (clientArrayTypeToGetPName t)
+arrayBufferBinding :: ClientArrayType -> GettableStateVar (Maybe BufferObject)
+arrayBufferBinding =
+   makeGettableStateVar . bufferQuery clientArrayTypeToGetPName
 
 --------------------------------------------------------------------------------
 
