@@ -14,24 +14,30 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Antialiasing (
-   sampleBuffers, samples, multisample
+   sampleBuffers, samples, multisample, subpixelBits
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapMultisample), makeCapability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetSampleBuffers,GetSamples), getInteger1 )
+   GetPName(GetSampleBuffers,GetSamples,GetSubpixelBits), getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar )
 
 --------------------------------------------------------------------------------
 
 sampleBuffers :: GettableStateVar GLsizei
-sampleBuffers = makeGettableStateVar (getInteger1 fromIntegral GetSampleBuffers)
+sampleBuffers = antialiasingInfo GetSampleBuffers
 
 samples :: GettableStateVar GLsizei
-samples = makeGettableStateVar (getInteger1 fromIntegral GetSamples)
+samples = antialiasingInfo GetSamples
 
 multisample :: StateVar Bool
 multisample = makeCapability CapMultisample
+
+subpixelBits :: GettableStateVar GLsizei
+subpixelBits = antialiasingInfo GetSubpixelBits
+
+antialiasingInfo :: GetPName -> GettableStateVar GLsizei
+antialiasingInfo = makeGettableStateVar . getInteger1 fromIntegral

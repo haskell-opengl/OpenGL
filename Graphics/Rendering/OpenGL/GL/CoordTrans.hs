@@ -26,8 +26,10 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    ortho, frustum,
    activeTexture,
    matrixExcursion, unsafeMatrixExcursion,
-   modelviewStackDepth, projectionStackDepth,
-   textureStackDepth, colorMatrixStackDepth,
+   modelviewStackDepth, maxModelviewStackDepth,
+   projectionStackDepth, maxProjectionStackDepth,
+   textureStackDepth, maxTexMaxtureStackDepth,
+   colorMatrixStackDepth, maxColorMatrixStackDepth,
 
    -- * Normal Transformation
    rescaleNormal, normalize,
@@ -59,8 +61,10 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
             GetModelviewMatrix,GetProjectionMatrix,GetTextureMatrix,
             GetColorMatrix,GetMatrixPalette,GetActiveTexture,
-            GetModelviewStackDepth,GetProjectionStackDepth,
-            GetTextureStackDepth,GetColorMatrixStackDepth),
+            GetModelviewStackDepth,GetMaxModelviewStackDepth,
+            GetProjectionStackDepth,GetMaxProjectionStackDepth,
+            GetTextureStackDepth,GetMaxTextureStackDepth,
+            GetColorMatrixStackDepth,GetMaxColorMatrixStackDepth),
    getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)),
@@ -361,20 +365,31 @@ unsafeMatrixExcursion action = do
 --------------------------------------------------------------------------------
 
 modelviewStackDepth :: GettableStateVar GLsizei
-modelviewStackDepth =
-   makeGettableStateVar (getInteger1 fromIntegral GetModelviewStackDepth)
+modelviewStackDepth = stackInfo GetModelviewStackDepth
+
+maxModelviewStackDepth :: GettableStateVar GLsizei
+maxModelviewStackDepth = stackInfo GetMaxModelviewStackDepth
 
 projectionStackDepth :: GettableStateVar GLsizei
-projectionStackDepth =
-   makeGettableStateVar (getInteger1 fromIntegral GetProjectionStackDepth)
+projectionStackDepth = stackInfo GetProjectionStackDepth
+
+maxProjectionStackDepth :: GettableStateVar GLsizei
+maxProjectionStackDepth = stackInfo GetMaxProjectionStackDepth
 
 textureStackDepth :: GettableStateVar GLsizei
-textureStackDepth =
-   makeGettableStateVar (getInteger1 fromIntegral GetTextureStackDepth)
+textureStackDepth = stackInfo GetTextureStackDepth
+
+maxTexMaxtureStackDepth :: GettableStateVar GLsizei
+maxTexMaxtureStackDepth = stackInfo GetMaxTextureStackDepth
 
 colorMatrixStackDepth :: GettableStateVar GLsizei
-colorMatrixStackDepth =
-   makeGettableStateVar (getInteger1 fromIntegral GetColorMatrixStackDepth)
+colorMatrixStackDepth = stackInfo GetColorMatrixStackDepth
+
+maxColorMatrixStackDepth :: GettableStateVar GLsizei
+maxColorMatrixStackDepth = stackInfo GetMaxColorMatrixStackDepth
+
+stackInfo :: GetPName -> GettableStateVar GLsizei
+stackInfo = makeGettableStateVar . getInteger1 fromIntegral
 
 --------------------------------------------------------------------------------
 

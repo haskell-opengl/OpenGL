@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Colors (
    -- * Lighting
-   lighting, Light(..), light,
+   lighting, Light(..), light, maxLights,
    FrontFaceDirection(..), frontFace,
 
    -- * Lighting Parameter Specification
@@ -50,13 +50,14 @@ import Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek3 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetFrontFace,GetShadeModel,
+   GetPName(GetMaxLights, GetFrontFace,GetShadeModel,
             GetLightModelAmbient, GetLightModelLocalViewer,
             GetLightModelTwoSide, GetLightModelColorControl,
             GetColorMaterialFace,GetColorMaterialParameter),
    getBoolean1, getInteger1, getFloat4, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
+   HasGetter(get), HasSetter(($=)),
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(..), Normal3(..), Vertex4(..), Index1(..) )
 
@@ -77,6 +78,9 @@ marshalLight (Light l) = lightIndexToEnum l
 
 light :: Light -> StateVar Bool
 light (Light l) = makeCapability (CapLight l)
+
+maxLights :: GettableStateVar GLsizei
+maxLights = makeGettableStateVar (getInteger1 fromIntegral GetMaxLights)
 
 --------------------------------------------------------------------------------
 

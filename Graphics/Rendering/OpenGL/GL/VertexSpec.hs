@@ -38,6 +38,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    FogCoord1(..),
 
    -- ** Color and Secondary Color
+   rgbaMode,
    currentColor, Color(..),
    currentSecondaryColor, SecondaryColor(..),
    ColorComponent,
@@ -58,14 +59,15 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLdouble )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke (
    poke1, poke2, poke3, poke4,
    peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoordinate,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
-            GetMaxTextureUnits),
-   getInteger1, getFloat1, getFloat3, getFloat4 )
+            GetMaxTextureUnits,GetRGBAMode),
+   getBoolean1, getInteger1, getFloat1, getFloat3, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
@@ -781,6 +783,14 @@ newtype FogCoord1 a = FogCoord1 a
 instance FogCoordComponent a => FogCoord (FogCoord1 a) where
    fogCoord (FogCoord1 c) = fogCoord1 c
    fogCoordv = fogCoord1v . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
+
+--------------------------------------------------------------------------------
+
+-- | If 'rgbaMode' contains 'True', the color buffers store RGBA value. If
+-- color indexes are stored, it contains 'False'.
+
+rgbaMode :: GettableStateVar Bool
+rgbaMode = makeGettableStateVar (getBoolean1 unmarshalGLboolean GetRGBAMode)
 
 --------------------------------------------------------------------------------
 

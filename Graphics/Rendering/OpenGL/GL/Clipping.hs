@@ -13,7 +13,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Clipping (
-   ClipPlaneName(..), clipPlane
+   ClipPlaneName(..), clipPlane, maxClipPlanes
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
@@ -25,9 +25,11 @@ import Graphics.Rendering.OpenGL.GL.Capability (
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Plane(..) )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetClipPlane), clipPlaneIndexToEnum,getDoublev )
+   GetPName(GetClipPlane,GetMaxClipPlanes),
+   clipPlaneIndexToEnum, getDoublev, getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
+   HasGetter(get), HasSetter(($=)),
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -66,3 +68,8 @@ foreign import CALLCONV unsafe "glClipPlane" glClipPlane ::
 
 clipPlaneStatus :: ClipPlaneName -> StateVar Bool
 clipPlaneStatus (ClipPlaneName i) = makeCapability (CapClipPlane i)
+
+--------------------------------------------------------------------------------
+
+maxClipPlanes :: GettableStateVar GLsizei
+maxClipPlanes = makeGettableStateVar (getInteger1 fromIntegral GetMaxClipPlanes)
