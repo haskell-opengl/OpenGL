@@ -46,7 +46,7 @@ import Foreign.Marshal.Array ( withArray, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLuint, GLsizei, GLenum, GLfloat, GLclampf, GLdouble )
+   GLint, GLuint, GLsizei, GLenum, GLfloat, GLclampf )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -475,32 +475,3 @@ foreign import CALLCONV unsafe "glGetTexEnvfv"
 
 foreign import CALLCONV unsafe "glGetTexEnviv"
    glGetTexEnviv :: GLenum -> GLenum -> Ptr GLint -> IO ()
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glTexGend"
-   glTexGend :: GLenum -> GLenum ->  GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexGenf"
-   glTexGenf :: GLenum -> GLenum ->  GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexGeni"
-   glTexGeni :: GLenum -> GLenum ->  GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexGendv"
-   glTexGendv :: GLenum -> GLenum -> Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexGenfv"
-   glTexGenfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexGeniv"
-   glTexGeniv :: GLenum -> GLenum -> Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glGetTexGendv"
-   glGetTexGendv :: GLenum -> GLenum -> Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glGetTexGenfv"
-   glGetTexGenfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glGetTexGeniv"
-   glGetTexGeniv :: GLenum -> GLenum -> Ptr GLint -> IO ()
