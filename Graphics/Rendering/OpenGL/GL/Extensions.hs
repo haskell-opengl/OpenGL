@@ -24,7 +24,7 @@ import Foreign.Ptr ( FunPtr, nullFunPtr )
 import System.IO.Unsafe ( unsafePerformIO )
 
 #ifdef __HUGS__
-{-# CBITS HsOpenGL.c #-}
+{-# CFILES cbits/HsOpenGL.c #-}
 #endif
 
 --------------------------------------------------------------------------------
