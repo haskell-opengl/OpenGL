@@ -18,9 +18,8 @@ module Graphics.Rendering.OpenGL.GLU.Mipmapping (
 
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, GLint, GLenum )
-import Graphics.Rendering.OpenGL.GL.VertexArray ( marshalPixelType )
 import Graphics.Rendering.OpenGL.GL.PixelRect (
-   PixelDescriptor(..), marshalPixelFormat )
+   PixelDescriptor(..), marshalPixelFormat, marshalPixelType )
 import Graphics.Rendering.OpenGL.GL.Texturing (
    TextureTarget, marshalTextureTarget,
    PixelInternalFormat, marshalPixelInternalFormat )

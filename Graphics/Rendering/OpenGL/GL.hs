@@ -30,7 +30,7 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.StateVar,
      module Graphics.Rendering.OpenGL.GL.StringQueries,
      module Graphics.Rendering.OpenGL.GL.Texturing,
-     module Graphics.Rendering.OpenGL.GL.VertexArray,
+     module Graphics.Rendering.OpenGL.GL.VertexArrays,
      module Graphics.Rendering.OpenGL.GL.VertexSpec
 ) where
 
@@ -50,5 +50,5 @@ import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.StringQueries
 import Graphics.Rendering.OpenGL.GL.Texturing
-import Graphics.Rendering.OpenGL.GL.VertexArray
+import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GL.VertexSpec
