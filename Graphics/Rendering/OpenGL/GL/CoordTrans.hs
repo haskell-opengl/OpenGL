@@ -23,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Vector3(..),
    MatrixOrder(..), MatrixComponent(rotate,translate,scale), Matrix(..),
    currentMatrix, multMatrix, GLmatrix, loadIdentity,
-   ortho, frustum,
+   ortho, frustum, depthClamp,
    activeTexture,
    matrixExcursion, unsafeMatrixExcursion,
    stackDepth, maxStackDepth,
@@ -40,7 +40,7 @@ import Foreign
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapRescaleNormal, CapNormalize,
+   EnableCap(CapRescaleNormal, CapNormalize,CapDepthClamp,
              CapTextureGenS, CapTextureGenT,
              CapTextureGenR, CapTextureGenQ),
    Capability(..), makeCapability, makeStateVarMaybe )
@@ -350,6 +350,11 @@ foreign import CALLCONV unsafe "glOrtho" ortho ::
 
 foreign import CALLCONV unsafe "glFrustum" frustum ::
    GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+
+--------------------------------------------------------------------------------
+
+depthClamp :: StateVar Capability
+depthClamp = makeCapability CapDepthClamp
 
 --------------------------------------------------------------------------------
 

@@ -118,6 +118,7 @@ data EnableCap =
    | CapVertexBlend
    | CapWeightArray
    | CapMatrixPalette
+   | CapDepthClamp
 
 marshalEnableCap :: EnableCap -> GLenum
 marshalEnableCap x = case x of
@@ -199,6 +200,7 @@ marshalEnableCap x = case x of
    CapVertexBlend -> 0x86a7
    CapWeightArray -> 0x86ad
    CapMatrixPalette -> 0x8840
+   CapDepthClamp -> 0x864f
 
 --------------------------------------------------------------------------------
 
