@@ -19,9 +19,9 @@ module Graphics.Rendering.OpenGL.GL.Extensions (
    Invoker, getProcAddress   -- used only internally
 ) where
 
-import Foreign ( unsafePerformIO )
 import Foreign.C.String ( CString, withCString )
 import Foreign.Ptr ( FunPtr, nullFunPtr )
+import System.IO.Unsafe ( unsafePerformIO )
 
 #ifdef __HUGS__
 {-# CBITS HsOpenGL.c #-}
