@@ -28,8 +28,10 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    maxPixelMapTable, pixelMap, pixelMapIToRGBA, pixelMapRGBAToRGBA,
 
    -- * Color Tables
-   colorTableEnabled, colorTableScale, colorTableBias, colorTableFormat,
-   colorTableWidth,
+   ColorTableStage(..), colorTableStage,
+   ColorTable(..), colorTable, getColorTable,
+   copyColorTable, colorSubTable, copyColorSubTable,
+   colorTableScale, colorTableBias, colorTableFormat, colorTableWidth,
    colorTableRGBASizes, colorTableLuminanceSize, colorTableIntesitySize,
 
    -- * Convolution Filter
@@ -53,11 +55,11 @@ import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapColorTable,CapPostConvolutionColorTable,
-             CapPostColorMatrixColorTable),
+             CapPostColorMatrixColorTable,CapTextureColorTable),
    makeCapability, marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLushort, GLint, GLuint, GLsizei, GLfloat, Capability )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
+import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -94,8 +96,10 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    HasSetter(($=)), HasGetter(get), GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing (
-   PixelInternalFormat, unmarshalPixelInternalFormat )
+   PixelInternalFormat, marshalPixelInternalFormat,
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -273,18 +277,6 @@ data PixelTransferStage =
    | PostConvolution
    | PostColorMatrix
    deriving ( Eq, Ord, Show )
-
-stageToTarget :: PixelTransferStage -> ColorTableTarget
-stageToTarget s = case s of
-   PreConvolution  -> ColorTable
-   PostConvolution -> PostConvolutionColorTable
-   PostColorMatrix -> PostColorMatrixColorTable
-
-stageToEnableCap :: PixelTransferStage -> EnableCap
-stageToEnableCap s = case s of
-   PreConvolution  -> CapColorTable
-   PostConvolution -> CapPostConvolutionColorTable
-   PostColorMatrix -> CapPostColorMatrixColorTable
 
 stageToGetScales ::
       PixelTransferStage
@@ -628,39 +620,121 @@ newGLpixelmap = newPixelMap
 
 --------------------------------------------------------------------------------
 
-colorTableEnabled :: PixelTransferStage -> StateVar Capability
-colorTableEnabled = makeCapability . stageToEnableCap
+data ColorTableStage =
+     ColorTableStage
+   | PostConvolutionColorTableStage
+   | PostColorMatrixColorTableStage
+   | TextureColorTableStage
+   deriving ( Eq, Ord, Show )
+
+colorTableStageToColorTable :: ColorTableStage -> ColorTable
+colorTableStageToColorTable x = case x of
+   ColorTableStage -> ColorTable
+   PostConvolutionColorTableStage -> PostConvolutionColorTable
+   PostColorMatrixColorTableStage -> PostColorMatrixColorTable
+   TextureColorTableStage -> TextureColorTable
+
+colorTableStageToEnableCap :: ColorTableStage -> EnableCap
+colorTableStageToEnableCap x = case x of
+   ColorTableStage -> CapColorTable
+   PostConvolutionColorTableStage -> CapPostConvolutionColorTable
+   PostColorMatrixColorTableStage -> CapPostColorMatrixColorTable
+   TextureColorTableStage -> CapTextureColorTable
 
 --------------------------------------------------------------------------------
 
+colorTableStage :: ColorTableStage -> StateVar Capability
+colorTableStage = makeCapability . colorTableStageToEnableCap
+
+--------------------------------------------------------------------------------
+
+data ColorTable =
+     ColorTable
+   | PostConvolutionColorTable
+   | PostColorMatrixColorTable
+   | Texture1DColorTable
+   | Texture2DColorTable
+   | Texture3DColorTable
+   | TextureCubeMapColorTable
+   | TextureColorTable
+   | SharedTexturePalette
+   deriving ( Eq, Ord, Show )
+
+marshalColorTable :: ColorTable -> GLenum
+marshalColorTable x = case x of
+   ColorTable -> 0x80d0
+   PostConvolutionColorTable -> 0x80d1
+   PostColorMatrixColorTable -> 0x80d2
+   Texture1DColorTable -> 0xde0
+   Texture2DColorTable -> 0xde1
+   Texture3DColorTable -> 0x806f
+   TextureCubeMapColorTable -> 0x8513
+   TextureColorTable -> 0x80bc
+   SharedTexturePalette -> 0x81fb
+
+--------------------------------------------------------------------------------
+
+data Proxy =
+     NoProxy
+   | Proxy
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+marshalProxyColorTable :: Proxy -> ColorTable -> Maybe GLenum
+marshalProxyColorTable NoProxy x = Just (marshalColorTable x)
+marshalProxyColorTable Proxy   x = case x of
+   ColorTable -> Just 0x80d3
+   PostConvolutionColorTable -> Just 0x80d4
+   PostColorMatrixColorTable -> Just 0x80d5
+   Texture1DColorTable -> Just 0x8063
+   Texture2DColorTable -> Just 0x8064
+   Texture3DColorTable -> Just 0x8070
+   TextureCubeMapColorTable -> Just 0x851b
+   TextureColorTable -> Just 0x80bd
+   SharedTexturePalette -> Nothing
+
+--------------------------------------------------------------------------------
+
+colorTable :: Proxy -> ColorTable -> PixelInternalFormat -> GLsizei -> PixelFormat -> DataType -> Ptr a -> IO ()
+colorTable proxy ct int w f t ptr =
+   maybe recordInvalidEnum
+         (\target -> glColorTable target (marshalPixelInternalFormat int) w (marshalPixelFormat f) (marshalDataType t) ptr)
+         (marshalProxyColorTable proxy ct)
+
 EXTENSION_ENTRY("GL_ARB_imaging",glColorTable,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
-EXTENSION_ENTRY("GL_ARB_imaging",glColorSubTable,GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+--------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorTable,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorSubTable,GLenum -> GLsizei -> GLint -> GLint -> GLsizei -> IO ())
+getColorTable :: ColorTable -> PixelFormat -> DataType -> Ptr a -> IO ()
+getColorTable ct f =
+   glGetColorTable (marshalColorTable ct) (marshalPixelFormat f) . marshalDataType
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTable,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
-data ColorTableTarget =
-     ColorTable
-   | PostConvolutionColorTable
-   | PostColorMatrixColorTable
-   | ProxyColorTable
-   | ProxyPostConvolutionColorTable
-   | ProxyPostColorMatrixColorTable
+copyColorTable :: ColorTable -> PixelInternalFormat -> Position -> GLsizei -> IO ()
+copyColorTable ct int (Position x y) =
+   glCopyColorTable (marshalColorTable ct) (marshalPixelInternalFormat int) x y
 
-marshalColorTableTarget :: ColorTableTarget -> GLenum
-marshalColorTableTarget x = case x of
-   ColorTable -> 0x80d0
-   PostConvolutionColorTable -> 0x80d1
-   PostColorMatrixColorTable -> 0x80d2
-   ProxyColorTable -> 0x80d3
-   ProxyPostConvolutionColorTable -> 0x80d4
-   ProxyPostColorMatrixColorTable -> 0x80d5
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorTable,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
+
+--------------------------------------------------------------------------------
+
+colorSubTable :: ColorTable -> GLsizei -> GLsizei -> PixelFormat -> DataType -> Ptr a -> IO ()
+colorSubTable ct start count f =
+   glColorSubTable (marshalColorTable ct) start count (marshalPixelFormat f) . marshalDataType
+
+EXTENSION_ENTRY("GL_ARB_imaging",glColorSubTable,GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
+copyColorSubTable :: ColorTable -> GLsizei -> Position -> GLsizei -> IO ()
+copyColorSubTable ct start (Position x y) =
+   glCopyColorSubTable (marshalColorTable ct) start x y
+
+EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorSubTable,GLenum -> GLsizei -> GLint -> GLint -> GLsizei -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -691,24 +765,24 @@ marshalColorTablePName x = case x of
 
 --------------------------------------------------------------------------------
 
-colorTableScale :: PixelTransferStage -> StateVar (Color4 GLfloat)
+colorTableScale :: ColorTableStage -> StateVar (Color4 GLfloat)
 colorTableScale = colorTableScaleBias ColorTableScale
 
-colorTableBias :: PixelTransferStage -> StateVar (Color4 GLfloat)
+colorTableBias :: ColorTableStage -> StateVar (Color4 GLfloat)
 colorTableBias = colorTableScaleBias ColorTableBias
 
 colorTableScaleBias ::
-   ColorTablePName -> PixelTransferStage -> StateVar (Color4 GLfloat)
-colorTableScaleBias p stage =
-   makeStateVar (getColorTableParameterC4 t p) (colorTableParameterC4 t p)
-   where t = stageToTarget stage
+   ColorTablePName -> ColorTableStage -> StateVar (Color4 GLfloat)
+colorTableScaleBias p s =
+   makeStateVar (getColorTableParameterC4 ct p) (colorTableParameterC4 ct p)
+   where ct = colorTableStageToColorTable s
 
 getColorTableParameterC4 ::
-   ColorTableTarget -> ColorTablePName -> IO (Color4 GLfloat) 
-getColorTableParameterC4 t p =
+   ColorTable -> ColorTablePName -> IO (Color4 GLfloat) 
+getColorTableParameterC4 ct p =
    alloca $ \buf -> do
       glGetColorTableParameterfv
-         (marshalColorTableTarget t)
+         (marshalColorTable ct)
          (marshalColorTablePName p)
          buf
       peek buf
@@ -716,28 +790,26 @@ getColorTableParameterC4 t p =
 EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
 
 colorTableParameterC4 ::
-   ColorTableTarget -> ColorTablePName -> Color4 GLfloat -> IO ()
-colorTableParameterC4 t p c =
+   ColorTable -> ColorTablePName -> Color4 GLfloat -> IO ()
+colorTableParameterC4 ct p c =
    with c $
-      glColorTableParameterfv
-         (marshalColorTableTarget t)
-         (marshalColorTablePName p)
+      glColorTableParameterfv (marshalColorTable ct) (marshalColorTablePName p)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
 
 --------------------------------------------------------------------------------
 
-colorTableFormat :: PixelTransferStage -> GettableStateVar PixelInternalFormat
-colorTableFormat stage =
+colorTableFormat :: ColorTable -> GettableStateVar PixelInternalFormat
+colorTableFormat ct =
    makeGettableStateVar $
       liftM (unmarshalPixelInternalFormat . fromIntegral) $
-         getColorTableParameteri (stageToTarget stage) ColorTableFormat
+         getColorTableParameteri ct ColorTableFormat
 
-getColorTableParameteri :: ColorTableTarget -> ColorTablePName -> IO GLsizei
-getColorTableParameteri t p =
+getColorTableParameteri :: ColorTable -> ColorTablePName -> IO GLsizei
+getColorTableParameteri ct p =
    alloca $ \buf -> do
       glGetColorTableParameteriv
-         (marshalColorTableTarget t)
+         (marshalColorTable ct)
          (marshalColorTablePName p)
          buf
       liftM fromIntegral $ peek buf
@@ -746,35 +818,28 @@ EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameteriv,GLenum -> GLenum -> 
 
 --------------------------------------------------------------------------------
 
-colorTableWidth :: PixelTransferStage -> GettableStateVar GLsizei
-colorTableWidth stage =
-   makeGettableStateVar $
-      getColorTableParameteri (stageToTarget stage) ColorTableWidth
+colorTableWidth :: ColorTable -> GettableStateVar GLsizei
+colorTableWidth ct =
+   makeGettableStateVar $ getColorTableParameteri ct ColorTableWidth
 
 --------------------------------------------------------------------------------
 
-colorTableRGBASizes ::
-   PixelTransferStage -> GettableStateVar (Color4 GLsizei)
-colorTableRGBASizes s =
+colorTableRGBASizes :: ColorTable -> GettableStateVar (Color4 GLsizei)
+colorTableRGBASizes ct =
    makeGettableStateVar $ do
-      let t = stageToTarget s
-      r <- getColorTableParameteri t ColorTableRedSize
-      g <- getColorTableParameteri t ColorTableGreenSize
-      b <- getColorTableParameteri t ColorTableBlueSize
-      a <- getColorTableParameteri t ColorTableAlphaSize
+      r <- getColorTableParameteri ct ColorTableRedSize
+      g <- getColorTableParameteri ct ColorTableGreenSize
+      b <- getColorTableParameteri ct ColorTableBlueSize
+      a <- getColorTableParameteri ct ColorTableAlphaSize
       return $ Color4 r g b a
 
-colorTableLuminanceSize ::
-   PixelTransferStage -> GettableStateVar GLsizei
-colorTableLuminanceSize stage =
-   makeGettableStateVar $
-      getColorTableParameteri (stageToTarget stage) ColorTableLuminanceSize
+colorTableLuminanceSize :: ColorTable -> GettableStateVar GLsizei
+colorTableLuminanceSize ct =
+   makeGettableStateVar $ getColorTableParameteri ct ColorTableLuminanceSize
 
-colorTableIntesitySize ::
-   PixelTransferStage -> GettableStateVar GLsizei
-colorTableIntesitySize s =
-   makeGettableStateVar $
-      getColorTableParameteri (stageToTarget s) ColorTableIntensitySize
+colorTableIntesitySize :: ColorTable -> GettableStateVar GLsizei
+colorTableIntesitySize ct =
+   makeGettableStateVar $ getColorTableParameteri ct ColorTableIntensitySize
 
 --------------------------------------------------------------------------------
 

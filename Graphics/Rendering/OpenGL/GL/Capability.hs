@@ -125,6 +125,7 @@ data EnableCap =
    | CapPointSprite
    | CapStencilTestTwoSide
    | CapRasterPositionUnclipped
+   | CapTextureColorTable
 
 marshalEnableCap :: EnableCap -> Maybe GLenum
 marshalEnableCap x = case x of
@@ -212,6 +213,7 @@ marshalEnableCap x = case x of
    CapPointSprite -> Just 0x8861
    CapStencilTestTwoSide -> Just 0x8910
    CapRasterPositionUnclipped -> Just 0x19262
+   CapTextureColorTable -> Just 0x80bc
 
 --------------------------------------------------------------------------------
 
