@@ -20,7 +20,8 @@ module Graphics.Rendering.OpenGL.GL.Capability (
 
 import Control.Monad ( liftM )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   unmarshalGLboolean, GLboolean, GLenum )
+   unmarshalGLboolean, GLboolean, GLenum, GLsizei )
+import Graphics.Rendering.OpenGL.GL.QueryUtils ( clipPlaneIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 ---------------------------------------------------------------------------
@@ -40,12 +41,7 @@ data EnableCap =
    | CapDither
    | CapStencilTest
    | CapDepthTest
-   | CapClipPlane0
-   | CapClipPlane1
-   | CapClipPlane2
-   | CapClipPlane3
-   | CapClipPlane4
-   | CapClipPlane5
+   | CapClipPlane GLsizei
    | CapLight0
    | CapLight1
    | CapLight2
@@ -134,12 +130,7 @@ marshalEnableCap x = case x of
    CapDither -> 0xbd0
    CapStencilTest -> 0xb90
    CapDepthTest -> 0xb71
-   CapClipPlane0 -> 0x3000
-   CapClipPlane1 -> 0x3001
-   CapClipPlane2 -> 0x3002
-   CapClipPlane3 -> 0x3003
-   CapClipPlane4 -> 0x3004
-   CapClipPlane5 -> 0x3005
+   CapClipPlane i -> clipPlaneIndexToEnum i
    CapLight0 -> 0x4000
    CapLight1 -> 0x4001
    CapLight2 -> 0x4002

@@ -15,6 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(..),
+   clipPlaneIndexToEnum,
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4,
    getFloat1, getFloat3, getFloat4, getFloatv,
@@ -24,7 +25,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLint, GLfloat, GLdouble )
+   GLboolean, GLenum, GLint, GLsizei, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
 
 --------------------------------------------------------------------------------
@@ -278,12 +279,7 @@ data GetPName =
    | GetMatrixIndexArraySize
    | GetMatrixIndexArrayType
    | GetMatrixIndexArrayStride
-   | GetClipPlane0
-   | GetClipPlane1
-   | GetClipPlane2
-   | GetClipPlane3
-   | GetClipPlane4
-   | GetClipPlane5
+   | GetClipPlane GLsizei
    | GetLight0
    | GetLight1
    | GetLight2
@@ -657,12 +653,7 @@ marshalGetPName x = case x of
    GetMatrixIndexArraySize -> 0x8846
    GetMatrixIndexArrayType -> 0x8847
    GetMatrixIndexArrayStride -> 0x8848
-   GetClipPlane0 -> 0x3000
-   GetClipPlane1 -> 0x3001
-   GetClipPlane2 -> 0x3002
-   GetClipPlane3 -> 0x3003
-   GetClipPlane4 -> 0x3004
-   GetClipPlane5 -> 0x3005
+   GetClipPlane i -> clipPlaneIndexToEnum i
    GetLight0 -> 0x4000
    GetLight1 -> 0x4001
    GetLight2 -> 0x4002
@@ -784,6 +775,15 @@ marshalGetPName x = case x of
    GetMaxMatrixPaletteStackDepth -> 0x8841
    GetMaxPaletteMatrices -> 0x8842
    GetCurrentPaletteMatrix -> 0x8843
+
+--------------------------------------------------------------------------------
+
+-- 0x3000 through 0x3FFF are reserved for clip planes
+
+clipPlaneIndexToEnum :: GLsizei -> GLenum
+clipPlaneIndexToEnum i
+   | 0 <= i && i <= 0xFFF = 0x3000 + fromIntegral i
+   | otherwise = error ("clipPlaneIndexToEnum : illegal clip plane " ++ show i)
 
 --------------------------------------------------------------------------------
 
