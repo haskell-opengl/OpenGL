@@ -148,7 +148,7 @@ textureCompressedImageSize t level =
 textureProxyOK :: TextureQuery Bool
 textureProxyOK t level =
    makeGettableStateVar $
-      getTexLevelParameteri (unmarshalGLboolean . fromIntegral) Proxy t level TextureWidth
+      getTexLevelParameteri (/= 0) Proxy t level TextureWidth
 
 getTexLevelParameteri :: (GLint -> a) -> Proxy -> Either TextureTarget CubeMapTarget -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteri f proxy t level p =
