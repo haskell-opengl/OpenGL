@@ -52,6 +52,18 @@ FPTOOLS_CHECK_HTYPE([GLclampf])
 FPTOOLS_CHECK_HTYPE([GLdouble])
 FPTOOLS_CHECK_HTYPE([GLclampd])
 
+AC_DEFINE_UNQUOTED([GLU_CFLAGS],
+  [`echo '' $GLU_CFLAGS | sed -e 's/-[[^ ]]*/,"&"/g' -e 's/^ *,//'`],
+  [C flags for GLU, as a list of string literals.])
+
+AC_DEFINE_UNQUOTED([GLU_LIBS],
+  [`echo '' $GLU_LIBS | sed -e 's/-[[^ ]]*/,"&"/g' -e 's/^ *,//'`],
+  [Library flags for GLU, as a list of string literals.])
+
+AC_DEFINE_UNQUOTED([GLU_FRAMEWORKS],
+  [`echo '' $GLU_FRAMEWORKS | sed -e 's/-[[^ ]]*/,"&"/g' -e 's/^ *,//'`],
+  [Framework flags for GLU, as a list of string literals.])
+
 fi
 fi
 fi
