@@ -52,7 +52,7 @@ import Graphics.Rendering.OpenGL.GL.BeginEnd (
    PrimitiveMode, EdgeFlag(BeginsInteriorEdge) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (, makeError )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( makeError )
 import Graphics.Rendering.OpenGL.GLU.Errors (
    Error(Error), ErrorCategory(OutOfMemory) )
 
