@@ -1,5 +1,5 @@
 -- @configure_input@
--- System-dependent values used by HugsSetup.hs
+-- System-dependent values used by Distribution.Simple.defaultUserHooks
 --
 build-package: @BUILD_PACKAGE_BOOL@
 cc-options: -DCALLCONV=@CALLCONV@ @GLU_CFLAGS@
