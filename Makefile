@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.13 2003/02/25 19:01:12 panne Exp $
+# $Id: Makefile,v 1.14 2003/03/29 17:38:05 panne Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -26,7 +26,7 @@ else
 SRC_HC_OPTS += -DCALLCONV=ccall '-DGET_PROC_ADDRESS="glXGetProcAddressARB"'
 endif
 
-SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)"
+SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)" -p prologue.txt
 
 # yeuch, have to get GL_CFLAGS & GL_LIBS in through CPP to OpenGL.conf.in
 comma = ,
