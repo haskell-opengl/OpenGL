@@ -25,7 +25,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    currentMatrix, multMatrix, GLmatrix, loadIdentity,
    ortho, frustum, depthClamp,
    activeTexture,
-   matrixExcursion, unsafeMatrixExcursion,
+   preservingMatrix, unsafePreservingMatrix,
    stackDepth, maxStackDepth,
 
    -- * Normal Transformation
@@ -383,8 +383,8 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum ->
 -- current matrix with the one below it on the stack (i.e. restoring it to its
 -- previous state). The returned value is that of the given action.
 
-matrixExcursion :: IO a -> IO a
-matrixExcursion action = do
+preservingMatrix :: IO a -> IO a
+preservingMatrix action = do
    -- performance paranoia: No (un-)marshaling by avoiding matrixMode
    mode <- getEnum1 id GetMatrixMode
    (do glPushMatrix ; action) `finally` (do glMatrixMode mode ; glPopMatrix)
@@ -393,12 +393,12 @@ foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
 
 foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
 
--- | A more efficient, but potentially dangerous version of 'matrixExcursion':
+-- | A more efficient, but potentially dangerous version of 'preservingMatrix':
 -- The given action is not allowed to throw an exception or change the
 -- current matrix mode permanently.
 
-unsafeMatrixExcursion :: IO a -> IO a
-unsafeMatrixExcursion action = do
+unsafePreservingMatrix :: IO a -> IO a
+unsafePreservingMatrix action = do
    glPushMatrix
    ret <- action
    glPopMatrix

@@ -14,7 +14,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Selection (
    HitRecord(..), getHitRecords,
-   Name(..), pushName, loadName, maxNameStackDepth, nameStackDepth,
+   Name(..), withName, loadName, maxNameStackDepth, nameStackDepth,
    RenderMode(..), renderMode
 ) where
 
@@ -86,8 +86,8 @@ parseName = liftM Name parseGLuint
 newtype Name = Name GLuint
    deriving ( Eq, Ord, Show )
 
-pushName :: Name -> IO a -> IO a
-pushName name action = (do glPushName name ; action) `finally` glPopName
+withName :: Name -> IO a -> IO a
+withName name action = (do glPushName name ; action) `finally` glPopName
 
 foreign import CALLCONV unsafe "glPopName" glPopName :: IO ()
 

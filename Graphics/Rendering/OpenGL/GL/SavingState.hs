@@ -14,8 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.SavingState (
-   ServerAttributeGroup(..), saveServerState,
-   ClientAttributeGroup(..), saveClientState
+   ServerAttributeGroup(..), preservingAttrib,
+   ClientAttributeGroup(..), preservingClientAttrib
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLbitfield )
@@ -75,8 +75,8 @@ marshalServerAttributeGroup x = case x of
 
 --------------------------------------------------------------------------------
 
-saveServerState :: [ServerAttributeGroup] -> IO a -> IO a
-saveServerState groups action =
+preservingAttrib :: [ServerAttributeGroup] -> IO a -> IO a
+preservingAttrib groups action =
    (do pushAttrib groups ; action) `finally` glPopAttrib
 
 pushAttrib :: [ServerAttributeGroup] -> IO ()
@@ -104,8 +104,8 @@ marshalClientAttributeGroup x = case x of
 
 --------------------------------------------------------------------------------
 
-saveClientState :: [ClientAttributeGroup] -> IO a -> IO a
-saveClientState groups action =
+preservingClientAttrib :: [ClientAttributeGroup] -> IO a -> IO a
+preservingClientAttrib groups action =
    (do pushClientAttrib groups ; action) `finally` glPopClientAttrib
 
 pushClientAttrib :: [ClientAttributeGroup] -> IO ()
