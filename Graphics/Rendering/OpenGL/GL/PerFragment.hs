@@ -27,7 +27,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    ComparisonFunction(..), alphaFunc,
 
    -- * Stencil Test
-   stencilFunc, StencilOp(..), stencilOp, stencilTestTwoSide, activeStencilFace,
+   stencilTest, stencilFunc, StencilOp(..), stencilOp, activeStencilFace,
 
    -- * Depth Buffer Test
    depthFunc,
@@ -38,7 +38,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    queryResult, queryResultAvailable,
 
    -- * Blending
-   BlendEquationMode(..), blendEquation,
+   blend, BlendEquation(..), blendEquation,
    BlendingFactor(..), blendFuncSeparate, blendFunc, blendColor,
 
    -- * Dithering
@@ -150,10 +150,14 @@ foreign import CALLCONV unsafe "glAlphaFunc" glAlphaFunc ::
 
 --------------------------------------------------------------------------------
 
-stencilFunc :: StateVar (Maybe (ComparisonFunction, GLint, GLuint))
+stencilTest :: StateVar Capability
+stencilTest = makeCapability CapStencilTest
+
+--------------------------------------------------------------------------------
+
+stencilFunc :: StateVar (ComparisonFunction, GLint, GLuint)
 stencilFunc =
-   makeStateVarMaybe
-      (return CapStencilTest)
+   makeStateVar
       (liftM3 (,,) (getEnum1 unmarshalComparisonFunction GetStencilFunc)
                    (getInteger1 id GetStencilRef)
                    (getInteger1 fromIntegral GetStencilValueMask))
@@ -216,12 +220,10 @@ foreign import CALLCONV unsafe "glStencilOp" glStencilOp ::
 
 --------------------------------------------------------------------------------
 
-stencilTestTwoSide :: StateVar Capability
-stencilTestTwoSide = makeCapability CapStencilTestTwoSide
-
-activeStencilFace :: StateVar Face
+activeStencilFace :: StateVar (Maybe Face)
 activeStencilFace =
-   makeStateVar
+   makeStateVarMaybe
+      (return CapStencilTestTwoSide)
       (getEnum1 unmarshalFace GetActiveStencilFace)
       (glActiveStencilFaceEXT . marshalFace)
 
@@ -351,7 +353,12 @@ EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryObjectuivARB,GL
 
 --------------------------------------------------------------------------------
 
-data BlendEquationMode =
+blend :: StateVar Capability
+blend = makeCapability CapBlend
+
+--------------------------------------------------------------------------------
+
+data BlendEquation =
      FuncAdd
    | FuncSubtract
    | FuncReverseSubtract
@@ -360,8 +367,8 @@ data BlendEquationMode =
    | LogicOp
    deriving ( Eq, Ord, Show )
 
-marshalBlendEquationMode :: BlendEquationMode -> GLenum
-marshalBlendEquationMode x = case x of
+marshalBlendEquation :: BlendEquation -> GLenum
+marshalBlendEquation x = case x of
    FuncAdd -> 0x8006
    FuncSubtract -> 0x800a
    FuncReverseSubtract -> 0x800b
@@ -369,33 +376,32 @@ marshalBlendEquationMode x = case x of
    Max -> 0x8008
    LogicOp -> 0xbf1
 
-unmarshalBlendEquationMode :: GLenum -> BlendEquationMode
-unmarshalBlendEquationMode x
+unmarshalBlendEquation :: GLenum -> BlendEquation
+unmarshalBlendEquation x
    | x == 0x8006 = FuncAdd
    | x == 0x800a = FuncSubtract
    | x == 0x800b = FuncReverseSubtract
    | x == 0x8007 = Min
    | x == 0x8008 = Max
    | x == 0xbf1 = LogicOp
-   | otherwise = error ("unmarshalBlendEquationMode: illegal value " ++ show x)
+   | otherwise = error ("unmarshalBlendEquation: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
-blendEquation :: StateVar BlendEquationMode
+blendEquation :: StateVar BlendEquation
 blendEquation =
    makeStateVar
-      (getEnum1 unmarshalBlendEquationMode GetBlendEquation)
-      (glBlendEquationEXT . marshalBlendEquationMode)
+      (getEnum1 unmarshalBlendEquation GetBlendEquation)
+      (glBlendEquationEXT . marshalBlendEquation)
 
 EXTENSION_ENTRY("GL_EXT_blend_minmax or GL_EXT_blend_subtract or OpenGL 1.4",glBlendEquationEXT,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 
 blendFuncSeparate ::
-   StateVar (Maybe ((BlendingFactor, BlendingFactor), (BlendingFactor, BlendingFactor)))
+   StateVar ((BlendingFactor, BlendingFactor), (BlendingFactor, BlendingFactor))
 blendFuncSeparate =
-   makeStateVarMaybe
-      (return CapBlend)
+   makeStateVar
       (do srcRGB   <- getEnum1 unmarshalBlendingFactor GetBlendSrcRGB
           srcAlpha <- getEnum1 unmarshalBlendingFactor GetBlendSrcAlpha
           dstRGB   <- getEnum1 unmarshalBlendingFactor GetBlendDstRGB
@@ -409,10 +415,9 @@ blendFuncSeparate =
 
 EXTENSION_ENTRY("GL_EXT_blend_func_separate or OpenGL 1.4",glBlendFuncSeparateEXT,GLenum -> GLenum -> GLenum -> GLenum -> IO ())
 
-blendFunc :: StateVar (Maybe (BlendingFactor, BlendingFactor))
+blendFunc :: StateVar (BlendingFactor, BlendingFactor)
 blendFunc =
-   makeStateVarMaybe
-      (return CapBlend)
+   makeStateVar
       (liftM2 (,) (getEnum1 unmarshalBlendingFactor GetBlendSrc)
                   (getEnum1 unmarshalBlendingFactor GetBlendDst))
       (\(s, d) ->
