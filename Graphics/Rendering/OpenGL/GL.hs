@@ -35,8 +35,13 @@ import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PixelRect
 import Graphics.Rendering.OpenGL.GL.Query hiding (
-   GetPName(..), parseVersionString, getBoolean1, getInteger1, getFloat1,
-   getFloat4, getFloat3, getDouble1, peek1, peek2, peek3, peek4 )
+   GetPName(..),
+   getBoolean1, getBoolean4,
+   getInteger1, getInteger2, getInteger4,
+   getFloat1, getFloat3, getFloat4,
+   getDouble1, getDouble2,
+   parseVersionString,
+   peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GL.Texturing
 import Graphics.Rendering.OpenGL.GL.VertexArray
 import Graphics.Rendering.OpenGL.GL.VertexSpec

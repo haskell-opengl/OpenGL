@@ -15,15 +15,15 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Query (
-   GetPName(..),                     -- used only internally
-   getBoolean1,                      -- used only internally
-   getInteger1,                      -- used only internally
-   getFloat1, getFloat3, getFloat4,  -- used only internally
-   getDouble1,                       -- used only internally
+   GetPName(..),                                -- used only internally
+   getBoolean1, getBoolean4,                    -- used only internally
+   getInteger1, getInteger2, getInteger4,       -- used only internally
+   getFloat1, getFloat3, getFloat4,             -- used only internally
+   getDouble1, getDouble2,                      -- used only internally
    VersionInfo(..),
-   parseVersionString,               -- used only internally
+   parseVersionString,                          -- used only internally
    ExtensionsInfo(..),
-   peek1, peek2, peek3, peek4        -- used only internally
+   peek1, peek2, peek3, peek4                   -- used only internally
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
@@ -790,27 +790,43 @@ marshalGetPName x = case x of
    GetMaxPaletteMatrices -> 0x8842
    GetCurrentPaletteMatrix -> 0x8843
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 getBoolean1 :: (GLboolean -> a) -> GetPName -> IO a
 getBoolean1 f n = alloca $ \buf -> do
    glGetBooleanv (marshalGetPName n) buf
    peek1 f buf
 
+getBoolean4 :: (GLboolean -> GLboolean -> GLboolean -> GLboolean -> a)
+            -> GetPName -> IO a
+getBoolean4 f n = alloca $ \buf -> do
+   glGetBooleanv (marshalGetPName n) buf
+   peek4 f buf
+
 foreign import CALLCONV unsafe "glGetBooleanv" glGetBooleanv ::
    GLenum -> Ptr GLboolean -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 getInteger1 :: (GLint -> a) -> GetPName -> IO a
 getInteger1 f n = alloca $ \buf -> do
    glGetIntegerv (marshalGetPName n) buf
    peek1 f buf
 
+getInteger2 :: (GLint -> GLint -> a) -> GetPName -> IO a
+getInteger2 f n = alloca $ \buf -> do
+   glGetIntegerv (marshalGetPName n) buf
+   peek2 f buf
+
+getInteger4 :: (GLint -> GLint -> GLint -> GLint -> a) -> GetPName -> IO a
+getInteger4 f n = alloca $ \buf -> do
+   glGetIntegerv (marshalGetPName n) buf
+   peek4 f buf
+
 foreign import CALLCONV unsafe "glGetIntegerv" glGetIntegerv ::
    GLenum -> Ptr GLint -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 getFloat1 :: (GLfloat -> a) -> GetPName -> IO a
 getFloat1 f n = alloca $ \buf -> do
@@ -831,17 +847,22 @@ getFloat4 f n = alloca $ \buf -> do
 foreign import CALLCONV unsafe "glGetFloatv" glGetFloatv ::
    GLenum -> Ptr GLfloat -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 getDouble1 :: (GLdouble -> a) -> GetPName -> IO a
 getDouble1 f n = alloca $ \buf -> do
    glGetDoublev (marshalGetPName n) buf
    peek1 f buf
 
+getDouble2 :: (GLdouble -> GLdouble -> a) -> GetPName -> IO a
+getDouble2 f n = alloca $ \buf -> do
+   glGetDoublev (marshalGetPName n) buf
+   peek2 f buf
+
 foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
    GLenum -> Ptr GLdouble -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- Sigh... Once again Microsoft does what it always does to standards, i.e.
 -- it ignores them. The GL/GLU specs dictate that the version number should
@@ -865,7 +886,7 @@ parseVersionString :: String -> String -> VersionInfo
 parseVersionString _ versionString =
    uncurry VersionInfo . break (' ' ==) $ versionString
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- | A list of extension names.
 
