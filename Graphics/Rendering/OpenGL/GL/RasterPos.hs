@@ -14,21 +14,38 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.RasterPos (
-   RasterPosComponent, RasterPos(..),
-   WindowPosComponent, WindowPos(..)
+   currentRasterPosition, RasterPosComponent, RasterPos(..),
+   WindowPosComponent, WindowPos(..),
+   currentRasterDistance, currentRasterColor, currentRasterIndex,
+   currentRasterTexCoords, currentRasterPositionValid
 ) where
 
 import Foreign.Ptr ( Ptr, castPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLshort, GLint, GLfloat,, GLdouble )
+   GLshort, GLint, GLfloat, GLdouble )
+import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.QueryUtils (
+   GetPName(GetCurrentRasterPosition,GetCurrentRasterDistance,
+            GetCurrentRasterColor,GetCurrentRasterIndex,
+            GetCurrentRasterTextureCoords,GetCurrentRasterPositionValid),
+   getBoolean1, getInteger1, getFloat1, getFloat4 )
+import Graphics.Rendering.OpenGL.GL.StateVar (
+   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Vertex2(..), Vertex3(..), Vertex4(..) )
+   Vertex2(..), Vertex3(..), Vertex4(..), TexCoord4(..),
+   Color4(..), Index1(..) )
 
 --------------------------------------------------------------------------------
 
 #include "HsOpenGLExt.h"
+
+--------------------------------------------------------------------------------
+
+currentRasterPosition :: StateVar (Vertex4 GLfloat)
+currentRasterPosition =
+   makeStateVar (getFloat4 Vertex4 GetCurrentRasterPosition) rasterPos
 
 --------------------------------------------------------------------------------
 
@@ -253,3 +270,26 @@ instance WindowPosComponent a => WindowPos (Vertex2 a) where
 instance WindowPosComponent a => WindowPos (Vertex3 a) where
    windowPos (Vertex3 x y z) = windowPos3 x y z
    windowPosv = windowPos3v . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
+
+--------------------------------------------------------------------------------
+
+currentRasterDistance :: GettableStateVar GLfloat
+currentRasterDistance =
+   makeGettableStateVar (getFloat1 id GetCurrentRasterDistance)
+
+currentRasterColor :: GettableStateVar (Color4 GLfloat)
+currentRasterColor =
+   makeGettableStateVar (getFloat4 Color4 GetCurrentRasterColor)
+
+currentRasterIndex :: GettableStateVar (Index1 GLint)
+currentRasterIndex =
+   makeGettableStateVar (getInteger1 Index1 GetCurrentRasterIndex)
+
+currentRasterTexCoords :: GettableStateVar (TexCoord4 GLfloat)
+currentRasterTexCoords =
+   makeGettableStateVar (getFloat4 TexCoord4 GetCurrentRasterTextureCoords)
+
+currentRasterPositionValid :: GettableStateVar Bool
+currentRasterPositionValid =
+   makeGettableStateVar
+      (getBoolean1 unmarshalGLboolean GetCurrentRasterPositionValid)
