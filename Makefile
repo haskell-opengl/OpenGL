@@ -45,10 +45,12 @@ PACKAGE_CPP_OPTS += -DGLU_LIBS='$(patsubst %,$(comma)"%",$(GLU_LIBS))'
 # -----------------------------------------------------------------------------
 
 STUBOBJS += \
+   Graphics/Rendering/OpenGL/GLU/NURBS_stub.$(way_)o \
    Graphics/Rendering/OpenGL/GLU/Quadrics_stub.$(way_)o \
    Graphics/Rendering/OpenGL/GLU/Tessellation_stub.$(way_)o
 
 CLEAN_FILES += $(STUBOBJS) \
+   Graphics/Rendering/OpenGL/GLU/NURBS_stub.[ch] \
    Graphics/Rendering/OpenGL/GLU/Quadrics_stub.[ch] \
    Graphics/Rendering/OpenGL/GLU/Tessellation_stub.[ch]
 
