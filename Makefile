@@ -11,6 +11,7 @@ ALL_DIRS = \
 	Graphics/Rendering \
 	Graphics/Rendering/OpenGL \
 	Graphics/Rendering/OpenGL/GL \
+	Graphics/Rendering/OpenGL/GL/Texturing \
 	Graphics/Rendering/OpenGL/GLU
 
 PACKAGE = OpenGL

@@ -1,7 +1,7 @@
 -- #hide
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.TexEnv
+-- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Environments
 -- Copyright   :  (c) Sven Panne 2002-2004
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -9,11 +9,11 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for glTexEnv-related stuff
+-- This is a purely internal module for glTexEnv-related stuff.
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.TexEnv (
+module Graphics.Rendering.OpenGL.GL.Texturing.Environments (
    TextureEnvMode(..), textureEnvMode
 ) where
 

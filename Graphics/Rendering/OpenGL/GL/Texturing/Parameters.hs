@@ -1,7 +1,7 @@
 -- #hide
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.TexParameter
+-- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Parameters
 -- Copyright   :  (c) Sven Panne 2002-2004
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -9,11 +9,11 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for glTexParameter-related stuff
+-- This is a purely internal module for glTexParameter-related stuff.
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.TexParameter where
+module Graphics.Rendering.OpenGL.GL.Texturing.Parameters where
 
 import Control.Monad ( liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
@@ -29,14 +29,11 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxTextureMaxAnisotropy), getFloat1)
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.TextureTarget (
+import Graphics.Rendering.OpenGL.GL.Texturing.Specification ( Level )
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget(..), marshalTextureTarget )
 import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
-
---------------------------------------------------------------------------------
-
-type Level = GLint
 
 --------------------------------------------------------------------------------
 
