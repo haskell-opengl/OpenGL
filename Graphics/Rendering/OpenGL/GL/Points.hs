@@ -15,28 +15,23 @@
 module Graphics.Rendering.OpenGL.GL.Points (
    pointSize, aliasedPointSizeRange, smoothPointSizeRange,
    smoothPointSizeGranularity, pointSizeRange, pointDistanceAttenuation,
-   pointFadeThresholdSize, pointSmooth
+   pointFadeThresholdSize, pointSmooth, pointSprite
 ) where
 
 import Control.Monad ( liftM2 )
 import Foreign.Marshal.Array ( withArray )
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLfloat )
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapPointSmooth), makeCapability )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+   Capability, EnableCap(CapPointSmooth,CapPointSprite), makeCapability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetPointSize,GetAliasedPointSizeRange,GetSmoothPointSizeRange,
             GetSmoothPointSizeGranularity,GetPointSizeMin,GetPointSizeMax,
             GetPointDistanceAttenuation,GetPointFadeThresholdSize),
    getFloat1, getFloat2, getFloat3 )
+import Graphics.Rendering.OpenGL.GL.PointParameter (
+   PointParameter(..), pointParameterf, pointParameterfv )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -61,39 +56,12 @@ smoothPointSizeGranularity =
 
 --------------------------------------------------------------------------------
 
-data PointParameterName =
-     PointSizeMin
-   | PointSizeMax
-   | PointFadeThresholdSize
-   | PointDistanceAttenuation
-
-marshalPointParameterName :: PointParameterName -> GLenum
-marshalPointParameterName x = case x of
-   PointSizeMin -> 0x8126
-   PointSizeMax -> 0x8127
-   PointFadeThresholdSize -> 0x8128
-   PointDistanceAttenuation -> 0x8129
-
---------------------------------------------------------------------------------
-
-glPointParameterf :: PointParameterName -> GLfloat -> IO ()
-glPointParameterf = glPointParameterfARB . marshalPointParameterName
-
-EXTENSION_ENTRY("GL_ARB_point_parameters or OpenGL 1.4",glPointParameterfARB,GLenum -> GLfloat -> IO ())
-
-glPointParameterfv :: PointParameterName -> Ptr GLfloat -> IO ()
-glPointParameterfv = glPointParameterfvARB . marshalPointParameterName
-
-EXTENSION_ENTRY("GL_ARB_point_parameters or OpenGL 1.4",glPointParameterfvARB,GLenum -> Ptr GLfloat -> IO ())
-
---------------------------------------------------------------------------------
-
 pointSizeRange :: StateVar (GLfloat, GLfloat)
 pointSizeRange =
    makeStateVar
    (liftM2 (,) (getFloat1 id GetPointSizeMin) (getFloat1 id GetPointSizeMax))
-   (\(sizeMin, sizeMax) -> do glPointParameterf PointSizeMin sizeMin
-                              glPointParameterf PointSizeMax sizeMax)
+   (\(sizeMin, sizeMax) -> do pointParameterf PointSizeMin sizeMin
+                              pointParameterf PointSizeMax sizeMax)
 
 --------------------------------------------------------------------------------
 
@@ -102,7 +70,7 @@ pointDistanceAttenuation =
    makeStateVar
       (getFloat3 (,,) GetPointDistanceAttenuation)
       (\(a, b, c) -> withArray [a, b, c] $
-                        glPointParameterfv PointDistanceAttenuation)
+                        pointParameterfv PointDistanceAttenuation)
 
 --------------------------------------------------------------------------------
 
@@ -110,9 +78,14 @@ pointFadeThresholdSize :: StateVar GLfloat
 pointFadeThresholdSize =
    makeStateVar
       (getFloat1 id GetPointFadeThresholdSize)
-      (glPointParameterf PointFadeThresholdSize)
+      (pointParameterf PointFadeThresholdSize)
 
 --------------------------------------------------------------------------------
 
 pointSmooth :: StateVar Capability
 pointSmooth = makeCapability CapPointSmooth
+
+--------------------------------------------------------------------------------
+
+pointSprite :: StateVar Capability
+pointSprite = makeCapability CapPointSprite
