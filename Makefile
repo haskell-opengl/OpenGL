@@ -20,7 +20,7 @@ SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp $(GL_CFLAGS)
 
 # WinDoze DLL hell
 ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
-SRC_HC_OPTS += -DCALLCONV=stdcall '-DGET_PROC_ADDRESS"wglGetProcAddress"'
+SRC_HC_OPTS += -DCALLCONV=stdcall '-DGET_PROC_ADDRESS="wglGetProcAddress"'
 else
 SRC_HC_OPTS += -DCALLCONV=ccall '-DGET_PROC_ADDRESS="glXGetProcAddressARB"'
 endif
