@@ -46,7 +46,8 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat(..), marshalPixelInternalFormat )
+   PixelInternalFormat(..), marshalPixelInternalFormat,
+   marshalPixelInternalFormat' )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData, Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetNumCompressedTextureFormats,GetCompressedTextureFormats),
@@ -91,7 +92,7 @@ texImage1D proxy level int (TextureSize1D w) border pd =
    withPixelData pd $
       glTexImage1D
          (marshalProxyTextureTarget proxy Texture1D)
-         level (fromIntegral (marshalPixelInternalFormat int)) w border
+         level (marshalPixelInternalFormat int) w border
 
 foreign import CALLCONV unsafe "glTexImage1D"
    glTexImage1D :: GLenum -> GLint -> GLint -> GLsizei -> GLint -> GLenum -> GLenum -> Ptr a -> IO ()
@@ -104,7 +105,7 @@ texImage2D proxy level int (TextureSize2D w h) border pd =
    withPixelData pd $
       glTexImage2D
          (marshalProxyTextureTarget proxy Texture2D)
-         level (fromIntegral (marshalPixelInternalFormat int)) w h border
+         level (marshalPixelInternalFormat int) w h border
 
 foreign import CALLCONV unsafe "glTexImage2D"
    glTexImage2D :: GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLint -> GLenum -> GLenum -> Ptr a -> IO ()
@@ -116,7 +117,7 @@ texImage3D proxy level int (TextureSize3D w h d) border pd =
    withPixelData pd $
       glTexImage3DEXT
          (marshalProxyTextureTarget proxy Texture3D)
-         level (fromIntegral (marshalPixelInternalFormat int)) w h d border
+         level (marshalPixelInternalFormat int) w h d border
 
 EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexImage3DEXT,GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLint -> GLenum -> GLenum -> Ptr a -> IO ())
 
@@ -137,7 +138,7 @@ copyTexImage1D :: Level -> PixelInternalFormat -> Position -> TextureSize1D -> B
 copyTexImage1D level int (Position x y) (TextureSize1D w) border =
    glCopyTexImage1D
       (marshalTextureTarget Texture1D) level
-      (marshalPixelInternalFormat int) x y w border
+      (marshalPixelInternalFormat' int) x y w border
 
 foreign import CALLCONV unsafe "glCopyTexImage1D"
    glCopyTexImage1D :: GLenum -> GLint -> GLenum -> GLint -> GLint -> GLsizei -> GLint -> IO ()
@@ -149,7 +150,7 @@ copyTexImage2D :: Level -> PixelInternalFormat -> Position -> TextureSize2D -> B
 copyTexImage2D level int (Position x y) (TextureSize2D w h) border =
    glCopyTexImage2D
       (marshalTextureTarget Texture2D) level
-      (marshalPixelInternalFormat int) x y w h border
+      (marshalPixelInternalFormat' int) x y w h border
 
 foreign import CALLCONV unsafe "glCopyTexImage2D"
    glCopyTexImage2D :: GLenum -> GLint -> GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLint -> IO ()

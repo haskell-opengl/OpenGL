@@ -121,8 +121,8 @@ type TexturePriority = GLclampf
 texturePriority :: TextureTarget -> StateVar TexturePriority
 texturePriority t =
    makeStateVar
-      (getTexParameterf t TexturePriority)
-      (texParameterf t TexturePriority)
+      (getTexParameterf id t TexturePriority)
+      (texParameterf    id t TexturePriority)
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()
 prioritizeTextures tps =

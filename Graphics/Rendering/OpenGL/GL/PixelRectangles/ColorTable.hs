@@ -37,8 +37,8 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat, marshalPixelInternalFormat,
-   unmarshalPixelInternalFormat' )
+   PixelInternalFormat, marshalPixelInternalFormat',
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
@@ -132,7 +132,7 @@ colorTable ::
 colorTable proxy ct int w pd =
    maybe recordInvalidEnum
          (\target -> withPixelData pd $
-            glColorTable target (marshalPixelInternalFormat int) w)
+            glColorTable target (marshalPixelInternalFormat' int) w)
          (marshalProxyColorTable proxy ct)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glColorTable,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
@@ -149,7 +149,7 @@ EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTable,GLenum -> GLenum -> GLenum -> P
 
 copyColorTable :: ColorTable -> PixelInternalFormat -> Position -> GLsizei -> IO ()
 copyColorTable ct int (Position x y) =
-   glCopyColorTable (marshalColorTable ct) (marshalPixelInternalFormat int) x y
+   glCopyColorTable (marshalColorTable ct) (marshalPixelInternalFormat' int) x y
 
 EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorTable,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
 
@@ -235,7 +235,7 @@ EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameterfv,GLenum -> GLenum -> Ptr
 colorTableFormat :: ColorTable -> GettableStateVar PixelInternalFormat
 colorTableFormat ct =
    makeGettableStateVar $
-      getColorTableParameteri unmarshalPixelInternalFormat' ct ColorTableFormat
+      getColorTableParameteri unmarshalPixelInternalFormat ct ColorTableFormat
 
 getColorTableParameteri :: (GLint -> a) -> ColorTable -> ColorTablePName -> IO a
 getColorTableParameteri f ct p =

@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat(..), marshalPixelInternalFormat,
-   unmarshalPixelInternalFormat, unmarshalPixelInternalFormat'
+   marshalPixelInternalFormat', unmarshalPixelInternalFormat,
 ) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum )
@@ -73,7 +73,7 @@ data PixelInternalFormat =
    | CompressedRGBA
    deriving ( Eq, Ord, Show )
 
-marshalPixelInternalFormat :: PixelInternalFormat -> GLenum
+marshalPixelInternalFormat :: PixelInternalFormat -> GLint
 marshalPixelInternalFormat x = case x of
    Alpha' -> 0x1906
    DepthComponent' -> 0x1902
@@ -124,7 +124,11 @@ marshalPixelInternalFormat x = case x of
    CompressedRGB -> 0x84ed
    CompressedRGBA -> 0x84ee
 
-unmarshalPixelInternalFormat :: GLenum -> PixelInternalFormat
+-- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
+marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
+marshalPixelInternalFormat' = fromIntegral . marshalPixelInternalFormat
+
+unmarshalPixelInternalFormat :: GLint -> PixelInternalFormat
 unmarshalPixelInternalFormat x
    | x == 0x1906 = Alpha'
    | x == 0x1902 = DepthComponent'
@@ -175,6 +179,3 @@ unmarshalPixelInternalFormat x
    | x == 0x84ed = CompressedRGB
    | x == 0x84ee = CompressedRGBA
    | otherwise = error ("unmarshalPixelInternalFormat: illegal value " ++ show x)
-
-unmarshalPixelInternalFormat' :: GLint -> PixelInternalFormat
-unmarshalPixelInternalFormat' = unmarshalPixelInternalFormat . fromIntegral

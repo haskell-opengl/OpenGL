@@ -81,7 +81,7 @@ type TextureQuery a = TextureTarget -> Level -> GettableStateVar a
 textureInternalFormat :: TextureQuery PixelInternalFormat
 textureInternalFormat t level =
    makeGettableStateVar $
-      getTexLevelParameteri (unmarshalPixelInternalFormat . fromIntegral) NoProxy t level TextureInternalFormat
+      getTexLevelParameteri unmarshalPixelInternalFormat NoProxy t level TextureInternalFormat
 
 -- ToDo: cube maps
 textureSize1D :: TextureQuery TextureSize1D

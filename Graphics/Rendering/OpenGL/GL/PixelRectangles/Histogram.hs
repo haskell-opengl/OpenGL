@@ -29,8 +29,8 @@ import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat, marshalPixelInternalFormat,
-   unmarshalPixelInternalFormat' )
+   PixelInternalFormat, marshalPixelInternalFormat',
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable ( Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
    Sink(..), marshalSink, unmarshalSink )
@@ -70,7 +70,7 @@ histogram proxy =
 getHistogram' :: Proxy -> IO (GLsizei, PixelInternalFormat, Sink)
 getHistogram' proxy = do
    w <- getHistogramParameteri fromIntegral proxy HistogramWidth
-   f <- getHistogramParameteri unmarshalPixelInternalFormat' proxy HistogramFormat
+   f <- getHistogramParameteri unmarshalPixelInternalFormat proxy HistogramFormat
    s <- getHistogramParameteri unmarshalSink proxy HistogramSink
    return (w, f, s)
 
@@ -91,7 +91,7 @@ setHistogram proxy (w, int, sink) =
    glHistogram
       (marshalHistogramTarget (proxyToHistogramTarget proxy))
       w
-      (marshalPixelInternalFormat int)
+      (marshalPixelInternalFormat' int)
       (marshalSink sink)
          
 EXTENSION_ENTRY("GL_ARB_imaging",glHistogram,GLenum -> GLsizei -> GLenum -> GLboolean -> IO ())

@@ -28,8 +28,8 @@ import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat, marshalPixelInternalFormat,
-   unmarshalPixelInternalFormat' )
+   PixelInternalFormat, marshalPixelInternalFormat',
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset (
    Reset(..), marshalReset )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
@@ -56,7 +56,7 @@ minmax = makeStateVarMaybe (return CapMinmax) getMinmax' setMinmax
 
 getMinmax' :: IO (PixelInternalFormat, Sink)
 getMinmax' = do
-   f <- getMinmaxParameteri unmarshalPixelInternalFormat' MinmaxFormat
+   f <- getMinmaxParameteri unmarshalPixelInternalFormat MinmaxFormat
    s <- getMinmaxParameteri unmarshalSink MinmaxSink
    return (f, s)
 
@@ -64,7 +64,7 @@ setMinmax :: (PixelInternalFormat, Sink) -> IO ()
 setMinmax (int, sink) =
    glMinmax
       (marshalMinmaxTarget Minmax)
-      (marshalPixelInternalFormat int)
+      (marshalPixelInternalFormat' int)
       (marshalSink sink)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glMinmax,GLenum -> GLenum -> GLboolean -> IO ())

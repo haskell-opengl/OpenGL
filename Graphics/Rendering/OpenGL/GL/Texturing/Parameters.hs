@@ -19,11 +19,13 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    Repetition(..), Clamping(..), textureWrapMode,
    textureBorderColor, LOD, textureObjectLODBias, maxTextureLODBias,
    textureLODRange, textureMaxAnisotropy, maxTextureMaxAnisotropy,
-   textureLevelRange
+   textureLevelRange, generateMipmap, depthTextureMode
 ) where
 
 import Control.Monad ( liftM2 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLfloat )
+import Graphics.Rendering.OpenGL.GL.Capability (
+   Capability, marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( TextureCoordName(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxTextureMaxAnisotropy,GetMaxTextureLODBias), getFloat1)
@@ -34,9 +36,12 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
                 TextureWrapR,TextureBorderColor,TextureMinLOD,TextureMaxLOD,
                 TextureBaseLevel,TextureMaxLevel,TextureMaxAnisotropy,
-                TextureLODBias),
+                TextureLODBias,GenerateMipmap,DepthTextureMode),
    texParameteri, texParameterf, texParameterC4f,
    getTexParameteri, getTexParameterf, getTexParameterC4f )
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
+   PixelInternalFormat, marshalPixelInternalFormat,
+   unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget(..) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
@@ -166,8 +171,8 @@ type LOD = GLfloat
 textureObjectLODBias :: TextureTarget -> StateVar LOD
 textureObjectLODBias t =
    makeStateVar
-      (getTexParameterf t TextureLODBias)
-      (texParameterf t TextureLODBias)
+      (getTexParameterf id t TextureLODBias)
+      (texParameterf    id t TextureLODBias)
 
 maxTextureLODBias :: GettableStateVar LOD
 maxTextureLODBias =
@@ -177,11 +182,11 @@ maxTextureLODBias =
 textureLODRange :: TextureTarget -> StateVar (LOD,LOD)
 textureLODRange t =
    makeStateVar
-       (liftM2 (,) (getTexParameterf t TextureMinLOD)
-                   (getTexParameterf t TextureMaxLOD))
+       (liftM2 (,) (getTexParameterf id t TextureMinLOD)
+                   (getTexParameterf id t TextureMaxLOD))
        (\(minLOD,maxLOD) -> do
-          texParameterf t TextureMinLOD minLOD
-          texParameterf t TextureMaxLOD maxLOD)
+          texParameterf id t TextureMinLOD minLOD
+          texParameterf id t TextureMaxLOD maxLOD)
 
 --------------------------------------------------------------------------------
 
@@ -189,8 +194,8 @@ textureLODRange t =
 textureMaxAnisotropy :: TextureTarget -> StateVar GLfloat
 textureMaxAnisotropy t =
    makeStateVar
-      (getTexParameterf t TextureMaxAnisotropy)
-      (texParameterf t TextureMaxAnisotropy)
+      (getTexParameterf id t TextureMaxAnisotropy)
+      (texParameterf    id t TextureMaxAnisotropy)
 
 maxTextureMaxAnisotropy :: GettableStateVar GLfloat
 maxTextureMaxAnisotropy =
@@ -207,3 +212,22 @@ textureLevelRange t =
        (\(baseLevel,maxLevel) -> do
           texParameteri id t TextureBaseLevel baseLevel
           texParameteri id t TextureMaxLevel  maxLevel)
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+generateMipmap :: TextureTarget -> StateVar Capability
+generateMipmap t =
+   makeStateVar
+      (getTexParameteri (unmarshalCapability . fromIntegral) t GenerateMipmap)
+      (texParameteri    (fromIntegral . marshalCapability)   t GenerateMipmap)
+
+--------------------------------------------------------------------------------
+
+-- ToDo: cube maps
+-- Only Luminance', Intensity, and Alpha' allowed
+depthTextureMode :: TextureTarget -> StateVar PixelInternalFormat
+depthTextureMode t =
+   makeStateVar
+      (getTexParameteri unmarshalPixelInternalFormat t DepthTextureMode)
+      (texParameteri    marshalPixelInternalFormat   t DepthTextureMode)

@@ -87,8 +87,9 @@ texParameteri f t p =
 foreign import CALLCONV unsafe "glTexParameteri"
    glTexParameteri :: GLenum -> GLenum ->  GLint -> IO ()
 
-texParameterf :: TextureTarget -> TexParameter -> GLfloat -> IO ()
-texParameterf t = glTexParameterf (marshalTextureTarget t) . marshalTexParameter
+texParameterf :: (a -> GLfloat) -> TextureTarget -> TexParameter -> a -> IO ()
+texParameterf f t p =
+   glTexParameterf (marshalTextureTarget t) (marshalTexParameter p) . f
 
 foreign import CALLCONV unsafe "glTexParameterf"
    glTexParameterf :: GLenum -> GLenum ->  GLfloat -> IO ()
@@ -112,11 +113,11 @@ getTexParameteri f t p =
 foreign import CALLCONV unsafe "glGetTexParameteriv"
    glGetTexParameteriv :: GLenum -> GLenum -> Ptr GLint -> IO ()
 
-getTexParameterf :: TextureTarget -> TexParameter -> IO GLfloat
-getTexParameterf t p =
+getTexParameterf :: (GLfloat -> a) -> TextureTarget -> TexParameter -> IO a
+getTexParameterf f t p =
    alloca $ \buf -> do
      glGetTexParameterfv (marshalTextureTarget t) (marshalTexParameter p) buf
-     peek buf
+     peek1 f buf
 
 foreign import CALLCONV unsafe "glGetTexParameterfv"
    glGetTexParameterfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()

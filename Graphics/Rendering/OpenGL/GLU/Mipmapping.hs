@@ -52,7 +52,7 @@ build1DMipmaps target internalFormat height pd = do
    withPixelData pd $
       gluBuild1DMipmaps
          (marshalTextureTarget target)
-         (fromIntegral (marshalPixelInternalFormat internalFormat))
+         (marshalPixelInternalFormat internalFormat)
          height
    return ()   -- TODO: Should we use the return value?
 
@@ -67,7 +67,7 @@ build2DMipmaps target internalFormat width height pd = do
    withPixelData pd $
       gluBuild2DMipmaps
          (marshalTextureTarget target)
-         (fromIntegral (marshalPixelInternalFormat internalFormat))
+         (marshalPixelInternalFormat internalFormat)
          width height
    return ()   -- TODO: Should we use the return value?
 
