@@ -14,20 +14,24 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.DisplayLists (
-   DisplayList, defineList, callList, callLists, listBase, genLists, isList,
-   deleteLists
+   -- * Resource Management
+   DisplayList, genLists, deleteLists, isList,
+
+   -- * Defining Display Lists
+   ListMode(..), defineList, defineNewList, listIndex, listMode,
+
+   -- * Calling Display Lists
+   callList, callLists, listBase
 ) where
 
 import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLuint, GLsizei, GLenum )
-import Graphics.Rendering.OpenGL.GL.BeginEndInternal (
-   PrimitiveMode, marshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.DataType ( DataType, marshalDataType )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetListBase), getInteger1 )
+   GetPName(GetListIndex,GetListMode,GetListBase), getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
@@ -36,14 +40,54 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 newtype DisplayList = DisplayList GLuint
    deriving ( Eq, Ord, Show )
 
-defineList :: DisplayList -> PrimitiveMode -> IO a -> IO a
+--------------------------------------------------------------------------------
+
+data ListMode =
+     Compile
+   | CompileAndExecute
+   deriving ( Eq, Ord, Show )
+
+marshalListMode :: ListMode -> GLenum
+marshalListMode x = case x of
+   Compile -> 0x1300
+   CompileAndExecute -> 0x1301
+
+unmarshalListMode :: GLenum -> ListMode
+unmarshalListMode x
+   | x == 0x1300 = Compile
+   | x == 0x1301 = CompileAndExecute
+   | otherwise = error ("unmarshalListMode: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+defineList :: DisplayList -> ListMode -> IO a -> IO a
 defineList lst mode action =
-   (do glNewList lst (marshalPrimitiveMode mode) ; action) `finally` glEndList
+   (do glNewList lst (marshalListMode mode) ; action) `finally` glEndList
 
 foreign import CALLCONV unsafe "glNewList" glNewList ::
    DisplayList -> GLenum -> IO ()
 
 foreign import CALLCONV unsafe "glEndList" glEndList :: IO ()
+
+defineNewList :: ListMode -> IO a -> IO DisplayList
+defineNewList mode action = do
+   lists <- genLists 1
+   if null lists
+      then return $ DisplayList 0
+      else do let lst = head lists
+              defineList lst mode action
+              return lst
+
+--------------------------------------------------------------------------------
+
+listIndex :: GettableStateVar DisplayList
+listIndex =
+   makeGettableStateVar (getInteger1 (DisplayList . fromIntegral) GetListIndex)
+
+listMode :: GettableStateVar ListMode
+listMode =
+   makeGettableStateVar
+      (getInteger1 (unmarshalListMode . fromIntegral) GetListMode)
 
 --------------------------------------------------------------------------------
 
