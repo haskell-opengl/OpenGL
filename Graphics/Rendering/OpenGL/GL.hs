@@ -40,6 +40,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.ReadCopyPixels,
 
    -- * Special Functions
+   module Graphics.Rendering.OpenGL.GL.Selection,
    module Graphics.Rendering.OpenGL.GL.DisplayLists,
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Graphics.Rendering.OpenGL.GL.Hints,
@@ -71,6 +72,7 @@ import Graphics.Rendering.OpenGL.GL.PerFragment
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.ReadCopyPixels
 
+import Graphics.Rendering.OpenGL.GL.Selection
 import Graphics.Rendering.OpenGL.GL.DisplayLists
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
