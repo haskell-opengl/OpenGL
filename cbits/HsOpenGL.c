@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------------
  *
  * Module      :  C support for Graphics.Rendering.OpenGL.GL.Extensions
- * Copyright   :  (c) Sven Panne 2002-2004
+ * Copyright   :  (c) Sven Panne 2002-2005
  * License     :  BSD-style (see the file libraries/GLUT/LICENSE)
  * 
  * Maintainer  :  sven.panne@aedion.de

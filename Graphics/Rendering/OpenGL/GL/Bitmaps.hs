@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Bitmaps
--- Copyright   :  (c) Sven Panne 2002-2004
+-- Copyright   :  (c) Sven Panne 2002-2005
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
