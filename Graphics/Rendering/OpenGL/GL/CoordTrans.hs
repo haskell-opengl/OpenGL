@@ -26,7 +26,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    ortho, frustum, depthClamp,
    activeTexture,
    preservingMatrix, unsafePreservingMatrix,
-   currentStackDepth, stackDepth, maxStackDepth,
+   stackDepth, maxStackDepth,
 
    -- * Normal Transformation
    rescaleNormal, normalize,
@@ -333,25 +333,32 @@ class Matrix m where
 
 --------------------------------------------------------------------------------
 
+{-# DEPRECATED currentMatrix "use `matrix' instead" #-}
 currentMatrix :: (Matrix m, MatrixComponent c) => StateVar (m c)
-currentMatrix =
-   makeStateVar
-      (getMatrix' GetCurrentMatrix) -- with ARB_fragment_program only
-      (\mat -> withMatrix mat $ \order ->
-         case order of
-            ColumnMajor -> loadMatrix
-            RowMajor    -> loadTransposeMatrix)
+currentMatrix = matrix Nothing
 
-matrix :: (Matrix m, MatrixComponent c) => MatrixMode -> StateVar (m c)
-matrix mode =
+matrix :: (Matrix m, MatrixComponent c) => Maybe MatrixMode -> StateVar (m c)
+matrix maybeMode =
    makeStateVar
-      (getMatrix' (matrixModeToGetMatrix mode))
-      (\mat -> preservingMatrixMode $ do
-         matrixMode $= mode
-         currentMatrix $= mat)
+      -- GetCurrentMatrix only with ARB_fragment_program
+      (getMatrix' (maybe GetCurrentMatrix matrixModeToGetMatrix maybeMode))
+      (maybe id withMatrixMode maybeMode . setMatrix)
+
+withMatrixMode :: MatrixMode -> IO a -> IO a
+withMatrixMode mode act =
+   preservingMatrixMode $ do
+      matrixMode $= mode
+      act
 
 getMatrix' :: (Matrix m, MatrixComponent c) => GetPName -> IO (m c)
 getMatrix' = withNewMatrix ColumnMajor . getMatrix
+
+setMatrix :: (Matrix m, MatrixComponent c) => m c -> IO ()
+setMatrix mat =
+   withMatrix mat $ \order ->
+      case order of
+         ColumnMajor -> loadMatrix
+         RowMajor    -> loadTransposeMatrix
 
 multMatrix :: (Matrix m, MatrixComponent c) => m c -> IO ()
 multMatrix mat =
@@ -434,16 +441,13 @@ foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
 
 --------------------------------------------------------------------------------
 
--- only with ARB_fragment_program
-currentStackDepth :: GettableStateVar GLsizei
-currentStackDepth =
-   makeGettableStateVar $ getSizei1 id GetCurrentMatrixStackDepth
-
-stackDepth :: MatrixMode -> GettableStateVar GLsizei
-stackDepth m =
-   makeGettableStateVar $ case m of
-      MatrixPalette -> do recordInvalidEnum ; return 0
-      _ -> getSizei1 id (matrixModeToGetStackDepth m)
+stackDepth :: Maybe MatrixMode -> GettableStateVar GLsizei
+stackDepth maybeMode =
+   makeGettableStateVar $
+      case maybeMode of
+         Nothing -> getSizei1 id GetCurrentMatrixStackDepth -- only with ARB_fragment_program
+         Just MatrixPalette -> do recordInvalidEnum ; return 0
+         Just mode -> getSizei1 id (matrixModeToGetStackDepth mode)
 
 maxStackDepth :: MatrixMode -> GettableStateVar GLsizei
 maxStackDepth =
