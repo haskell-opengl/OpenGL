@@ -13,7 +13,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Selection (
-   HitRecord(..), getHitRecords, Name(..), pushName, loadName, nameStackDepth,
+   HitRecord(..), getHitRecords,
+   Name(..), pushName, loadName, maxNameStackDepth, nameStackDepth,
    RenderMode(..), renderMode
 ) where
 
@@ -26,7 +27,7 @@ import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.IOState (
    IOState, peekIOState, evalIOState, nTimes )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetNameStackDepth), getInteger1 )
+   GetPName(GetMaxNameStackDepth,GetNameStackDepth), getSizei1 )
 import Graphics.Rendering.OpenGL.GL.RenderMode (
    RenderMode(..), withRenderMode, renderMode )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -94,6 +95,8 @@ foreign import CALLCONV unsafe "glPushName" glPushName :: Name -> IO ()
 
 foreign import CALLCONV unsafe "glLoadName" loadName :: Name -> IO ()
 
-nameStackDepth :: GettableStateVar GLuint
-nameStackDepth =
-   makeGettableStateVar (getInteger1 fromIntegral GetNameStackDepth)
+maxNameStackDepth :: GettableStateVar GLsizei
+maxNameStackDepth = makeGettableStateVar (getSizei1 id GetMaxNameStackDepth)
+
+nameStackDepth :: GettableStateVar GLsizei
+nameStackDepth = makeGettableStateVar (getSizei1 id GetNameStackDepth)
