@@ -55,7 +55,7 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapColorTable,CapPostConvolutionColorTable,
              CapPostColorMatrixColorTable),
-   makeCapability )
+   Capability, makeCapability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.DataType ( DataType(..), marshalDataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -545,7 +545,7 @@ foreign import CALLCONV unsafe "glPixelMapfv" glPixelMapfv ::
 
 --------------------------------------------------------------------------------
 
-colorTableEnabled :: PixelTransferStage -> StateVar Bool
+colorTableEnabled :: PixelTransferStage -> StateVar Capability
 colorTableEnabled = makeCapability . stageToEnableCap
 
 --------------------------------------------------------------------------------

@@ -26,7 +26,7 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple,
              CapPolygonOffsetPoint,CapPolygonOffsetLine,CapPolygonOffsetFill),
-   makeCapability, makeStateVarMaybe )
+   Capability, makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -37,7 +37,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 
-polygonSmooth :: StateVar Bool
+polygonSmooth :: StateVar Capability
 polygonSmooth = makeCapability CapPolygonSmooth
 
 --------------------------------------------------------------------------------
@@ -133,11 +133,11 @@ foreign import CALLCONV unsafe "glPolygonOffset" glPolygonOffset ::
 
 --------------------------------------------------------------------------------
 
-polygonOffsetPoint :: StateVar Bool
+polygonOffsetPoint :: StateVar Capability
 polygonOffsetPoint = makeCapability CapPolygonOffsetPoint
 
-polygonOffsetLine :: StateVar Bool
+polygonOffsetLine :: StateVar Capability
 polygonOffsetLine = makeCapability CapPolygonOffsetLine
 
-polygonOffsetFill :: StateVar Bool
+polygonOffsetFill :: StateVar Capability
 polygonOffsetFill = makeCapability CapPolygonOffsetFill

@@ -21,7 +21,8 @@ module Graphics.Rendering.OpenGL.GL.LineSegments (
 import Control.Monad ( liftM2 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLushort, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapLineSmooth,CapLineStipple), makeCapability, makeStateVarMaybe )
+   EnableCap(CapLineSmooth,CapLineStipple), Capability, makeCapability,
+   makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetLineWidth,GetAliasedLineWidthRange,GetSmoothLineWidthRange,
             GetSmoothLineWidthGranularity,GetLineStippleRepeat,
@@ -39,7 +40,7 @@ foreign import CALLCONV unsafe "glLineWidth" glLineWidth :: GLfloat -> IO ()
 
 --------------------------------------------------------------------------------
 
-lineSmooth :: StateVar Bool
+lineSmooth :: StateVar Capability
 lineSmooth = makeCapability CapLineSmooth
 
 aliasedLineWidthRange :: GettableStateVar (GLfloat, GLfloat)

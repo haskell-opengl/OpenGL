@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Antialiasing (
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapMultisample), makeCapability )
+   Capability, EnableCap(CapMultisample), makeCapability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetSampleBuffers,GetSamples,GetSubpixelBits), getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -33,7 +33,7 @@ sampleBuffers = antialiasingInfo GetSampleBuffers
 samples :: GettableStateVar GLsizei
 samples = antialiasingInfo GetSamples
 
-multisample :: StateVar Bool
+multisample :: StateVar Capability
 multisample = makeCapability CapMultisample
 
 subpixelBits :: GettableStateVar GLsizei

@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLboolean, GLbitfield, GLbyte, GLshort, GLint, GLubyte, GLushort,
-   GLuint, GLsizei, GLfloat, GLclampf, GLdouble, GLclampd
+   GLuint, GLsizei, GLfloat, GLclampf, GLdouble, GLclampd, Capability(..)
 ) where
 
 --------------------------------------------------------------------------------
@@ -68,3 +68,10 @@ type GLdouble = HTYPE_GLDOUBLE
 
 -- | Floating-point value clamped to [0,1] (min. 64 bits)
 type GLclampd = HTYPE_GLCLAMPD
+
+--------------------------------------------------------------------------------
+
+data Capability =
+     Disabled
+   | Enabled
+   deriving ( Eq, Ord, Show )

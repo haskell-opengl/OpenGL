@@ -38,7 +38,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray, CapNormalArray, CapColorArray, CapIndexArray,
              CapTextureCoordArray, CapEdgeFlagArray, CapFogCoordinateArray,
              CapSecondaryColorArray, CapMatrixIndexArray),
-   makeCapability )
+   Capability(Enabled), makeCapability )
 import Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -312,16 +312,16 @@ clientArrayTypeToEnableCap x = case x of
 
 --------------------------------------------------------------------------------
 
-clientState :: ClientArrayType -> StateVar Bool
+clientState :: ClientArrayType -> StateVar Capability
 clientState arrayType =
    makeStateVar (getClientState arrayType) (setClientState arrayType)
 
-getClientState :: ClientArrayType -> IO Bool
+getClientState :: ClientArrayType -> IO Capability
 getClientState = get . makeCapability . clientArrayTypeToEnableCap
 
-setClientState :: ClientArrayType -> Bool -> IO ()
+setClientState :: ClientArrayType -> Capability -> IO ()
 setClientState arrayType val =
-   (if val then glEnableClientState else glDisableClientState)
+   (if val == Enabled then glEnableClientState else glDisableClientState)
       (marshalClientArrayType arrayType)
 
 foreign import CALLCONV unsafe "glEnableClientState" glEnableClientState ::

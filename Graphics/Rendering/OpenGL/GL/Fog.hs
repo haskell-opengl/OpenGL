@@ -23,7 +23,7 @@ import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapFog), makeCapability )
+   Capability, EnableCap(CapFog), makeCapability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetFogIndex,GetFogDensity,GetFogStart,GetFogEnd,GetFogMode,
    GetFogColor,GetFogCoordinateSource),
@@ -34,7 +34,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 --------------------------------------------------------------------------------
 
-fog :: StateVar Bool
+fog :: StateVar Capability
 fog = makeCapability CapFog
 
 --------------------------------------------------------------------------------

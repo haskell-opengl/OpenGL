@@ -15,11 +15,12 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(..), makeCapability, makeStateVarMaybe
+   Capability(..), EnableCap(..), makeCapability, makeStateVarMaybe
 ) where
 
 import Control.Monad ( liftM )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLsizei )
+import Graphics.Rendering.OpenGL.GL.BasicTypes (
+   GLenum, GLsizei, Capability(..) )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum )
@@ -107,7 +108,6 @@ data EnableCap =
    | CapVertexBlend
    | CapWeightArray
    | CapMatrixPalette
-   deriving ( Eq, Ord, Show )
 
 marshalEnableCap :: EnableCap -> GLenum
 marshalEnableCap x = case x of
@@ -192,22 +192,26 @@ marshalEnableCap x = case x of
 
 --------------------------------------------------------------------------------
 
-makeCapability :: EnableCap -> StateVar Bool
+makeCapability :: EnableCap -> StateVar Capability
 makeCapability cap = makeStateVar (isEnabled cap) (enable cap)
 
 --------------------------------------------------------------------------------
 
-isEnabled :: EnableCap -> IO Bool
-isEnabled = liftM unmarshalGLboolean . glIsEnabled . marshalEnableCap
+isEnabled :: EnableCap -> IO Capability
+isEnabled = liftM unmarshalCapability . glIsEnabled . marshalEnableCap
+
+unmarshalCapability :: GLboolean -> Capability
+unmarshalCapability x | unmarshalGLboolean x = Enabled
+                      | otherwise            = Disabled
 
 foreign import CALLCONV unsafe "glIsEnabled" glIsEnabled ::
    GLenum -> IO GLboolean
 
 --------------------------------------------------------------------------------
 
-enable :: EnableCap -> Bool -> IO ()
-enable cap False = glDisable (marshalEnableCap cap)
-enable cap True  = glEnable  (marshalEnableCap cap)
+enable :: EnableCap -> Capability -> IO ()
+enable cap Disabled = glDisable (marshalEnableCap cap)
+enable cap Enabled  = glEnable  (marshalEnableCap cap)
 
 foreign import CALLCONV unsafe "glEnable" glEnable :: GLenum -> IO ()
 
@@ -223,13 +227,13 @@ makeStateVarMaybe getCap getAct setAct =
 
 getStateVarMaybe :: IO EnableCap -> IO a -> IO (Maybe a)
 getStateVarMaybe getCap act = do
-   var <- liftM makeCapability getCap
-   enabled <- get var
-   if enabled
+   capability <- liftM makeCapability getCap
+   state <- get capability
+   if state == Enabled
       then liftM Just act
       else return Nothing
 
 setStateVarMaybe :: IO EnableCap -> (a -> IO ()) -> Maybe a -> IO ()
 setStateVarMaybe getCap act val = do
-   var <- liftM makeCapability getCap
-   maybe (var $= False) (\x -> var $= True >> act x) val
+   capability <- liftM makeCapability getCap
+   maybe (capability $= Disabled) (\x -> capability $= Enabled >> act x) val

@@ -23,7 +23,7 @@ import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapPointSmooth), makeCapability )
+   Capability, EnableCap(CapPointSmooth), makeCapability )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -114,5 +114,5 @@ pointFadeThresholdSize =
 
 --------------------------------------------------------------------------------
 
-pointSmooth :: StateVar Bool
+pointSmooth :: StateVar Capability
 pointSmooth = makeCapability CapPointSmooth

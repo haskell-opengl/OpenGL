@@ -48,7 +48,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapRescaleNormal, CapNormalize,
              CapTextureGenS, CapTextureGenT,
              CapTextureGenR, CapTextureGenQ),
-   makeCapability, makeStateVarMaybe )
+   Capability, makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
@@ -383,21 +383,21 @@ maxStackDepth =
 
 --------------------------------------------------------------------------------
 
--- | If 'rescaleNormal' contains 'True', normal vectors specified with
+-- | If 'rescaleNormal' contains 'Enabled', normal vectors specified with
 -- 'Graphics.Rendering.OpenGL.GL.VertexSpec.normal' are scaled by a scaling
 -- factor derived from the modelview matrix. 'rescaleNormal' requires that the
 -- originally specified normals were of unit length, and that the modelview
 -- matrix contains only uniform scales for proper results. The initial value of
--- 'rescaleNormal' is 'False'.
+-- 'rescaleNormal' is 'Disabled'.
 
-rescaleNormal :: StateVar Bool
+rescaleNormal :: StateVar Capability
 rescaleNormal = makeCapability CapRescaleNormal
 
--- | If 'normalize' contains 'True', normal vectors specified with
+-- | If 'normalize' contains 'Enabled', normal vectors specified with
 -- 'Graphics.Rendering.OpenGL.GL.VertexSpec.normal' are scaled to unit length
--- after transformation. The initial value of 'normalize' is 'False'.
+-- after transformation. The initial value of 'normalize' is 'Disabled'.
 
-normalize :: StateVar Bool
+normalize :: StateVar Capability
 normalize = makeCapability CapNormalize
 
 --------------------------------------------------------------------------------

@@ -45,7 +45,7 @@ import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability,
+   Capability, EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability,
    makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
@@ -66,7 +66,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 --------------------------------------------------------------------------------
 
-lighting :: StateVar Bool
+lighting :: StateVar Capability
 lighting = makeCapability CapLighting
 
 --------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ marshalLight (Light l) = lightIndexToEnum l
 
 --------------------------------------------------------------------------------
 
-light :: Light -> StateVar Bool
+light :: Light -> StateVar Capability
 light (Light l) = makeCapability (CapLight l)
 
 maxLights :: GettableStateVar GLsizei

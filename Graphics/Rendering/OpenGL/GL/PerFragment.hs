@@ -47,7 +47,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
              CapSampleCoverage,CapAlphaTest,CapStencilTest,CapDepthTest,
              CapBlend,CapDither,CapIndexLogicOp,CapColorLogicOp),
-   makeCapability, makeStateVarMaybe )
+   Capability, makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
@@ -84,10 +84,10 @@ foreign import CALLCONV unsafe "glScissor" glScissor ::
 
 --------------------------------------------------------------------------------
 
-sampleAlphaToCoverage :: StateVar Bool
+sampleAlphaToCoverage :: StateVar Capability
 sampleAlphaToCoverage = makeCapability CapSampleAlphaToCoverage
 
-sampleAlphaToOne :: StateVar Bool
+sampleAlphaToOne :: StateVar Capability
 sampleAlphaToOne = makeCapability CapSampleAlphaToOne
 
 sampleCoverage :: StateVar (Maybe (GLclampf, Bool))
@@ -366,7 +366,7 @@ foreign import CALLCONV unsafe "glBlendColor" glBlendColor ::
 
 --------------------------------------------------------------------------------
 
-dither :: StateVar Bool
+dither :: StateVar Capability
 dither = makeCapability CapDither
 
 --------------------------------------------------------------------------------
