@@ -54,7 +54,7 @@ import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapColorTable,CapPostConvolutionColorTable,
              CapPostColorMatrixColorTable),
-   makeCapability )
+   makeCapability, marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLuint, GLsizei, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
@@ -355,10 +355,10 @@ stageToSetBiases s = case s of
 
 --------------------------------------------------------------------------------
 
-mapColor :: StateVar Bool
+mapColor :: StateVar Capability
 mapColor = pixelTransferb GetMapColor MapColor
 
-mapStencil :: StateVar Bool
+mapStencil :: StateVar Capability
 mapStencil = pixelTransferb GetMapStencil MapStencil
 
 indexShift :: StateVar GLint
@@ -381,12 +381,12 @@ rgbaBias s = pixelTransfer4f (stageToGetBiases s) (stageToSetBiases s)
 
 --------------------------------------------------------------------------------
 
-pixelTransferb :: GetPName -> PixelTransfer -> StateVar Bool
+pixelTransferb :: GetPName -> PixelTransfer -> StateVar Capability
 pixelTransferb pn pt =
    makeStateVar
-      (getBoolean1 unmarshalGLboolean pn)
+      (getBoolean1 unmarshalCapability pn)
       (glPixelTransferi (marshalPixelTransfer pt) .
-       fromIntegral . marshalGLboolean)
+       fromIntegral . marshalCapability)
 
 pixelTransferi :: GetPName -> PixelTransfer -> StateVar GLint
 pixelTransferi pn pt =
