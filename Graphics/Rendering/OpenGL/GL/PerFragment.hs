@@ -20,6 +20,9 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    -- * Multisample Fragment Operations
    sampleAlphaToCoverage,  sampleAlphaToOne, sampleCoverage,
 
+   -- * Depth Bounds Test
+   depthBounds,
+
    -- * Alpha Test
    ComparisonFunction(..), alphaFunc,
 
@@ -42,11 +45,11 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 
 import Control.Monad ( liftM2, liftM3 )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLuint, GLsizei, GLenum, GLclampf )
+   GLint, GLuint, GLsizei, GLenum, GLclampf, GLclampd )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
-             CapSampleCoverage,CapAlphaTest,CapStencilTest,CapDepthTest,
-             CapBlend,CapDither,CapIndexLogicOp,CapColorLogicOp),
+             CapSampleCoverage,CapDepthBoundsTest,CapAlphaTest,CapStencilTest,
+             CapDepthTest,CapBlend,CapDither,CapIndexLogicOp,CapColorLogicOp),
    Capability, makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -55,12 +58,14 @@ import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetScissorBox,GetSampleCoverageValue,GetSampleCoverageInvert,
-            GetAlphaTestFunc,GetAlphaTestRef,GetStencilFunc,GetStencilRef,
-            GetStencilValueMask,GetStencilFail,GetStencilPassDepthFail,
-            GetStencilPassDepthPass,GetDepthFunc,GetBlendEquation,
-            GetBlendDstRGB,GetBlendSrcRGB,GetBlendDstAlpha,GetBlendSrcAlpha,
-            GetBlendSrc,GetBlendDst,GetBlendColor,GetLogicOpMode),
-   getInteger1, getInteger4, getEnum1, getFloat1, getFloat4, getBoolean1 )
+            GetDepthBounds,GetAlphaTestFunc,GetAlphaTestRef,GetStencilFunc,
+            GetStencilRef,GetStencilValueMask,GetStencilFail,
+            GetStencilPassDepthFail,GetStencilPassDepthPass,GetDepthFunc,
+            GetBlendEquation,GetBlendDstRGB,GetBlendSrcRGB,GetBlendDstAlpha,
+            GetBlendSrcAlpha,GetBlendSrc,GetBlendDst,GetBlendColor,
+            GetLogicOpMode),
+   getInteger1, getInteger4, getEnum1, getFloat1, getFloat4, getDouble2,
+   getBoolean1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), rgbaMode )
@@ -99,6 +104,17 @@ sampleCoverage =
       (\(value, invert) -> glSampleCoverageARB value (marshalGLboolean invert))
 
 EXTENSION_ENTRY("GL_ARB_multisample or OpenGL 1.3",glSampleCoverageARB,GLclampf -> GLboolean -> IO ())
+
+--------------------------------------------------------------------------------
+
+depthBounds :: StateVar (Maybe (GLclampd, GLclampd))
+depthBounds =
+   makeStateVarMaybe
+      (return CapDepthBoundsTest)
+      (getDouble2 (,) GetDepthBounds)
+      (uncurry glDepthBoundsEXT)
+       
+EXTENSION_ENTRY("GL_EXT_depth_bounds_test",glDepthBoundsEXT,GLclampd -> GLclampd -> IO ())
 
 --------------------------------------------------------------------------------
 

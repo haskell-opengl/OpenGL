@@ -414,6 +414,7 @@ data GetPName =
    | GetMaxShininess
    | GetMaxSpotExponent
    | GetFogDistanceMode
+   | GetDepthBounds
 
 marshalGetPName :: GetPName -> GLenum
 marshalGetPName x = case x of
@@ -793,6 +794,7 @@ marshalGetPName x = case x of
    GetMaxShininess -> 0x8504
    GetMaxSpotExponent -> 0x8505
    GetFogDistanceMode -> 0x855a
+   GetDepthBounds -> 0x8891
 
 --------------------------------------------------------------------------------
 
