@@ -14,16 +14,15 @@
 
 module Graphics.Rendering.OpenGL.GLU.Matrix (
    ortho2D, perspective, lookAt, pickMatrix,
-   UnProjFunc, project, unProject
+   project, unProject, unProject4
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArray )
-import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   unmarshalGLboolean, GLint, GLsizei, GLdouble )
+   unmarshalGLboolean, GLint, GLdouble, GLclampd )
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
    MatrixOrder(ColumnMajor), Matrix, MatrixElement(getMatrixElements),
    Vector3(..), Position(..), Size(..) )
@@ -51,9 +50,8 @@ foreign import CALLCONV unsafe "gluLookAt" gluLookAt ::
 
 pickMatrix ::
    (GLdouble, GLdouble) -> (GLdouble, GLdouble) -> (Position, Size) -> IO ()
-pickMatrix (x, y) (w, h) (Position vx vy, Size vw vh) =
-   withArray [ vx, vy, fromIntegral vw, fromIntegral vh ] $
-        gluPickMatrix x y w h
+pickMatrix (x, y) (w, h) viewport =
+   withViewport viewport $ gluPickMatrix x y w h
 
 foreign import CALLCONV unsafe "gluPickMatrix" gluPickMatrix ::
    GLdouble -> GLdouble -> GLdouble -> GLdouble -> Ptr GLint -> IO ()
@@ -62,40 +60,93 @@ foreign import CALLCONV unsafe "gluPickMatrix" gluPickMatrix ::
 -- coordinate projection
 -- TODO: Missing for GLU 1.3: gluUnProject4
 
-type UnProjFunc =
-      (GLdouble, GLdouble, GLdouble)
-   -> Matrix GLdouble -> Matrix GLdouble -> (GLint, GLint) -> (GLsizei, GLsizei)
-   -> IO (Maybe (GLdouble, GLdouble, GLdouble))
+project ::
+      Vertex3 GLdouble
+   -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
+   -> IO (Maybe (Vertex3 GLdouble))
+project (Vertex3 objX objY objZ) model proj viewport =
+   withMatrix ColumnMajor model $ \modelBuf ->
+   withMatrix ColumnMajor proj $ \projBuf ->
+   withViewport viewport $ \viewBuf ->
+   getVertex3 $ gluProject objX objY objZ modelBuf projBuf viewBuf
 
-type UnProjFuncInternal =
+foreign import CALLCONV unsafe "gluProject" gluProject ::
       GLdouble -> GLdouble -> GLdouble
-   -> Ptr GLdouble -> Ptr GLdouble -> Ptr (Vertex4 GLint)
+   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint
    -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
 
-project :: UnProjFunc
-project = projHelper gluProject
+unProject ::
+      Vertex3 GLdouble
+   -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
+   -> IO (Maybe (Vertex3 GLdouble))
+unProject (Vertex3 objX objY objZ) model proj viewport =
+   withMatrix ColumnMajor model $ \modelBuf ->
+   withMatrix ColumnMajor proj $ \projBuf ->
+   withViewport viewport $ \viewBuf ->
+   getVertex3 $ gluUnProject objX objY objZ modelBuf projBuf viewBuf
 
-foreign import CALLCONV unsafe "gluProject" gluProject :: UnProjFuncInternal
+foreign import CALLCONV unsafe "gluUnProject" gluUnProject ::
+      GLdouble -> GLdouble -> GLdouble
+   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint
+   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
 
-unProject :: UnProjFunc
-unProject = projHelper gluUnProject
+unProject4 ::
+      Vertex4 GLdouble
+   -> Matrix GLdouble -> Matrix GLdouble -> (Position, Size)
+   -> GLclampd -> GLclampd
+   -> IO (Maybe (Vertex4 GLdouble))
+unProject4 (Vertex4 objX objY objZ clipW) model proj viewport near far =
+   withMatrix ColumnMajor model $ \modelBuf ->
+   withMatrix ColumnMajor proj $ \projBuf ->
+   withViewport viewport $ \viewBuf ->
+   getVertex4 $
+      gluUnProject4 objX objY objZ clipW modelBuf projBuf viewBuf near far
 
-foreign import CALLCONV unsafe "gluUnProject" gluUnProject :: UnProjFuncInternal
+foreign import CALLCONV unsafe "gluUnProject4" gluUnProject4 ::
+      GLdouble -> GLdouble -> GLdouble -> GLdouble
+   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint
+   -> GLclampd -> GLclampd
+   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
 
-projHelper :: UnProjFuncInternal -> UnProjFunc
-projHelper upf (objX, objY, objZ) model proj (x, y) (w, h) = do
-   modelElems <- getMatrixElements ColumnMajor model -- TODO: Improve this sometimes needless (un-)marshaling
-   withArray modelElems $ \modelBuf -> do
-      projElems <- getMatrixElements ColumnMajor proj
-      withArray projElems $ \projBuf ->
-         with (Vertex4 (fromIntegral x) (fromIntegral y) (fromIntegral w) (fromIntegral h)) $ \viewBuf  ->
-            alloca $ \winXBuf  ->
-            alloca $ \winYBuf  ->
-            alloca $ \winZBuf  -> do
-            success  <- upf objX objY objZ modelBuf projBuf viewBuf winXBuf winYBuf winZBuf
-            if unmarshalGLboolean (fromIntegral success)
-               then do winX <- peek winXBuf
-                       winY <- peek winYBuf
-                       winZ <- peek winZBuf
-                       return $ Just (winX, winY, winZ)
-               else return Nothing
+--------------------------------------------------------------------------------
+
+withViewport :: (Position, Size) -> (Ptr GLint -> IO a ) -> IO a
+withViewport (Position x y, Size w h) =
+   withArray [ x, y, fromIntegral w, fromIntegral h ]
+
+-- TODO: Improve this sometimes needless (un-)marshaling
+withMatrix ::
+   MatrixElement a => MatrixOrder -> Matrix a -> (Ptr a -> IO b) -> IO b
+withMatrix order matrix act = do
+   elements <- getMatrixElements order matrix
+   withArray elements act
+
+getVertex3 ::
+   Storable a => (Ptr a -> Ptr a -> Ptr a -> IO GLint) -> IO (Maybe (Vertex3 a))
+getVertex3 act =
+   alloca $ \xBuf ->
+   alloca $ \yBuf ->
+   alloca $ \zBuf -> do
+   ok <- act xBuf yBuf zBuf
+   if unmarshalGLboolean (fromIntegral ok)
+      then do x <- peek xBuf
+              y <- peek yBuf
+              z <- peek zBuf
+              return $ Just (Vertex3 x y z)
+      else return Nothing
+
+getVertex4 ::
+   Storable a => (Ptr a -> Ptr a -> Ptr a -> Ptr a -> IO GLint) -> IO (Maybe (Vertex4 a))
+getVertex4 act =
+   alloca $ \xBuf ->
+   alloca $ \yBuf ->
+   alloca $ \zBuf ->
+   alloca $ \wBuf -> do
+   ok <- act xBuf yBuf zBuf wBuf
+   if unmarshalGLboolean (fromIntegral ok)
+      then do x <- peek xBuf
+              y <- peek yBuf
+              z <- peek zBuf
+              w <- peek wBuf
+              return $ Just (Vertex4 x y z w)
+      else return Nothing
