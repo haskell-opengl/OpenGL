@@ -14,6 +14,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL (
+     module Graphics.Rendering.OpenGL.GL.Antialiasing,
      module Graphics.Rendering.OpenGL.GL.BasicTypes,
      module Graphics.Rendering.OpenGL.GL.BeginEnd,
      module Graphics.Rendering.OpenGL.GL.Clipping,
@@ -34,6 +35,7 @@ module Graphics.Rendering.OpenGL.GL (
      module Graphics.Rendering.OpenGL.GL.VertexSpec
 ) where
 
+import Graphics.Rendering.OpenGL.GL.Antialiasing
 import Graphics.Rendering.OpenGL.GL.BasicTypes
 import Graphics.Rendering.OpenGL.GL.BeginEnd
 import Graphics.Rendering.OpenGL.GL.Clipping
