@@ -51,7 +51,7 @@ import Graphics.Rendering.OpenGL.GL.BeginEndInternal (
    EdgeFlag(BeginsInteriorEdge), unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
-import Graphics.Rendering.OpenGL.GLU.Errors (
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    Error(..), ErrorCategory(..), makeError )
 
 --------------------------------------------------------------------------------

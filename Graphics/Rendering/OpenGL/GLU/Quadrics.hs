@@ -25,7 +25,7 @@ import Foreign.Ptr       ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLdouble )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, marshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
-import Graphics.Rendering.OpenGL.GLU.Errors (
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    Error(..), ErrorCategory(..), makeError )
 
 --------------------------------------------------------------------------------
