@@ -14,7 +14,7 @@
 
 module Main ( main ) where
 
-import Control.Monad       ( liftM )
+import Control.Monad       ( liftM, when )
 import Control.Monad.State ( State, runState, evalState, get, put, modify )
 import Data.Char           ( isUpper, toUpper, isLower, toLower, isDigit, isHexDigit, isSpace )
 import Data.FiniteMap      ( FiniteMap, emptyFM, addToFM_C, lookupWithDefaultFM )
@@ -558,12 +558,36 @@ showEOL = showChar '\n'
 -- The driver
 --------------------------------------------------------------------------------
 
+parseArguments :: [String] -> (Bool, String, IO String)
+parseArguments args =
+   case restArgs of
+      []   -> (verbose, "<stdin>", getContents)
+      [fn] -> (verbose, fn, readFile fn)
+      _    -> error "usage: ConvertEnumSpec [-v] [input.spec]"
+   where (verbose, restArgs) = case args of
+                                  ("-v":rest) -> (True,  rest)
+                                  rest        -> (False, rest)
+
+execute :: Bool -> String -> (b -> String) -> (a -> b) -> a -> IO b
+execute verbose header showFn f x = do
+   let result = f x
+   when verbose $ do
+      putStrLn ("-- " ++ header ++ "----------------------------------------")
+      putStrLn (showFn result)
+   return result
+
+mainWithArgs :: [String] -> IO ()
+mainWithArgs args = do
+   let (verbose, fileName, getInput) = parseArguments args
+       exec = execute verbose
+   getInput                                                   >>=
+      exec  "preprocessing" id            preprocess          >>=
+      exec "parsing"       show          (parseSpec fileName) >>=
+      exec "expansion"     show          expandSpec           >>=
+      exec "evaluation"    (show . fst)  evaluate             >>=
+      exec "simplify"      show          simplify             >>=
+      exec "renaming"      show          rename               >>=
+      putStr . codeGen
+
 main :: IO ()
-main = do
-   args <- getArgs
-   let (fileName, input) = case args of
-                              []   -> ("<stdin>", getContents)
-                              [fn] -> (fn, readFile fn)
-                              _    -> error "usage: ConvertEnumSpec [input.spec]"
-   putStr . codeGen . rename . simplify . evaluate . expandSpec .
-      parseSpec fileName . preprocess =<< input
+main = getArgs >>= mainWithArgs
