@@ -1,6 +1,7 @@
 ###############################################################################
 #
-# OpenGL 1.3 enumerant specification, including extensions
+# OpenGL 1.4 enumerant specification, including all ARB extensions from #1 up
+# to #25 which are relevant here (i.e. no GLX stuff, WGL stuff, etc.)
 #
 # This file was created in the following way:
 # 
@@ -10,7 +11,7 @@
 # 4) Make OpenGL 1.3 changes according to Appendix F of the 1.3 specs.
 # 5) Remove the extensions part.
 # 6) Rearrange definitions and declarations to get a better naming.
-# 7) Merge the extension registry's enumext.spec (TODO).
+# 7) Merge the extension registry's enumext.spec (ongoing).
 #
 # For the original files, see SGI's OpenGL sample implementation at:
 #
@@ -35,6 +36,7 @@ AlphaFunction		enum:
 			GEQUAL					= 0x0206
 			ALWAYS					= 0x0207
 
+# it's an enum: in the registry, not a mask:
 AttribMask		mask:
 			CURRENT_BIT				= 0x00000001
 			POINT_BIT				= 0x00000002
@@ -56,7 +58,8 @@ AttribMask		mask:
 			LIST_BIT				= 0x00020000
 			TEXTURE_BIT				= 0x00040000
 			SCISSOR_BIT				= 0x00080000
-			ALL_ATTRIB_BITS				= 0x000fffff
+			MULTISAMPLE_BIT				= 0x20000000
+			ALL_ATTRIB_BITS				= 0xFFFFFFFF
 
 BeginMode		enum:
 			POINTS					= 0x0000
@@ -108,9 +111,10 @@ BlendingFactorSrc	enum:
 			use BlendingFactorDest ONE_MINUS_CONSTANT_ALPHA
 
 Boolean			enum:
-			TRUE					= 1
 			FALSE					= 0
+			TRUE					= 1
 
+# it's an enum: in the registry, not a mask:
 ClearBufferMask		mask:
 			use AttribMask COLOR_BUFFER_BIT
 			use AttribMask ACCUM_BUFFER_BIT
@@ -124,11 +128,13 @@ ClientArrayType		enum:
 			INDEX_ARRAY				= 0x8077
 			TEXTURE_COORD_ARRAY			= 0x8078
 			EDGE_FLAG_ARRAY				= 0x8079
+			MATRIX_INDEX_ARRAY			= 0x8844 # ARB Extension #16: ARB_matrix_palette
 
+# it's an enum: in the registry, not a mask:
 ClientAttribMask	mask:
 			CLIENT_PIXEL_STORE_BIT			= 0x00000001
 			CLIENT_VERTEX_ARRAY_BIT			= 0x00000002
-			CLIENT_ALL_ATTRIB_BITS			= 0xffffffff
+			CLIENT_ALL_ATTRIB_BITS			= 0xFFFFFFFF
 
 # 0x3000 through 0x3FFF are reserved for clip planes
 ClipPlaneName		enum:
@@ -166,17 +172,19 @@ ColorTableParameterPName enum:
 			COLOR_TABLE_BIAS			= 0x80D7
 
 ColorTableTarget	enum:
-			COLOR_TABLE				= 0x80D0 # 1 I
-			POST_CONVOLUTION_COLOR_TABLE		= 0x80D1 # 1 I
-			POST_COLOR_MATRIX_COLOR_TABLE		= 0x80D2 # 1 I
+			COLOR_TABLE				= 0x80D0
+			POST_CONVOLUTION_COLOR_TABLE		= 0x80D1
+			POST_COLOR_MATRIX_COLOR_TABLE		= 0x80D2
 			PROXY_COLOR_TABLE			= 0x80D3
 			PROXY_POST_CONVOLUTION_COLOR_TABLE	= 0x80D4
 			PROXY_POST_COLOR_MATRIX_COLOR_TABLE	= 0x80D5
 
 ConvolutionBorderMode	enum:
 			REDUCE					= 0x8016
+			IGNORE_BORDER				= 0x8150
 			CONSTANT_BORDER				= 0x8151
 			REPLICATE_BORDER			= 0x8153
+			CONVOLUTION_BORDER_COLOR		= 0x8154
 
 ConvolutionParameter	enum:
 			CONVOLUTION_BORDER_MODE			= 0x8013
@@ -184,8 +192,8 @@ ConvolutionParameter	enum:
 			CONVOLUTION_FILTER_BIAS			= 0x8015
 
 ConvolutionTarget	enum:
-			CONVOLUTION_1D				= 0x8010 # 1 I
-			CONVOLUTION_2D				= 0x8011 # 1 I
+			CONVOLUTION_1D				= 0x8010
+			CONVOLUTION_2D				= 0x8011
 
 CullFaceMode		enum:
 			use DrawBufferMode FRONT
@@ -231,7 +239,7 @@ DrawBufferMode		enum:
 			AUX2					= 0x040B
 			AUX3					= 0x040C
 
-Enable			enum:
+EnableCap		enum:
 			FOG					= 0x0B60
 			LIGHTING				= 0x0B50
 			use TextureTarget TEXTURE_1D
@@ -290,20 +298,17 @@ Enable			enum:
 			NORMALIZE				= 0x0BA1
 			AUTO_NORMAL				= 0x0D80
 
+			POLYGON_OFFSET_POINT			= 0x2A01
+			POLYGON_OFFSET_LINE			= 0x2A02
+			POLYGON_OFFSET_FILL			= 0x8037
+
 			use ClientArrayType VERTEX_ARRAY
 			use ClientArrayType NORMAL_ARRAY
 			use ClientArrayType COLOR_ARRAY
 			use ClientArrayType INDEX_ARRAY
 			use ClientArrayType TEXTURE_COORD_ARRAY
 			use ClientArrayType EDGE_FLAG_ARRAY
-
-			POLYGON_OFFSET_POINT			= 0x2A01
-			POLYGON_OFFSET_LINE			= 0x2A02
-			POLYGON_OFFSET_FILL			= 0x8037
-
-			use ColorTableTarget COLOR_TABLE
-			use ColorTableTarget POST_CONVOLUTION_COLOR_TABLE
-			use ColorTableTarget POST_COLOR_MATRIX_COLOR_TABLE
+			use ClientArrayType MATRIX_INDEX_ARRAY		 # ARB Extension #16: ARB_matrix_palette
 
 			use ConvolutionTarget CONVOLUTION_1D
 			use ConvolutionTarget CONVOLUTION_2D
@@ -312,9 +317,28 @@ Enable			enum:
 			use HistogramTarget HISTOGRAM
 			use MinMaxTarget MINMAX
 
-			RESCALE_NORMAL				= 0x803A # 1 I
+			RESCALE_NORMAL				= 0x803A
+
+			SHARED_TEXTURE_PALETTE			= 0x81FB
 
 			use TextureTarget TEXTURE_3D
+
+			MULTISAMPLE				= 0x809D # ARB Extension #5: ARB_multisample
+			SAMPLE_ALPHA_TO_COVERAGE		= 0x809E # ARB Extension #5: ARB_multisample
+			SAMPLE_ALPHA_TO_ONE			= 0x809F # ARB Extension #5: ARB_multisample
+			SAMPLE_COVERAGE				= 0x80A0 # ARB Extension #5: ARB_multisample
+
+			use ColorTableTarget COLOR_TABLE
+			use ColorTableTarget POST_CONVOLUTION_COLOR_TABLE
+			use ColorTableTarget POST_COLOR_MATRIX_COLOR_TABLE
+
+			use TextureTarget TEXTURE_CUBE_MAP               # ARB Extension #7: ARB_texture_cube_map
+
+			WEIGHT_SUM_UNITY			= 0x86A6 # ARB Extension #15: ARB_vertex_blend
+			VERTEX_BLEND				= 0x86A7 # ARB Extension #15: ARB_vertex_blend
+			WEIGHT_ARRAY				= 0x86AD # ARB Extension #15: ARB_vertex_blend
+
+			use MatrixMode MATRIX_PALETTE                    # ARB Extension #16: ARB_matrix_palette
 
 ErrorCode		enum:
 			NO_ERROR				= 0
@@ -325,8 +349,9 @@ ErrorCode		enum:
 			STACK_UNDERFLOW				= 0x0504
 			OUT_OF_MEMORY				= 0x0505
 			TABLE_TOO_LARGE				= 0x8031
+			TEXTURE_TOO_LARGE_EXT			= 0x8065
 
-FeedBackMode		enum:
+FeedBackType		enum:
 			2D					= 0x0600
 			3D					= 0x0601
 			3D_COLOR				= 0x0602
@@ -372,8 +397,8 @@ GetColorTableParameterPName enum:
 			COLOR_TABLE_LUMINANCE_SIZE		= 0x80DE
 			COLOR_TABLE_INTENSITY_SIZE		= 0x80DF
 
-GetConvolutionParameterPName enum:
-			CONVOLUTION_BORDER_COLOR		= 0x8154
+GetConvolutionParameter enum:
+			CONVOLUTION_BORDER_COLOR		= 0x8154 # Hmmm, this is not in the registry...
 			use ConvolutionParameterPName CONVOLUTION_BORDER_MODE
 			use ConvolutionParameterPName CONVOLUTION_FILTER_SCALE
 			use ConvolutionParameterPName CONVOLUTION_FILTER_BIAS
@@ -393,7 +418,7 @@ GetHistogramParameterPName enum:
 			HISTOGRAM_LUMINANCE_SIZE		= 0x802C
 			HISTOGRAM_SINK				= 0x802D
 
-GetMapTarget		enum:
+GetMapQuery		enum:
 			COEFF					= 0x0A00
 			ORDER					= 0x0A01
 			DOMAIN					= 0x0A02
@@ -414,356 +439,469 @@ GetPixelMap		enum:
 			use PixelMap PIXEL_MAP_B_TO_B
 			use PixelMap PIXEL_MAP_A_TO_A
 
-GetPointerTarget	enum:
+GetPointervPName	enum:
 			VERTEX_ARRAY_POINTER			= 0x808E
 			NORMAL_ARRAY_POINTER			= 0x808F
 			COLOR_ARRAY_POINTER			= 0x8090
 			INDEX_ARRAY_POINTER			= 0x8091
 			TEXTURE_COORD_ARRAY_POINTER		= 0x8092
 			EDGE_FLAG_ARRAY_POINTER			= 0x8093
+			FEEDBACK_BUFFER_POINTER			= 0x0DF0
+			SELECTION_BUFFER_POINTER		= 0x0DF3
+			WEIGHT_ARRAY_POINTER			= 0x86AC # ARB Extension #15: ARB_vertex_blend
+			MATRIX_INDEX_ARRAY_POINTER		= 0x8849 # ARB Extension #16: ARB_matrix_palette
 
-GetTarget		enum:
-			CURRENT_COLOR				= 0x0B00
-			CURRENT_INDEX				= 0x0B01
-			CURRENT_NORMAL				= 0x0B02
-			CURRENT_TEXTURE_COORDS			= 0x0B03
-			CURRENT_RASTER_COLOR			= 0x0B04
-			CURRENT_RASTER_INDEX			= 0x0B05
-			CURRENT_RASTER_TEXTURE_COORDS		= 0x0B06
-			CURRENT_RASTER_POSITION			= 0x0B07
-			CURRENT_RASTER_POSITION_VALID		= 0x0B08
-			CURRENT_RASTER_DISTANCE			= 0x0B09
+GetPName		enum:
+			CURRENT_COLOR				= 0x0B00 # 4 F
+			CURRENT_INDEX				= 0x0B01 # 1 F
+			CURRENT_NORMAL				= 0x0B02 # 3 F
+			CURRENT_TEXTURE_COORDS			= 0x0B03 # 4 F
+			CURRENT_RASTER_COLOR			= 0x0B04 # 4 F
+			CURRENT_RASTER_INDEX			= 0x0B05 # 1 F
+			CURRENT_RASTER_TEXTURE_COORDS		= 0x0B06 # 4 F
+			CURRENT_RASTER_POSITION			= 0x0B07 # 4 F
+			CURRENT_RASTER_POSITION_VALID		= 0x0B08 # 1 I
+			CURRENT_RASTER_DISTANCE			= 0x0B09 # 1 F
+			CURRENT_MATRIX_INDEX			= 0x8845 # 1 F, ARB Extension #16: ARB_matrix_palette
 
-			use Enable POINT_SMOOTH
-			POINT_SIZE				= 0x0B11
-			POINT_SIZE_RANGE			= 0x0B12
-			POINT_SIZE_GRANULARITY			= 0x0B13
+			use Enable POINT_SMOOTH                          # 1 I
+			POINT_SIZE				= 0x0B11 # 1 F
+			POINT_SIZE_RANGE			= 0x0B12 # 2 F
+			POINT_SIZE_GRANULARITY			= 0x0B13 # 1 F
 
-			use Enable LINE_SMOOTH
-			LINE_WIDTH				= 0x0B21
-			LINE_WIDTH_RANGE			= 0x0B22
-			LINE_WIDTH_GRANULARITY			= 0x0B23
-			use Enable LINE_STIPPLE
-			LINE_STIPPLE_PATTERN			= 0x0B25
-			LINE_STIPPLE_REPEAT			= 0x0B26
-			SMOOTH_POINT_SIZE_RANGE			= 0x0B12
-			SMOOTH_POINT_SIZE_GRANULARITY		= 0x0B13
-			SMOOTH_LINE_WIDTH_RANGE			= 0x0B22
-			SMOOTH_LINE_WIDTH_GRANULARITY		= 0x0B23
+			use Enable LINE_SMOOTH                           # 1 I
+			LINE_WIDTH				= 0x0B21 # 1 F
+			LINE_WIDTH_RANGE			= 0x0B22 # 2 F
+			LINE_WIDTH_GRANULARITY			= 0x0B23 # 1 F
+			use Enable LINE_STIPPLE				 # 1 I
+			LINE_STIPPLE_PATTERN			= 0x0B25 # 1 I
+			LINE_STIPPLE_REPEAT			= 0x0B26 # 1 I
+			SMOOTH_POINT_SIZE_RANGE			= 0x0B12 # 2 F
+			SMOOTH_POINT_SIZE_GRANULARITY		= 0x0B13 # 1 F
+			SMOOTH_LINE_WIDTH_RANGE			= 0x0B22 # 2 F
+			SMOOTH_LINE_WIDTH_GRANULARITY		= 0x0B23 # 1 F
 			ALIASED_POINT_SIZE_RANGE		= 0x846D # 2 F
 			ALIASED_LINE_WIDTH_RANGE		= 0x846E # 2 F
 
-			LIST_MODE				= 0x0B30
-			MAX_LIST_NESTING			= 0x0B31
-			LIST_BASE				= 0x0B32
-			LIST_INDEX				= 0x0B33
+			LIST_MODE				= 0x0B30 # 1 I
+			MAX_LIST_NESTING			= 0x0B31 # 1 I
+			LIST_BASE				= 0x0B32 # 1 I
+			LIST_INDEX				= 0x0B33 # 1 I
 
-			POLYGON_MODE				= 0x0B40
-			use Enable POLYGON_SMOOTH
-			use Enable POLYGON_STIPPLE
-			EDGE_FLAG				= 0x0B43
-			use Enable CULL_FACE
-			CULL_FACE_MODE				= 0x0B45
-			FRONT_FACE				= 0x0B46
+			POLYGON_MODE				= 0x0B40 # 2 I
+			use Enable POLYGON_SMOOTH                        # 1 I
+			use Enable POLYGON_STIPPLE                       # 1 I
+			EDGE_FLAG				= 0x0B43 # 1 I
+			use Enable CULL_FACE                             # 1 I
+			CULL_FACE_MODE				= 0x0B45 # 1 I
+			FRONT_FACE				= 0x0B46 # 1 I
 
-			use Enable LIGHTING
+			use Enable LIGHTING                              # 1 I
+			use LightModelParameter LIGHT_MODEL_LOCAL_VIEWER # 1 I
+			use LightModelParameter LIGHT_MODEL_TWO_SIDE     # 1 I
+			use LightModelParameter LIGHT_MODEL_AMBIENT      # 4 F
+			SHADE_MODEL				= 0x0B54 # 1 I
+			COLOR_MATERIAL_FACE			= 0x0B55 # 1 I
+			COLOR_MATERIAL_PARAMETER		= 0x0B56 # 1 I
+			use Enable COLOR_MATERIAL                        # 1 I
 
-			use LightModelParameter LIGHT_MODEL_AMBIENT
-			use LightModelParameter LIGHT_MODEL_LOCAL_VIEWER
-			use LightModelParameter LIGHT_MODEL_TWO_SIDE
-			use LightModelParameter LIGHT_MODEL_COLOR_CONTROL
+			use Enable FOG                                   # 1 I
+			use FogParameter FOG_INDEX			 # 1 I
+			use FogParameter FOG_DENSITY			 # 1 F
+			use FogParameter FOG_START			 # 1 F
+			use FogParameter FOG_END			 # 1 F
+			use FogParameter FOG_MODE			 # 1 I
+			use FogParameter FOG_COLOR			 # 4 F
 
-			SHADE_MODEL				= 0x0B54
-			COLOR_MATERIAL_FACE			= 0x0B55
-			COLOR_MATERIAL_PARAMETER		= 0x0B56
-			use Enable COLOR_MATERIAL
+			DEPTH_RANGE				= 0x0B70 # 2 F
+			use Enable DEPTH_TEST				 # 1 I
+			DEPTH_WRITEMASK				= 0x0B72 # 1 I
+			DEPTH_CLEAR_VALUE			= 0x0B73 # 1 F
+			DEPTH_FUNC				= 0x0B74 # 1 I
 
-			use Enable FOG
-			use FogParameter FOG_COLOR
-			use FogParameter FOG_DENSITY
-			use FogParameter FOG_END
-			use FogParameter FOG_INDEX
-			use FogParameter FOG_MODE
-			use FogParameter FOG_START
+			ACCUM_CLEAR_VALUE			= 0x0B80 # 4 F
 
-			DEPTH_RANGE				= 0x0B70
-			use Enable DEPTH_TEST
-			DEPTH_WRITEMASK				= 0x0B72
-			DEPTH_CLEAR_VALUE			= 0x0B73
-			DEPTH_FUNC				= 0x0B74
+			use Enable STENCIL_TEST                          # 1 I
+			STENCIL_CLEAR_VALUE			= 0x0B91 # 1 I
+			STENCIL_FUNC				= 0x0B92 # 1 I
+			STENCIL_VALUE_MASK			= 0x0B93 # 1 I
+			STENCIL_FAIL				= 0x0B94 # 1 I
+			STENCIL_PASS_DEPTH_FAIL			= 0x0B95 # 1 I
+			STENCIL_PASS_DEPTH_PASS			= 0x0B96 # 1 I
+			STENCIL_REF				= 0x0B97 # 1 I
+			STENCIL_WRITEMASK			= 0x0B98 # 1 I
 
-			ACCUM_CLEAR_VALUE			= 0x0B80
+			MATRIX_MODE				= 0x0BA0 # 1 I 
+			use Enable NORMALIZE				 # 1 I 
+			VIEWPORT				= 0x0BA2 # 4 I 
+			MODELVIEW_STACK_DEPTH			= 0x0BA3 # 1 I 
+			PROJECTION_STACK_DEPTH			= 0x0BA4 # 1 I 
+			TEXTURE_STACK_DEPTH			= 0x0BA5 # 1 I 
+			MODELVIEW_MATRIX			= 0x0BA6 # 16 F
+			PROJECTION_MATRIX			= 0x0BA7 # 16 F
+			TEXTURE_MATRIX				= 0x0BA8 # 16 F
 
-			use Enable STENCIL_TEST
-			STENCIL_CLEAR_VALUE			= 0x0B91
-			STENCIL_FUNC				= 0x0B92
-			STENCIL_VALUE_MASK			= 0x0B93
-			STENCIL_FAIL				= 0x0B94
-			STENCIL_PASS_DEPTH_FAIL			= 0x0B95
-			STENCIL_PASS_DEPTH_PASS			= 0x0B96
-			STENCIL_REF				= 0x0B97
-			STENCIL_WRITEMASK			= 0x0B98
+			ATTRIB_STACK_DEPTH			= 0x0BB0 # 1 I
+			CLIENT_ATTRIB_STACK_DEPTH		= 0x0BB1 # 1 I
 
-			MATRIX_MODE				= 0x0BA0
-			use Enable NORMALIZE
-			VIEWPORT				= 0x0BA2
-			MODELVIEW_STACK_DEPTH			= 0x0BA3
-			PROJECTION_STACK_DEPTH			= 0x0BA4
-			TEXTURE_STACK_DEPTH			= 0x0BA5
-			MODELVIEW_MATRIX			= 0x0BA6
-			PROJECTION_MATRIX			= 0x0BA7
-			TEXTURE_MATRIX				= 0x0BA8
+			use Enable ALPHA_TEST                            # 1 I
+			ALPHA_TEST_FUNC				= 0x0BC1 # 1 I
+			ALPHA_TEST_REF				= 0x0BC2 # 1 F
 
-			ATTRIB_STACK_DEPTH			= 0x0BB0
-			CLIENT_ATTRIB_STACK_DEPTH		= 0x0BB1
+			use Enable DITHER                                # 1 I
 
-			use Enable ALPHA_TEST
-			ALPHA_TEST_FUNC				= 0x0BC1
-			ALPHA_TEST_REF				= 0x0BC2
+			BLEND_DST				= 0x0BE0 # 1 I
+			BLEND_SRC				= 0x0BE1 # 1 I
+			use TextureEnvMode BLEND			 # 1 I
 
-			use Enable DITHER
+			LOGIC_OP_MODE				= 0x0BF0 # 1 I
+			use Enable INDEX_LOGIC_OP			 # 1 I
+			use BlendEquationMode LOGIC_OP			 # 1 I
+			use Enable COLOR_LOGIC_OP			 # 1 I
 
-			BLEND_DST				= 0x0BE0
-			BLEND_SRC				= 0x0BE1
-			use TextureEnvMode BLEND
+			AUX_BUFFERS				= 0x0C00 # 1 I
+			DRAW_BUFFER				= 0x0C01 # 1 I
+			READ_BUFFER				= 0x0C02 # 1 I
 
-			LOGIC_OP_MODE				= 0x0BF0
-			use Enable INDEX_LOGIC_OP
-			use BlendEquationMode LOGIC_OP
-			use Enable COLOR_LOGIC_OP
+			SCISSOR_BOX				= 0x0C10 # 4 I
+			use Enable SCISSOR_TEST				 # 1 I
 
-			AUX_BUFFERS				= 0x0C00
-			DRAW_BUFFER				= 0x0C01
-			READ_BUFFER				= 0x0C02
+			INDEX_CLEAR_VALUE			= 0x0C20 # 1 I
+			INDEX_WRITEMASK				= 0x0C21 # 1 I
+			COLOR_CLEAR_VALUE			= 0x0C22 # 4 F
+			COLOR_WRITEMASK				= 0x0C23 # 4 I
 
-			SCISSOR_BOX				= 0x0C10
-			use Enable SCISSOR_TEST
+			INDEX_MODE				= 0x0C30 # 1 I
+			RGBA_MODE				= 0x0C31 # 1 I
+			DOUBLEBUFFER				= 0x0C32 # 1 I
+			STEREO					= 0x0C33 # 1 I
 
-			INDEX_CLEAR_VALUE			= 0x0C20
-			INDEX_WRITEMASK				= 0x0C21
-			COLOR_CLEAR_VALUE			= 0x0C22
-			COLOR_WRITEMASK				= 0x0C23
+			RENDER_MODE				= 0x0C40 # 1 I
 
-			INDEX_MODE				= 0x0C30
-			RGBA_MODE				= 0x0C31
-			DOUBLEBUFFER				= 0x0C32
-			STEREO					= 0x0C33
+			use HintTarget PERSPECTIVE_CORRECTION_HINT       # 1 I
+			use HintTarget POINT_SMOOTH_HINT		 # 1 I
+			use HintTarget LINE_SMOOTH_HINT			 # 1 I
+			use HintTarget POLYGON_SMOOTH_HINT		 # 1 I
+			use HintTarget FOG_HINT				 # 1 I
+			use HintTarget TEXTURE_COMPRESSION_HINT          # ARB Extension #12: ARB_texture_compression
 
-			RENDER_MODE				= 0x0C40
+			use Enable TEXTURE_GEN_S                         # 1 I
+			use Enable TEXTURE_GEN_T			 # 1 I
+			use Enable TEXTURE_GEN_R			 # 1 I
+			use Enable TEXTURE_GEN_Q			 # 1 I
 
-			use HintTarget PERSPECTIVE_CORRECTION_HINT
-			use HintTarget POINT_SMOOTH_HINT
-			use HintTarget LINE_SMOOTH_HINT
-			use HintTarget POLYGON_SMOOTH_HINT
-			use HintTarget FOG_HINT
+			use PixelMap PIXEL_MAP_I_TO_I                    # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_S_TO_S			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_I_TO_R			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_I_TO_G			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_I_TO_B			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_I_TO_A			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_R_TO_R			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_G_TO_G			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_B_TO_B			 # Hmmm, this is not in the registry...
+			use PixelMap PIXEL_MAP_A_TO_A			 # Hmmm, this is not in the registry...
 
-			use Enable TEXTURE_GEN_S
-			use Enable TEXTURE_GEN_T
-			use Enable TEXTURE_GEN_R
-			use Enable TEXTURE_GEN_Q
+			PIXEL_MAP_I_TO_I_SIZE			= 0x0CB0 # 1 I
+			PIXEL_MAP_S_TO_S_SIZE			= 0x0CB1 # 1 I
+			PIXEL_MAP_I_TO_R_SIZE			= 0x0CB2 # 1 I
+			PIXEL_MAP_I_TO_G_SIZE			= 0x0CB3 # 1 I
+			PIXEL_MAP_I_TO_B_SIZE			= 0x0CB4 # 1 I
+			PIXEL_MAP_I_TO_A_SIZE			= 0x0CB5 # 1 I
+			PIXEL_MAP_R_TO_R_SIZE			= 0x0CB6 # 1 I
+			PIXEL_MAP_G_TO_G_SIZE			= 0x0CB7 # 1 I
+			PIXEL_MAP_B_TO_B_SIZE			= 0x0CB8 # 1 I
+			PIXEL_MAP_A_TO_A_SIZE			= 0x0CB9 # 1 I
 
-			use PixelMap PIXEL_MAP_I_TO_I
-			use PixelMap PIXEL_MAP_S_TO_S
-			use PixelMap PIXEL_MAP_I_TO_R
-			use PixelMap PIXEL_MAP_I_TO_G
-			use PixelMap PIXEL_MAP_I_TO_B
-			use PixelMap PIXEL_MAP_I_TO_A
-			use PixelMap PIXEL_MAP_R_TO_R
-			use PixelMap PIXEL_MAP_G_TO_G
-			use PixelMap PIXEL_MAP_B_TO_B
-			use PixelMap PIXEL_MAP_A_TO_A
+			use PixelStore UNPACK_SWAP_BYTES                 # 1 I
+			use PixelStore UNPACK_LSB_FIRST			 # 1 I
+			use PixelStore UNPACK_ROW_LENGTH		 # 1 I
+			use PixelStore UNPACK_SKIP_ROWS			 # 1 I
+			use PixelStore UNPACK_SKIP_PIXELS		 # 1 I
+			use PixelStore UNPACK_ALIGNMENT			 # 1 I
 
-			PIXEL_MAP_I_TO_I_SIZE			= 0x0CB0
-			PIXEL_MAP_S_TO_S_SIZE			= 0x0CB1
-			PIXEL_MAP_I_TO_R_SIZE			= 0x0CB2
-			PIXEL_MAP_I_TO_G_SIZE			= 0x0CB3
-			PIXEL_MAP_I_TO_B_SIZE			= 0x0CB4
-			PIXEL_MAP_I_TO_A_SIZE			= 0x0CB5
-			PIXEL_MAP_R_TO_R_SIZE			= 0x0CB6
-			PIXEL_MAP_G_TO_G_SIZE			= 0x0CB7
-			PIXEL_MAP_B_TO_B_SIZE			= 0x0CB8
-			PIXEL_MAP_A_TO_A_SIZE			= 0x0CB9
+			use PixelStore PACK_SWAP_BYTES                   # 1 I
+			use PixelStore PACK_LSB_FIRST			 # 1 I
+			use PixelStore PACK_ROW_LENGTH			 # 1 I
+			use PixelStore PACK_SKIP_ROWS			 # 1 I
+			use PixelStore PACK_SKIP_PIXELS			 # 1 I
+			use PixelStore PACK_ALIGNMENT			 # 1 I
 
-			use PixelStore UNPACK_SWAP_BYTES
-			use PixelStore UNPACK_LSB_FIRST
-			use PixelStore UNPACK_ROW_LENGTH
-			use PixelStore UNPACK_SKIP_ROWS
-			use PixelStore UNPACK_SKIP_PIXELS
-			use PixelStore UNPACK_ALIGNMENT
+			use PixelTransfer MAP_COLOR                      # 1 I
+			use PixelTransfer MAP_STENCIL			 # 1 I
+			use PixelTransfer INDEX_SHIFT			 # 1 I
+			use PixelTransfer INDEX_OFFSET			 # 1 I
+			use PixelTransfer RED_SCALE			 # 1 F
+			use PixelTransfer RED_BIAS			 # 1 F
+			ZOOM_X					= 0x0D16 # 1 F
+			ZOOM_Y					= 0x0D17 # 1 F
+			use PixelTransfer GREEN_SCALE			 # 1 F
+			use PixelTransfer GREEN_BIAS			 # 1 F
+			use PixelTransfer BLUE_SCALE			 # 1 F
+			use PixelTransfer BLUE_BIAS			 # 1 F
+			use PixelTransfer ALPHA_SCALE			 # 1 F
+			use PixelTransfer ALPHA_BIAS			 # 1 F
+			use PixelTransfer DEPTH_SCALE			 # 1 F
+			use PixelTransfer DEPTH_BIAS			 # 1 F
 
-			use PixelStore PACK_SWAP_BYTES
-			use PixelStore PACK_LSB_FIRST
-			use PixelStore PACK_ROW_LENGTH
-			use PixelStore PACK_SKIP_ROWS
-			use PixelStore PACK_SKIP_PIXELS
-			use PixelStore PACK_ALIGNMENT
+			MAX_EVAL_ORDER				= 0x0D30 # 1 I
+			MAX_LIGHTS				= 0x0D31 # 1 I
+			MAX_CLIP_PLANES				= 0x0D32 # 1 I
+			MAX_TEXTURE_SIZE			= 0x0D33 # 1 I
+			MAX_PIXEL_MAP_TABLE			= 0x0D34 # 1 I
+			MAX_ATTRIB_STACK_DEPTH			= 0x0D35 # 1 I
+			MAX_MODELVIEW_STACK_DEPTH		= 0x0D36 # 1 I
+			MAX_NAME_STACK_DEPTH			= 0x0D37 # 1 I
+			MAX_PROJECTION_STACK_DEPTH		= 0x0D38 # 1 I
+			MAX_TEXTURE_STACK_DEPTH			= 0x0D39 # 1 I
+			MAX_VIEWPORT_DIMS			= 0x0D3A # 2 F
+			MAX_CLIENT_ATTRIB_STACK_DEPTH		= 0x0D3B # 1 I
 
-			use PixelTransfer MAP_COLOR
-			use PixelTransfer MAP_STENCIL
-			use PixelTransfer INDEX_SHIFT
-			use PixelTransfer INDEX_OFFSET
-			use PixelTransfer RED_SCALE
-			use PixelTransfer RED_BIAS
-			use PixelTransfer GREEN_SCALE
-			use PixelTransfer GREEN_BIAS
-			use PixelTransfer BLUE_SCALE
-			use PixelTransfer BLUE_BIAS
-			use PixelTransfer ALPHA_SCALE
-			use PixelTransfer ALPHA_BIAS
-			use PixelTransfer DEPTH_SCALE
-			use PixelTransfer DEPTH_BIAS
+			SUBPIXEL_BITS				= 0x0D50 # 1 I
+			INDEX_BITS				= 0x0D51 # 1 I
+			RED_BITS				= 0x0D52 # 1 I
+			GREEN_BITS				= 0x0D53 # 1 I
+			BLUE_BITS				= 0x0D54 # 1 I
+			ALPHA_BITS				= 0x0D55 # 1 I
+			DEPTH_BITS				= 0x0D56 # 1 I
+			STENCIL_BITS				= 0x0D57 # 1 I
+			ACCUM_RED_BITS				= 0x0D58 # 1 I
+			ACCUM_GREEN_BITS			= 0x0D59 # 1 I
+			ACCUM_BLUE_BITS				= 0x0D5A # 1 I
+			ACCUM_ALPHA_BITS			= 0x0D5B # 1 I
 
-			ZOOM_X					= 0x0D16
-			ZOOM_Y					= 0x0D17
+			NAME_STACK_DEPTH			= 0x0D70 # 1 I
 
-			MAX_EVAL_ORDER				= 0x0D30
-			MAX_LIGHTS				= 0x0D31
-			MAX_CLIP_PLANES				= 0x0D32
-			MAX_TEXTURE_SIZE			= 0x0D33
-			MAX_PIXEL_MAP_TABLE			= 0x0D34
-			MAX_ATTRIB_STACK_DEPTH			= 0x0D35
-			MAX_MODELVIEW_STACK_DEPTH		= 0x0D36
-			MAX_NAME_STACK_DEPTH			= 0x0D37
-			MAX_PROJECTION_STACK_DEPTH		= 0x0D38
-			MAX_TEXTURE_STACK_DEPTH			= 0x0D39
-			MAX_VIEWPORT_DIMS			= 0x0D3A
-			MAX_CLIENT_ATTRIB_STACK_DEPTH		= 0x0D3B
+			use Enable AUTO_NORMAL                           # 1 I
 
-			SUBPIXEL_BITS				= 0x0D50
-			INDEX_BITS				= 0x0D51
-			RED_BITS				= 0x0D52
-			GREEN_BITS				= 0x0D53
-			BLUE_BITS				= 0x0D54
-			ALPHA_BITS				= 0x0D55
-			DEPTH_BITS				= 0x0D56
-			STENCIL_BITS				= 0x0D57
-			ACCUM_RED_BITS				= 0x0D58
-			ACCUM_GREEN_BITS			= 0x0D59
-			ACCUM_BLUE_BITS				= 0x0D5A
-			ACCUM_ALPHA_BITS			= 0x0D5B
+			use MapTarget MAP1_COLOR_4                       # 1 I
+			use MapTarget MAP1_INDEX			 # 1 I
+			use MapTarget MAP1_NORMAL			 # 1 I
+			use MapTarget MAP1_TEXTURE_COORD_1		 # 1 I
+			use MapTarget MAP1_TEXTURE_COORD_2		 # 1 I
+			use MapTarget MAP1_TEXTURE_COORD_3		 # 1 I
+			use MapTarget MAP1_TEXTURE_COORD_4		 # 1 I
+			use MapTarget MAP1_VERTEX_3			 # 1 I
+			use MapTarget MAP1_VERTEX_4			 # 1 I
 
-			NAME_STACK_DEPTH			= 0x0D70
+			use MapTarget MAP2_COLOR_4                       # 1 I
+			use MapTarget MAP2_INDEX			 # 1 I
+			use MapTarget MAP2_NORMAL			 # 1 I
+			use MapTarget MAP2_TEXTURE_COORD_1		 # 1 I
+			use MapTarget MAP2_TEXTURE_COORD_2		 # 1 I
+			use MapTarget MAP2_TEXTURE_COORD_3		 # 1 I
+			use MapTarget MAP2_TEXTURE_COORD_4		 # 1 I
+			use MapTarget MAP2_VERTEX_3			 # 1 I
+			use MapTarget MAP2_VERTEX_4			 # 1 I
 
-			use Enable AUTO_NORMAL
+			MAP1_GRID_DOMAIN			= 0x0DD0 # 2 F
+			MAP1_GRID_SEGMENTS			= 0x0DD1 # 1 I
+			MAP2_GRID_DOMAIN			= 0x0DD2 # 4 F
+			MAP2_GRID_SEGMENTS			= 0x0DD3 # 2 I
 
-			use MapTarget MAP1_COLOR_4
-			use MapTarget MAP1_INDEX
-			use MapTarget MAP1_NORMAL
-			use MapTarget MAP1_TEXTURE_COORD_1
-			use MapTarget MAP1_TEXTURE_COORD_2
-			use MapTarget MAP1_TEXTURE_COORD_3
-			use MapTarget MAP1_TEXTURE_COORD_4
-			use MapTarget MAP1_VERTEX_3
-			use MapTarget MAP1_VERTEX_4
+			use TextureTarget TEXTURE_1D                     # 1 I
+			use TextureTarget TEXTURE_2D                     # 1 I
 
-			use MapTarget MAP2_COLOR_4
-			use MapTarget MAP2_INDEX
-			use MapTarget MAP2_NORMAL
-			use MapTarget MAP2_TEXTURE_COORD_1
-			use MapTarget MAP2_TEXTURE_COORD_2
-			use MapTarget MAP2_TEXTURE_COORD_3
-			use MapTarget MAP2_TEXTURE_COORD_4
-			use MapTarget MAP2_VERTEX_3
-			use MapTarget MAP2_VERTEX_4
+			FEEDBACK_BUFFER_SIZE			= 0x0DF1 # 1 I
+			FEEDBACK_BUFFER_TYPE			= 0x0DF2 # 1 I
 
-			MAP1_GRID_DOMAIN			= 0x0DD0
-			MAP1_GRID_SEGMENTS			= 0x0DD1
-			MAP2_GRID_DOMAIN			= 0x0DD2
-			MAP2_GRID_SEGMENTS			= 0x0DD3
+			SELECTION_BUFFER_SIZE			= 0x0DF4 # 1 I
 
-			use TextureTarget TEXTURE_1D
-			use TextureTarget TEXTURE_2D
+			POLYGON_OFFSET_UNITS			= 0x2A00 # 1 F
+			use Enable POLYGON_OFFSET_POINT			 # 1 I
+			use Enable POLYGON_OFFSET_LINE			 # 1 I
+			use Enable POLYGON_OFFSET_FILL			 # 1 I
+			POLYGON_OFFSET_FACTOR			= 0x8038 # 1 F
 
-			FEEDBACK_BUFFER_POINTER			= 0x0DF0
-			FEEDBACK_BUFFER_SIZE			= 0x0DF1
-			FEEDBACK_BUFFER_TYPE			= 0x0DF2
+			TEXTURE_BINDING_1D			= 0x8068 # 1 I
+			TEXTURE_BINDING_2D			= 0x8069 # 1 I
+			TEXTURE_BINDING_3D			= 0x806A # 1 I
 
-			SELECTION_BUFFER_POINTER		= 0x0DF3
-			SELECTION_BUFFER_SIZE			= 0x0DF4
+			use ClientArrayType VERTEX_ARRAY                 # 1 I
+			use ClientArrayType NORMAL_ARRAY		 # 1 I
+			use ClientArrayType COLOR_ARRAY			 # 1 I
+			use ClientArrayType INDEX_ARRAY			 # 1 I
+			use ClientArrayType TEXTURE_COORD_ARRAY		 # 1 I
+			use ClientArrayType EDGE_FLAG_ARRAY		 # 1 I
+			use ClientArrayType MATRIX_INDEX_ARRAY		 # 1 I, ARB Extension #16: ARB_matrix_palette
 
-			TEXTURE_BINDING_1D			= 0x8068
-			TEXTURE_BINDING_2D			= 0x8069
-			TEXTURE_BINDING_3D			= 0x806A
+			VERTEX_ARRAY_SIZE			= 0x807A # 1 I
+			VERTEX_ARRAY_TYPE			= 0x807B # 1 I
+			VERTEX_ARRAY_STRIDE			= 0x807C # 1 I
 
-			use ClientArrayType VERTEX_ARRAY
-			use ClientArrayType NORMAL_ARRAY
-			use ClientArrayType COLOR_ARRAY
-			use ClientArrayType INDEX_ARRAY
-			use ClientArrayType TEXTURE_COORD_ARRAY
-			use ClientArrayType EDGE_FLAG_ARRAY
+			NORMAL_ARRAY_TYPE			= 0x807E # 1 I
+			NORMAL_ARRAY_STRIDE			= 0x807F # 1 I
 
-			VERTEX_ARRAY_SIZE			= 0x807A
-			VERTEX_ARRAY_TYPE			= 0x807B
-			VERTEX_ARRAY_STRIDE			= 0x807C
-			NORMAL_ARRAY_TYPE			= 0x807E
-			NORMAL_ARRAY_STRIDE			= 0x807F
-			COLOR_ARRAY_SIZE			= 0x8081
-			COLOR_ARRAY_TYPE			= 0x8082
-			COLOR_ARRAY_STRIDE			= 0x8083
-			INDEX_ARRAY_TYPE			= 0x8085
-			INDEX_ARRAY_STRIDE			= 0x8086
-			TEXTURE_COORD_ARRAY_SIZE		= 0x8088
-			TEXTURE_COORD_ARRAY_TYPE		= 0x8089
-			TEXTURE_COORD_ARRAY_STRIDE		= 0x808A
-			EDGE_FLAG_ARRAY_STRIDE			= 0x808C
+			COLOR_ARRAY_SIZE			= 0x8081 # 1 I
+			COLOR_ARRAY_TYPE			= 0x8082 # 1 I
+			COLOR_ARRAY_STRIDE			= 0x8083 # 1 I
 
-			POLYGON_OFFSET_UNITS			= 0x2A00
-			use Enable POLYGON_OFFSET_POINT
-			use Enable POLYGON_OFFSET_LINE
-			use Enable POLYGON_OFFSET_FILL
-			POLYGON_OFFSET_FACTOR			= 0x8038
+			INDEX_ARRAY_TYPE			= 0x8085 # 1 I
+			INDEX_ARRAY_STRIDE			= 0x8086 # 1 I
 
-			use ColorTableTarget COLOR_TABLE
-			use ColorTableTarget POST_CONVOLUTION_COLOR_TABLE
-			use ColorTableTarget POST_COLOR_MATRIX_COLOR_TABLE
+			TEXTURE_COORD_ARRAY_SIZE		= 0x8088 # 1 I
+			TEXTURE_COORD_ARRAY_TYPE		= 0x8089 # 1 I
+			TEXTURE_COORD_ARRAY_STRIDE		= 0x808A # 1 I
 
-			use ConvolutionTarget CONVOLUTION_1D
-			use ConvolutionTarget CONVOLUTION_2D
-			use SeparableTarget SEPARABLE_2D
-			use PixelTransfer POST_CONVOLUTION_RED_SCALE
-			use PixelTransfer POST_CONVOLUTION_GREEN_SCALE
-			use PixelTransfer POST_CONVOLUTION_BLUE_SCALE
-			use PixelTransfer POST_CONVOLUTION_ALPHA_SCALE
-			use PixelTransfer POST_CONVOLUTION_RED_BIAS
-			use PixelTransfer POST_CONVOLUTION_GREEN_BIAS
-			use PixelTransfer POST_CONVOLUTION_BLUE_BIAS
-			use PixelTransfer POST_CONVOLUTION_ALPHA_BIAS
+			EDGE_FLAG_ARRAY_STRIDE			= 0x808C # 1 I
 
-			COLOR_MATRIX				= 0x80B1 # 16 F
-			COLOR_MATRIX_STACK_DEPTH		= 0x80B2 # 1 I
-			MAX_COLOR_MATRIX_STACK_DEPTH		= 0x80B3 # 1 I
-			use PixelTransfer POST_COLOR_MATRIX_RED_SCALE
-			use PixelTransfer POST_COLOR_MATRIX_GREEN_SCALE
-			use PixelTransfer POST_COLOR_MATRIX_BLUE_SCALE
-			use PixelTransfer POST_COLOR_MATRIX_ALPHA_SCALE
-			use PixelTransfer POST_COLOR_MATRIX_RED_BIAS
-			use PixelTransfer POST_COLOR_MATRIX_GREEN_BIAS
-			use PixelTransfer POST_COLOR_MATRIX_BLUE_BIAS
-			use PixelTransfer POST_COLOR_MATRIX_ALPHA_BIAS
+			MATRIX_INDEX_ARRAY_SIZE			= 0x8846 # 1 I, ARB Extension #16: ARB_matrix_palette
+			MATRIX_INDEX_ARRAY_TYPE			= 0x8847 # 1 I, ARB Extension #16: ARB_matrix_palette
+			MATRIX_INDEX_ARRAY_STRIDE		= 0x8848 # 1 I, ARB Extension #16: ARB_matrix_palette
 
-			use HistogramTarget HISTOGRAM
-			use MinMaxTarget MINMAX
+			use ClipPlaneName CLIP_PLANE0                    # 1 I
+			use ClipPlaneName CLIP_PLANE1			 # 1 I
+			use ClipPlaneName CLIP_PLANE2			 # 1 I
+			use ClipPlaneName CLIP_PLANE3			 # 1 I
+			use ClipPlaneName CLIP_PLANE4			 # 1 I
+			use ClipPlaneName CLIP_PLANE5			 # 1 I
 
-			MAX_ELEMENTS_VERTICES			= 0x80E8
-			MAX_ELEMENTS_INDICES			= 0x80E9
+			use LightName LIGHT0                             # 1 I
+			use LightName LIGHT1				 # 1 I
+			use LightName LIGHT2				 # 1 I
+			use LightName LIGHT3				 # 1 I
+			use LightName LIGHT4				 # 1 I
+			use LightName LIGHT5				 # 1 I
+			use LightName LIGHT6				 # 1 I
+			use LightName LIGHT7				 # 1 I
 
-			use Enable RESCALE_NORMAL
+			TRANSPOSE_MODELVIEW_MATRIX		= 0x84E3 # 16 F, ARB Extension #3: ARB_transpose_matrix
+			TRANSPOSE_PROJECTION_MATRIX		= 0x84E4 # 16 F, ARB Extension #3: ARB_transpose_matrix
+			TRANSPOSE_TEXTURE_MATRIX		= 0x84E5 # 16 F, ARB Extension #3: ARB_transpose_matrix
+			TRANSPOSE_COLOR_MATRIX			= 0x84E6 # 16 F, ARB Extension #3: ARB_transpose_matrix
 
-			use PixelStore PACK_SKIP_IMAGES
-			use PixelStore PACK_IMAGE_HEIGHT
-			use PixelStore UNPACK_SKIP_IMAGES
-			use PixelStore UNPACK_IMAGE_HEIGHT
-
-			use TextureTarget TEXTURE_3D
-			MAX_3D_TEXTURE_SIZE			= 0x8073 # 1 I
+			use LightModelParameter LIGHT_MODEL_COLOR_CONTROL# 1 I
 
 			BLEND_COLOR				= 0x8005 # 4 F
 
 			BLEND_EQUATION				= 0x8009 # 1 I
 
-			ACTIVE_TEXTURE_ARB			= 0x84E0
-			CLIENT_ACTIVE_TEXTURE_ARB		= 0x84E1
-			MAX_TEXTURE_UNITS_ARB			= 0x84E2
+			use ColorTableTarget COLOR_TABLE                 # 1 I
+			use ColorTableTarget POST_CONVOLUTION_COLOR_TABLE #1 I
+			use ColorTableTarget POST_COLOR_MATRIX_COLOR_TABLE # 1 I
+
+			use ConvolutionTarget CONVOLUTION_1D             # 1 I
+			use ConvolutionTarget CONVOLUTION_2D             # 1 I
+			use SeparableTarget SEPARABLE_2D                 # 1 I
+			use PixelTransfer POST_CONVOLUTION_RED_SCALE     # 1 F
+			use PixelTransfer POST_CONVOLUTION_GREEN_SCALE   # 1 F
+			use PixelTransfer POST_CONVOLUTION_BLUE_SCALE    # 1 F
+			use PixelTransfer POST_CONVOLUTION_ALPHA_SCALE   # 1 F
+			use PixelTransfer POST_CONVOLUTION_RED_BIAS      # 1 F
+			use PixelTransfer POST_CONVOLUTION_GREEN_BIAS    # 1 F
+			use PixelTransfer POST_CONVOLUTION_BLUE_BIAS     # 1 F
+			use PixelTransfer POST_CONVOLUTION_ALPHA_BIAS    # 1 F
+
+			use HistogramTarget HISTOGRAM                    # 1 I
+			use MinMaxTarget MINMAX                          # 1 I
+
+			POLYGON_OFFSET_BIAS_EXT			= 0x8039 # 1 F
+
+			use Enable RESCALE_NORMAL                        # 1 I
+
+			use EnableCap SHARED_TEXTURE_PALETTE             # 1 I
+
+			TEXTURE_3D_BINDING			= 0x806A # 1 I
+
+			use PixelStore PACK_SKIP_IMAGES                  # 1 I
+			use PixelStore PACK_IMAGE_HEIGHT                 # 1 F
+			use PixelStore UNPACK_SKIP_IMAGES                # 1 I
+			use PixelStore UNPACK_IMAGE_HEIGHT               # 1 F
+
+			use TextureTarget TEXTURE_3D                     # 1 I
+			MAX_3D_TEXTURE_SIZE			= 0x8073 # 1 I
+
+			VERTEX_ARRAY_COUNT_EXT			= 0x807D # 1 I
+			NORMAL_ARRAY_COUNT_EXT			= 0x8080 # 1 I
+			COLOR_ARRAY_COUNT_EXT			= 0x8084 # 1 I
+			INDEX_ARRAY_COUNT_EXT			= 0x8087 # 1 I
+			TEXTURE_COORD_ARRAY_COUNT_EXT		= 0x808B # 1 I
+			EDGE_FLAG_ARRAY_COUNT_EXT		= 0x808D # 1 I
+
+			use EnableCap MULTISAMPLE_SGIS                   # 1 I, ARB Extension #5: ARB_multisample
+			use EnableCap SAMPLE_ALPHA_TO_MASK_SGIS          # 1 I, ARB Extension #5: ARB_multisample
+			use EnableCap SAMPLE_ALPHA_TO_ONE_SGIS           # 1 I, ARB Extension #5: ARB_multisample
+			use EnableCap SAMPLE_MASK_SGIS                   # 1 I, ARB Extension #5: ARB_multisample
+			SAMPLE_BUFFERS				= 0x80A8 # 1 I, ARB Extension #5: ARB_multisample
+			SAMPLES					= 0x80A9 # 1 I, ARB Extension #5: ARB_multisample
+			SAMPLE_COVERAGE_VALUE			= 0x80AA # 1 F, ARB Extension #5: ARB_multisample
+			SAMPLE_COVERAGE_INVERT			= 0x80AB # 1 I, ARB Extension #5: ARB_multisample
+
+			use PointParameterName POINT_SIZE_MIN            # 1 F, ARB Extension #14: ARB_point_parameters
+			use PointParameterName POINT_SIZE_MAX            # 1 F, ARB Extension #14: ARB_point_parameters
+			use PointParameterName POINT_FADE_THRESHOLD_SIZE # 1 F, ARB Extension #14: ARB_point_parameters
+			use PointParameterName POINT_DISTANCE_ATTENUATION# 3 F, ARB Extension #14: ARB_point_parameters
+
+			COLOR_MATRIX				= 0x80B1 # 16 F
+			COLOR_MATRIX_STACK_DEPTH		= 0x80B2 # 1 I
+			MAX_COLOR_MATRIX_STACK_DEPTH		= 0x80B3 # 1 I
+			use PixelTransfer POST_COLOR_MATRIX_RED_SCALE    # 1 F
+			use PixelTransfer POST_COLOR_MATRIX_GREEN_SCALE  # 1 F
+			use PixelTransfer POST_COLOR_MATRIX_BLUE_SCALE   # 1 F
+			use PixelTransfer POST_COLOR_MATRIX_ALPHA_SCALE  # 1 F
+			use PixelTransfer POST_COLOR_MATRIX_RED_BIAS     # 1 F
+			use PixelTransfer POST_COLOR_MATRIX_GREEN_BIAS   # 1 F
+			use PixelTransfer POST_COLOR_MATRIX_BLUE_BIAS    # 1 F
+			use PixelTransfer POST_COLOR_MATRIX_ALPHA_BIAS   # 1 F
+
+			MAX_ELEMENTS_VERTICES			= 0x80E8 # Hmmm, this is not in the registry...
+			MAX_ELEMENTS_INDICES			= 0x80E9 # Hmmm, this is not in the registry...
+
+			ACTIVE_TEXTURE				= 0x84E0 # 1 I, ARB Extension #1: ARB_multitexture
+			CLIENT_ACTIVE_TEXTURE			= 0x84E1 # 1 I, ARB Extension #1: ARB_multitexture
+			MAX_TEXTURE_UNITS			= 0x84E2 # 1 I, ARB Extension #1: ARB_multitexture
+
+			use TextureTarget TEXTURE_CUBE_MAP               # ARB Extension #7: ARB_texture_cube_map
+			MAX_CUBE_MAP_TEXTURE_SIZE		= 0x851C # ARB Extension #7: ARB_texture_cube_map
+
+			NUM_COMPRESSED_TEXTURE_FORMATS		= 0x86A2 # ARB Extension #12: ARB_texture_compression
+			COMPRESSED_TEXTURE_FORMATS		= 0x86A3 # ARB Extension #12: ARB_texture_compression
+
+			MAX_VERTEX_UNITS			= 0x86A4 # ARB Extension #15: ARB_vertex_blend
+			ACTIVE_VERTEX_UNITS			= 0x86A5 # ARB Extension #15: ARB_vertex_blend
+			use EnableCap WEIGHT_SUM_UNITY                   # ARB Extension #15: ARB_vertex_blend
+			use EnableCap VERTEX_BLEND                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW0                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW1                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW2                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW3                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW4                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW5                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW6                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW7                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW8                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW9                        # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW10                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW11                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW12                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW13                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW14                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW15                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW16                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW17                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW18                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW19                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW20                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW21                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW22                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW23                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW24                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW25                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW26                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW27                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW28                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW29                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW30                       # ARB Extension #15: ARB_vertex_blend
+			use MatrixMode MODELVIEW31                       # ARB Extension #15: ARB_vertex_blend
+			CURRENT_WEIGHT				= 0x86A8 # ARB Extension #15: ARB_vertex_blend
+			WEIGHT_ARRAY_TYPE			= 0x86A9 # ARB Extension #15: ARB_vertex_blend
+			WEIGHT_ARRAY_STRIDE			= 0x86AA # ARB Extension #15: ARB_vertex_blend
+			WEIGHT_ARRAY_SIZE			= 0x86AB # ARB Extension #15: ARB_vertex_blend
+			use EnableCap WEIGHT_ARRAY	                 # ARB Extension #15: ARB_vertex_blend
+
+			use MatrixMode MATRIX_PALETTE                    # ARB Extension #16: ARB_matrix_palette
+			MAX_MATRIX_PALETTE_STACK_DEPTH		= 0x8841 # ARB Extension #16: ARB_matrix_palette
+			MAX_PALETTE_MATRICES			= 0x8842 # ARB Extension #16: ARB_matrix_palette
+			CURRENT_PALETTE_MATRIX			= 0x8843 # ARB Extension #16: ARB_matrix_palette
 
 GetTextureParameter	enum:
 			use TextureParameterName TEXTURE_MAG_FILTER
@@ -787,6 +925,9 @@ GetTextureParameter	enum:
 			TEXTURE_ALPHA_SIZE			= 0x805F
 			TEXTURE_LUMINANCE_SIZE			= 0x8060
 			TEXTURE_INTENSITY_SIZE			= 0x8061
+			TEXTURE_DEPTH_SIZE			= 0x884A # ARB Extension #22: ARB_depth_texture
+			TEXTURE_COMPRESSED_IMAGE_SIZE		= 0x86A0 # ARB Extension #12: ARB_texture_compression
+			TEXTURE_COMPRESSED			= 0x86A1 # ARB Extension #12: ARB_texture_compression
 
 			use TextureParameterName TEXTURE_PRIORITY
 			TEXTURE_RESIDENT			= 0x8067
@@ -795,6 +936,13 @@ GetTextureParameter	enum:
 			use TextureParameterName TEXTURE_MAX_LOD
 			use TextureParameterName TEXTURE_BASE_LEVEL
 			use TextureParameterName TEXTURE_MAX_LEVEL
+
+			use TextureParameterName DEPTH_TEXTURE_MODE      # ARB Extension #22: ARB_depth_texture
+
+			use TextureParameterName TEXTURE_COMPARE_MODE    # ARB Extension #23: ARB_shadow
+			use TextureParameterName TEXTURE_COMPARE_FUNC    # ARB Extension #23: ARB_shadow
+
+			use TextureParameterName TEXTURE_COMPARE_FAIL_VALUE # ARB Extension #24: ARB_shadow_ambient
 
 HintMode		enum:
 			DONT_CARE				= 0x1100
@@ -807,9 +955,10 @@ HintTarget		enum:
 			LINE_SMOOTH_HINT			= 0x0C52
 			POLYGON_SMOOTH_HINT			= 0x0C53
 			FOG_HINT				= 0x0C54
+			TEXTURE_COMPRESSION_HINT		= 0x84EF # ARB Extension #12: ARB_texture_compression
 
 HistogramTarget		enum:
-			HISTOGRAM				= 0x8024 # 1 I
+			HISTOGRAM				= 0x8024
 			PROXY_HISTOGRAM				= 0x8025
 
 IndexPointerType	enum:
@@ -941,6 +1090,39 @@ MatrixMode		enum:
 			MODELVIEW				= 0x1700
 			PROJECTION				= 0x1701
 			TEXTURE					= 0x1702
+			MODELVIEW0				= 0x1700 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW1				= 0x850A # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW2				= 0x8722 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW3				= 0x8723 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW4				= 0x8724 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW5				= 0x8725 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW6				= 0x8726 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW7				= 0x8727 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW8				= 0x8728 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW9				= 0x8729 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW10				= 0x872A # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW11				= 0x872B # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW12				= 0x872C # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW13				= 0x872D # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW14				= 0x872E # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW15				= 0x872F # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW16				= 0x8730 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW17				= 0x8731 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW18				= 0x8732 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW19				= 0x8733 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW20				= 0x8734 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW21				= 0x8735 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW22				= 0x8736 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW23				= 0x8737 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW24				= 0x8738 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW25				= 0x8739 # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW26				= 0x873A # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW27				= 0x873B # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW28				= 0x873C # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW29				= 0x873D # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW30				= 0x873E # ARB Extension #15: ARB_vertex_blend
+			MODELVIEW31				= 0x873F # ARB Extension #15: ARB_vertex_blend
+			MATRIX_PALETTE				= 0x8840 # ARB Extension #16: ARB_matrix_palette
 
 MeshMode1		enum:
 			use PolygonMode POINT
@@ -952,7 +1134,7 @@ MeshMode2		enum:
 			use PolygonMode FILL
 
 MinmaxTarget		enum:
-			MINMAX					= 0x802E # 1 I
+			MINMAX					= 0x802E
 
 NormalPointerType	enum:
 			use DataType BYTE
@@ -1013,6 +1195,15 @@ PixelInternalFormat	enum:
 			RGB10_A2				= 0x8059
 			RGBA12					= 0x805A
 			RGBA16					= 0x805B
+			COMPRESSED_ALPHA			= 0x84E9 # ARB Extension #12: ARB_texture_compression
+			COMPRESSED_LUMINANCE			= 0x84EA # ARB Extension #12: ARB_texture_compression
+			COMPRESSED_LUMINANCE_ALPHA		= 0x84EB # ARB Extension #12: ARB_texture_compression
+			COMPRESSED_INTENSITY			= 0x84EC # ARB Extension #12: ARB_texture_compression
+			COMPRESSED_RGB				= 0x84ED # ARB Extension #12: ARB_texture_compression
+			COMPRESSED_RGBA				= 0x84EE # ARB Extension #12: ARB_texture_compression
+			DEPTH_COMPONENT16			= 0x81A5 # ARB Extension #22: ARB_depth_texture
+			DEPTH_COMPONENT24			= 0x81A6 # ARB Extension #22: ARB_depth_texture
+			DEPTH_COMPONENT32			= 0x81A7 # ARB Extension #22: ARB_depth_texture
 
 PixelMap		enum:
 			PIXEL_MAP_I_TO_I			= 0x0C70
@@ -1041,10 +1232,10 @@ PixelStore		enum:
 			PACK_SKIP_PIXELS			= 0x0D04
 			PACK_ALIGNMENT				= 0x0D05
 
-			PACK_SKIP_IMAGES			= 0x806B # 1 I
-			PACK_IMAGE_HEIGHT			= 0x806C # 1 F
-			UNPACK_SKIP_IMAGES			= 0x806D # 1 I
-			UNPACK_IMAGE_HEIGHT			= 0x806E # 1 F
+			PACK_SKIP_IMAGES			= 0x806B
+			PACK_IMAGE_HEIGHT			= 0x806C
+			UNPACK_SKIP_IMAGES			= 0x806D
+			UNPACK_IMAGE_HEIGHT			= 0x806E
 
 PixelTransfer		enum:
 			MAP_COLOR				= 0x0D10
@@ -1062,23 +1253,23 @@ PixelTransfer		enum:
 			DEPTH_SCALE				= 0x0D1E
 			DEPTH_BIAS				= 0x0D1F
 
-			POST_CONVOLUTION_RED_SCALE		= 0x801C # 1 F
-			POST_CONVOLUTION_GREEN_SCALE		= 0x801D # 1 F
-			POST_CONVOLUTION_BLUE_SCALE		= 0x801E # 1 F
-			POST_CONVOLUTION_ALPHA_SCALE		= 0x801F # 1 F
-			POST_CONVOLUTION_RED_BIAS		= 0x8020 # 1 F
-			POST_CONVOLUTION_GREEN_BIAS		= 0x8021 # 1 F
-			POST_CONVOLUTION_BLUE_BIAS		= 0x8022 # 1 F
-			POST_CONVOLUTION_ALPHA_BIAS		= 0x8023 # 1 F
+			POST_CONVOLUTION_RED_SCALE		= 0x801C
+			POST_CONVOLUTION_GREEN_SCALE		= 0x801D
+			POST_CONVOLUTION_BLUE_SCALE		= 0x801E
+			POST_CONVOLUTION_ALPHA_SCALE		= 0x801F
+			POST_CONVOLUTION_RED_BIAS		= 0x8020
+			POST_CONVOLUTION_GREEN_BIAS		= 0x8021
+			POST_CONVOLUTION_BLUE_BIAS		= 0x8022
+			POST_CONVOLUTION_ALPHA_BIAS		= 0x8023
 
-			POST_COLOR_MATRIX_RED_SCALE		= 0x80B4 # 1 F
-			POST_COLOR_MATRIX_GREEN_SCALE		= 0x80B5 # 1 F
-			POST_COLOR_MATRIX_BLUE_SCALE		= 0x80B6 # 1 F
-			POST_COLOR_MATRIX_ALPHA_SCALE		= 0x80B7 # 1 F
-			POST_COLOR_MATRIX_RED_BIAS		= 0x80B8 # 1 F
-			POST_COLOR_MATRIX_GREEN_BIAS		= 0x80B9 # 1 F
-			POST_COLOR_MATRIX_BLUE_BIAS		= 0x80BA # 1 F
-			POST_COLOR_MATRIX_ALPHA_BIAS		= 0x80BB # 1 F
+			POST_COLOR_MATRIX_RED_SCALE		= 0x80B4
+			POST_COLOR_MATRIX_GREEN_SCALE		= 0x80B5
+			POST_COLOR_MATRIX_BLUE_SCALE		= 0x80B6
+			POST_COLOR_MATRIX_ALPHA_SCALE		= 0x80B7
+			POST_COLOR_MATRIX_RED_BIAS		= 0x80B8
+			POST_COLOR_MATRIX_GREEN_BIAS		= 0x80B9
+			POST_COLOR_MATRIX_BLUE_BIAS		= 0x80BA
+			POST_COLOR_MATRIX_ALPHA_BIAS		= 0x80BB
 
 PixelType		enum:
 			BITMAP					= 0x1A00
@@ -1103,6 +1294,12 @@ PixelType		enum:
 			UNSIGNED_SHORT_1_5_5_5_REV		= 0x8366
 			UNSIGNED_INT_8_8_8_8_REV		= 0x8367
 			UNSIGNED_INT_2_10_10_10_REV		= 0x8368
+
+PointParameterName	enum:
+			POINT_SIZE_MIN				= 0x8126 # ARB Extension #14: ARB_point_parameters
+			POINT_SIZE_MAX				= 0x8127 # ARB Extension #14: ARB_point_parameters
+			POINT_FADE_THRESHOLD_SIZE		= 0x8128 # ARB Extension #14: ARB_point_parameters
+			POINT_DISTANCE_ATTENUATION		= 0x8129 # ARB Extension #14: ARB_point_parameters
 
 PolygonMode		enum:
 			POINT					= 0x1B00
@@ -1129,7 +1326,7 @@ RenderingMode		enum:
 			SELECT					= 0x1C02
 
 SeparableTarget		enum:
-			SEPARABLE_2D				= 0x8012 # 1 I
+			SEPARABLE_2D				= 0x8012
 
 ShadingModel		enum:
 			FLAT					= 0x1D00
@@ -1159,6 +1356,9 @@ StringName		enum:
 			VERSION					= 0x1F02
 			EXTENSIONS				= 0x1F03
 
+TextureCompareMode	enum:
+			COMPARE_R_TO_TEXTURE			= 0x884E # ARB Extension #23: ARB_shadow
+
 TextureCoordName	enum:
 			S					= 0x2000
 			T					= 0x2001
@@ -1176,10 +1376,82 @@ TextureEnvMode		enum:
 			DECAL					= 0x2101
 			BLEND					= 0x0BE2
 			REPLACE					= 0x1E01
+			use AccumOp ADD                                  # ARB Extension #6: ARB_texture_env_add
+			COMBINE					= 0x8570 # ARB Extension #17: ARB_texture_env_combine
+
+TextureEnvCombine	enum:
+			use TextureEnvMode REPLACE                       # ARB Extension #17: ARB_texture_env_combine
+			use TextureEnvMode MODULATE                      # ARB Extension #17: ARB_texture_env_combine
+			use AccumOp ADD                                  # ARB Extension #17: ARB_texture_env_combine
+			ADD_SIGNED				= 0x8574 # ARB Extension #17: ARB_texture_env_combine
+			INTERPOLATE				= 0x8575 # ARB Extension #17: ARB_texture_env_combine
+			SUBTRACT				= 0x84E7 # ARB Extension #17: ARB_texture_env_combine
+			DOT3_RGB				= 0x86AE # ARB Extension #19: ARB_texture_env_dot3
+			DOT3_RGBA				= 0x86AF # ARB Extension #19: ARB_texture_env_dot3
+
+TextureEnvOperand	enum:
+			use BlendingFactorDest SRC_COLOR                 # ARB Extension #17: ARB_texture_env_combine
+			use BlendingFactorDest ONE_MINUS_SRC_COLOR       # ARB Extension #17: ARB_texture_env_combine
+			use BlendingFactorDest SRC_ALPHA                 # ARB Extension #17: ARB_texture_env_combine
+			use BlendingFactorDest ONE_MINUS_SRC_ALPHA       # ARB Extension #17: ARB_texture_env_combine
 
 TextureEnvParameter	enum:
 			TEXTURE_ENV_MODE			= 0x2200
 			TEXTURE_ENV_COLOR			= 0x2201
+			COMBINE_RGB				= 0x8571 # ARB Extension #17: ARB_texture_env_combine
+			COMBINE_ALPHA				= 0x8572 # ARB Extension #17: ARB_texture_env_combine
+			SOURCE0_RGB				= 0x8580 # ARB Extension #17: ARB_texture_env_combine
+			SOURCE1_RGB				= 0x8581 # ARB Extension #17: ARB_texture_env_combine
+			SOURCE2_RGB				= 0x8582 # ARB Extension #17: ARB_texture_env_combine
+			SOURCE0_ALPHA				= 0x8588 # ARB Extension #17: ARB_texture_env_combine
+			SOURCE1_ALPHA				= 0x8589 # ARB Extension #17: ARB_texture_env_combine
+			SOURCE2_ALPHA				= 0x858A # ARB Extension #17: ARB_texture_env_combine
+			OPERAND0_RGB				= 0x8590 # ARB Extension #17: ARB_texture_env_combine
+			OPERAND1_RGB				= 0x8591 # ARB Extension #17: ARB_texture_env_combine
+			OPERAND2_RGB				= 0x8592 # ARB Extension #17: ARB_texture_env_combine
+			OPERAND0_ALPHA				= 0x8598 # ARB Extension #17: ARB_texture_env_combine
+			OPERAND1_ALPHA				= 0x8599 # ARB Extension #17: ARB_texture_env_combine
+			OPERAND2_ALPHA				= 0x859A # ARB Extension #17: ARB_texture_env_combine
+			RGB_SCALE				= 0x8573
+			use PixelTransfer ALPHA_SCALE                    # ARB Extension #17: ARB_texture_env_combine
+
+TextureEnvSource	enum:
+			use MatrixMode TEXTURE                           # ARB Extension #17: ARB_texture_env_combine
+			CONSTANT				= 0x8576 # ARB Extension #17: ARB_texture_env_combine
+			PRIMARY_COLOR				= 0x8577 # ARB Extension #17: ARB_texture_env_combine
+			PREVIOUS				= 0x8578 # ARB Extension #17: ARB_texture_env_combine
+			use TextureUnit TEXTURE0		= 0x84C0 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE1		= 0x84C1 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE2		= 0x84C2 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE3		= 0x84C3 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE4		= 0x84C4 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE5		= 0x84C5 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE6		= 0x84C6 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE7		= 0x84C7 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE8		= 0x84C8 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE9		= 0x84C9 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE10		= 0x84CA # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE11		= 0x84CB # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE12		= 0x84CC # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE13		= 0x84CD # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE14		= 0x84CE # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE15		= 0x84CF # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE16		= 0x84D0 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE17		= 0x84D1 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE18		= 0x84D2 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE19		= 0x84D3 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE20		= 0x84D4 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE21		= 0x84D5 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE22		= 0x84D6 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE23		= 0x84D7 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE24		= 0x84D8 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE25		= 0x84D9 # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE26		= 0x84DA # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE27		= 0x84DB # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE28		= 0x84DC # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE29		= 0x84DD # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE30		= 0x84DE # ARB Extension #18: ARB_texture_env_crossbar
+			use TextureUnit TEXTURE31		= 0x84DF # ARB Extension #18: ARB_texture_env_crossbar
 
 TextureEnvTarget	enum:
 			TEXTURE_ENV				= 0x2300
@@ -1188,6 +1460,8 @@ TextureGenMode		enum:
 			EYE_LINEAR				= 0x2400
 			OBJECT_LINEAR				= 0x2401
 			SPHERE_MAP				= 0x2402
+			NORMAL_MAP				= 0x8511 # ARB Extension #7: ARB_texture_cube_map
+			REFLECTION_MAP				= 0x8512 # ARB Extension #7: ARB_texture_cube_map
 
 TextureGenParameter	enum:
 			TEXTURE_GEN_MODE			= 0x2500
@@ -1223,13 +1497,28 @@ TextureParameterName	enum:
 			TEXTURE_BASE_LEVEL			= 0x813C
 			TEXTURE_MAX_LEVEL			= 0x813D
 
+			DEPTH_TEXTURE_MODE			= 0x884B # ARB Extension #22: ARB_depth_texture
+
+			TEXTURE_COMPARE_MODE			= 0x884C # ARB Extension #23: ARB_shadow
+			TEXTURE_COMPARE_FUNC			= 0x884D # ARB Extension #23: ARB_shadow
+
+			TEXTURE_COMPARE_FAIL_VALUE		= 0x80BF # ARB Extension #24: ARB_shadow_ambient
+
 TextureTarget		enum:
 			TEXTURE_1D				= 0x0DE0
 			TEXTURE_2D				= 0x0DE1
-			TEXTURE_3D				= 0x806F # 1 I
+			TEXTURE_3D				= 0x806F
 			PROXY_TEXTURE_1D			= 0x8063
 			PROXY_TEXTURE_2D			= 0x8064
 			PROXY_TEXTURE_3D			= 0x8070
+			TEXTURE_CUBE_MAP			= 0x8513 # ARB Extension #7: ARB_texture_cube_map
+			PROXY_TEXTURE_CUBE_MAP			= 0x851B # ARB Extension #7: ARB_texture_cube_map
+			TEXTURE_CUBE_MAP_POSITIVE_X		= 0x8515 # ARB Extension #7: ARB_texture_cube_map
+			TEXTURE_CUBE_MAP_NEGATIVE_X		= 0x8516 # ARB Extension #7: ARB_texture_cube_map
+			TEXTURE_CUBE_MAP_POSITIVE_Y		= 0x8517 # ARB Extension #7: ARB_texture_cube_map
+			TEXTURE_CUBE_MAP_NEGATIVE_Y		= 0x8518 # ARB Extension #7: ARB_texture_cube_map
+			TEXTURE_CUBE_MAP_POSITIVE_Z		= 0x8519 # ARB Extension #7: ARB_texture_cube_map
+			TEXTURE_CUBE_MAP_NEGATIVE_Z		= 0x851A # ARB Extension #7: ARB_texture_cube_map
 
 TextureUnit		enum:
 			TEXTURE0				= 0x84C0
@@ -1269,6 +1558,8 @@ TextureWrapMode		enum:
 			CLAMP					= 0x2900
 			REPEAT					= 0x2901
 			CLAMP_TO_EDGE				= 0x812F
+			CLAMP_TO_BORDER				= 0x812D # ARB Extension #13: ARB_texture_border_clamp
+			MIRRORED_REPEAT				= 0x8370 # ARB Extension #21: ARB_texture_mirrored_repeat
 
 VertexPointerType	enum:
 			use DataType SHORT
