@@ -15,21 +15,37 @@
 module Graphics.Rendering.OpenGL.GLU.NURBS (
 ) where
 
-import Foreign.Ptr ( Ptr, FunPtr )
+import Control.Monad ( unless )
+import Foreign.Ptr ( Ptr, nullPtr, FunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLfloat )
+import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
+   recordErrorCode, recordOutOfMemory )
 
 --------------------------------------------------------------------------------
 -- chapter 7.1: The NURBS Object
 
--- 'Char' is a fake here, any marshalable type would do
-newtype NURBSObj = NURBSObj (Ptr Char)
-   deriving ( Eq )
+-- an opaque pointer to a NURBS object
+newtype NURBSObj = NURBSObj (Ptr NURBSObj)
 
--- GLAPI GLUnurbs* GLAPIENTRY gluNewNurbsRenderer (void);
+isNullNURBSObj :: NURBSObj -> Bool
+isNullNURBSObj (NURBSObj ptr) = ptr == nullPtr
+
+withNURBSObj :: a -> (NURBSObj -> IO a) -> IO a
+withNURBSObj failureValue action =
+   bracket gluNewNurbsRenderer safeDeleteNurbsRenderer
+           (\nurbsObj -> if isNullNURBSObj nurbsObj
+                            then do recordOutOfMemory
+                                    return failureValue
+                            else action nurbsObj)
+
 foreign import CALLCONV unsafe "gluNewNurbsRenderer"
    gluNewNurbsRenderer :: IO NURBSObj
 
--- GLAPI void GLAPIENTRY gluDeleteNurbsRenderer (GLUnurbs* nurb);
+safeDeleteNurbsRenderer :: NURBSObj -> IO ()
+safeDeleteNurbsRenderer nurbsObj =
+   unless (isNullNURBSObj nurbsObj) $ gluDeleteNurbsRenderer nurbsObj
+
 foreign import CALLCONV unsafe "gluDeleteNurbsRenderer"
    gluDeleteNurbsRenderer :: NURBSObj -> IO ()
 

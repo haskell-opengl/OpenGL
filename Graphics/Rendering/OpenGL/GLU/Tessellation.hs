@@ -437,12 +437,11 @@ tessellate windingRule tolerance normal combiner complexPoly = do
 --------------------------------------------------------------------------------
 -- chapter 5.1: The Tessellation Object
 
--- 'Char' is a fake here, any marshalable type would do
-newtype TessellatorObj = TessellatorObj (Ptr Char)
-   deriving ( Eq )
+-- an opaque pointer to a tessellator object
+newtype TessellatorObj = TessellatorObj (Ptr TessellatorObj)
 
 isNullTesselatorObj :: TessellatorObj -> Bool
-isNullTesselatorObj = (TessellatorObj nullPtr ==)
+isNullTesselatorObj (TessellatorObj ptr) = ptr == nullPtr
 
 withTessellatorObj :: a -> (TessellatorObj -> IO a) -> IO a
 withTessellatorObj failureValue action =
@@ -452,7 +451,7 @@ withTessellatorObj failureValue action =
                                    return failureValue
                            else action tessObj)
 
-foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO (TessellatorObj)
+foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO TessellatorObj
 
 safeDeleteTess :: TessellatorObj -> IO ()
 safeDeleteTess tessObj =
