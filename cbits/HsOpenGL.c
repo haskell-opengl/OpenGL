@@ -13,6 +13,28 @@
 #include "HsOpenGL.h"
 #include <string.h>
 
+#ifdef USE_QUARTZ_OPENGL
+
+#include <mach-o/dyld.h>
+#include <stdlib.h>
+
+static void *NSGLGetProcAddress(const char *name)
+{
+  NSSymbol symbol;
+  char *symbolName;
+  // Prepend a '_' for the Unix C symbol mangling convention
+  symbolName = malloc (strlen (name) + 2);
+  strcpy(symbolName + 1, name);
+  symbolName[0] = '_';
+  symbol = NULL;
+  if (NSIsSymbolNameDefined (symbolName))
+    symbol = NSLookupAndBindSymbol (symbolName);
+  free (symbolName);
+  return symbol ? NSAddressOfSymbol (symbol) : NULL;
+}
+#endif
+
+
 /* procName is really a const char*, but currently we can't specify this in
    Haskell's FFI and consequently get a warning from the C compiler. */
 void*
@@ -20,6 +42,8 @@ hOpenGL_getProcAddress(char *procName)
 {
 #if defined(_WIN32)
   void* addr = wglGetProcAddress((LPCSTR)procName);
+#elif defined(USE_QUARTZ_OPENGL)
+  void *addr = NSGLGetProcAddress(procName);
 #else
   void* addr = glXGetProcAddressARB((const GLubyte*)procName);
 #endif
