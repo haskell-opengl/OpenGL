@@ -32,7 +32,7 @@ ifeq "$(hppa_TARGET_ARCH)" "1"
 SRC_HC_OPTS += -optc-mbig-switch
 endif
 
-SRC_HADDOCK_OPTS += -t "HOpenGL Libraries (OpenGL package)" -p prologue.txt
+SRC_HADDOCK_OPTS += -t "HOpenGL Libraries ($(PACKAGE) package)"
 
 # yeuch, have to get GL_CFLAGS & GL_LIBS in through CPP to package.conf.in
 comma = ,
