@@ -1,7 +1,6 @@
--- #hide
 --------------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.LevelParameters
+-- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Queries
 -- Copyright   :  (c) Sven Panne 2002-2004
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
@@ -13,7 +12,7 @@
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.Texturing.LevelParameters (
+module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
    textureInternalFormat, textureSize1D, textureSize2D, textureSize3D,
    textureBorder, textureRGBASizes, textureIntensitySize, textureLuminanceSize,
    textureIndexSize, textureDepthBits, textureCompressedImageSize,

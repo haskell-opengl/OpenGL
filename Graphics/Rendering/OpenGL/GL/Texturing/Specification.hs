@@ -1,4 +1,3 @@
--- #hide
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Specification
@@ -9,23 +8,33 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for texture specification stuff.
+-- This module corresponds to section 3.8.1 (Texture Image Specification),
+-- section 3.8.2 (Alternate Texture Image Specification Commands), and section
+-- 3.8.3 (Compressed Texture Images) of the OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
-   Level, Border,
+   -- * Texture-related Data Types
+   TextureTarget(..), Level, PixelInternalFormat(..), Border,
    TexturePosition1D(..), TexturePosition2D(..), TexturePosition3D(..),
    TextureSize1D(..), TextureSize2D(..), TextureSize3D(..),
+
+   -- * Texture Image Specification
    texImage1D, texImage2D, texImage3D,
    copyTexImage1D, copyTexImage2D,
    texSubImage1D, texSubImage2D, texSubImage3D,
+   getTexImage,
+
+   -- * Alternate Texture Image Specification Commands
    copyTexSubImage1D, copyTexSubImage2D, copyTexSubImage3D,
+
+   -- * Compressed Texture Images
    CompressedTextureFormat(..), compressedTextureFormats,
    CompressedPixelData(..),
    compressedTexImage1D, compressedTexImage2D, compressedTexImage3D,
    compressedTexSubImage1D, compressedTexSubImage2D, compressedTexSubImage3D,
-   getTexImage, getCompressedTexImage
+   getCompressedTexImage
 ) where
 
 import Control.Monad ( liftM )

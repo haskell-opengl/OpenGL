@@ -1,4 +1,3 @@
--- #hide
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Environments
@@ -9,7 +8,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for glTexEnv-related stuff.
+-- This module corresponds to section 3.8.13 (Texture Environments and Texture
+-- Functions) of the OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 

@@ -1,4 +1,3 @@
--- #hide
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Parameters
@@ -9,11 +8,19 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for glTexParameter-related stuff.
+-- This module corresponds to section 3.8.4 (Texture Parameters), section 3.8.7
+-- (Texture Wrap Mode), section 3.8.8 (Texture Minification), and section 3.8.9
+-- (Texture Magnification) of the OpenGL 1.5 specs.
 --
 --------------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.Texturing.Parameters where
+module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
+   TextureFilter(..), textureFilter,
+   Repetition(..), Clamping(..), textureWrapMode,
+   textureBorderColor, textureLODRange, textureLevelRange,
+   textureMaxAnisotropy, maxTextureMaxAnisotropy, textureResident,
+   texturePriority
+) where
 
 import Control.Monad ( liftM2 )
 import Foreign.Marshal.Alloc ( alloca )

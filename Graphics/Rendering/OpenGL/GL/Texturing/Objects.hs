@@ -1,4 +1,3 @@
--- #hide
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Objects
@@ -9,7 +8,8 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- This is a purely internal module for texture object-related stuff.
+-- This module corresponds to section 3.8.12 (Texture Objects) of the OpenGL 1.5
+-- specs.
 --
 --------------------------------------------------------------------------------
 
