@@ -36,12 +36,13 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 
    -- * Convolution Filter
    ConvolutionTarget(..), convolution,
-   convolutionFilter1D, convolutionFilter2D, getConvolutionFilter,
-   separableFilter2D, getSeparableFilter,
+   convolutionFilter1D, getConvolutionFilter1D,
+   convolutionFilter2D, getConvolutionFilter2D,
+   separableFilter2D, getSeparableFilter2D,
    copyConvolutionFilter1D, copyConvolutionFilter2D,
    convolutionWidth, convolutionHeight,
    maxConvolutionWidth, maxConvolutionHeight,
-   ConvolutionBorderMode(..), convolutionBorderMode, convolutionBorderColor,
+   ConvolutionBorderMode(..), convolutionBorderMode,
    convolutionFilterScale, convolutionFilterBias,
 
    -- * Drawing Pixels
@@ -888,6 +889,17 @@ EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter1D,GLenum -> GLenum -> GLsiz
 
 --------------------------------------------------------------------------------
 
+getConvolutionFilter1D :: PixelData a -> IO ()
+getConvolutionFilter1D = getConvolutionFilter Convolution1D
+
+getConvolutionFilter :: ConvolutionTarget -> PixelData a -> IO ()
+getConvolutionFilter t pd =
+   withPixelData pd $ glGetConvolutionFilter (marshalConvolutionTarget t)
+
+EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionFilter,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
 convolutionFilter2D :: PixelInternalFormat -> Size -> PixelData a -> IO ()
 convolutionFilter2D int (Size w h) pd =
    withPixelData pd $
@@ -899,11 +911,8 @@ EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter2D,GLenum -> GLenum -> GLsiz
 
 --------------------------------------------------------------------------------
 
-getConvolutionFilter :: ConvolutionTarget -> PixelData a -> IO ()
-getConvolutionFilter t pd =
-   withPixelData pd $ glGetConvolutionFilter (marshalConvolutionTarget t)
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionFilter,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
+getConvolutionFilter2D :: PixelData a -> IO ()
+getConvolutionFilter2D = getConvolutionFilter Convolution2D
 
 --------------------------------------------------------------------------------
 
@@ -922,8 +931,8 @@ EXTENSION_ENTRY("GL_ARB_imaging",glSeparableFilter2D,GLenum -> GLenum -> GLsizei
 
 --------------------------------------------------------------------------------
 
-getSeparableFilter :: PixelData a -> PixelData a -> IO ()
-getSeparableFilter pdRow pdCol =
+getSeparableFilter2D :: PixelData a -> PixelData a -> IO ()
+getSeparableFilter2D pdRow pdCol =
    withPixelData pdRow $ \f1 d1 p1 ->
       withPixelData pdCol $ \f2 d2 p2 ->
          if f1 == f2 && d1 == d2
@@ -1010,34 +1019,59 @@ EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionParameteriv,GLenum -> GLenum ->
 
 --------------------------------------------------------------------------------
 
+data ConvolutionBorderMode' =
+     Reduce'
+   | ConstantBorder'
+   | ReplicateBorder'
+
+marshalConvolutionBorderMode' :: ConvolutionBorderMode' -> GLint
+marshalConvolutionBorderMode' x = case x of
+   Reduce' -> 0x8016
+   ConstantBorder' -> 0x8151
+   ReplicateBorder' -> 0x8153
+
+unmarshalConvolutionBorderMode' :: GLint -> ConvolutionBorderMode'
+unmarshalConvolutionBorderMode' x
+   | x == 0x8016 = Reduce'
+   | x == 0x8151 = ConstantBorder'
+   | x == 0x8153 = ReplicateBorder'
+   | otherwise = error ("unmarshalConvolutionBorderMode': illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
 data ConvolutionBorderMode =
      Reduce
-   | ConstantBorder
+   | ConstantBorder (Color4 GLfloat)
    | ReplicateBorder
    deriving ( Eq, Ord, Show )
-
-marshalConvolutionBorderMode :: ConvolutionBorderMode -> GLint
-marshalConvolutionBorderMode x = case x of
-   Reduce -> 0x8016
-   ConstantBorder -> 0x8151
-   ReplicateBorder -> 0x8153
-
-unmarshalConvolutionBorderMode :: GLint -> ConvolutionBorderMode
-unmarshalConvolutionBorderMode x
-   | x == 0x8016 = Reduce
-   | x == 0x8151 = ConstantBorder
-   | x == 0x8153 = ReplicateBorder
-   | otherwise = error ("unmarshalConvolutionBorderMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
 
 convolutionBorderMode :: ConvolutionTarget -> StateVar ConvolutionBorderMode
 convolutionBorderMode t =
-   makeStateVar
-      (getConvolutionParameteri
-          unmarshalConvolutionBorderMode t ConvolutionBorderMode)
-      (setConvolutionParameteri
-          marshalConvolutionBorderMode t ConvolutionBorderMode)
+   makeStateVar (getConvolutionBorderMode t) (setConvolutionBorderMode t)
+
+getConvolutionBorderMode :: ConvolutionTarget -> IO ConvolutionBorderMode
+getConvolutionBorderMode t = do
+   mode <- getConvolutionParameteri
+              unmarshalConvolutionBorderMode' t ConvolutionBorderMode
+   case mode of
+      Reduce' -> return Reduce
+      ConstantBorder' -> do
+         c <- getConvolutionParameterC4f t ConvolutionBorderColor
+         return $ ConstantBorder c
+      ReplicateBorder' -> return ReplicateBorder
+
+setConvolutionBorderMode :: ConvolutionTarget -> ConvolutionBorderMode -> IO ()
+setConvolutionBorderMode t mode = do
+   let setBM = setConvolutionParameteri
+                  marshalConvolutionBorderMode' t ConvolutionBorderMode
+   case mode of
+      Reduce -> setBM Reduce'
+      ConstantBorder c -> do
+         setBM ConstantBorder'
+         convolutionParameterC4f t ConvolutionBorderColor c
+      ReplicateBorder -> setBM ReplicateBorder'
 
 setConvolutionParameteri ::
    (a -> GLint) -> ConvolutionTarget -> ConvolutionParameter -> a -> IO ()
@@ -1054,9 +1088,6 @@ convolutionFilterScale = convolutionC4f ConvolutionFilterScale
 
 convolutionFilterBias :: ConvolutionTarget -> StateVar (Color4 GLfloat)
 convolutionFilterBias = convolutionC4f ConvolutionFilterBias
-
-convolutionBorderColor :: ConvolutionTarget -> StateVar (Color4 GLfloat)
-convolutionBorderColor = convolutionC4f ConvolutionBorderColor
 
 convolutionC4f ::
    ConvolutionParameter -> ConvolutionTarget -> StateVar (Color4 GLfloat)
