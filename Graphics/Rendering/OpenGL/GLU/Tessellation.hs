@@ -36,7 +36,6 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
 ) where
 
 import Control.Monad ( foldM, liftM )
-import Data.Either ( Either )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
