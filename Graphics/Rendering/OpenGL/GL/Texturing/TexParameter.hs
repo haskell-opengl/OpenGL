@@ -38,8 +38,8 @@ data TexParameter =
    | TextureWrapT
    | TextureWrapR
    | TextureBorderColor
-   | TextureMinLod
-   | TextureMaxLod
+   | TextureMinLOD
+   | TextureMaxLOD
    | TextureBaseLevel
    | TextureMaxLevel
    | TexturePriority
@@ -51,7 +51,7 @@ data TexParameter =
    | TextureCompareMode
    | TextureCompareFunc
    | DepthTextureMode
-   | TextureLodBias
+   | TextureLODBias
    | TextureResident
 
 marshalTexParameter :: TexParameter -> GLenum
@@ -62,8 +62,8 @@ marshalTexParameter x = case x of
    TextureWrapT -> 0x2803
    TextureWrapR -> 0x8072
    TextureBorderColor -> 0x1004
-   TextureMinLod -> 0x813A
-   TextureMaxLod -> 0x813B
+   TextureMinLOD -> 0x813A
+   TextureMaxLOD -> 0x813B
    TextureBaseLevel -> 0x813C
    TextureMaxLevel -> 0x813D
    TexturePriority -> 0x8066
@@ -75,7 +75,7 @@ marshalTexParameter x = case x of
    TextureCompareMode -> 0x884C
    TextureCompareFunc -> 0x884D
    DepthTextureMode -> 0x884B
-   TextureLodBias -> 0x8501
+   TextureLODBias -> 0x8501
    TextureResident -> 0x8067
 
 --------------------------------------------------------------------------------

@@ -31,7 +31,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification ( Level )
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
-                TextureWrapR,TextureBorderColor,TextureMinLod,TextureMaxLod,
+                TextureWrapR,TextureBorderColor,TextureMinLOD,TextureMaxLOD,
                 TextureBaseLevel,TextureMaxLevel,TextureMaxAnisotropy),
    texParameteri, texParameterf, texParameterC4f,
    getTexParameteri, getTexParameterf, getTexParameterC4f )
@@ -148,11 +148,11 @@ textureBorderColor t =
 textureLODRange :: TextureTarget -> StateVar (GLfloat,GLfloat)
 textureLODRange t =
    makeStateVar
-       (liftM2 (,) (getTexParameterf t TextureMinLod)
-                   (getTexParameterf t TextureMaxLod))
+       (liftM2 (,) (getTexParameterf t TextureMinLOD)
+                   (getTexParameterf t TextureMaxLOD))
        (\(minLOD,maxLOD) -> do
-          texParameterf t TextureMinLod minLOD
-          texParameterf t TextureMaxLod maxLOD)
+          texParameterf t TextureMinLOD minLOD
+          texParameterf t TextureMaxLOD maxLOD)
 
 --------------------------------------------------------------------------------
 

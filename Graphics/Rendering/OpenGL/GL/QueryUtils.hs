@@ -321,7 +321,7 @@ data GetPName =
    | GetUnpackImageHeight
    | GetTexture3D
    | GetMax3DTextureSize
-   | GetMaxTextureLodBias
+   | GetMaxTextureLODBias
    | GetMaxTextureMaxAnisotropy
    | GetMultisample
    | GetSampleAlphaToCoverage
@@ -717,7 +717,7 @@ marshalGetPName x = case x of
    GetUnpackImageHeight -> Just 0x806e
    GetTexture3D -> Just 0x806f
    GetMax3DTextureSize -> Just 0x8073
-   GetMaxTextureLodBias -> Just 0x84fd
+   GetMaxTextureLODBias -> Just 0x84fd
    GetMaxTextureMaxAnisotropy -> Just 0x84ff
    GetMultisample -> Just 0x809d
    GetSampleAlphaToCoverage -> Just 0x809e
