@@ -426,6 +426,8 @@ data GetPName =
    | GetEdgeFlagArrayBufferBinding
    | GetSecondaryColorArrayBufferBinding
    | GetFogCoordArrayBufferBinding
+   | GetTextureBindingCubeMap
+   | GetTextureBindingRectangle
    -- GetWeightArrayBufferBinding
    -- GetVertexAttribArrayBufferBinding
 
@@ -820,6 +822,8 @@ marshalGetPName x = case x of
    GetEdgeFlagArrayBufferBinding -> Just 0x889b
    GetSecondaryColorArrayBufferBinding -> Just 0x889c
    GetFogCoordArrayBufferBinding -> Just 0x889d
+   GetTextureBindingCubeMap -> Just 0x8514
+   GetTextureBindingRectangle -> Just 0x84f6
    -- GetWeightArrayBufferBinding -> Just 0x889e
    -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 
