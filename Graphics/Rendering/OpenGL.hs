@@ -8,8 +8,6 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- $Id: OpenGL.hs,v 1.1 2002/02/28 17:42:27 panne Exp $
---
 -- A convenience module which combines the Haskell bindings for OpenGL, the
 -- industry's most widely used and supported 2D and 3D graphics API, and it's
 -- accompanying utility library.

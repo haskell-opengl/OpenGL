@@ -8,8 +8,6 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- $Id: GLU.hs,v 1.1 2002/02/28 17:42:28 panne Exp $
---
 -- A Haskell binding for GLU, OpenGL's accompanying utility library.
 --
 -----------------------------------------------------------------------------

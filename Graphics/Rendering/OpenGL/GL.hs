@@ -8,15 +8,15 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- $Id: GL.hs,v 1.1 2002/02/28 17:42:28 panne Exp $
---
 -- A Haskell binding for OpenGL, the industry's most widely used and
 -- supported 2D and 3D graphics API.
 --
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL (
-     module Graphics.Rendering.OpenGL.GL.Dummy
+     module Graphics.Rendering.OpenGL.GL.BasicTypes,
+     module Graphics.Rendering.OpenGL.GL.VertexSpec
 ) where
 
-import Graphics.Rendering.OpenGL.GL.Dummy
+import Graphics.Rendering.OpenGL.GL.BasicTypes
+import Graphics.Rendering.OpenGL.GL.VertexSpec
