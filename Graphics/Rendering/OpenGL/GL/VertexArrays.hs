@@ -15,15 +15,14 @@
 
 module Graphics.Rendering.OpenGL.GL.VertexArrays (
    -- * Describing Data for the Arrays
-   NumComponents, DataType(..), Stride,
+   NumComponents, DataType(..), Stride, VertexArrayDescriptor(..),
 
    -- * Specifying Data for the Arrays
-   vertexPointer, normalPointer, colorPointer, secondaryColorPointer,
-   indexPointer, fogCoordPointer, texCoordPointer, edgeFlagPointer,
+   ClientArrayType(..), arrayPointer,
    InterleavedArrays(..), interleavedArrays,
 
    -- * Enabling Arrays
-   ClientArrayType(..), clientState, clientActiveTexture,
+   clientState, clientActiveTexture,
 
    -- * Dereferencing and Rendering
    arrayElement, drawArrays, multiDrawArrays, drawElements, multiDrawElements,
@@ -32,6 +31,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
 ) where
 
 import Control.Monad ( liftM )
+import Data.List ( intersperse )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
@@ -78,156 +78,232 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 type NumComponents = GLint
 
---------------------------------------------------------------------------------
-
 type Stride = GLsizei
 
+data VertexArrayDescriptor a =
+   VertexArrayDescriptor NumComponents DataType Stride (Ptr a)
+#ifdef __HADDOCK__
+-- Help Haddock a bit, because it doesn't do any instance inference.
+instance Eq (VertexArrayDescriptor a)
+instance Ord (VertexArrayDescriptor a)
+instance Show (VertexArrayDescriptor a)
+#else
+   deriving ( Eq, Ord, Show )
+#endif
+
 --------------------------------------------------------------------------------
 
-vertexPointer :: StateVar (NumComponents, DataType, Stride, Ptr a)
+data ClientArrayType =
+     VertexArray
+   | NormalArray
+   | ColorArray
+   | IndexArray
+   | TextureCoordArray
+   | EdgeFlagArray
+   | FogCoordArray
+   | SecondaryColorArray
+   | MatrixIndexArray
+   deriving ( Eq, Ord, Show )
+
+marshalClientArrayType :: ClientArrayType -> GLenum
+marshalClientArrayType x = case x of
+   VertexArray -> 0x8074
+   NormalArray -> 0x8075
+   ColorArray -> 0x8076
+   IndexArray -> 0x8077
+   TextureCoordArray -> 0x8078
+   EdgeFlagArray -> 0x8079
+   FogCoordArray -> 0x8457
+   SecondaryColorArray -> 0x845e
+   MatrixIndexArray -> 0x8844
+
+-- Hmmm...
+clientArrayTypeToEnableCap :: ClientArrayType -> EnableCap
+clientArrayTypeToEnableCap x = case x of
+   VertexArray -> CapVertexArray
+   NormalArray -> CapNormalArray
+   ColorArray -> CapColorArray
+   IndexArray -> CapIndexArray
+   TextureCoordArray -> CapTextureCoordArray
+   EdgeFlagArray -> CapEdgeFlagArray
+   FogCoordArray -> CapFogCoordArray
+   SecondaryColorArray -> CapSecondaryColorArray
+   MatrixIndexArray -> CapMatrixIndexArray
+
+--------------------------------------------------------------------------------
+
+arrayPointer :: ClientArrayType -> StateVar (VertexArrayDescriptor a)
+arrayPointer t = case t of
+   VertexArray -> vertexPointer
+   NormalArray -> normalPointer
+   ColorArray -> colorPointer
+   IndexArray -> indexPointer
+   TextureCoordArray -> texCoordPointer
+   EdgeFlagArray -> edgeFlagPointer
+   FogCoordArray -> fogCoordPointer
+   SecondaryColorArray -> secondaryColorPointer
+   MatrixIndexArray -> error ("arrayPointer: MatrixIndexArray")
+
+check :: (Eq a, Show a) => [a] -> a -> b -> b
+check ns n val
+   | n `elem` ns = val
+   | otherwise =
+      error ("arrayPointer: expected " ++ alts ++ " components, got " ++ show n)
+      where alts = concat . intersperse " or " . map show $ ns
+
+--------------------------------------------------------------------------------
+
+vertexPointer :: StateVar (VertexArrayDescriptor a)
 vertexPointer = makeStateVar getVertexPointer setVertexPointer
 
-getVertexPointer :: IO (NumComponents, DataType, Stride, Ptr a)
+getVertexPointer :: IO (VertexArrayDescriptor a)
 getVertexPointer = do
    n <- getInteger1 id GetVertexArraySize
    d <- getEnum1 unmarshalDataType GetVertexArrayType
    s <- getInteger1 fromIntegral GetVertexArrayStride
    p <- getPointer VertexArrayPointer
-   return (n, d, s, p)
+   return $ VertexArrayDescriptor n d s p
 
-setVertexPointer :: (NumComponents, DataType, Stride, Ptr a) -> IO ()
-setVertexPointer (n, d, s, p) = glVertexPointer n (marshalDataType d) s p
+setVertexPointer :: VertexArrayDescriptor a -> IO ()
+setVertexPointer (VertexArrayDescriptor n d s p) =
+   glVertexPointer n (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glVertexPointer" glVertexPointer ::
    GLint -> GLenum -> GLsizei -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
-normalPointer :: StateVar (DataType, Stride, Ptr a)
+normalPointer :: StateVar (VertexArrayDescriptor a)
 normalPointer = makeStateVar getNormalPointer setNormalPointer
 
-getNormalPointer :: IO (DataType, Stride, Ptr a)
+getNormalPointer :: IO (VertexArrayDescriptor a)
 getNormalPointer = do
    d <- getEnum1 unmarshalDataType GetNormalArrayType
    s <- getInteger1 fromIntegral GetNormalArrayStride
    p <- getPointer NormalArrayPointer
-   return (d, s, p)
+   return $ VertexArrayDescriptor 3 d s p
 
-setNormalPointer :: (DataType, Stride, Ptr a) -> IO ()
-setNormalPointer (d, s, p) = glNormalPointer (marshalDataType d) s p
+setNormalPointer :: VertexArrayDescriptor a -> IO ()
+setNormalPointer (VertexArrayDescriptor n d s p) =
+   check [3] n $ glNormalPointer (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glNormalPointer" glNormalPointer ::
    GLenum -> GLsizei -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
-colorPointer :: StateVar (NumComponents, DataType, Stride, Ptr a)
+colorPointer :: StateVar (VertexArrayDescriptor a)
 colorPointer = makeStateVar getColorPointer setColorPointer
 
-getColorPointer :: IO (NumComponents, DataType, Stride, Ptr a)
+getColorPointer :: IO (VertexArrayDescriptor a)
 getColorPointer = do
    n <- getInteger1 id GetColorArraySize
    d <- getEnum1 unmarshalDataType GetColorArrayType
    s <- getInteger1 fromIntegral GetColorArrayStride
    p <- getPointer ColorArrayPointer
-   return (n, d, s, p)
+   return $ VertexArrayDescriptor n d s p
 
-setColorPointer :: (NumComponents, DataType, Stride, Ptr a) -> IO ()
-setColorPointer (n, d, s, p) = glColorPointer n (marshalDataType d) s p
+setColorPointer :: VertexArrayDescriptor a -> IO ()
+setColorPointer (VertexArrayDescriptor n d s p) =
+   check [3,4] n $ glColorPointer n (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glColorPointer" glColorPointer ::
    GLint -> GLenum -> GLsizei -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
-secondaryColorPointer :: StateVar (NumComponents, DataType, Stride, Ptr a)
-secondaryColorPointer =
-   makeStateVar getSecondaryColorPointer setSecondaryColorPointer
-
-getSecondaryColorPointer :: IO (NumComponents, DataType, Stride, Ptr a)
-getSecondaryColorPointer = do
-   n <- getInteger1 id GetSecondaryColorArraySize
-   d <- getEnum1 unmarshalDataType GetSecondaryColorArrayType
-   s <- getInteger1 fromIntegral GetSecondaryColorArrayStride
-   p <- getPointer SecondaryColorArrayPointer
-   return (n, d, s, p)
-
-setSecondaryColorPointer :: (NumComponents, DataType, Stride, Ptr a) -> IO ()
-setSecondaryColorPointer (n, d, s, p) =
-   glSecondaryColorPointerEXT n (marshalDataType d) s p
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColorPointerEXT,GLint -> GLenum -> GLsizei -> Ptr a -> IO ())
-
---------------------------------------------------------------------------------
-
-indexPointer :: StateVar (DataType, Stride, Ptr a)
+indexPointer :: StateVar (VertexArrayDescriptor a)
 indexPointer = makeStateVar getIndexPointer setIndexPointer
 
-getIndexPointer :: IO (DataType, Stride, Ptr a)
+getIndexPointer :: IO (VertexArrayDescriptor a)
 getIndexPointer = do
    d <- getEnum1 unmarshalDataType GetIndexArrayType
    s <- getInteger1 fromIntegral GetIndexArrayStride
    p <- getPointer IndexArrayPointer
-   return (d, s, p)
+   return $ VertexArrayDescriptor 1 d s p
 
-setIndexPointer :: (DataType, Stride, Ptr a) -> IO ()
-setIndexPointer (d, s, p) = glIndexPointer (marshalDataType d) s p
+setIndexPointer :: VertexArrayDescriptor a -> IO ()
+setIndexPointer (VertexArrayDescriptor n d s p) =
+   check [1] n $ glIndexPointer (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glIndexPointer" glIndexPointer ::
    GLenum -> GLsizei -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
-fogCoordPointer :: StateVar (DataType, Stride, Ptr a)
-fogCoordPointer = makeStateVar getFogCoordPointer setFogCoordPointer
-
-getFogCoordPointer :: IO (DataType, Stride, Ptr a)
-getFogCoordPointer = do
-   d <- getEnum1 unmarshalDataType GetFogCoordArrayType
-   s <- getInteger1 fromIntegral GetFogCoordArrayStride
-   p <- getPointer FogCoordArrayPointer
-   return (d, s, p)
-
-setFogCoordPointer :: (DataType, Stride, Ptr a) -> IO ()
-setFogCoordPointer (d, s, p) = glFogCoordPointerEXT (marshalDataType d) s p
-
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordPointerEXT,GLenum -> GLsizei -> Ptr a -> IO ())
-
---------------------------------------------------------------------------------
-
-texCoordPointer :: StateVar (NumComponents, DataType, Stride, Ptr a)
+texCoordPointer :: StateVar (VertexArrayDescriptor a)
 texCoordPointer = makeStateVar getTexCoordPointer setTexCoordPointer
 
-getTexCoordPointer :: IO (NumComponents, DataType, Stride, Ptr a)
+getTexCoordPointer :: IO (VertexArrayDescriptor a)
 getTexCoordPointer = do
    n <- getInteger1 id GetTextureCoordArraySize
    d <- getEnum1 unmarshalDataType GetTextureCoordArrayType
    s <- getInteger1 fromIntegral GetTextureCoordArrayStride
    p <- getPointer TextureCoordArrayPointer
-   return (n, d, s, p)
+   return $ VertexArrayDescriptor n d s p
 
-setTexCoordPointer :: (NumComponents, DataType, Stride, Ptr a) -> IO ()
-setTexCoordPointer (n, d, s, p) = glTexCoordPointer n (marshalDataType d) s p
+setTexCoordPointer :: VertexArrayDescriptor a -> IO ()
+setTexCoordPointer (VertexArrayDescriptor n d s p) =
+   glTexCoordPointer n (marshalDataType d) s p
 
 foreign import CALLCONV unsafe "glTexCoordPointer" glTexCoordPointer ::
    GLint -> GLenum -> GLsizei -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
-edgeFlagPointer :: StateVar (Stride, Ptr a)
+edgeFlagPointer :: StateVar (VertexArrayDescriptor a)
 edgeFlagPointer = makeStateVar getEdgeFlagPointer setEdgeFlagPointer
 
-getEdgeFlagPointer :: IO (Stride, Ptr a)
+getEdgeFlagPointer :: IO (VertexArrayDescriptor a)
 getEdgeFlagPointer = do
    s <- getInteger1 fromIntegral GetEdgeFlagArrayStride
    p <- getPointer EdgeFlagArrayPointer
-   return (s, p)
+   return $ VertexArrayDescriptor 1 UnsignedByte s p
 
-setEdgeFlagPointer :: (Stride, Ptr a) -> IO ()
-setEdgeFlagPointer (s, p) = glEdgeFlagPointer s p
+setEdgeFlagPointer :: VertexArrayDescriptor a -> IO ()
+setEdgeFlagPointer (VertexArrayDescriptor n d s p) =
+   check [1] n $ check [UnsignedByte] d $ glEdgeFlagPointer s p
 
 foreign import CALLCONV unsafe "glEdgeFlagPointer" glEdgeFlagPointer ::
    GLsizei -> Ptr a -> IO ()
+
+--------------------------------------------------------------------------------
+
+fogCoordPointer :: StateVar (VertexArrayDescriptor a)
+fogCoordPointer = makeStateVar getFogCoordPointer setFogCoordPointer
+
+getFogCoordPointer :: IO (VertexArrayDescriptor a)
+getFogCoordPointer = do
+   d <- getEnum1 unmarshalDataType GetFogCoordArrayType
+   s <- getInteger1 fromIntegral GetFogCoordArrayStride
+   p <- getPointer FogCoordArrayPointer
+   return $ VertexArrayDescriptor 1 d s p
+
+setFogCoordPointer :: VertexArrayDescriptor a -> IO ()
+setFogCoordPointer (VertexArrayDescriptor n d s p) =
+   check [1] n $ glFogCoordPointerEXT (marshalDataType d) s p
+
+EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordPointerEXT,GLenum -> GLsizei -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
+secondaryColorPointer :: StateVar (VertexArrayDescriptor a)
+secondaryColorPointer =
+   makeStateVar getSecondaryColorPointer setSecondaryColorPointer
+
+getSecondaryColorPointer :: IO (VertexArrayDescriptor a)
+getSecondaryColorPointer = do
+   n <- getInteger1 id GetSecondaryColorArraySize
+   d <- getEnum1 unmarshalDataType GetSecondaryColorArrayType
+   s <- getInteger1 fromIntegral GetSecondaryColorArrayStride
+   p <- getPointer SecondaryColorArrayPointer
+   return $ VertexArrayDescriptor n d s p
+
+setSecondaryColorPointer :: (VertexArrayDescriptor a) -> IO ()
+setSecondaryColorPointer (VertexArrayDescriptor n d s p) =
+   glSecondaryColorPointerEXT n (marshalDataType d) s p
+
+EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColorPointerEXT,GLint -> GLenum -> GLsizei -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -272,45 +348,6 @@ interleavedArrays = glInterleavedArrays . marshalInterleavedArrays
 
 foreign import CALLCONV unsafe "glInterleavedArrays" glInterleavedArrays ::
    GLenum -> GLsizei -> Ptr a -> IO ()
-
---------------------------------------------------------------------------------
-
-data ClientArrayType =
-     VertexArray
-   | NormalArray
-   | ColorArray
-   | IndexArray
-   | TextureCoordArray
-   | EdgeFlagArray
-   | FogCoordArray
-   | SecondaryColorArray
-   | MatrixIndexArray
-   deriving ( Eq, Ord, Show )
-
-marshalClientArrayType :: ClientArrayType -> GLenum
-marshalClientArrayType x = case x of
-   VertexArray -> 0x8074
-   NormalArray -> 0x8075
-   ColorArray -> 0x8076
-   IndexArray -> 0x8077
-   TextureCoordArray -> 0x8078
-   EdgeFlagArray -> 0x8079
-   FogCoordArray -> 0x8457
-   SecondaryColorArray -> 0x845e
-   MatrixIndexArray -> 0x8844
-
--- Hmmm...
-clientArrayTypeToEnableCap :: ClientArrayType -> EnableCap
-clientArrayTypeToEnableCap x = case x of
-   VertexArray -> CapVertexArray
-   NormalArray -> CapNormalArray
-   ColorArray -> CapColorArray
-   IndexArray -> CapIndexArray
-   TextureCoordArray -> CapTextureCoordArray
-   EdgeFlagArray -> CapEdgeFlagArray
-   FogCoordArray -> CapFogCoordArray
-   SecondaryColorArray -> CapSecondaryColorArray
-   MatrixIndexArray -> CapMatrixIndexArray
 
 --------------------------------------------------------------------------------
 
