@@ -13,6 +13,10 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL (
+   -- * Supported Extensions
+
+   -- $SupportedExtensions
+
    -- * Legal stuff
 
    -- $LegalStuff
@@ -23,6 +27,48 @@ module Graphics.Rendering.OpenGL (
 
 import Graphics.Rendering.OpenGL.GL
 import Graphics.Rendering.OpenGL.GLU
+
+--------------------------------------------------------------------------------
+-- $SupportedExtensions
+-- There is support for full OpenGL 1.4, including the imaging subset, plus some
+-- extensions:
+--
+-- @
+-- extension                      | core since
+-- -------------------------------+------------
+-- GL_APPLE_packed_pixels         | 1.2
+-- GL_ARB_depth_texture           | 1.4
+-- GL_ARB_imaging                 |
+-- GL_ARB_multisample             | 1.3
+-- GL_ARB_multitexture            | 1.2.1
+-- GL_ARB_point_parameters        | 1.4
+-- GL_ARB_transpose_matrix        | 1.3
+-- GL_ARB_window_pos              | 1.4
+-- GL_EXT_abgr                    |
+-- GL_EXT_bgra                    | 1.2
+-- GL_EXT_blend_color             | 1.4
+-- GL_EXT_blend_func_separate     | 1.4
+-- GL_EXT_blend_minmax            | 1.4
+-- GL_EXT_blend_subtract          | 1.4
+-- GL_EXT_compiled_vertex_array   |
+-- GL_EXT_depth_bounds_test       |
+-- GL_EXT_draw_range_elements     | 1.2
+-- GL_EXT_fog_coord               | 1.4
+-- GL_EXT_multi_draw_arrays       | 1.4
+-- GL_EXT_packed_pixels           | 1.2
+-- GL_EXT_rescale_normal          | 1.2
+-- GL_EXT_secondary_color         | 1.4
+-- GL_EXT_separate_specular_color | 1.2
+-- GL_EXT_stencil_two_side        |
+-- GL_EXT_stencil_wrap            | 1.4
+-- GL_NV_blend_square             | 1.4
+-- GL_NV_depth_clamp              |
+-- GL_NV_fog_distance             |
+-- GL_NV_light_max_exponent       |
+-- GL_NV_packed_depth_stencil     |
+-- GL_NV_point_sprite             |
+-- GL_NV_primitive_restart        |
+-- @
 
 --------------------------------------------------------------------------------
 -- $LegalStuff
