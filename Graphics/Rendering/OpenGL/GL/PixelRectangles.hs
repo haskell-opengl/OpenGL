@@ -45,7 +45,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
    convolutionFilterScale, convolutionFilterBias,
 
    -- * Drawing Pixels
-   PixelFormat(..), drawPixels,
+   PixelData(..), PixelFormat(..), drawPixels,
 
    -- * Pixel Zoom
    pixelZoom
@@ -68,15 +68,13 @@ import Graphics.Rendering.OpenGL.GL.Capability (
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLushort, GLint, GLuint, GLsizei, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
-import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    GLboolean, marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.PixelFormat (
-   PixelFormat(..), marshalPixelFormat )
+import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
+import Graphics.Rendering.OpenGL.GL.PixelFormat ( PixelFormat(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetUnpackSwapBytes,GetUnpackLSBFirst,GetUnpackRowLength,
             GetUnpackSkipRows,GetUnpackSkipPixels,GetUnpackAlignment,
@@ -107,7 +105,8 @@ import Graphics.Rendering.OpenGL.GL.Texturing (
    PixelInternalFormat, marshalPixelInternalFormat,
    unmarshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
+   recordInvalidEnum, recordInvalidValue )
 
 --------------------------------------------------------------------------------
 
@@ -704,19 +703,21 @@ marshalProxyColorTable Proxy   x = case x of
 
 --------------------------------------------------------------------------------
 
-colorTable :: Proxy -> ColorTable -> PixelInternalFormat -> GLsizei -> PixelFormat -> DataType -> Ptr a -> IO ()
-colorTable proxy ct int w f t ptr =
+colorTable ::
+   Proxy -> ColorTable -> PixelInternalFormat -> GLsizei -> PixelData a -> IO ()
+colorTable proxy ct int w pd =
    maybe recordInvalidEnum
-         (\target -> glColorTable target (marshalPixelInternalFormat int) w (marshalPixelFormat f) (marshalDataType t) ptr)
+         (\target -> withPixelData pd $
+            glColorTable target (marshalPixelInternalFormat int) w)
          (marshalProxyColorTable proxy ct)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glColorTable,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
-getColorTable :: ColorTable -> PixelFormat -> DataType -> Ptr a -> IO ()
-getColorTable ct f =
-   glGetColorTable (marshalColorTable ct) (marshalPixelFormat f) . marshalDataType
+getColorTable :: ColorTable -> PixelData a -> IO ()
+getColorTable ct pd =
+   withPixelData pd $ glGetColorTable (marshalColorTable ct)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTable,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
 
@@ -730,9 +731,9 @@ EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorTable,GLenum -> GLenum -> GLint -> G
 
 --------------------------------------------------------------------------------
 
-colorSubTable :: ColorTable -> GLsizei -> GLsizei -> PixelFormat -> DataType -> Ptr a -> IO ()
-colorSubTable ct start count f =
-   glColorSubTable (marshalColorTable ct) start count (marshalPixelFormat f) . marshalDataType
+colorSubTable :: ColorTable -> GLsizei -> GLsizei -> PixelData a -> IO ()
+colorSubTable ct start count pd =
+   withPixelData pd $ glColorSubTable (marshalColorTable ct) start count
 
 EXTENSION_ENTRY("GL_ARB_imaging",glColorSubTable,GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
@@ -876,54 +877,59 @@ convolution = makeCapability . convolutionTargetToEnableCap
 
 --------------------------------------------------------------------------------
 
-convolutionFilter1D ::
-   PixelInternalFormat -> GLsizei -> PixelFormat -> DataType -> Ptr a -> IO ()
-convolutionFilter1D int w f d =
-   glConvolutionFilter1D
-      (marshalConvolutionTarget Convolution1D) (marshalPixelInternalFormat int)
-      w (marshalPixelFormat f) (marshalDataType d)
+convolutionFilter1D :: PixelInternalFormat -> GLsizei -> PixelData a -> IO ()
+convolutionFilter1D int w pd =
+   withPixelData pd $
+      glConvolutionFilter1D
+         (marshalConvolutionTarget Convolution1D)
+         (marshalPixelInternalFormat int) w
 
 EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter1D,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
-convolutionFilter2D ::
-   PixelInternalFormat -> Size -> PixelFormat -> DataType -> Ptr a -> IO ()
-convolutionFilter2D int (Size w h) f d =
-   glConvolutionFilter2D
-      (marshalConvolutionTarget Convolution2D) (marshalPixelInternalFormat int)
-      w h (marshalPixelFormat f) (marshalDataType d)
+convolutionFilter2D :: PixelInternalFormat -> Size -> PixelData a -> IO ()
+convolutionFilter2D int (Size w h) pd =
+   withPixelData pd $
+      glConvolutionFilter2D
+         (marshalConvolutionTarget Convolution2D)
+         (marshalPixelInternalFormat int) w h
 
 EXTENSION_ENTRY("GL_ARB_imaging",glConvolutionFilter2D,GLenum -> GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
-getConvolutionFilter ::
-   ConvolutionTarget -> PixelFormat -> DataType -> Ptr a -> IO ()
-getConvolutionFilter t f d =
-   glGetConvolutionFilter
-      (marshalConvolutionTarget t) (marshalPixelFormat f) (marshalDataType d)
+getConvolutionFilter :: ConvolutionTarget -> PixelData a -> IO ()
+getConvolutionFilter t pd =
+   withPixelData pd $ glGetConvolutionFilter (marshalConvolutionTarget t)
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetConvolutionFilter,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
-separableFilter2D :: PixelInternalFormat -> Size -> PixelFormat -> DataType
-                  -> Ptr a -> Ptr a -> IO ()
-separableFilter2D int (Size w h) f d =
-   glSeparableFilter2D
-      (marshalConvolutionTarget Separable2D) (marshalPixelInternalFormat int)
-       w h (marshalPixelFormat f) (marshalDataType d)
+separableFilter2D ::
+   PixelInternalFormat -> Size -> PixelData a -> PixelData a -> IO ()
+separableFilter2D int (Size w h) pdRow pdCol =
+   withPixelData pdRow $ \f1 d1 p1 ->
+      withPixelData pdCol $ \f2 d2 p2 ->
+         if f1 == f2 && d1 == d2
+            then glSeparableFilter2D
+                    (marshalConvolutionTarget Separable2D)
+                    (marshalPixelInternalFormat int) w h f1 d1 p1 p2
+            else recordInvalidValue
 
 EXTENSION_ENTRY("GL_ARB_imaging",glSeparableFilter2D,GLenum -> GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
-getSeparableFilter :: PixelFormat -> DataType -> Ptr a -> Ptr a -> IO ()
-getSeparableFilter f d rowPtr colPtr =
-   glGetSeparableFilter
-      (marshalConvolutionTarget Separable2D) (marshalPixelFormat f)
-      (marshalDataType d) rowPtr colPtr nullPtr
+getSeparableFilter :: PixelData a -> PixelData a -> IO ()
+getSeparableFilter pdRow pdCol =
+   withPixelData pdRow $ \f1 d1 p1 ->
+      withPixelData pdCol $ \f2 d2 p2 ->
+         if f1 == f2 && d1 == d2
+            then glGetSeparableFilter
+                    (marshalConvolutionTarget Separable2D) f1 d1 p1 p2 nullPtr
+            else recordInvalidValue
 
 EXTENSION_ENTRY("GL_ARB_imaging",glGetSeparableFilter,GLenum -> GLenum -> GLenum -> Ptr a -> Ptr a -> Ptr a -> IO ())
 
@@ -1102,9 +1108,8 @@ EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmaxParameteriv,GLenum -> GLenum -> Ptr 
 
 --------------------------------------------------------------------------------
 
-drawPixels :: Size -> PixelFormat -> DataType -> Ptr a -> IO ()
-drawPixels (Size w h) f t =
-   glDrawPixels w h (marshalPixelFormat f) (marshalDataType t)
+drawPixels :: Size -> PixelData a -> IO ()
+drawPixels (Size w h) pd = withPixelData pd $ glDrawPixels w h
 
 foreign import CALLCONV unsafe "glDrawPixels" glDrawPixels ::
    GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()

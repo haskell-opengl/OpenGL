@@ -27,10 +27,7 @@ import Graphics.Rendering.OpenGL.GL.BufferMode (
    marshalBufferMode, unmarshalBufferMode )
 import Graphics.Rendering.OpenGL.GL.Framebuffer ( BufferMode(..) )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
-import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
-import Graphics.Rendering.OpenGL.GL.PixelFormat ( marshalPixelFormat )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelFormat )
+import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetReadBuffer), getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
@@ -38,9 +35,9 @@ import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
 --------------------------------------------------------------------------------
 
-readPixels :: Position -> Size -> PixelFormat -> DataType -> Ptr a -> IO ()
-readPixels (Position x y) (Size w h) f t =
-   glReadPixels x y w h (marshalPixelFormat f) (marshalDataType t)
+readPixels :: Position -> Size -> PixelData a -> IO ()
+readPixels (Position x y) (Size w h) pd =
+   withPixelData pd $ glReadPixels x y w h
 
 foreign import CALLCONV unsafe "glReadPixels" glReadPixels ::
    GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()

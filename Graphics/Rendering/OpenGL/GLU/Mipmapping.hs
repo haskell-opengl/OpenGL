@@ -19,48 +19,56 @@ module Graphics.Rendering.OpenGL.GLU.Mipmapping (
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, GLint, GLenum )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
-import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
-import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
-import Graphics.Rendering.OpenGL.GL.PixelFormat ( marshalPixelFormat )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelFormat )
+import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing (
    TextureTarget, marshalTextureTarget,
    PixelInternalFormat, marshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Section 3.1 (Image Scaling)
 
-scaleImage :: Size -> PixelFormat -> DataType -> Ptr a
-           -> Size -> PixelFormat -> DataType -> Ptr b -> IO ()
-scaleImage (Size widthIn  heightIn)  formatIn  typeIn  addrIn
-           (Size widthOut heightOut) formatOut typeOut addrOut
-   | formatIn == formatOut = scaleImageAux (marshalPixelFormat formatIn) widthIn  heightIn  (marshalDataType typeIn ) addrIn
-                                                                         widthOut heightOut (marshalDataType typeOut) addrOut
-   | otherwise = recordInvalidValue
+scaleImage :: Size -> PixelData a -> Size -> PixelData b -> IO ()
+scaleImage (Size widthIn  heightIn)  pdIn (Size widthOut heightOut) pdOut =
+   withPixelData pdIn $ \fIn dIn pIn ->
+      withPixelData pdOut $ \fOut dOut pOut ->
+         if fIn == fOut
+            then gluScaleImage
+                    fIn widthIn heightIn dIn pIn widthOut heightOut dOut pOut
+            else recordInvalidValue
 
-foreign import CALLCONV unsafe "gluScaleImage" scaleImageAux ::
+foreign import CALLCONV unsafe "gluScaleImage" gluScaleImage ::
    GLenum -> GLsizei -> GLsizei -> GLenum -> Ptr a
           -> GLsizei -> GLsizei -> GLenum -> Ptr b -> IO ()
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Section 3.2 (Automatic Mipmapping)
 -- Missing for GLU 1.3: gluBuild3DMipmaps, gluBuild{1,2,3}DMipmapLevels
 
-build1DMipmaps :: TextureTarget -> PixelInternalFormat -> GLsizei
-               -> PixelFormat -> DataType -> Ptr a -> IO ()
-build1DMipmaps target internalFormat height f t a = do
-   build1DMipmapsAux (marshalTextureTarget target) (fromIntegral (marshalPixelInternalFormat internalFormat)) height (marshalPixelFormat f) (marshalDataType t) a
+build1DMipmaps ::
+   TextureTarget -> PixelInternalFormat -> GLsizei -> PixelData a -> IO ()
+build1DMipmaps target internalFormat height pd = do
+   withPixelData pd $
+      gluBuild1DMipmaps
+         (marshalTextureTarget target)
+         (fromIntegral (marshalPixelInternalFormat internalFormat))
+         height
    return ()   -- TODO: Should we use the return value?
 
-foreign import CALLCONV unsafe "gluBuild1DMipmaps" build1DMipmapsAux ::
+foreign import CALLCONV unsafe "gluBuild1DMipmaps" gluBuild1DMipmaps ::
       GLenum -> GLint -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO GLint
 
+--------------------------------------------------------------------------------
+
 build2DMipmaps :: TextureTarget -> PixelInternalFormat -> GLsizei -> GLsizei
-               -> PixelFormat -> DataType -> Ptr a -> IO ()
-build2DMipmaps target internalFormat width height f t a = do
-   build2DMipmapsAux (marshalTextureTarget target) (fromIntegral (marshalPixelInternalFormat internalFormat)) width height (marshalPixelFormat f) (marshalDataType t) a
+               -> PixelData a -> IO ()
+build2DMipmaps target internalFormat width height pd = do
+   withPixelData pd $
+      gluBuild2DMipmaps
+         (marshalTextureTarget target)
+         (fromIntegral (marshalPixelInternalFormat internalFormat))
+         width height
    return ()   -- TODO: Should we use the return value?
 
-foreign import CALLCONV unsafe "gluBuild2DMipmaps" build2DMipmapsAux ::
+foreign import CALLCONV unsafe "gluBuild2DMipmaps" gluBuild2DMipmaps ::
       GLenum -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO GLint
