@@ -84,7 +84,8 @@ CLEAN_FILES += $(STUBOBJS) \
 
 # -----------------------------------------------------------------------------
 
-LATE_DIST_CLEAN_FILES += config.cache config.status config.mk
+DIST_CLEAN_FILES += HsOpenGLConfig.h OpenGL.buildinfo config.cache config.status 
+LATE_DIST_CLEAN_FILES += config.mk
 
 extraclean::
 	$(RM) -rf autom4te.cache
