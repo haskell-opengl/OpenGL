@@ -1,0 +1,22 @@
+Package {
+	name		= "OpenGL",
+#ifdef INSTALLING
+	import_dirs	= [ "$libdir/imports/OpenGL" ],
+#else
+	import_dirs	= [ "$libdir/libraries/OpenGL" ],
+#endif
+	source_dirs	= [],
+#ifdef INSTALLING
+	library_dirs	= [ "$libdir" ],
+#else
+	library_dirs	= [ "$libdir/libraries/OpenGL" ],
+#endif
+	hs_libraries	= [ "HSOpenGL" ],
+	extra_libraries	= [],
+	include_dirs	= [],
+	c_includes	= [ "GL/glu.h" ],
+	package_deps	= [ "base" ],
+	extra_ghc_opts	= [],
+	extra_cc_opts	= [ "" GL_CFLAGS ],
+	extra_ld_opts	= [ "" GL_LIBS ]
+}
