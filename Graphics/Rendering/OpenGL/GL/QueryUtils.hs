@@ -18,12 +18,17 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum,
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4,
+   getEnum1,
+   getSizei1,
    getFloat1, getFloat3, getFloat4, getFloatv,
    getDouble1, getDouble2, getDoublev,
-   GetPointervPName(..), getPointer
+   GetPointervPName(..), getPointer,
+   getArrayWith
 ) where
 
+import Control.Monad ( liftM )
 import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( allocaArray, peekArray )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -833,6 +838,14 @@ foreign import CALLCONV unsafe "glGetIntegerv" glGetIntegerv ::
 
 --------------------------------------------------------------------------------
 
+getEnum1 :: (GLenum -> a) -> GetPName -> IO a
+getEnum1 f = getInteger1 (f . fromIntegral)
+
+getSizei1 :: (GLsizei -> a) -> GetPName -> IO a
+getSizei1 f = getInteger1 (f . fromIntegral)
+
+--------------------------------------------------------------------------------
+
 getFloat1 :: (GLfloat -> a) -> GetPName -> IO a
 getFloat1 f n = alloca $ \buf -> do
    getFloatv n buf
@@ -903,6 +916,7 @@ marshalGetPointervPName x = case x of
    SelectionBufferPointer -> 0xdf3
    WeightArrayPointer -> 0x86ac
    MatrixIndexArrayPointer -> 0x8849
+
 --------------------------------------------------------------------------------
 
 getPointer :: GetPointervPName -> IO (Ptr a)
@@ -912,3 +926,12 @@ getPointer n = alloca $ \buf -> do
 
 foreign import CALLCONV unsafe "glGetPointerv" glGetPointerv ::
    GLenum -> Ptr (Ptr a) -> IO ()
+
+--------------------------------------------------------------------------------
+
+-- Something like this in the Foreign libs would be handy...
+getArrayWith :: Storable a => ([a] -> b) -> Int -> (Ptr a -> IO c) -> IO b
+getArrayWith f size act =
+   allocaArray size $ \buf -> do
+      act buf
+      liftM f $ peekArray size buf

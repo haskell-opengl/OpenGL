@@ -32,7 +32,7 @@ import Graphics.Rendering.OpenGL.GL.Exception ( finally )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( GLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetListIndex,GetListMode,GetMaxListNesting,GetListBase),
-   getInteger1 )
+   getEnum1, getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
@@ -121,17 +121,13 @@ defineNewList mode action = do
 --------------------------------------------------------------------------------
 
 listIndex :: GettableStateVar DisplayList
-listIndex =
-   makeGettableStateVar (getInteger1 (DisplayList . fromIntegral) GetListIndex)
+listIndex = makeGettableStateVar (getEnum1 DisplayList GetListIndex)
 
 listMode :: GettableStateVar ListMode
-listMode =
-   makeGettableStateVar
-      (getInteger1 (unmarshalListMode . fromIntegral) GetListMode)
+listMode = makeGettableStateVar (getEnum1 unmarshalListMode GetListMode)
 
 maxListNesting :: GettableStateVar GLsizei
-maxListNesting =
-   makeGettableStateVar (getInteger1 fromIntegral GetMaxListNesting)
+maxListNesting = makeGettableStateVar (getSizei1 id GetMaxListNesting)
 
 --------------------------------------------------------------------------------
 
@@ -146,9 +142,6 @@ foreign import CALLCONV unsafe "glCallLists" glCallLists ::
 --------------------------------------------------------------------------------
 
 listBase :: StateVar DisplayList
-listBase =
-   makeStateVar
-      (getInteger1 (DisplayList . fromIntegral) GetListBase)
-      glListBase
+listBase = makeStateVar (getEnum1 DisplayList GetListBase) glListBase
 
 foreign import CALLCONV unsafe "glListBase" glListBase :: DisplayList -> IO ()

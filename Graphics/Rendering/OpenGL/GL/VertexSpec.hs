@@ -67,7 +67,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoordinate,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits,GetRGBAMode),
-   getBoolean1, getInteger1, getFloat1, getFloat3, getFloat4 )
+   getBoolean1, getInteger1, getEnum1, getFloat1, getFloat3, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
@@ -1197,6 +1197,4 @@ newtype TextureUnit = TextureUnit GLenum
 -- implementation limit.
 
 maxTextureUnit :: GettableStateVar TextureUnit
-maxTextureUnit =
-   makeGettableStateVar
-     (getInteger1 (TextureUnit . fromIntegral) GetMaxTextureUnits)
+maxTextureUnit = makeGettableStateVar (getEnum1 TextureUnit GetMaxTextureUnits)

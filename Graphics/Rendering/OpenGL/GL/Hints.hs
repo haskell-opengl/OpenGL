@@ -23,7 +23,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetPerspectiveCorrectionHint,GetPointSmoothHint,GetLineSmoothHint,
             GetPolygonSmoothHint,GetFogHint,GetGenerateMipmapHint,
             GetTextureCompressionHint),
-   getInteger1 )
+   getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
@@ -71,10 +71,8 @@ marshalHintTarget x = case x of
 --------------------------------------------------------------------------------
 
 makeHint ::  GetPName -> HintTarget -> StateVar HintMode
-makeHint p t =
-   makeStateVar
-      (getInteger1 (unmarshalHintMode . fromIntegral) p)
-      (glHint (marshalHintTarget t) . marshalHintMode)
+makeHint p t = makeStateVar (getEnum1 unmarshalHintMode p)
+                            (glHint (marshalHintTarget t) . marshalHintMode)
 
 foreign import CALLCONV unsafe "glHint" glHint :: GLenum -> GLenum -> IO ()
 

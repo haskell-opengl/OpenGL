@@ -56,7 +56,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetTextureCoordArrayStride,GetEdgeFlagArrayStride,
             GetMaxElementsVertices,GetMaxElementsIndices,
             GetClientActiveTexture),
-   getInteger1,
+   getInteger1, getEnum1, getSizei1,
    GetPointervPName(VertexArrayPointer,NormalArrayPointer,ColorArrayPointer,
                     SecondaryColorArrayPointer,IndexArrayPointer,
                     FogCoordinateArrayPointer,TextureCoordArrayPointer,
@@ -88,7 +88,7 @@ vertexPointer = makeStateVar getVertexPointer setVertexPointer
 getVertexPointer :: IO (NumComponents, DataType, Stride, Ptr a)
 getVertexPointer = do
    n <- getInteger1 id GetVertexArraySize
-   d <- getInteger1 (unmarshalDataType . fromIntegral) GetVertexArrayType
+   d <- getEnum1 unmarshalDataType GetVertexArrayType
    s <- getInteger1 fromIntegral GetVertexArrayStride
    p <- getPointer VertexArrayPointer
    return (n, d, s, p)
@@ -106,7 +106,7 @@ normalPointer = makeStateVar getNormalPointer setNormalPointer
 
 getNormalPointer :: IO (DataType, Stride, Ptr a)
 getNormalPointer = do
-   d <- getInteger1 (unmarshalDataType . fromIntegral) GetNormalArrayType
+   d <- getEnum1 unmarshalDataType GetNormalArrayType
    s <- getInteger1 fromIntegral GetNormalArrayStride
    p <- getPointer NormalArrayPointer
    return (d, s, p)
@@ -125,7 +125,7 @@ colorPointer = makeStateVar getColorPointer setColorPointer
 getColorPointer :: IO (NumComponents, DataType, Stride, Ptr a)
 getColorPointer = do
    n <- getInteger1 id GetColorArraySize
-   d <- getInteger1 (unmarshalDataType . fromIntegral) GetColorArrayType
+   d <- getEnum1 unmarshalDataType GetColorArrayType
    s <- getInteger1 fromIntegral GetColorArrayStride
    p <- getPointer ColorArrayPointer
    return (n, d, s, p)
@@ -145,7 +145,7 @@ secondaryColorPointer =
 getSecondaryColorPointer :: IO (NumComponents, DataType, Stride, Ptr a)
 getSecondaryColorPointer = do
    n <- getInteger1 id GetSecondaryColorArraySize
-   d <- getInteger1 (unmarshalDataType . fromIntegral) GetSecondaryColorArrayType
+   d <- getEnum1 unmarshalDataType GetSecondaryColorArrayType
    s <- getInteger1 fromIntegral GetSecondaryColorArrayStride
    p <- getPointer SecondaryColorArrayPointer
    return (n, d, s, p)
@@ -163,7 +163,7 @@ indexPointer = makeStateVar getIndexPointer setIndexPointer
 
 getIndexPointer :: IO (DataType, Stride, Ptr a)
 getIndexPointer = do
-   d <- getInteger1 (unmarshalDataType . fromIntegral) GetIndexArrayType
+   d <- getEnum1 unmarshalDataType GetIndexArrayType
    s <- getInteger1 fromIntegral GetIndexArrayStride
    p <- getPointer IndexArrayPointer
    return (d, s, p)
@@ -181,7 +181,7 @@ fogCoordPointer = makeStateVar getFogCoordPointer setFogCoordPointer
 
 getFogCoordPointer :: IO (DataType, Stride, Ptr a)
 getFogCoordPointer = do
-   d <- getInteger1 (unmarshalDataType . fromIntegral) GetFogCoordinateArrayType
+   d <- getEnum1 unmarshalDataType GetFogCoordinateArrayType
    s <- getInteger1 fromIntegral GetFogCoordinateArrayStride
    p <- getPointer FogCoordinateArrayPointer
    return (d, s, p)
@@ -199,7 +199,7 @@ texCoordPointer = makeStateVar getTexCoordPointer setTexCoordPointer
 getTexCoordPointer :: IO (NumComponents, DataType, Stride, Ptr a)
 getTexCoordPointer = do
    n <- getInteger1 id GetTextureCoordArraySize
-   d <- getInteger1 (unmarshalDataType . fromIntegral) GetTextureCoordArrayType
+   d <- getEnum1 unmarshalDataType GetTextureCoordArrayType
    s <- getInteger1 fromIntegral GetTextureCoordArrayStride
    p <- getPointer TextureCoordArrayPointer
    return (n, d, s, p)
@@ -334,9 +334,8 @@ foreign import CALLCONV unsafe "glDisableClientState" glDisableClientState ::
 
 clientActiveTexture :: StateVar TextureUnit
 clientActiveTexture =
-   makeStateVar
-     (getInteger1 (TextureUnit . fromIntegral) GetClientActiveTexture)
-     (\(TextureUnit u) -> glClientActiveTextureARB u)
+   makeStateVar (getEnum1 TextureUnit GetClientActiveTexture)
+                (\(TextureUnit u) -> glClientActiveTextureARB u)
 
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glClientActiveTextureARB,GLenum -> IO ())
 
@@ -376,9 +375,7 @@ drawRangeElements m s e c =
 EXTENSION_ENTRY("GL_EXT_draw_range_elements or OpenGL 1.2",glDrawRangeElementsEXT,GLenum -> GLuint -> GLuint -> GLsizei -> GLenum -> Ptr a -> IO ())
 
 maxElementsVertices :: GettableStateVar GLsizei
-maxElementsVertices =
-   makeGettableStateVar (getInteger1 fromIntegral GetMaxElementsVertices)
+maxElementsVertices = makeGettableStateVar (getSizei1 id GetMaxElementsVertices)
 
 maxElementsIndices :: GettableStateVar GLsizei
-maxElementsIndices =
-   makeGettableStateVar (getInteger1 fromIntegral GetMaxElementsIndices)
+maxElementsIndices = makeGettableStateVar (getSizei1 id GetMaxElementsIndices)

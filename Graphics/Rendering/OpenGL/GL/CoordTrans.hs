@@ -64,7 +64,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetProjectionStackDepth,GetMaxProjectionStackDepth,
             GetTextureStackDepth,GetMaxTextureStackDepth,
             GetColorMatrixStackDepth,GetMaxColorMatrixStackDepth),
-   getInteger1, getInteger2, getInteger4, getFloatv, getDouble2, getDoublev )
+   getInteger2, getInteger4, getEnum1, getSizei1, getFloatv,
+   getDouble2, getDoublev )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar,
    StateVar, makeStateVar )
@@ -179,7 +180,7 @@ unmarshalMatrixMode x
 
 matrixMode :: StateVar MatrixMode
 matrixMode =
-   makeStateVar (getInteger1 (unmarshalMatrixMode . fromIntegral) GetMatrixMode)
+   makeStateVar (getEnum1 unmarshalMatrixMode GetMatrixMode)
                 (glMatrixMode . marshalMatrixMode)
 
 foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
@@ -321,10 +322,8 @@ foreign import CALLCONV unsafe "glFrustum" frustum ::
 --------------------------------------------------------------------------------
 
 activeTexture :: StateVar TextureUnit
-activeTexture =
-   makeStateVar
-     (getInteger1 (TextureUnit . fromIntegral) GetActiveTexture)
-     (\(TextureUnit u) -> glActiveTextureARB u)
+activeTexture = makeStateVar (getEnum1 TextureUnit GetActiveTexture)
+                             (\(TextureUnit u) -> glActiveTextureARB u)
 
 EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum -> IO ())   
 
@@ -338,7 +337,7 @@ EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum ->
 matrixExcursion :: IO a -> IO a
 matrixExcursion action = do
    -- performance paranoia: No (un-)marshaling by avoiding matrixMode
-   mode <- getInteger1 fromIntegral GetMatrixMode
+   mode <- getEnum1 id GetMatrixMode
    (do glPushMatrix ; action) `finally` (do glMatrixMode mode ; glPopMatrix)
 
 foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
@@ -383,7 +382,7 @@ maxColorMatrixStackDepth :: GettableStateVar GLsizei
 maxColorMatrixStackDepth = stackInfo GetMaxColorMatrixStackDepth
 
 stackInfo :: GetPName -> GettableStateVar GLsizei
-stackInfo = makeGettableStateVar . getInteger1 fromIntegral
+stackInfo = makeGettableStateVar . getSizei1 id
 
 --------------------------------------------------------------------------------
 

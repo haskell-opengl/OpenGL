@@ -40,7 +40,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetIndexWritemask,GetColorWritemask,GetDepthWritemask,
             GetStencilWritemask,GetColorClearValue,GetIndexClearValue,
             GetDepthClearValue,GetStencilClearValue,GetAccumClearValue),
-   getInteger1, getBoolean1, getBoolean4, getFloat1, getFloat4, getDouble1 )
+   getInteger1, getBoolean1, getBoolean4, getEnum1, getSizei1, getFloat1,
+   getFloat4, getDouble1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
@@ -51,8 +52,7 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 -- | The implementation and context dependent number of auxiliary buffers.
 
 auxBuffers :: GettableStateVar GLsizei
-auxBuffers =
-   makeGettableStateVar (getInteger1 fromIntegral GetAuxBuffers)
+auxBuffers = makeGettableStateVar (getSizei1 id GetAuxBuffers)
 
 -- | 'True' if front and back buffers exist.
 
@@ -158,10 +158,8 @@ unmarshalDrawBufferMode x
 -- 'DrawBufferBack' for double-buffered contexts.
 
 drawBuffer :: StateVar DrawBufferMode
-drawBuffer =
-   makeStateVar
-      (getInteger1 (unmarshalDrawBufferMode . fromIntegral) GetDrawBuffer)
-      (glDrawBuffer . marshalDrawBufferMode)
+drawBuffer = makeStateVar (getEnum1 unmarshalDrawBufferMode GetDrawBuffer)
+                          (glDrawBuffer . marshalDrawBufferMode)
 
 foreign import CALLCONV unsafe "glDrawBuffer" glDrawBuffer ::
    GLenum -> IO ()

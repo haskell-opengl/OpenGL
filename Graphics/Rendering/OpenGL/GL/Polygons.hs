@@ -19,8 +19,8 @@ module Graphics.Rendering.OpenGL.GL.Polygons (
    polygonOffsetPoint, polygonOffsetLine, polygonOffsetFill
 ) where
 
-import Control.Monad ( liftM, liftM2 )
-import Foreign.Marshal.Array ( allocaArray, peekArray, withArray )
+import Control.Monad ( liftM2 )
+import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte, GLfloat )
 import Graphics.Rendering.OpenGL.GL.Capability (
@@ -32,7 +32,7 @@ import Graphics.Rendering.OpenGL.GL.Face (
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
             GetPolygonOffsetUnits),
-   getInteger1, getInteger2, getFloat1 )
+   getInteger2, getEnum1, getFloat1, getArrayWith )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
@@ -43,11 +43,9 @@ polygonSmooth = makeCapability CapPolygonSmooth
 --------------------------------------------------------------------------------
 
 cullFace :: StateVar (Maybe Face)
-cullFace =
-   makeStateVarMaybe
-      (return CapCullFace)
-      (getInteger1 (unmarshalFace . fromIntegral) GetCullFaceMode)
-      (glCullFace . marshalFace)
+cullFace = makeStateVarMaybe (return CapCullFace)
+                             (getEnum1 unmarshalFace GetCullFaceMode)
+                             (glCullFace . marshalFace)
 
 foreign import CALLCONV unsafe "glCullFace" glCullFace :: GLenum -> IO ()
 
@@ -75,10 +73,7 @@ polygonStipple :: StateVar (Maybe PolygonStipple)
 polygonStipple =
    makeStateVarMaybe
       (return CapPolygonStipple)
-      (liftM PolygonStipple $
-       allocaArray numPolygonStippleBytes $ \buf -> do
-          glGetPolygonStipple buf
-          peekArray numPolygonStippleBytes buf)
+      (getArrayWith PolygonStipple numPolygonStippleBytes glGetPolygonStipple)
       (\(PolygonStipple pattern) -> withArray pattern $ glPolygonStipple)
 
 foreign import CALLCONV unsafe "glGetPolygonStipple" glGetPolygonStipple ::

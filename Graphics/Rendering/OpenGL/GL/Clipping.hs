@@ -26,7 +26,7 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans ( Plane(..) )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetClipPlane,GetMaxClipPlanes),
-   clipPlaneIndexToEnum, getDoublev, getInteger1 )
+   clipPlaneIndexToEnum, getDoublev, getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar )
 
@@ -51,4 +51,4 @@ foreign import CALLCONV unsafe "glClipPlane" glClipPlane ::
 --------------------------------------------------------------------------------
 
 maxClipPlanes :: GettableStateVar GLsizei
-maxClipPlanes = makeGettableStateVar (getInteger1 fromIntegral GetMaxClipPlanes)
+maxClipPlanes = makeGettableStateVar (getSizei1 id GetMaxClipPlanes)

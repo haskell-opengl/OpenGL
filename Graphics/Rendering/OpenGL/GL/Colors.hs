@@ -58,7 +58,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetLightModelAmbient, GetLightModelLocalViewer,
             GetLightModelTwoSide, GetLightModelColorControl,
             GetColorMaterialFace,GetColorMaterialParameter),
-   getBoolean1, getInteger1, getFloat4, lightIndexToEnum )
+   getBoolean1, getEnum1, getSizei1, getFloat4, lightIndexToEnum )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
@@ -83,7 +83,7 @@ light :: Light -> StateVar Bool
 light (Light l) = makeCapability (CapLight l)
 
 maxLights :: GettableStateVar GLsizei
-maxLights = makeGettableStateVar (getInteger1 fromIntegral GetMaxLights)
+maxLights = makeGettableStateVar (getSizei1 id GetMaxLights)
 
 --------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ unmarshalFrontFaceDirection x
 frontFace :: StateVar FrontFaceDirection
 frontFace =
    makeStateVar
-      (getInteger1 (unmarshalFrontFaceDirection . fromIntegral) GetFrontFace)
+      (getEnum1 unmarshalFrontFaceDirection GetFrontFace)
       (glFrontFace . marshalFrontFaceDirection)
 
 foreign import CALLCONV unsafe "glFrontFace" glFrontFace :: GLenum -> IO ()
@@ -390,8 +390,7 @@ unmarshalLightModelColorControl x
 lightModelColorControl :: StateVar LightModelColorControl
 lightModelColorControl =
    makeStateVar
-      (getInteger1 (unmarshalLightModelColorControl . fromIntegral)
-                   GetLightModelColorControl)
+      (getEnum1 unmarshalLightModelColorControl GetLightModelColorControl)
       (glLightModeli (marshalLightModelParameter LightModelColorControl) .
                      fromIntegral . marshalLightModelColorControl)
 
@@ -428,10 +427,10 @@ colorMaterial :: StateVar (Maybe (Face, ColorMaterialParameter))
 colorMaterial =
    makeStateVarMaybe
       (return CapColorMaterial)
-      (liftM2 (,)
-              (getInteger1 (unmarshalFace . fromIntegral) GetColorMaterialFace)
-              (getInteger1 (unmarshalColorMaterialParameter . fromIntegral)
-                           GetColorMaterialParameter))
+      (liftM2
+         (,)
+         (getEnum1 unmarshalFace GetColorMaterialFace)
+         (getEnum1 unmarshalColorMaterialParameter GetColorMaterialParameter))
       (\(face, param) -> glColorMaterial (marshalFace face)
                                          (marshalColorMaterialParameter param))
 
@@ -461,7 +460,7 @@ unmarshalShadingModel x
 shadeModel :: StateVar ShadingModel
 shadeModel =
    makeStateVar
-      (getInteger1 (unmarshalShadingModel . fromIntegral) GetShadeModel)
+      (getEnum1 unmarshalShadingModel GetShadeModel)
       (glShadeModel . marshalShadingModel)
 
 foreign import CALLCONV unsafe "glShadeModel" glShadeModel :: GLenum -> IO ()

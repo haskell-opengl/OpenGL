@@ -31,8 +31,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles (
 ) where
 
 import Data.List ( genericLength )
-import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
-import Foreign.Storable ( Storable )
+import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLuint, GLsizei, GLfloat )
@@ -62,7 +61,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetPixelMapIToRSize,GetPixelMapIToGSize,GetPixelMapIToBSize,
             GetPixelMapIToASize,GetPixelMapRToRSize,GetPixelMapGToGSize,
             GetPixelMapBToBSize,GetPixelMapAToASize),
-   getBoolean1, getInteger1, getFloat1 )
+   getBoolean1, getInteger1, getSizei1, getFloat1, getArrayWith )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Index1(..) )
@@ -377,8 +376,7 @@ pixelMapToGetPName x = case x of
 --------------------------------------------------------------------------------
 
 maxPixelMapTable :: GettableStateVar GLsizei
-maxPixelMapTable =
-   makeGettableStateVar (getInteger1 fromIntegral GetMaxPixelMapTable)
+maxPixelMapTable = makeGettableStateVar (getSizei1 id GetMaxPixelMapTable)
 
 --------------------------------------------------------------------------------
 
@@ -420,8 +418,7 @@ pixelMapui :: (a -> GLuint) -> (GLuint -> a) -> PixelMap -> StateVar [a]
 pixelMapui f g pm =
    makeStateVar
       (do size <- getInteger1 fromIntegral (pixelMapToGetPName pm)
-          arr <- getArrayWith size (glGetPixelMapuiv (marshalPixelMap pm))
-          return $ map g arr)
+          getArrayWith (map g) size (glGetPixelMapuiv (marshalPixelMap pm)))
       (\arr -> withArray (map f arr) $
                   glPixelMapuiv (marshalPixelMap pm) (genericLength arr))
 
@@ -429,16 +426,9 @@ pixelMapf :: PixelMap -> StateVar [GLfloat]
 pixelMapf pm =
    makeStateVar
       (do size <- getInteger1 fromIntegral (pixelMapToGetPName pm)
-          getArrayWith size (glGetPixelMapfv (marshalPixelMap pm)))
+          getArrayWith id size (glGetPixelMapfv (marshalPixelMap pm)))
       (\arr -> withArray arr $
                   glPixelMapfv (marshalPixelMap pm) (genericLength arr))
-
--- Something like this in the Foreign libs would be handy...
-getArrayWith :: Storable a => Int -> (Ptr a -> IO b) -> IO [a]
-getArrayWith size act =
-   allocaArray size $ \buf -> do
-      act buf
-      peekArray size buf
 
 foreign import CALLCONV unsafe "glPixelMapuiv" glPixelMapuiv ::
    GLenum -> GLsizei -> Ptr GLuint -> IO ()

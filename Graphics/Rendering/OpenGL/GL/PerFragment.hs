@@ -60,7 +60,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetStencilPassDepthPass,GetDepthFunc,GetBlendEquation,
             GetBlendDstRGB,GetBlendSrcRGB,GetBlendDstAlpha,GetBlendSrcAlpha,
             GetBlendSrc,GetBlendDst,GetBlendColor,GetLogicOpMode),
-   getInteger1, getInteger4, getFloat1, getFloat4, getBoolean1 )
+   getInteger1, getInteger4, getEnum1, getFloat1, getFloat4, getBoolean1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), rgbaMode )
@@ -136,16 +136,13 @@ unmarshalComparisonFunction x
    | x == 0x207 = Always
    | otherwise = error ("unmarshalComparisonFunction: illegal value " ++ show x)
 
-getComparisonFunction :: GetPName -> IO ComparisonFunction
-getComparisonFunction = getInteger1 (unmarshalComparisonFunction . fromIntegral)
-
 --------------------------------------------------------------------------------
 
 alphaFunc :: StateVar (Maybe (ComparisonFunction, GLclampf))
 alphaFunc =
    makeStateVarMaybe
       (return CapAlphaTest)
-      (liftM2 (,) (getComparisonFunction GetAlphaTestFunc)
+      (liftM2 (,) (getEnum1 unmarshalComparisonFunction GetAlphaTestFunc)
                   (getFloat1 id GetAlphaTestRef))
       (uncurry (glAlphaFunc . marshalComparisonFunction))
 
@@ -158,7 +155,7 @@ stencilFunc :: StateVar (Maybe (ComparisonFunction, GLint, GLuint))
 stencilFunc =
    makeStateVarMaybe
       (return CapStencilTest)
-      (liftM3 (,,) (getComparisonFunction GetStencilFunc)
+      (liftM3 (,,) (getEnum1 unmarshalComparisonFunction GetStencilFunc)
                    (getInteger1 id GetStencilRef)
                    (getInteger1 fromIntegral GetStencilValueMask))
       (\(func, ref, mask) ->
@@ -203,17 +200,14 @@ unmarshalStencilOp x
    | x == 0x150a = OpInvert
    | otherwise = error ("unmarshalStencilOp: illegal value " ++ show x)
 
-getStencilOp :: GetPName -> IO StencilOp
-getStencilOp = getInteger1 (unmarshalStencilOp . fromIntegral)
-
 --------------------------------------------------------------------------------
 
 stencilOp :: StateVar (StencilOp, StencilOp, StencilOp)
 stencilOp =
    makeStateVar
-      (liftM3 (,,) (getStencilOp GetStencilFail)
-                   (getStencilOp GetStencilPassDepthFail)
-                   (getStencilOp GetStencilPassDepthPass))
+      (liftM3 (,,) (getEnum1 unmarshalStencilOp GetStencilFail)
+                   (getEnum1 unmarshalStencilOp GetStencilPassDepthFail)
+                   (getEnum1 unmarshalStencilOp GetStencilPassDepthPass))
       (\(sf, spdf, spdp) -> glStencilOp (marshalStencilOp sf)
                                         (marshalStencilOp spdf)
                                         (marshalStencilOp spdp))
@@ -227,7 +221,7 @@ depthFunc :: StateVar (Maybe ComparisonFunction)
 depthFunc =
    makeStateVarMaybe
       (return CapDepthTest)
-      (getComparisonFunction GetDepthFunc)
+      (getEnum1 unmarshalComparisonFunction GetDepthFunc)
       (glDepthFunc . marshalComparisonFunction)
 
 foreign import CALLCONV unsafe "glDepthFunc" glDepthFunc :: GLenum -> IO ()
@@ -268,7 +262,7 @@ blendEquation :: StateVar (Maybe BlendEquationMode)
 blendEquation =
    makeStateVarMaybe
       (return CapBlend)
-      (getInteger1 (unmarshalBlendEquationMode . fromIntegral) GetBlendEquation)
+      (getEnum1 unmarshalBlendEquationMode GetBlendEquation)
       (glBlendEquation . marshalBlendEquationMode)
 
 foreign import CALLCONV unsafe "glBlendEquation" glBlendEquation ::
@@ -331,19 +325,16 @@ unmarshalBlendingFactor x
    | x == 0x308 = SrcAlphaSaturate
    | otherwise = error ("unmarshalBlendingFactor: illegal value " ++ show x)
 
-getBlendingFactor :: GetPName -> IO BlendingFactor
-getBlendingFactor = getInteger1 (unmarshalBlendingFactor . fromIntegral)
-
 --------------------------------------------------------------------------------
 
 blendFuncSeparate ::
    StateVar ((BlendingFactor, BlendingFactor), (BlendingFactor, BlendingFactor))
 blendFuncSeparate =
    makeStateVar
-      (do srcRGB <- getBlendingFactor GetBlendSrcRGB
-          srcA   <- getBlendingFactor GetBlendSrcAlpha
-          dstRGB <- getBlendingFactor GetBlendDstRGB
-          dstA   <- getBlendingFactor GetBlendDstAlpha
+      (do srcRGB <- getEnum1 unmarshalBlendingFactor GetBlendSrcRGB
+          srcA   <- getEnum1 unmarshalBlendingFactor GetBlendSrcAlpha
+          dstRGB <- getEnum1 unmarshalBlendingFactor GetBlendDstRGB
+          dstA   <- getEnum1 unmarshalBlendingFactor GetBlendDstAlpha
           return ((srcRGB, srcA), (dstRGB, dstA)))
       (\((srcRGB, srcA), (dstRGB, dstA)) ->
          glBlendFuncSeparateEXT (marshalBlendingFactor srcRGB)
@@ -356,8 +347,8 @@ EXTENSION_ENTRY("GL_EXT_blend_func_separate or OpenGL 1.4",glBlendFuncSeparateEX
 blendFunc :: StateVar (BlendingFactor, BlendingFactor)
 blendFunc =
    makeStateVar
-      (liftM2 (,) (getBlendingFactor GetBlendSrc)
-                  (getBlendingFactor GetBlendDst))
+      (liftM2 (,) (getEnum1 unmarshalBlendingFactor GetBlendSrc)
+                  (getEnum1 unmarshalBlendingFactor GetBlendDst))
       (\(s, d) ->
          glBlendFunc (marshalBlendingFactor s) (marshalBlendingFactor d))
 
@@ -445,7 +436,7 @@ logicOp =
    makeStateVarMaybe
       (do rgba <- get rgbaMode
           return $ if rgba then CapColorLogicOp else CapIndexLogicOp)
-      (getInteger1 (unmarshalLogicOp . fromIntegral) GetLogicOpMode)
+      (getEnum1 unmarshalLogicOp GetLogicOpMode)
       (glLogicOp . marshalLogicOp)
 
 foreign import CALLCONV unsafe "glLogicOp" glLogicOp :: GLenum -> IO ()

@@ -27,7 +27,7 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelTypes (
    PixelFormat(..), marshalPixelFormat, PixelType(..), marshalPixelType )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetReadBuffer), getInteger1 )
+   GetPName(GetReadBuffer), getEnum1 )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
@@ -83,13 +83,10 @@ unmarshalReadBufferMode x
 --------------------------------------------------------------------------------
 
 readBuffer :: StateVar ReadBufferMode
-readBuffer =
-   makeStateVar
-      (getInteger1 (unmarshalReadBufferMode . fromIntegral) GetReadBuffer)
-      (glReadBuffer . marshalReadBufferMode)
+readBuffer = makeStateVar (getEnum1 unmarshalReadBufferMode GetReadBuffer)
+                          (glReadBuffer . marshalReadBufferMode)
 
-foreign import CALLCONV unsafe "glReadBuffer" glReadBuffer ::
-   GLenum -> IO ()
+foreign import CALLCONV unsafe "glReadBuffer" glReadBuffer :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 

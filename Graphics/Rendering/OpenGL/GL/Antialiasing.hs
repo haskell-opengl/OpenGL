@@ -21,7 +21,7 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapMultisample), makeCapability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetSampleBuffers,GetSamples,GetSubpixelBits), getInteger1 )
+   GetPName(GetSampleBuffers,GetSamples,GetSubpixelBits), getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar )
 
@@ -40,4 +40,4 @@ subpixelBits :: GettableStateVar GLsizei
 subpixelBits = antialiasingInfo GetSubpixelBits
 
 antialiasingInfo :: GetPName -> GettableStateVar GLsizei
-antialiasingInfo = makeGettableStateVar . getInteger1 fromIntegral
+antialiasingInfo = makeGettableStateVar . getSizei1 id
