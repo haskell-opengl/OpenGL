@@ -13,14 +13,15 @@
 #include "HsOpenGL.h"
 #include <string.h>
 
-#ifdef USE_QUARTZ_OPENGL
-
+#if defined(_WIN32)
+#define hOpenGL_gpa(x) wglGetProcAddress((LPCSTR)(x))
+#elif defined(USE_QUARTZ_OPENGL)
 #include <mach-o/dyld.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 static void*
-NSGLGetProcAddress(const char *name)
+hOpenGL_gpa(const char *name)
 {
   NSSymbol symbol;
 
@@ -46,6 +47,57 @@ NSGLGetProcAddress(const char *name)
 
   return NSAddressOfSymbol(symbol);
 }
+
+/* ToDo: This should really be based on a feature test. */
+#elif defined(__sgi) || defined (__sun)
+#include <dlfcn.h>
+
+static const char* gpaNames[] = {
+  "glXGetProcAddress", "glXGetProcAddressARB", "glXGetProcAddressEXT",
+  "_glXGetProcAddress", "_glXGetProcAddressARB", "_glXGetProcAddressEXT"
+};
+
+static void*
+hOpenGL_gpa(const char *name)
+{
+  static int firstTime = 1;
+  static void *handle = NULL;
+  static void *gpa = NULL;
+
+  if (firstTime) {
+    firstTime = 0;
+
+    /* Get a handle for our executable. */
+    handle = dlopen(NULL, RTLD_LAZY);
+    /* If fail this early, there's not much we can do about it. */
+    if (!handle) {
+      return NULL;
+    }
+
+    {
+      /* Let's see if our platform supports a glXGetProcAddress() variant. */
+      int numNames = (int)(sizeof(gpaNames) / sizeof(gpaNames[0]));
+      int i;
+      for (i = 0;   (!gpa) && (i < numNames);   ++i) {
+        gpa = dlsym(handle, gpaNames[i]);
+      }
+    }
+  }
+
+  if (gpa) {
+    /* Fine, we seem to have some kind of glXGetProcAddress(), so use it. */
+    return ((void *(*)(const GLubyte *))gpa)(name);
+  } else if (handle) {
+    /* Fallback to dlsym() if we have no glXGetProcAddress(), although we then
+       ignore the fact that OpenGL entry points could be context dependent. */
+    return dlsym(handle, name);
+  } else {
+    return NULL;
+  }
+}
+
+#else
+#define hOpenGL_gpa(x) glXGetProcAddressARB((const GLubyte*)(x))
 #endif
 
 
@@ -54,14 +106,8 @@ NSGLGetProcAddress(const char *name)
 void*
 hOpenGL_getProcAddress(char *procName)
 {
-#if defined(_WIN32)
-  void* addr = wglGetProcAddress((LPCSTR)procName);
-#elif defined(USE_QUARTZ_OPENGL)
-  void *addr = NSGLGetProcAddress(procName);
-#else
-  void* addr = glXGetProcAddressARB((const GLubyte*)procName);
-#endif
-  if (addr != NULL) {
+  void* addr = hOpenGL_gpa(procName);
+  if (addr) {
     return addr;
   }
   /* There is no way to get GLU extensions at runtime so we fake this, being
