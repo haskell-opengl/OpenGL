@@ -1,6 +1,25 @@
-module Graphics.Rendering.OpenGL.GL.Texturing where
+--------------------------------------------------------------------------------
+-- |
+-- Module      :  Graphics.Rendering.OpenGL.GL.Texturing
+-- Copyright   :  (c) Sven Panne 2003
+-- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- 
+-- Maintainer  :  sven_panne@yahoo.com
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- This module corresponds to section 3.8 (Texturing) of the OpenGL 1.4 specs.
+--
+--------------------------------------------------------------------------------
+
+module Graphics.Rendering.OpenGL.GL.Texturing (
+   TextureTarget(..), marshalTextureTarget,
+   PixelInternalFormat(..), marshalPixelInternalFormat
+) where
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+
+--------------------------------------------------------------------------------
 
 data TextureTarget =
      Texture1D
@@ -36,8 +55,17 @@ marshalTextureTarget x = case x of
    TextureCubeMapPositiveZ -> 0x8519
    TextureCubeMapNegativeZ -> 0x851a
 
+--------------------------------------------------------------------------------
+
 data PixelInternalFormat =
-     Alpha4
+     Alpha'
+   | DepthComponent'
+   | Luminance'
+   | LuminanceAlpha'
+   | Intensity
+   | RGB'
+   | RGBA'
+   | Alpha4
    | Alpha8
    | Alpha12
    | Alpha16
@@ -54,25 +82,24 @@ data PixelInternalFormat =
    | Luminance12Alpha4
    | Luminance12Alpha12
    | Luminance16Alpha16
-   | Intensity
    | Intensity4
    | Intensity8
    | Intensity12
    | Intensity16
    | R3G3B2
-   | Rgb4
-   | Rgb5
-   | Rgb8
-   | Rgb10
-   | Rgb12
-   | Rgb16
-   | Rgba2
-   | Rgba4
-   | Rgb5A1
-   | Rgba8
-   | Rgb10A2
-   | Rgba12
-   | Rgba16
+   | RGB4
+   | RGB5
+   | RGB8
+   | RGB10
+   | RGB12
+   | RGB16
+   | RGBA2
+   | RGBA4
+   | RGB5A1
+   | RGBA8
+   | RGB10A2
+   | RGBA12
+   | RGBA16
    | CompressedAlpha
    | CompressedLuminance
    | CompressedLuminanceAlpha
@@ -83,6 +110,12 @@ data PixelInternalFormat =
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLenum
 marshalPixelInternalFormat x = case x of
+   Alpha' -> 0x1906
+   DepthComponent' -> 0x1902
+   Luminance' -> 0x1909
+   LuminanceAlpha' -> 0x190a
+   RGB' -> 0x1907
+   RGBA' -> 0x1908
    Alpha4 -> 0x803b
    Alpha8 -> 0x803c
    Alpha12 -> 0x803d
@@ -106,19 +139,19 @@ marshalPixelInternalFormat x = case x of
    Intensity12 -> 0x804c
    Intensity16 -> 0x804d
    R3G3B2 -> 0x2a10
-   Rgb4 -> 0x804f
-   Rgb5 -> 0x8050
-   Rgb8 -> 0x8051
-   Rgb10 -> 0x8052
-   Rgb12 -> 0x8053
-   Rgb16 -> 0x8054
-   Rgba2 -> 0x8055
-   Rgba4 -> 0x8056
-   Rgb5A1 -> 0x8057
-   Rgba8 -> 0x8058
-   Rgb10A2 -> 0x8059
-   Rgba12 -> 0x805a
-   Rgba16 -> 0x805b
+   RGB4 -> 0x804f
+   RGB5 -> 0x8050
+   RGB8 -> 0x8051
+   RGB10 -> 0x8052
+   RGB12 -> 0x8053
+   RGB16 -> 0x8054
+   RGBA2 -> 0x8055
+   RGBA4 -> 0x8056
+   RGB5A1 -> 0x8057
+   RGBA8 -> 0x8058
+   RGB10A2 -> 0x8059
+   RGBA12 -> 0x805a
+   RGBA16 -> 0x805b
    CompressedAlpha -> 0x84e9
    CompressedLuminance -> 0x84ea
    CompressedLuminanceAlpha -> 0x84eb
