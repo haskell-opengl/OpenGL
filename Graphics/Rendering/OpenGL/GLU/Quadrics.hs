@@ -25,12 +25,23 @@ import Foreign.Ptr       ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, marshalGLboolean, GLenum, GLint, GLdouble )
 import Graphics.Rendering.OpenGL.GLU.Errors (
-   Error(..), makeError, outOfMemoryError )
-import Graphics.Rendering.OpenGL.GLU.Constants (
-   QuadricDrawStyle(..), marshalQuadricDrawStyle,
-   QuadricCallback(..), marshalQuadricCallback,
-   QuadricNormal(..), marshalQuadricNormal,
-   QuadricOrientation(..), marshalQuadricOrientation )
+   Error(..), ErrorCategory(..), makeError )
+
+--------------------------------------------------------------------------------
+
+#define HOPENGL_IMPORT_QuadricDrawStyle
+#define HOPENGL_IMPORT_marshalQuadricDrawStyle
+
+#define HOPENGL_IMPORT_QuadricCallback
+#define HOPENGL_IMPORT_marshalQuadricCallback
+
+#define HOPENGL_IMPORT_QuadricNormal
+#define HOPENGL_IMPORT_marshalQuadricNormal
+
+#define HOPENGL_IMPORT_QuadricOrientation
+#define HOPENGL_IMPORT_marshalQuadricOrientation
+
+#include "Constants.incl"
 
 --------------------------------------------------------------------------------
 
@@ -76,6 +87,7 @@ renderQuadric :: QuadricStyle -> QuadricPrimitive -> IO (Maybe Error)
 renderQuadric style prim =
    withState Nothing $ \modify -> do
       let registerError = modify . const . Just
+          outOfMemoryError = Error OutOfMemory "out of memory"
       withQuadricObj (registerError outOfMemoryError) $ \quadricObj ->
          withErrorCallback quadricObj (\e -> makeError e >>= registerError) $ do
             setStyle quadricObj style

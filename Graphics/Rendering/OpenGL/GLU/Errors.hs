@@ -14,82 +14,145 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.Errors (
-   Error(..), ErrorCategory(..), getError,
-   makeError, outOfMemoryError   -- used only internally
+   Error(..), ErrorCategory(..), errors,
+   makeError   -- used only internally
 ) where
 
 import Foreign.C.String ( CString, peekCString )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
-import qualified Graphics.Rendering.OpenGL.GLU.Constants as C (
-   ErrorCode(..), marshalErrorCode,
-   NurbsError(..), marshalNurbsError,
-   TessError(..), marshalTessError )
+import Graphics.Rendering.OpenGL.GL.StateVariable (
+   GettableStateVariable, makeGettableStateVariable )
+
+--------------------------------------------------------------------------------
+-- Alas, GL and GLU define error enumerants with the same names, so we have to
+-- rename these via CPP trickery to avoid name clashes. Ugly, ugly, ugly...
+
+#define InvalidEnum      GL_InvalidEnum
+#define InvalidValue     GL_InvalidValue
+#define InvalidOperation GL_InvalidOperation
+#define StackOverflow    GL_StackOverflow
+#define StackUnderflow   GL_StackUnderflow
+#define OutOfMemory      GL_OutOfMemory
+#define TableTooLarge    GL_TableTooLarge
+#define ErrorCode        GL_ErrorCode
+#define marshalErrorCode gl_marshalErrorCode
+
+#define HOPENGL_IMPORT_ErrorCode
+#define HOPENGL_IMPORT_marshalErrorCode
+
+#include "../GL/Constants.incl"
+
+#undef InvalidEnum
+#undef InvalidValue
+#undef InvalidOperation
+#undef StackOverflow
+#undef StackUnderflow
+#undef OutOfMemory
+#undef TableTooLarge
+#undef ErrorCode         
+#undef marshalErrorCode
+
+--------------------------------------------------------------------------------
+-- See comment above
+
+#define InvalidEnum      GLU_InvalidEnum
+#define InvalidValue     GLU_InvalidValue
+#define InvalidOperation GLU_InvalidOperation
+#define OutOfMemory      GLU_OutOfMemory
+#define ErrorCode        GLU_ErrorCode
+#define marshalErrorCode glu_marshalErrorCode
+
+#define HOPENGL_IMPORT_ErrorCode
+#define HOPENGL_IMPORT_marshalErrorCode
+
+#define HOPENGL_IMPORT_NurbsError
+#define HOPENGL_IMPORT_marshalNurbsError
+
+#define HOPENGL_IMPORT_TessError
+#define HOPENGL_IMPORT_marshalTessError
+
+#include "Constants.incl"
+
+#undef InvalidEnum     
+#undef InvalidValue    
+#undef InvalidOperation
+#undef OutOfMemory     
+#undef ErrorCode         
+#undef marshalErrorCode
 
 --------------------------------------------------------------------------------
 
 data Error = Error ErrorCategory String
-   deriving ( Eq, Ord )
+   deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
 
 data ErrorCategory
-   = NoError
-   | InvalidEnum
+   = InvalidEnum
    | InvalidValue
    | InvalidOperation
    | StackOverflow
    | StackUnderflow
    | OutOfMemory
    | TableTooLarge
-   | TextureTooLarge
    | TesselatorError
    | NURBSError
-   deriving ( Eq, Ord )
+   deriving ( Eq, Ord, Show )
 
 unmarshalErrorCategory :: GLenum -> ErrorCategory
 unmarshalErrorCategory c
-   | c == gl_NO_ERROR          = NoError
-   | isInvalidEnum c           = InvalidEnum
-   | isInvalidValue c          = InvalidValue
-   | isOutOfMemory c           = OutOfMemory
-   | isInvalidOperation c      = InvalidOperation
-   | c == gl_STACK_OVERFLOW    = StackOverflow
-   | c == gl_STACK_UNDERFLOW   = StackUnderflow
-   | c == gl_TABLE_TOO_LARGE   = TableTooLarge
-   | c == gl_TEXTURE_TOO_LARGE = TextureTooLarge
-   | isTesselatorError c       = TesselatorError
-   | isNURBSError c            = NURBSError
+   | isInvalidEnum c      = InvalidEnum
+   | isInvalidValue c     = InvalidValue
+   | isOutOfMemory c      = OutOfMemory
+   | isInvalidOperation c = InvalidOperation
+   | isStackOverflow c    = StackOverflow
+   | isStackUnderflow c   = StackUnderflow
+   | isTableTooLarge c    = TableTooLarge
+   | isTesselatorError c  = TesselatorError
+   | isNURBSError c       = NURBSError
    | otherwise = error "unmarshalErrorCategory"
 
 isInvalidEnum :: GLenum -> Bool
 isInvalidEnum c =
-   c == gl_INVALID_ENUM ||
-   c == C.marshalErrorCode C.InvalidEnum
+   c == gl_marshalErrorCode  GL_InvalidEnum ||
+   c == glu_marshalErrorCode GLU_InvalidEnum
 
 isInvalidValue :: GLenum -> Bool
 isInvalidValue c =
-   c == gl_INVALID_VALUE ||
-   c == C.marshalErrorCode C.InvalidValue
+   c == gl_marshalErrorCode  GL_InvalidValue ||
+   c == glu_marshalErrorCode GLU_InvalidValue
 
 isOutOfMemory :: GLenum -> Bool
 isOutOfMemory c =
-   c == gl_OUT_OF_MEMORY ||
-   c == C.marshalErrorCode C.OutOfMemory
+   c == gl_marshalErrorCode  GL_OutOfMemory ||
+   c == glu_marshalErrorCode GLU_OutOfMemory
 
 isInvalidOperation :: GLenum -> Bool
 isInvalidOperation c =
-   c == gl_INVALID_OPERATION ||
-   c == C.marshalErrorCode C.InvalidOperation
+   c == gl_marshalErrorCode  GL_InvalidOperation ||
+   c == glu_marshalErrorCode GLU_InvalidOperation
+
+isStackOverflow :: GLenum -> Bool
+isStackOverflow c =
+   c == gl_marshalErrorCode GL_StackOverflow
+
+isStackUnderflow :: GLenum -> Bool
+isStackUnderflow c =
+   c == gl_marshalErrorCode GL_StackUnderflow
+
+isTableTooLarge :: GLenum -> Bool
+isTableTooLarge c =
+   c == gl_marshalErrorCode GL_TableTooLarge
 
 isTesselatorError :: GLenum -> Bool
 isTesselatorError c =
-   C.marshalTessError C.TessError1 <= c &&
-   c <= C.marshalTessError C.TessError8
+   marshalTessError TessError1 <= c &&
+   c <= marshalTessError TessError8
 
 isNURBSError :: GLenum -> Bool
 isNURBSError c =
-   C.marshalNurbsError C.NurbsError1 <= c &&
-   c <= C.marshalNurbsError C.NurbsError37
+   marshalNurbsError NurbsError1 <= c &&
+   c <= marshalNurbsError NurbsError37
 
 --------------------------------------------------------------------------------
 
@@ -99,35 +162,20 @@ isNURBSError c =
 makeError :: GLenum -> IO Error
 makeError e = do
    let category = unmarshalErrorCategory e
-   description <- gluErrorString e >>= peekCString
+   description <- peekCString =<< gluErrorString e
    return $ Error category description
 
 foreign import CALLCONV unsafe "gluErrorString" gluErrorString ::
    GLenum -> IO CString
 
-outOfMemoryError :: Error
-outOfMemoryError = Error OutOfMemory "out of memory"
-
 --------------------------------------------------------------------------------
 
-getError :: IO Error
-getError = glGetError >>= makeError
+errors :: GettableStateVariable [Error]
+errors = makeGettableStateVariable $ getErrors []
+   where getErrors acc = do
+            errorCode <- glGetError
+            if errorCode == gl_marshalErrorCode NoError
+               then mapM makeError (reverse acc)
+               else getErrors (errorCode:acc)
 
 foreign import CALLCONV unsafe "glGetError" glGetError :: IO GLenum
-
---------------------------------------------------------------------------------
-
--- TODO: UGLY, UGLY, UGLY, remove this somehow...
-
-gl_NO_ERROR, gl_INVALID_ENUM, gl_INVALID_VALUE, gl_INVALID_OPERATION,
- gl_STACK_OVERFLOW, gl_STACK_UNDERFLOW, gl_OUT_OF_MEMORY, gl_TABLE_TOO_LARGE,
- gl_TEXTURE_TOO_LARGE :: GLenum
-gl_NO_ERROR           = 0
-gl_INVALID_ENUM       = 0x0500
-gl_INVALID_VALUE      = 0x0501
-gl_INVALID_OPERATION  = 0x0502
-gl_STACK_OVERFLOW     = 0x0503
-gl_STACK_UNDERFLOW    = 0x0504
-gl_OUT_OF_MEMORY      = 0x0505
-gl_TABLE_TOO_LARGE    = 0x8031
-gl_TEXTURE_TOO_LARGE  = 0x8065

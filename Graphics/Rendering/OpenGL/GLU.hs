@@ -28,4 +28,4 @@ import Graphics.Rendering.OpenGL.GLU.Matrix
 import Graphics.Rendering.OpenGL.GLU.Tessellation
 import Graphics.Rendering.OpenGL.GLU.Quadrics
 import Graphics.Rendering.OpenGL.GLU.NURBS
-import Graphics.Rendering.OpenGL.GLU.Errors hiding ( makeError, outOfMemoryError )
+import Graphics.Rendering.OpenGL.GLU.Errors hiding ( makeError )

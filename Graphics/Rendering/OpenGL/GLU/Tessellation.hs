@@ -51,11 +51,20 @@ import Graphics.Rendering.OpenGL.GL.BeginEnd (
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
 import Graphics.Rendering.OpenGL.GLU.Errors (
-   Error(..), makeError, outOfMemoryError )
-import Graphics.Rendering.OpenGL.GLU.Constants (
-   TessCallback(..), marshalTessCallback,
-   TessProperty(..), marshalTessProperty,
-   TessWinding(..), marshalTessWinding )
+   Error(..), ErrorCategory(..), makeError )
+
+--------------------------------------------------------------------------------
+
+#define HOPENGL_IMPORT_TessCallback
+#define HOPENGL_IMPORT_marshalTessCallback
+
+#define HOPENGL_IMPORT_TessProperty
+#define HOPENGL_IMPORT_marshalTessProperty
+
+#define HOPENGL_IMPORT_TessWinding
+#define HOPENGL_IMPORT_marshalTessWinding
+
+#include "Constants.incl"
 
 --------------------------------------------------------------------------------
 
@@ -327,7 +336,7 @@ withTessellatorObj ::
 withTessellatorObj action = do
    tessObj <- gluNewTess
    if tessObj == TessellatorObj nullPtr
-      then return $ Left outOfMemoryError
+      then return $ Left (Error OutOfMemory "out of memory")
       else action tessObj `finally` gluDeleteTess tessObj
 
 foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO (TessellatorObj v)
