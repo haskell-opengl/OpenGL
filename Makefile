@@ -16,6 +16,9 @@ ALL_DIRS = \
 PACKAGE = OpenGL
 PACKAGE_DEPS = base
 
+ifeq "$(TARGETPLATFORM)" "i386-unknown-mingw32"
+GL_CFLAGS := $(subst -mno-cygwin,,$(GL_CFLAGS))
+endif
 SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp $(GL_CFLAGS)
 
 # WinDoze DLL hell
