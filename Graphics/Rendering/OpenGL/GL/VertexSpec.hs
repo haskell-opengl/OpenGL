@@ -815,13 +815,16 @@ currentColor :: StateVar (Color4 GLfloat)
 currentColor =
    makeStateVar (getFloat4 Color4 GetCurrentColor) color
 
--- The current secondary color (/R/, /G/, /B/, /A/). The initial value is
--- (0, 0, 0, 1). Note that this state variable is significant only when the GL is
--- in RGBA mode.
+-- The current secondary color (/R/, /G/, /B/). The initial value is (0, 0, 0).
+-- Note that this state variable is significant only when the GL is in RGBA
+-- mode.
 
-currentSecondaryColor :: StateVar (Color4 GLfloat)
+currentSecondaryColor :: StateVar (Color3 GLfloat)
 currentSecondaryColor =
-   makeStateVar (getFloat4 Color4 GetCurrentSecondaryColor) color
+   makeStateVar
+      (do Color4 r g b _ <- getFloat4 Color4 GetCurrentSecondaryColor
+          return $ Color3 r g b)
+      secondaryColor
 
 --------------------------------------------------------------------------------
 
