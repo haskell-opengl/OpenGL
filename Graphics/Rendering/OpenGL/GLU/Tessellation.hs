@@ -535,7 +535,7 @@ withBeginCallback tessObj beginCallback action =
       setBeginCallback tessObj (marshalTessCallback TessBegin) callbackPtr
       action
 
-foreign import ccall "wrapper" makeBeginCallback ::
+foreign import CALLCONV "wrapper" makeBeginCallback ::
    BeginCallback' -> IO (FunPtr BeginCallback')
 
 foreign import CALLCONV unsafe "gluTessCallback" setBeginCallback ::
@@ -555,7 +555,7 @@ withEdgeFlagCallback tessObj edgeFlagCallback action =
       setEdgeFlagCallback tessObj (marshalTessCallback TessEdgeFlag) callbackPtr
       action
 
-foreign import ccall "wrapper" makeEdgeFlagCallback ::
+foreign import CALLCONV "wrapper" makeEdgeFlagCallback ::
    EdgeFlagCallback' -> IO (FunPtr EdgeFlagCallback')
 
 foreign import CALLCONV unsafe "gluTessCallback" setEdgeFlagCallback ::
@@ -576,7 +576,7 @@ withVertexCallback tessObj vertexCallback action =
       setVertexCallback tessObj (marshalTessCallback TessVertex) callbackPtr
       action
 
-foreign import ccall "wrapper" makeVertexCallback ::
+foreign import CALLCONV "wrapper" makeVertexCallback ::
    VertexCallback' v -> IO (FunPtr (VertexCallback' v))
 
 foreign import CALLCONV unsafe "gluTessCallback" setVertexCallback ::
@@ -593,7 +593,7 @@ withEndCallback tessObj endCallback action =
       setEndCallback tessObj (marshalTessCallback TessEnd) callbackPtr
       action
 
-foreign import ccall "wrapper" makeEndCallback ::
+foreign import CALLCONV "wrapper" makeEndCallback ::
    EndCallback -> IO (FunPtr EndCallback)
 
 foreign import CALLCONV unsafe "gluTessCallback" setEndCallback ::
@@ -611,7 +611,7 @@ withErrorCallback tessObj errorCallback action =
       setErrorCallback tessObj (marshalTessCallback TessError) callbackPtr
       action
 
-foreign import ccall "wrapper" makeErrorCallback ::
+foreign import CALLCONV "wrapper" makeErrorCallback ::
    ErrorCallback -> IO (FunPtr ErrorCallback)
 
 foreign import CALLCONV unsafe "gluTessCallback" setErrorCallback ::
@@ -653,7 +653,7 @@ getProperty propertyPtrs n = do
    AnnotatedVertex _ v <- peek =<< peekElemOff propertyPtrs n
    return v
 
-foreign import ccall "wrapper" makeCombineCallback ::
+foreign import CALLCONV "wrapper" makeCombineCallback ::
    CombineCallback v -> IO (FunPtr (CombineCallback v))
 
 foreign import CALLCONV unsafe "gluTessCallback" setCombineCallback ::

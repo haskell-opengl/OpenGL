@@ -117,7 +117,7 @@ withBeginCallback nurbsObj beginCallback action =
       setBeginCallback nurbsObj (marshalNURBSCallback Begin) callbackPtr
       action
 
-foreign import ccall "wrapper" makeBeginCallback ::
+foreign import CALLCONV "wrapper" makeBeginCallback ::
    BeginCallback' -> IO (FunPtr BeginCallback')
 
 foreign import CALLCONV safe "gluNurbsCallback"
@@ -137,7 +137,7 @@ withVertexCallback nurbsObj vertexCallback action =
       setVertexCallback nurbsObj (marshalNURBSCallback Vertex) callbackPtr
       action
 
-foreign import ccall "wrapper" makeVertexCallback ::
+foreign import CALLCONV "wrapper" makeVertexCallback ::
    VertexCallback' -> IO (FunPtr VertexCallback')
 
 foreign import CALLCONV safe "gluNurbsCallback"
@@ -157,7 +157,7 @@ withNormalCallback nurbsObj normalCallback action =
       setNormalCallback nurbsObj (marshalNURBSCallback Normal) callbackPtr
       action
 
-foreign import ccall "wrapper" makeNormalCallback ::
+foreign import CALLCONV "wrapper" makeNormalCallback ::
    NormalCallback' -> IO (FunPtr NormalCallback')
 
 foreign import CALLCONV safe "gluNurbsCallback"
@@ -177,7 +177,7 @@ withColorCallback nurbsObj colorCallback action =
       setColorCallback nurbsObj (marshalNURBSCallback Color) callbackPtr
       action
 
-foreign import ccall "wrapper" makeColorCallback ::
+foreign import CALLCONV "wrapper" makeColorCallback ::
    ColorCallback' -> IO (FunPtr ColorCallback')
 
 foreign import CALLCONV safe "gluNurbsCallback"
@@ -195,7 +195,7 @@ withEndCallback nurbsObj endCallback action =
       setEndCallback nurbsObj (marshalNURBSCallback End) callbackPtr
       action
 
-foreign import ccall "wrapper" makeEndCallback ::
+foreign import CALLCONV "wrapper" makeEndCallback ::
    EndCallback -> IO (FunPtr EndCallback)
 
 foreign import CALLCONV safe "gluNurbsCallback"
@@ -213,7 +213,7 @@ withErrorCallback nurbsObj errorCallback action =
       setErrorCallback nurbsObj (marshalNURBSCallback Error) callbackPtr
       action
 
-foreign import ccall "wrapper" makeErrorCallback ::
+foreign import CALLCONV "wrapper" makeErrorCallback ::
    ErrorCallback -> IO (FunPtr ErrorCallback)
 
 foreign import CALLCONV safe "gluNurbsCallback"

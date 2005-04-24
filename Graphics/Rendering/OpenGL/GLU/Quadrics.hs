@@ -177,7 +177,7 @@ foreign import CALLCONV unsafe "gluDeleteQuadric" gluDeleteQuadric ::
 
 type QuadricCallback' = GLenum -> IO ()
 
-foreign import ccall "wrapper" makeQuadricCallback ::
+foreign import CALLCONV "wrapper" makeQuadricCallback ::
    QuadricCallback' -> IO (FunPtr QuadricCallback')
 
 foreign import CALLCONV unsafe "gluQuadricCallback" gluQuadricCallback ::
