@@ -14,13 +14,16 @@ description:
 	a broad set of rendering, texture mapping, special effects, and
 	other powerful visualization functions.  For more information
 	about OpenGL, please see: <http://www.opengl.org/>.
-other-files:
+extra-source-files:
 	-- The first three files are not in this directory of the CVS
 	-- repository; copy them from ../..
-	config.guess config.sub install-sh configure.ac
-	configure config.mk.in OpenGL.buildinfo.in
+	config.guess config.sub install-sh
+	configure.ac configure config.mk.in OpenGL.buildinfo.in
         include/HsOpenGLConfig.h.in include/HsOpenGL.h.in
 	include/HsOpenGLExt.h include/HsOpenGLTypes.h
+extra-tmp-files:
+	config.log config.status autom4te.cache
+	config.mk OpenGL.buildinfo include/HsOpenGLConfig.h include/HsOpenGL.h
 exposed-modules:
 	Graphics.Rendering.OpenGL.GL.Antialiasing,
 	Graphics.Rendering.OpenGL.GL.BasicTypes,
