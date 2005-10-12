@@ -20,19 +20,21 @@ if test x"$enable_opengl" != xno; then
 # Check for OpenGL include paths and libraries
 FP_CHECK_GLU
 
-if test "$GLU_LIBS" = no; then
+if test x"$GLU_LIBS" = xno; then
   AC_MSG_WARN([no OpenGL library found, so this package will not be built])
 else
 
 # check for OpenGL include files
 gl_found_header=no
+glu_found_header=no
 fp_save_cppflags="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $X_CFLAGS"
 AC_CHECK_HEADERS([GL/gl.h OpenGL/gl.h], [gl_found_header=yes])
+AC_CHECK_HEADERS([GL/glu.h OpenGL/glu.h], [glu_found_header=yes])
 CPPFLAGS="$fp_save_cppflags"
 
-if test "$gl_found_header" = no; then
-  AC_MSG_WARN([no OpenGL header found, so this package will not be built])
+if test x"$gl_found_header" = xno || test x"$glu_found_header" = xno; then
+  AC_MSG_WARN([no OpenGL headers found, so this package will not be built])
 else
 
 GL_BUILD_PACKAGE=yes
@@ -68,7 +70,7 @@ fi
 fi
 fi
 
-if test "$GL_BUILD_PACKAGE" = yes; then
+if test x"$GL_BUILD_PACKAGE" = xyes; then
   BUILD_PACKAGE_BOOL=True
 else
   BUILD_PACKAGE_BOOL=False
