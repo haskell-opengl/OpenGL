@@ -18,35 +18,23 @@ module Graphics.Rendering.OpenGL.GL.Exception (
    bracket, bracket_, unsafeBracket_, finallyRet
 ) where
 
+import Data.IORef ( newIORef, readIORef, writeIORef )
+
 #ifdef __NHC__
-import Control.Monad ( liftM2 )
+import qualified IO ( bracket, bracket_ )
 
 {-# INLINE bracket #-}
-bracket :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
-bracket before after thing = do
-   a <- before 
-   r <- thing a
-   after a
-   return r
+bracket  :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+bracket = IO.bracket
 
 {-# INLINE bracket_ #-}
 bracket_ :: IO a -> IO b -> IO c -> IO c
-bracket_ = unsafeBracket_
+bracket_ before = IO.bracket_ before . const
 
-{-# INLINE finallyRet #-}
-finallyRet :: IO a -> IO b -> IO (a, b)
-finallyRet = liftM2 (,)
+finally :: IO a -> IO b -> IO a
+finally = flip . bracket_ . return $ undefined
 #else
 import Control.Exception ( bracket, bracket_, finally )
-import Data.IORef ( newIORef, readIORef, writeIORef )
-
-{-# INLINE finallyRet #-}
-finallyRet :: IO a -> IO b -> IO (a, b)
-a `finallyRet` sequel = do
-   r2Ref <- newIORef undefined
-   r1 <- a `finally` (sequel >>= writeIORef r2Ref)
-   r2 <- readIORef r2Ref
-   return (r1, r2)
 #endif
 
 {-# INLINE unsafeBracket_ #-}
@@ -56,3 +44,11 @@ unsafeBracket_ before after thing = do
    r <- thing
    after
    return r
+
+{-# INLINE finallyRet #-}
+finallyRet :: IO a -> IO b -> IO (a, b)
+a `finallyRet` sequel = do
+   r2Ref <- newIORef undefined
+   r1 <- a `finally` (sequel >>= writeIORef r2Ref)
+   r2 <- readIORef r2Ref
+   return (r1, r2)
