@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    combineTexParams, combineTexParamsMaybe
 ) where
 
-import Control.Monad ( liftM, liftM2 )
+import Control.Monad ( liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Storable ( Storable )
@@ -165,7 +165,7 @@ combineTexParamsMaybe enab val t =
       (do tcm <- get (enab t)
           case tcm of
              Disabled -> return Nothing
-             Enabled -> liftM Just $ get (val t))
+             Enabled -> fmap Just $ get (val t))
       (maybe (enab t $= Disabled)
              (\tcf -> do val t $= tcf
                          enab t $= Enabled))

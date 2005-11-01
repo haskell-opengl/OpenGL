@@ -18,7 +18,6 @@ module Graphics.Rendering.OpenGL.GL.Selection (
    RenderMode(..), renderMode
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -60,7 +59,7 @@ foreign import CALLCONV unsafe "glSelectBuffer" glSelectBuffer ::
 parseSelectionBuffer :: GLint -> Ptr GLuint -> IO (Maybe [HitRecord])
 parseSelectionBuffer numHits buf
    | numHits < 0 = return Nothing
-   | otherwise = liftM Just $ evalIOState (nTimes numHits parseSelectionHit) buf
+   | otherwise = fmap Just $ evalIOState (nTimes numHits parseSelectionHit) buf
 
 type Parser a = IOState GLuint a
 
@@ -76,10 +75,10 @@ parseGLuint :: Parser GLuint
 parseGLuint = peekIOState
 
 parseGLfloat :: Parser GLfloat
-parseGLfloat = liftM (\x -> fromIntegral x / 0xffffffff) parseGLuint
+parseGLfloat = fmap (\x -> fromIntegral x / 0xffffffff) parseGLuint
 
 parseName :: Parser Name
-parseName = liftM Name parseGLuint
+parseName = fmap Name parseGLuint
 
 --------------------------------------------------------------------------------
 

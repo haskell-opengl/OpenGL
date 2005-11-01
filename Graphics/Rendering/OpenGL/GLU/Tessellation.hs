@@ -35,7 +35,7 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
    Primitive(..), SimplePolygon(..), tessellate
 ) where
 
-import Control.Monad ( foldM, liftM, unless )
+import Control.Monad ( foldM, unless )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
@@ -317,7 +317,7 @@ extractContours windingRule tolerance normal combiner complexPoly = do
           writeIORef vertices []
           modifyIORef contours (SimpleContour (reverse vs) :)
 
-       getContours = liftM (PolygonContours . reverse) (readIORef contours)
+       getContours = fmap (PolygonContours . reverse) (readIORef contours)
 
    withTessellatorObj (PolygonContours [])$ \tessObj -> do
       setTessellatorProperties tessObj windingRule tolerance normal True
@@ -422,7 +422,7 @@ tessellate windingRule tolerance normal combiner complexPoly = do
           writeIORef vertices []
           modifyIORef primitives (Primitive beginMode (reverse vs) :)
 
-       getSimplePolygon = liftM (SimplePolygon . reverse) (readIORef primitives)
+       getSimplePolygon = fmap (SimplePolygon . reverse) (readIORef primitives)
 
    withTessellatorObj (SimplePolygon []) $ \tessObj -> do
       setTessellatorProperties tessObj windingRule tolerance normal False

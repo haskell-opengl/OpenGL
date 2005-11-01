@@ -31,7 +31,6 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    bufferAccess, bufferMapped
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr, nullPtr )
@@ -81,13 +80,13 @@ instance ObjectName BufferObject where
    genObjectNames n =
       allocaArray n $ \buf -> do
         glGenBuffersARB (fromIntegral n) buf
-        liftM (map BufferObject) $ peekArray n buf
+        fmap (map BufferObject) $ peekArray n buf
 
    deleteObjectNames bufferObjects =
       withArrayLen (map bufferID bufferObjects) $
          glDeleteBuffersARB . fromIntegral
 
-   isObjectName = liftM unmarshalGLboolean . glIsBufferARB . bufferID
+   isObjectName = fmap unmarshalGLboolean . glIsBufferARB . bufferID
 
 EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glGenBuffersARB,GLsizei -> Ptr GLuint -> IO ())
 
@@ -302,7 +301,7 @@ mapBuffer t = glMapBufferARB (marshalBufferTarget t) . marshalBufferAccess
 EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glMapBufferARB,GLenum -> GLenum -> IO (Ptr a))
 
 unmapBuffer :: BufferTarget -> IO Bool
-unmapBuffer = liftM unmarshalGLboolean . glUnmapBufferARB . marshalBufferTarget
+unmapBuffer = fmap unmarshalGLboolean . glUnmapBufferARB . marshalBufferTarget
 
 EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glUnmapBufferARB,GLenum -> IO GLboolean)
 

@@ -25,7 +25,6 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
    genLists, deleteLists, isList,
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLuint, GLsizei, GLenum )
@@ -97,7 +96,7 @@ isList :: DisplayList -> IO Bool
 isList = isList_
 
 isList_ :: DisplayList -> IO Bool
-isList_ = liftM unmarshalGLboolean . glIsList
+isList_ = fmap unmarshalGLboolean . glIsList
 
 foreign import CALLCONV unsafe "glIsList" glIsList ::
    DisplayList -> IO GLboolean

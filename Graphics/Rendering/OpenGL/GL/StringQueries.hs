@@ -17,7 +17,6 @@ module Graphics.Rendering.OpenGL.GL.StringQueries (
    vendor, renderer, glVersion, glExtensions
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.C.String ( peekCString )
 import Foreign.Ptr ( Ptr, nullPtr, castPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
@@ -36,7 +35,7 @@ glVersion :: GettableStateVar String
 glVersion = makeGettableStateVar (getString Version)
 
 glExtensions :: GettableStateVar [String]
-glExtensions = makeGettableStateVar (liftM words $ getString Extensions)
+glExtensions = makeGettableStateVar (fmap words $ getString Extensions)
 
 --------------------------------------------------------------------------------
 

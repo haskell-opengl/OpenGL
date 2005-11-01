@@ -16,7 +16,7 @@ module Main ( main ) where
 
 -- UGLY, UGLY, UGLY! This should really die someday...
 #if __GLASGOW_HASKELL__ >= 504
-import Control.Monad       ( liftM, when )
+import Control.Monad       ( when )
 import Control.Monad.State ( State, runState, evalState, get, put, modify )
 import Data.Char           ( isUpper, toUpper, isLower, toLower, isDigit,
                              isHexDigit, isSpace )
@@ -30,7 +30,7 @@ import Text.ParserCombinators.Parsec
                              spaces )
 import System.Environment  ( getArgs )
 #else
-import Monad               ( liftM, when )
+import Monad               ( when )
 import MonadState          ( State, runState, evalState, get, put, modify )
 import Char                ( isUpper, toUpper, isLower, toLower, isDigit,
                              isHexDigit, isSpace )
@@ -243,7 +243,7 @@ definition = do
    return (Definition ident rhs)
 
 value :: Parser RHS
-value = reference <|> (Value `liftM` number)
+value = reference <|> (Value `fmap` number)
 
 reference :: Parser RHS
 reference = do
@@ -253,23 +253,23 @@ reference = do
    return (Reference ident num)
 
 number :: Parser Number
-number = Number `liftM` (try hexNumber <|> try decNumber) <?> "number"
+number = Number `fmap` (try hexNumber <|> try decNumber) <?> "number"
 
 hexNumber :: Parser Integer
 hexNumber = do
    spaces
    char '0'
    char 'x' <|> char 'X'
-   (fst . head . readHex) `liftM` many1 (satisfy isHexDigit)
+   (fst . head . readHex) `fmap` many1 (satisfy isHexDigit)
 
 decNumber :: Parser Integer
-decNumber = read `liftM` do spaces; many1 (satisfy isDigit)
+decNumber = read `fmap` do spaces; many1 (satisfy isDigit)
 
 typeName :: Parser TypeName
-typeName = TypeName `liftM` try word <?> "type name"
+typeName = TypeName `fmap` try word <?> "type name"
 
 identifier :: Parser Identifier
-identifier = primaryID `liftM` try word <?> "identifier"
+identifier = primaryID `fmap` try word <?> "identifier"
 
 word :: Parser String
 word = do spaces ; many1 (satisfy (not . (\c -> isSpace c || c `elem` ";:,=+$")))
@@ -323,11 +323,11 @@ evaluate :: Spec -> (Spec, Environment)
 evaluate s = runState (evalSpec s) emptyFM
 
 evalSpec :: Evaluator Spec Spec
-evalSpec (Spec defs) = Spec `liftM` mapM evalTypeDefinition defs
+evalSpec (Spec defs) = Spec `fmap` mapM evalTypeDefinition defs
 
 evalTypeDefinition :: Evaluator TypeDefinition TypeDefinition
 evalTypeDefinition (TypeDefinition p t k eqs) =
-   TypeDefinition p t k `liftM` mapM evalEquation eqs
+   TypeDefinition p t k `fmap` mapM evalEquation eqs
 
 evalEquation :: Evaluator Equation Equation
 evalEquation (Definition ident rhs) = do
@@ -345,7 +345,7 @@ updateEnvironment ident n env = addToFM_C insert env ident n
 evalRHS :: Evaluator RHS Number
 evalRHS NextValue       = error "Huh? Still default values left?"
 evalRHS (Value v)       = return v
-evalRHS (Reference i n) = (+ n) `liftM` evalIdentifier i
+evalRHS (Reference i n) = (+ n) `fmap` evalIdentifier i
 
 evalIdentifier :: Evaluator Identifier Number
 evalIdentifier ident = do
@@ -494,15 +494,15 @@ rename s =
 
 renameSimpleSpec :: Renamer SimpleSpec
 renameSimpleSpec primary (SimpleSpec defs) =
-   SimpleSpec `liftM` mapM (renameSimpleTypeDefinition primary) defs
+   SimpleSpec `fmap` mapM (renameSimpleTypeDefinition primary) defs
 
 renameSimpleTypeDefinition :: Renamer SimpleTypeDefinition
 renameSimpleTypeDefinition primary (SimpleTypeDefinition t k eqs) =
-   SimpleTypeDefinition t k `liftM` mapM (renameSimpleEquation primary) eqs
+   SimpleTypeDefinition t k `fmap` mapM (renameSimpleEquation primary) eqs
 
 renameSimpleEquation :: Renamer SimpleEquation
 renameSimpleEquation primary (SimpleEquation ident n) =
-   flip SimpleEquation n `liftM` renameIdentifier primary ident
+   flip SimpleEquation n `fmap` renameIdentifier primary ident
 
 renameIdentifier :: Renamer Identifier
 renameIdentifier primary ident

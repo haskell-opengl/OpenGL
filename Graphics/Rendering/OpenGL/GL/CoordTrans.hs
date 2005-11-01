@@ -35,7 +35,6 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
@@ -564,8 +563,8 @@ textureGenMode coord =
       (return $ textureCoordNameToEnableCap coord)
       (do mode <- getMode coord
           case mode of
-             EyeLinear'     -> liftM EyeLinear $ getPlane coord EyePlane
-             ObjectLinear'  -> liftM ObjectLinear $ getPlane coord ObjectPlane
+             EyeLinear'     -> fmap EyeLinear $ getPlane coord EyePlane
+             ObjectLinear'  -> fmap ObjectLinear $ getPlane coord ObjectPlane
              SphereMap'     -> return SphereMap
              NormalMap'     -> return NormalMap
              ReflectionMap' -> return ReflectionMap)

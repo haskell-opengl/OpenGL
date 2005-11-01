@@ -19,7 +19,6 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
    TexturePriority, texturePriority, prioritizeTextures
 ) where
 
-import Control.Monad ( liftM )
 import Data.List ( partition )
 import Foreign.Marshal.Array ( withArray, withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
@@ -51,13 +50,13 @@ instance ObjectName TextureObject where
    genObjectNames n =
       allocaArray n $ \buf -> do
         glGenTextures (fromIntegral n) buf
-        liftM (map TextureObject) $ peekArray n buf
+        fmap (map TextureObject) $ peekArray n buf
 
    deleteObjectNames textureObjects =
       withArrayLen (map textureID textureObjects) $
          glDeleteTextures . fromIntegral
 
-   isObjectName = liftM unmarshalGLboolean . glIsTexture . textureID
+   isObjectName = fmap unmarshalGLboolean . glIsTexture . textureID
 
 foreign import CALLCONV unsafe "glGenTextures"
    glGenTextures :: GLsizei -> Ptr GLuint -> IO ()
@@ -107,7 +106,7 @@ areTexturesResident texObjs = do
          if unmarshalGLboolean allResident
             then return (texObjs, [])
             else do
-               tr <- liftM (zip texObjs) $ peekArray len residentBuf
+               tr <- fmap (zip texObjs) $ peekArray len residentBuf
                let (resident, nonResident) = partition (unmarshalGLboolean . snd) tr
                return (map fst resident, map fst nonResident)
 

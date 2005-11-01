@@ -48,7 +48,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    LogicOp(..), logicOp
 ) where
 
-import Control.Monad ( liftM, liftM2, liftM3 )
+import Control.Monad ( liftM2, liftM3 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
@@ -251,13 +251,13 @@ instance ObjectName QueryObject where
    genObjectNames n =
       allocaArray n $ \buf -> do
         glGenQueriesARB (fromIntegral n) buf
-        liftM (map QueryObject) $ peekArray n buf
+        fmap (map QueryObject) $ peekArray n buf
 
    deleteObjectNames queryObjects =
       withArrayLen (map queryID queryObjects) $
          glDeleteQueriesARB . fromIntegral
 
-   isObjectName = liftM unmarshalGLboolean . glIsQueryARB . queryID
+   isObjectName = fmap unmarshalGLboolean . glIsQueryARB . queryID
 
 
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGenQueriesARB,GLsizei -> Ptr GLuint -> IO ())

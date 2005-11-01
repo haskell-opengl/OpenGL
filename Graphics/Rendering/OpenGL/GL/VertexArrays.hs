@@ -31,7 +31,6 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    primitiveRestartIndex
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Ptr ( Ptr, nullPtr )
 import Foreign.Storable ( Storable(peek) )
@@ -467,7 +466,7 @@ getPrimitiverestartIndex :: IO (Maybe ArrayIndex)
 getPrimitiverestartIndex = do
    state <- get (makeCapability CapPrimitiveRestart)
    if state == Enabled
-      then liftM Just $ getInteger1 fromIntegral GetPrimitiveRestartIndex
+      then fmap Just $ getInteger1 fromIntegral GetPrimitiveRestartIndex
       else return Nothing
 
 setPrimitiverestartIndex :: Maybe ArrayIndex -> IO ()

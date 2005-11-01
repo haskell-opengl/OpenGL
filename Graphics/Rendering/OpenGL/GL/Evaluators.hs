@@ -43,7 +43,7 @@ module Graphics.Rendering.OpenGL.GL.Evaluators (
    autoNormal
 ) where
 
-import Control.Monad ( liftM, zipWithM_ )
+import Control.Monad ( zipWithM_ )
 import Data.List ( genericLength )
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
@@ -402,7 +402,7 @@ getMap1 dummyControlPoint = do
       peek2 (,) ptr
    order <- alloca $ \ptr -> do
       glGetMapiv target (marshalGetMapQuery Order) ptr
-      liftM fromIntegral $ peek ptr
+      fmap fromIntegral $ peek ptr
    withNewMap1 (MapDescriptor domain (numComponents dummyControlPoint) order numComp) $
       glGetMapv target (marshalGetMapQuery Coeff)
 

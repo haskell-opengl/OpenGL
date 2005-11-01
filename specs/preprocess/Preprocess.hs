@@ -37,7 +37,6 @@
 
 module Main ( main ) where
 
-import Control.Monad      ( liftM )
 import Data.Char          ( isSpace )
 import Data.List          ( isPrefixOf, tails )
 import System.Environment ( getArgs )
@@ -83,7 +82,7 @@ preprocess = unlines .
 mainWithArgs :: [String] -> IO ()
 mainWithArgs fileNames = putStr . preprocess =<< input
    where input | null fileNames = getContents
-               | otherwise      = liftM concat (mapM readFile fileNames)
+               | otherwise      = fmap concat (mapM readFile fileNames)
 
 main :: IO ()
 main = getArgs >>= mainWithArgs

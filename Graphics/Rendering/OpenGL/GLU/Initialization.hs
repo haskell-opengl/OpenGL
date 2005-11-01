@@ -16,7 +16,6 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
    gluVersion, gluExtensions
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Ptr ( Ptr, nullPtr, castPtr )
 import Foreign.C.String ( peekCString )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
@@ -29,7 +28,7 @@ gluVersion :: GettableStateVar String
 gluVersion = makeGettableStateVar (getString Version)
 
 gluExtensions :: GettableStateVar [String]
-gluExtensions = makeGettableStateVar (liftM words $ getString Extensions)
+gluExtensions = makeGettableStateVar (fmap words $ getString Extensions)
 
 --------------------------------------------------------------------------------
 

@@ -19,7 +19,6 @@ module Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(..), makeCapability, makeStateVarMaybe
 ) where
 
-import Control.Monad ( liftM )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLenum, GLsizei, Capability(..) )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
@@ -225,7 +224,7 @@ makeCapability cap = makeStateVar (isEnabled cap) (enable cap)
 isEnabled :: EnableCap -> IO Capability
 isEnabled =
    maybe (do recordInvalidEnum; return Disabled)
-         (liftM unmarshalCapability . glIsEnabled) .
+         (fmap unmarshalCapability . glIsEnabled) .
    marshalEnableCap
 
 foreign import CALLCONV unsafe "glIsEnabled" glIsEnabled ::
@@ -252,13 +251,13 @@ makeStateVarMaybe getCap getAct setAct =
 
 getStateVarMaybe :: IO EnableCap -> IO a -> IO (Maybe a)
 getStateVarMaybe getCap act = do
-   capability <- liftM makeCapability getCap
+   capability <- fmap makeCapability getCap
    state <- get capability
    if state == Enabled
-      then liftM Just act
+      then fmap Just act
       else return Nothing
 
 setStateVarMaybe :: IO EnableCap -> (a -> IO ()) -> Maybe a -> IO ()
 setStateVarMaybe getCap act val = do
-   capability <- liftM makeCapability getCap
+   capability <- fmap makeCapability getCap
    maybe (capability $= Disabled) (\x -> act x >> capability $= Enabled) val

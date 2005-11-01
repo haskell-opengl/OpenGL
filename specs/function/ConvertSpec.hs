@@ -1,6 +1,6 @@
 module Main ( main ) where
 
-import Control.Monad      ( liftM, when )
+import Control.Monad      ( when )
 import Data.Char          ( isSpace )
 import Data.FiniteMap     ( FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList,
                             lookupWithDefaultFM )
@@ -252,7 +252,7 @@ validPropertyName =
 validPropertyValues :: Parser PropertyValues
 validPropertyValues =
    option (Values []) (    (do symbol "*"; return AnyValue)
-                       <|> liftM Values (many1 propertyValue))
+                       <|> fmap Values (many1 propertyValue))
 
 category :: Parser Category
 category = do
@@ -302,7 +302,7 @@ parameterDeclaration = do
    symbol "param"
    name <- parameterName
    typ  <- parameterType
-   len  <- option Nothing (liftM Just lengthDescriptor)
+   len  <- option Nothing (fmap Just lengthDescriptor)
    vals <- many propertyValue
    return $ ParameterDeclaration name typ len vals
 
@@ -327,7 +327,7 @@ transferType =
 
 lengthDescriptor :: Parser LengthDescriptor
 lengthDescriptor =
-   inBrackets (liftM LengthDescriptor (indexExpression `sepBy` comma))
+   inBrackets (fmap LengthDescriptor (indexExpression `sepBy` comma))
 
 indexExpression :: Parser IndexExpression
 indexExpression = term `chainl1` addOp
@@ -349,16 +349,16 @@ factor :: Parser IndexExpression
 factor =
        try compsize
    <|> inParens indexExpression
-   <|> liftM Number integer
-   <|> liftM Parameter parameterName
+   <|> fmap Number integer
+   <|> fmap Parameter parameterName
 
 compsize :: Parser IndexExpression
 compsize = do
    symbol "COMPSIZE"
-   inParens (liftM CompSize (parameterName `sepBy` symbol "/"))
+   inParens (fmap CompSize (parameterName `sepBy` symbol "/"))
 
 integer :: Parser Integer
-integer = read `liftM` do spaces; many1 (oneOf "0123456789")
+integer = read `fmap` do spaces; many1 (oneOf "0123456789")
 
 functionProperty :: Parser FunctionProperty
 functionProperty = do
@@ -372,26 +372,26 @@ metaPropertyValue = do
    (    (do symbol "all"
             return $ if remove then RemoveAllPropertyValues
                                else AddAllPropertyValues)
-    <|> liftM (if remove then RemovePropertyValue else AddPropertyValue)
-              propertyValue)
+    <|> fmap (if remove then RemovePropertyValue else AddPropertyValue)
+             propertyValue)
 
 propertyValue :: Parser PropertyValue
-propertyValue = liftM PropertyValue word <?> "property value"
+propertyValue = fmap PropertyValue word <?> "property value"
 
 propertyName :: Parser PropertyName
-propertyName = liftM PropertyName word <?> "property name"
+propertyName = fmap PropertyName word <?> "property name"
 
 categoryName :: Parser CategoryName
-categoryName = liftM CategoryName word <?> "category name"
+categoryName = fmap CategoryName word <?> "category name"
 
 functionName :: Parser FunctionName
-functionName = liftM FunctionName word <?> "function name"
+functionName = fmap FunctionName word <?> "function name"
 
 typeName :: Parser TypeName
-typeName = liftM TypeName word <?> "type name"
+typeName = fmap TypeName word <?> "type name"
 
 parameterName :: Parser ParameterName
-parameterName = liftM ParameterName word <?> "parameter name"
+parameterName = fmap ParameterName word <?> "parameter name"
 
 word :: Parser String
 word = try $ do

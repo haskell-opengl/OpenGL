@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.Feedback (
    getFeedbackTokens, PassThroughValue(..), passThrough
 ) where
 
-import Control.Monad ( liftM, liftM2, liftM3, liftM4 )
+import Control.Monad ( liftM2, liftM3, liftM4 )
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf) )
@@ -128,7 +128,7 @@ parseFeedbackBuffer numValues buf feedbackType
                 then return (reverse tokens)
                 else do token <- tokenParser infoParser
                         loop (token : tokens)
-      liftM Just $ evalIOState (loop []) buf
+      fmap Just $ evalIOState (loop []) buf
 
 type Parser a = IOState GLfloat a
 
@@ -136,21 +136,21 @@ tokenParser :: Parser VertexInfo -> Parser FeedbackToken
 tokenParser infoParser = do
    tag <- parseGLenum
    case unmarshalFeedbackTag tag of
-      PointTag -> liftM PointToken infoParser
+      PointTag -> fmap PointToken infoParser
       LineTag -> liftM2 LineToken infoParser infoParser
       LineResetTag -> liftM2 LineResetToken infoParser infoParser
-      PolygonTag -> do n <- parseGLint; liftM PolygonToken (nTimes n infoParser)
-      BitmapTag -> liftM BitmapToken infoParser
-      DrawPixelTag -> liftM DrawPixelToken infoParser
-      CopyPixelTag -> liftM CopyPixelToken infoParser
-      PassThroughTag -> liftM PassThroughToken parsePassThroughValue
+      PolygonTag -> do n <- parseGLint; fmap PolygonToken (nTimes n infoParser)
+      BitmapTag -> fmap BitmapToken infoParser
+      DrawPixelTag -> fmap DrawPixelToken infoParser
+      CopyPixelTag -> fmap CopyPixelToken infoParser
+      PassThroughTag -> fmap PassThroughToken parsePassThroughValue
 
 calcInfoParser :: FeedbackType -> Parser ColorInfo -> Parser VertexInfo
 calcInfoParser feedbackType colorParser = case feedbackType of
    TwoD ->
-      liftM Vertex2D parseVertex2
+      fmap Vertex2D parseVertex2
    ThreeD ->
-      liftM Vertex3D parseVertex3
+      fmap Vertex3D parseVertex3
    ThreeDColor ->
       liftM2 Vertex3DColor parseVertex3 colorParser
    ThreeDColorTexture ->
@@ -169,11 +169,11 @@ parseVertex4 =
    liftM4 Vertex4 parseGLfloat parseGLfloat parseGLfloat parseGLfloat
 
 calcColorParser :: Bool -> Parser ColorInfo
-calcColorParser False = liftM Left parseIndex1
-calcColorParser True  = liftM Right parseColor4
+calcColorParser False = fmap Left parseIndex1
+calcColorParser True  = fmap Right parseColor4
 
 parseIndex1 :: Parser (Index1 GLint)
-parseIndex1 = liftM Index1 parseGLint
+parseIndex1 = fmap Index1 parseGLint
 
 parseColor4 :: Parser (Color4 GLfloat)
 parseColor4 = liftM4 Color4 parseGLfloat parseGLfloat parseGLfloat parseGLfloat
@@ -183,13 +183,13 @@ parseTexCoord4 =
    liftM4 TexCoord4 parseGLfloat parseGLfloat parseGLfloat parseGLfloat
 
 parsePassThroughValue :: Parser PassThroughValue
-parsePassThroughValue = liftM PassThroughValue parseGLfloat
+parsePassThroughValue = fmap PassThroughValue parseGLfloat
 
 parseGLenum :: Parser GLenum
-parseGLenum = liftM round parseGLfloat
+parseGLenum = fmap round parseGLfloat
 
 parseGLint :: Parser GLint
-parseGLint = liftM round parseGLfloat
+parseGLint = fmap round parseGLfloat
 
 parseGLfloat :: Parser GLfloat
 parseGLfloat = peekIOState

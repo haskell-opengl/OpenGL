@@ -37,7 +37,6 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    getCompressedTexImage
 ) where
 
-import Control.Monad ( liftM )
 import Foreign.Marshal.Array ( peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLsizei, GLenum )
@@ -221,7 +220,7 @@ compressedTextureFormats =
       n <- getInteger1 fromIntegral GetNumCompressedTextureFormats
       allocaArray n $ \buf -> do
          getIntegerv GetCompressedTextureFormats buf
-         liftM (map (CompressedTextureFormat . fromIntegral)) $ peekArray n buf
+         fmap (map (CompressedTextureFormat . fromIntegral)) $ peekArray n buf
 
 --------------------------------------------------------------------------------
 
