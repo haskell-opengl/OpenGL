@@ -11,10 +11,17 @@ CLEAN_FILES += Main.hi test.stdout.tmp
 
 SRC_HC_OPTS += -cpp -package parsec -package mtl
 
+TMP_FILE     = test.stdout.tmp
+
 test: ConvertEnumSpec
-	$(RM) test.stdout.tmp
-	./ConvertEnumSpec -v test.spec > test.stdout.tmp
-	diff test.stdout test.stdout.tmp && echo "test passed"
+	@$(RM) $(TMP_FILE)
+	@./ConvertEnumSpec -v test.spec > $(TMP_FILE)
+	@if diff test.stdout $(TMP_FILE) ; then \
+	  echo "test passed" ; \
+	  $(RM) $(TMP_FILE) ; \
+	else \
+	  echo "test failed" ; \
+	fi
 
 # -----------------------------------------------------------------------------
 
