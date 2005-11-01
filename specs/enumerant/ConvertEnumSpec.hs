@@ -18,9 +18,9 @@ import Control.Monad ( when )
 import Control.Monad.State ( State, runState, evalState, get, put, modify )
 import Data.Char (
    isUpper, toUpper, isLower, toLower, isDigit, isHexDigit, isSpace )
-import Data.FiniteMap ( FiniteMap, emptyFM, addToFM_C, lookupWithDefaultFM )
 import Data.List ( mapAccumL, isPrefixOf, tails )
-import Data.Set ( Set, mkSet, addToSet, elementOf )
+import qualified Data.Map as Map ( Map, empty, insertWith, findWithDefault )
+import qualified Data.Set as Set ( Set, fromList, insert, member )
 import Numeric ( readHex, showHex )
 import Text.ParserCombinators.Parsec (
    SourceName, Parser, (<|>), (<?>), try, eof, char, string, many, many1,
@@ -297,12 +297,12 @@ defaultValues Define = iterate id   0
 -- of the form "ident = number" and "use" equations only.
 --------------------------------------------------------------------------------
 
-type Environment = FiniteMap Identifier Number
+type Environment = Map.Map Identifier Number
 
 type Evaluator a b = a -> State Environment b
 
 evaluate :: Spec -> (Spec, Environment)
-evaluate s = runState (evalSpec s) emptyFM
+evaluate s = runState (evalSpec s) Map.empty
 
 evalSpec :: Evaluator Spec Spec
 evalSpec (Spec defs) = Spec `fmap` mapM evalTypeDefinition defs
@@ -319,7 +319,7 @@ evalEquation (Definition ident rhs) = do
 evalEquation u@(Use _ _) = return u
 
 updateEnvironment :: Identifier -> Number -> Environment -> Environment
-updateEnvironment ident n env = addToFM_C insert env ident n
+updateEnvironment ident n env = Map.insertWith insert ident n env
    where insert old new | old == new = old
                         | otherwise  = error (nameOf ident ++ " redefined from "
                                               ++ show old ++ " to " ++ show new)
@@ -333,7 +333,7 @@ evalIdentifier :: Evaluator Identifier Number
 evalIdentifier ident = do
    env <- get
    let msg = "reference: " ++ nameOf ident ++ " undefined"
-   return $ lookupWithDefaultFM env (error msg) ident
+   return $ Map.findWithDefault (error msg) ident env
 
 --------------------------------------------------------------------------------
 -- Abstract syntax for backend
@@ -384,7 +384,7 @@ simplifyEquation _ _ _ (Definition _ _) = error "Huh? Still non-value left?"
 simplifyEquation prefix cap env (Use _ ident) =
    let msg = "use: " ++ nameOf ident ++ " undefined"
    in SimpleEquation (secondaryID (prefix ++ (haskellize cap (nameOf ident))))
-                     (lookupWithDefaultFM env (error msg) ident)
+                     (Map.findWithDefault (error msg) ident env)
 
 shouldBeCapitalized :: Kind -> Bool
 shouldBeCapitalized Enum   = True
@@ -463,12 +463,12 @@ haskellize cap =
 -- possible.
 --------------------------------------------------------------------------------
 
-type UsedIdentifiers = Set Identifier
+type UsedIdentifiers = Set.Set Identifier
 
 type Renamer a = Bool -> a -> State UsedIdentifiers a
 
 haskellIds :: UsedIdentifiers
-haskellIds = mkSet (map primaryID [ "False", "True", "Left", "Right" ])
+haskellIds = Set.fromList (map primaryID [ "False", "True", "Left", "Right" ])
 
 rename :: SimpleSpec -> SimpleSpec
 rename s =
@@ -491,14 +491,14 @@ renameIdentifier primary ident
    | isPrimaryID ident == primary = do
       usedIdents <- get
       let renamedIdent = makeUnique usedIdents ident
-      put (addToSet usedIdents renamedIdent)
+      put (Set.insert renamedIdent usedIdents)
       return renamedIdent
    | otherwise = return ident
    
 makeUnique :: UsedIdentifiers -> Identifier -> Identifier
 makeUnique usedIdents ident =
    head [ newId | newId <- candidatesFor ident,
-                  not (newId `elementOf` usedIdents)]
+                  not (newId `Set.member` usedIdents)]
 
 candidatesFor :: Identifier -> [Identifier]
 candidatesFor ident = zipWith tickify (repeat prefix) [tickCount ..]

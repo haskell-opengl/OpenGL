@@ -2,9 +2,9 @@ module Main ( main ) where
 
 import Control.Monad ( when )
 import Data.Char ( isSpace )
-import Data.FiniteMap (
-   FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList, lookupWithDefaultFM )
 import Data.List ( isPrefixOf, tails, delete )
+import qualified Data.Map as Map (
+   Map, empty, member, findWithDefault, fromListWith, toList )
 import System.Environment ( getArgs )
 import Text.ParserCombinators.Parsec (
    SourceName, Parser, parse, try, eof, oneOf, noneOf, string, (<|>), (<?>),
@@ -435,19 +435,18 @@ parseSpec fileName content =
 -- doing checks for duplicate names/values on the way...
 --------------------------------------------------------------------------------
 
-type PropertyEnvironment = FiniteMap PropertyName PropertyValues
+type PropertyEnvironment = Map.Map PropertyName PropertyValues
 
 lookupProperty :: PropertyEnvironment -> PropertyName -> PropertyValues
 lookupProperty env name =
-   lookupWithDefaultFM env (error ("unknow property '" ++ show name ++ "'")) name
+   Map.findWithDefault (error ("unknow property '" ++ show name ++ "'")) name env
 
 buildPropertyEnvironment :: Spec -> PropertyEnvironment
 buildPropertyEnvironment spec_ =
    case noDupReqProps . noDupPropNames . noDupPropValues $ spec_ of
       Spec _ validProps _ ->
-         addListToFM_C (\old _ -> error ("duplicate property name '"++ show old ++ "'"))
-                       emptyFM
-                       [(name,values) | ValidProperty name values <- validProps]
+         Map.fromListWith (\old _ -> error ("duplicate property name '"++ show old ++ "'"))
+                          [(name,values) | ValidProperty name values <- validProps]
 
 noDupReqProps :: Spec -> Spec
 noDupReqProps spec_@(Spec reqProps _ _) =
@@ -505,7 +504,7 @@ expandMetaPropertyValues values = foldl (go values) []
 
 checkRequiredPropsDecl :: PropertyEnvironment -> [PropertyName] -> a -> a
 checkRequiredPropsDecl env reqProps retVal =
-   case [ reqProp | reqProp <- reqProps, not (reqProp `elemFM` env) ] of
+   case [ reqProp | reqProp <- reqProps, not (reqProp `Map.member` env) ] of
       []    -> retVal
       (p:_) -> error ("unknown required property '" ++ show p ++ "'")
 
@@ -547,7 +546,7 @@ mainWithArgs args = do
    input        <- getInput
    preprocInput <- exec "preprocessing" id preprocess input
    spec_        <- exec "parsing" show (parseSpec fileName) preprocInput
-   propEnv      <- exec "building property environment" (unlines . map show . fmToList) buildPropertyEnvironment spec_
+   propEnv      <- exec "building property environment" (unlines . map show . Map.toList) buildPropertyEnvironment spec_
    expandedSpec <- exec "expanding properties" (unlines . map show) (expandMetaProperties propEnv) spec_
    return ()
 
