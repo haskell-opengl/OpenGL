@@ -37,8 +37,8 @@
 
 module Main ( main ) where
 
-import Data.Char          ( isSpace )
-import Data.List          ( isPrefixOf, tails )
+import Data.Char ( isSpace )
+import Data.List ( isPrefixOf, tails )
 import System.Environment ( getArgs )
 
 --------------------------------------------------------------------------------

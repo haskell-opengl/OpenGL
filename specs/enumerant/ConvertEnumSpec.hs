@@ -14,36 +14,18 @@
 
 module Main ( main ) where
 
--- UGLY, UGLY, UGLY! This should really die someday...
-#if __GLASGOW_HASKELL__ >= 504
-import Control.Monad       ( when )
+import Control.Monad ( when )
 import Control.Monad.State ( State, runState, evalState, get, put, modify )
-import Data.Char           ( isUpper, toUpper, isLower, toLower, isDigit,
-                             isHexDigit, isSpace )
-import Data.FiniteMap      ( FiniteMap, emptyFM, addToFM_C, lookupWithDefaultFM )
-import Data.List           ( mapAccumL, isPrefixOf, tails )
-import Data.Set            ( Set, mkSet, addToSet, elementOf )
-import Numeric             ( readHex, showHex )
-import Text.ParserCombinators.Parsec
-                           ( SourceName, Parser, (<|>), (<?>), try, eof, char,
-                             string, many, many1, satisfy, option, parse, sepBy,
-                             spaces )
+import Data.Char (
+   isUpper, toUpper, isLower, toLower, isDigit, isHexDigit, isSpace )
+import Data.FiniteMap ( FiniteMap, emptyFM, addToFM_C, lookupWithDefaultFM )
+import Data.List ( mapAccumL, isPrefixOf, tails )
+import Data.Set ( Set, mkSet, addToSet, elementOf )
+import Numeric ( readHex, showHex )
+import Text.ParserCombinators.Parsec (
+   SourceName, Parser, (<|>), (<?>), try, eof, char, string, many, many1,
+   satisfy, option, parse, sepBy, spaces )
 import System.Environment  ( getArgs )
-#else
-import Monad               ( when )
-import MonadState          ( State, runState, evalState, get, put, modify )
-import Char                ( isUpper, toUpper, isLower, toLower, isDigit,
-                             isHexDigit, isSpace )
-import FiniteMap           ( FiniteMap, emptyFM, addToFM_C, lookupWithDefaultFM )
-import List                ( mapAccumL, isPrefixOf, tails )
-import Set                 ( Set, mkSet, addToSet, elementOf )
-import Numeric             ( readHex )
-import NumExts             ( showHex )
-import Parsec              ( SourceName, Parser, (<|>), (<?>), try, eof, char,
-                             string, many, many1, satisfy, option, parse, sepBy,
-                             spaces )
-import System              ( getArgs )
-#endif
 
 --------------------------------------------------------------------------------
 -- We have two kinds of identifiers, the primary ones are less likely to be
@@ -573,7 +555,7 @@ genMarshaler haskellType (SimpleTypeDefinition t _ eqs) =
       showString "marshal" . shows t . showString " :: " . shows t .
       showString " -> " . showString haskellType . showEOL .
       showString "marshal" . shows t . showString " x = case x of" . showEOL .
-      vcat [ showString "   " . shows i . showString " -> " . showHex n |
+      vcat [ showString "   " . shows i . showString " -> 0x" . showHex n |
              SimpleEquation i (Number n) <- eqs ] .
       showEOL
 
@@ -583,7 +565,7 @@ genUnmarshaler haskellType (SimpleTypeDefinition t _ eqs) =
       showString "unmarshal" . shows t . showString " :: " .
       showString haskellType . showString " -> " . shows t . showEOL .
       showString "unmarshal" . shows t . showString " x" . showEOL .
-      vcat [ showString "   | x == " . showHex n . showString " = " . shows i |
+      vcat [ showString "   | x == 0x" . showHex n . showString " = " . shows i |
              SimpleEquation i (Number n) <- eqs ] .
       showString "   | otherwise = error (\"unmarshal" . shows t .
       showString ": illegal value \" ++ show x)" . showEOL .

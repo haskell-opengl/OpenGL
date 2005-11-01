@@ -1,15 +1,14 @@
 module Main ( main ) where
 
-import Control.Monad      ( when )
-import Data.Char          ( isSpace )
-import Data.FiniteMap     ( FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList,
-                            lookupWithDefaultFM )
-import Data.List          ( isPrefixOf, tails, delete )
+import Control.Monad ( when )
+import Data.Char ( isSpace )
+import Data.FiniteMap (
+   FiniteMap, emptyFM, addListToFM_C, elemFM, fmToList, lookupWithDefaultFM )
+import Data.List ( isPrefixOf, tails, delete )
 import System.Environment ( getArgs )
-import Text.ParserCombinators.Parsec
-                          ( SourceName, Parser, parse, try, eof, oneOf, noneOf,
-                            string, (<|>), (<?>), option, skipMany, many, many1,
-                            sepBy, between, chainl1 )
+import Text.ParserCombinators.Parsec (
+   SourceName, Parser, parse, try, eof, oneOf, noneOf, string, (<|>), (<?>),
+   option, skipMany, many, many1, sepBy, between, chainl1 )
 
 --------------------------------------------------------------------------------
 -- Preprocessing of spec files, making it more amenable to "real" parsing
