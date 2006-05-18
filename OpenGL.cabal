@@ -15,8 +15,6 @@ description:
 	other powerful visualization functions.  For more information
 	about OpenGL, please see: <http://www.opengl.org/>.
 extra-source-files:
-	-- The first three files are not in this directory of the CVS
-	-- repository; copy them from ../..
 	config.guess config.sub install-sh
 	configure.ac configure config.mk.in OpenGL.buildinfo.in
         include/HsOpenGLConfig.h.in include/HsOpenGL.h.in
