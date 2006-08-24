@@ -24,6 +24,8 @@ ALL_DIRS = \
 	Graphics/Rendering/OpenGL/GL/Texturing \
 	Graphics/Rendering/OpenGL/GLU
 
+EXCLUDED_SRCS += Setup.hs
+
 PACKAGE_DEPS = base
 
 SRC_HC_OPTS += -Wall -fffi -Iinclude '-\#include "HsOpenGL.h"' -cpp \
