@@ -107,6 +107,6 @@ other-modules:
 	Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 c-sources:	cbits/HsOpenGL.c
 include-dirs:	include
-includes:	"HsOpenGL.h"
+install-includes: HsOpenGL.h
 build-depends:	base
 extensions:	CPP, ForeignFunctionInterface
