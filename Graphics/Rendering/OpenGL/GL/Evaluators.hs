@@ -49,17 +49,12 @@ import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, plusPtr )
-import Foreign.Storable ( Storable(peek,poke,sizeOf) )
+import Foreign.Storable ( Storable(peek,sizeOf) )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapAutoNormal,CapMap1Color4,CapMap1Index,CapMap1Normal,
-             CapMap1TextureCoord1,CapMap1TextureCoord2,CapMap1TextureCoord3,
-             CapMap1TextureCoord4,CapMap1Vertex3,CapMap1Vertex4,CapMap2Color4,
-             CapMap2Index,CapMap2Normal,CapMap2TextureCoord1,
-             CapMap2TextureCoord2,CapMap2TextureCoord3,CapMap2TextureCoord4,
-             CapMap2Vertex3,CapMap2Vertex4),
-   makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLfloat, GLdouble, Capability )
+   EnableCap(CapAutoNormal), makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.GL.ControlPoint
+import Graphics.Rendering.OpenGL.GL.Domain
+import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, Capability )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek2, peek4 )
 import Graphics.Rendering.OpenGL.GL.PolygonMode ( marshalPolygonMode )
 import Graphics.Rendering.OpenGL.GL.Polygons ( PolygonMode )
@@ -67,14 +62,10 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxEvalOrder,
             GetMap1GridSegments,GetMap1GridDomain,
             GetMap2GridSegments,GetMap2GridDomain),
-   getSizei1, getInteger1, getInteger2, getFloat2, getFloat4, getDouble2,
-   getDouble4 )
+   getSizei1, getInteger1, getInteger2 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( NumComponents, Stride )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Vertex3, Vertex4(..), TexCoord1, TexCoord2, TexCoord3, TexCoord4(..),
-   Normal3(..), Color4(..), Index1(..) )
 
 --------------------------------------------------------------------------------
 
@@ -89,47 +80,6 @@ maxOrder = makeGettableStateVar (getSizei1 id GetMaxEvalOrder)
 
 --------------------------------------------------------------------------------
 
-class Storable d => Domain d where
-   glMap1      :: GLenum -> d -> d -> GLint -> GLint -> Ptr d -> IO ()
-   glMap2      :: GLenum -> d -> d -> GLint -> GLint -> d -> d -> GLint -> GLint -> Ptr d -> IO ()
-   glGetMapv   :: GLenum -> GLenum -> Ptr d -> IO ()
-   evalCoord1  :: d -> IO ()
-   evalCoord1v :: Ptr d -> IO ()
-   evalCoord2  :: (d, d) -> IO ()
-   evalCoord2v :: Ptr d -> IO ()
-   glMapGrid1  :: GLint -> d -> d -> IO ()
-   glMapGrid2  :: GLint -> d -> d -> GLint -> d -> d -> IO ()
-   get2        :: (d -> d -> a) -> GetPName -> IO a
-   get4        :: (d -> d -> d -> d -> a) -> GetPName -> IO a
-
-instance Domain GLfloat_ where
-   glMap1      = glMap1f
-   glMap2      = glMap2f
-   glGetMapv   = glGetMapfv
-   evalCoord1  = glEvalCoord1f
-   evalCoord1v = glEvalCoord1fv
-   evalCoord2  = uncurry glEvalCoord2f
-   evalCoord2v = glEvalCoord2fv
-   glMapGrid1  = glMapGrid1f
-   glMapGrid2  = glMapGrid2f
-   get2        = getFloat2
-   get4        = getFloat4
-
-instance Domain GLdouble_ where
-   glMap1      = glMap1d
-   glMap2      = glMap2d
-   glGetMapv   = glGetMapdv
-   evalCoord1  = glEvalCoord1d
-   evalCoord1v = glEvalCoord1dv
-   evalCoord2  = uncurry glEvalCoord2d
-   evalCoord2v = glEvalCoord2dv
-   glMapGrid1  = glMapGrid1d
-   glMapGrid2  = glMapGrid2d
-   get2        = getDouble2
-   get4        = getDouble4
-
---------------------------------------------------------------------------------
-
 data Domain d => MapDescriptor d =
    MapDescriptor (d, d) Stride Order NumComponents
    deriving ( Eq, Ord, Show )
@@ -141,98 +91,6 @@ totalComponents1 (MapDescriptor _ stride order numComp) =
 totalComponents2 :: Domain d => MapDescriptor d -> MapDescriptor d -> Int
 totalComponents2 uDescriptor vDescriptor@(MapDescriptor _ _ _ numComp) =
    totalComponents1 uDescriptor + totalComponents1 vDescriptor - fromIntegral numComp
-
---------------------------------------------------------------------------------
-
-class ControlPoint c where
-   map1Target       :: Domain d => c d -> MapTarget
-   map2Target       :: Domain d => c d -> MapTarget
-   enableCap1       :: Domain d => c d -> EnableCap
-   enableCap2       :: Domain d => c d -> EnableCap
-   numComponents    :: Domain d => c d -> Stride
-   peekControlPoint :: Domain d => Ptr (c d) -> IO (c d)
-   pokeControlPoint :: Domain d => Ptr (c d) -> (c d) -> IO ()
-
-instance ControlPoint Vertex3 where
-   map1Target       = const Map1Vertex3
-   map2Target       = const Map2Vertex3
-   enableCap1       = const CapMap1Vertex3
-   enableCap2       = const CapMap2Vertex3
-   numComponents    = const 3
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint Vertex4 where
-   map1Target       = const Map1Vertex4
-   map2Target       = const Map2Vertex4
-   enableCap1       = const CapMap1Vertex4
-   enableCap2       = const CapMap2Vertex4
-   numComponents    = const 4
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint Index1 where
-   map1Target       = const Map1Index
-   map2Target       = const Map2Index
-   enableCap1       = const CapMap1Index
-   enableCap2       = const CapMap2Index
-   numComponents    = const 1
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint Color4 where
-   map1Target       = const Map1Color4
-   map2Target       = const Map2Color4
-   enableCap1       = const CapMap1Color4
-   enableCap2       = const CapMap2Color4
-   numComponents    = const 4
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint Normal3 where
-   map1Target       = const Map1Normal
-   map2Target       = const Map2Normal
-   enableCap1       = const CapMap1Normal
-   enableCap2       = const CapMap2Normal
-   numComponents    = const 3
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint TexCoord1 where
-   map1Target       = const Map1TextureCoord1
-   map2Target       = const Map2TextureCoord1
-   enableCap1       = const CapMap1TextureCoord1
-   enableCap2       = const CapMap2TextureCoord1
-   numComponents    = const 1
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint TexCoord2 where
-   map1Target       = const Map1TextureCoord2
-   map2Target       = const Map2TextureCoord2
-   enableCap1       = const CapMap1TextureCoord2
-   enableCap2       = const CapMap2TextureCoord2
-   numComponents    = const 2
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint TexCoord3 where
-   map1Target       = const Map1TextureCoord3
-   map2Target       = const Map2TextureCoord3
-   enableCap1       = const CapMap1TextureCoord3
-   enableCap2       = const CapMap2TextureCoord3
-   numComponents    = const 3
-   peekControlPoint = peek
-   pokeControlPoint = poke
-
-instance ControlPoint TexCoord4 where
-   map1Target       = const Map1TextureCoord4
-   map2Target       = const Map2TextureCoord4
-   enableCap1       = const CapMap1TextureCoord4
-   enableCap2       = const CapMap2TextureCoord4
-   numComponents    = const 4
-   peekControlPoint = peek
-   pokeControlPoint = poke
 
 --------------------------------------------------------------------------------
 
@@ -271,49 +129,6 @@ controlPointPtrs2 uDescriptor vDescriptor ptr =
 
 sizeOfPtr :: Storable a => Ptr a -> Int
 sizeOfPtr = (flip (const sizeOf) :: Storable a => Ptr a -> a -> Int) undefined
-
---------------------------------------------------------------------------------
-
-data MapTarget =
-     Map1Color4
-   | Map1Index
-   | Map1Normal
-   | Map1TextureCoord1
-   | Map1TextureCoord2
-   | Map1TextureCoord3
-   | Map1TextureCoord4
-   | Map1Vertex3
-   | Map1Vertex4
-   | Map2Color4
-   | Map2Index
-   | Map2Normal
-   | Map2TextureCoord1
-   | Map2TextureCoord2
-   | Map2TextureCoord3
-   | Map2TextureCoord4
-   | Map2Vertex3
-   | Map2Vertex4
-
-marshalMapTarget :: MapTarget -> GLenum
-marshalMapTarget x = case x of
-   Map1Color4 -> 0xd90
-   Map1Index -> 0xd91
-   Map1Normal -> 0xd92
-   Map1TextureCoord1 -> 0xd93
-   Map1TextureCoord2 -> 0xd94
-   Map1TextureCoord3 -> 0xd95
-   Map1TextureCoord4 -> 0xd96
-   Map1Vertex3 -> 0xd97
-   Map1Vertex4 -> 0xd98
-   Map2Color4 -> 0xdb0
-   Map2Index -> 0xdb1
-   Map2Normal -> 0xdb2
-   Map2TextureCoord1 -> 0xdb3
-   Map2TextureCoord2 -> 0xdb4
-   Map2TextureCoord3 -> 0xdb5
-   Map2TextureCoord4 -> 0xdb6
-   Map2Vertex3 -> 0xdb7
-   Map2Vertex4 -> 0xdb8
 
 --------------------------------------------------------------------------------
 
@@ -395,7 +210,7 @@ makeMap1StateVar getCap getAct setAct =
 
 getMap1 :: (Map1 m, ControlPoint c, Domain d) => c d -> IO (m c d)
 getMap1 dummyControlPoint = do
-   let target = marshalMapTarget (map1Target dummyControlPoint)
+   let target = map1Target dummyControlPoint
        numComp = fromIntegral (numComponents dummyControlPoint)
    domain <- allocaArray 2 $ \ptr -> do
       glGetMapv target (marshalGetMapQuery Domain) ptr
@@ -409,18 +224,8 @@ getMap1 dummyControlPoint = do
 setMap1 :: (Map1 m, ControlPoint c, Domain d) => c d -> m c d -> IO ()
 setMap1 dummyControlPoint m =
    withMap1 m $ \(MapDescriptor (u1, u2) stride order _) ->
-      glMap1 (marshalMapTarget (map1Target dummyControlPoint)) u1 u2
+      glMap1 (map1Target dummyControlPoint) u1 u2
              (fromIntegral stride) (fromIntegral order)
-
-foreign import CALLCONV unsafe "glMap1f" glMap1f ::
-      GLenum
-   -> GLfloat -> GLfloat -> GLint -> GLint
-   -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glMap1d" glMap1d ::
-      GLenum
-   -> GLdouble -> GLdouble -> GLint -> GLint
-   -> Ptr GLdouble -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -512,7 +317,7 @@ makeMap2StateVar getCap getAct setAct =
 
 getMap2 :: (Map2 m, ControlPoint c, Domain d) => c d -> IO (m c d)
 getMap2 dummyControlPoint = do
-   let target = marshalMapTarget (map2Target dummyControlPoint)
+   let target = map2Target dummyControlPoint
    (uDomain, vDomain) <- allocaArray 4 $ \ptr -> do
       glGetMapv target (marshalGetMapQuery Domain) ptr
       peek4 (\u1 u2 v1 v2 -> ((u1, u2), (v1, v2))) ptr
@@ -529,21 +334,9 @@ setMap2 :: (Map2 m, ControlPoint c, Domain d) => c d -> m c d -> IO ()
 setMap2 dummyControlPoint m =
    withMap2 m $ \(MapDescriptor (u1, u2) uStride uOrder _)
                  (MapDescriptor (v1, v2) vStride vOrder _) ->
-      glMap2 (marshalMapTarget (map2Target dummyControlPoint))
+      glMap2 (map2Target dummyControlPoint)
              u1 u2 (fromIntegral uStride) (fromIntegral uOrder)
              v1 v2 (fromIntegral vStride) (fromIntegral vOrder)
-
-foreign import CALLCONV unsafe "glMap2f" glMap2f ::
-      GLenum
-   -> GLfloat -> GLfloat -> GLint -> GLint
-   -> GLfloat -> GLfloat -> GLint -> GLint
-   -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glMap2d" glMap2d ::
-      GLenum
-   -> GLdouble -> GLdouble -> GLint -> GLint
-   -> GLdouble -> GLdouble -> GLint -> GLint
-   -> Ptr GLdouble -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -560,42 +353,8 @@ marshalGetMapQuery x = case x of
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glGetMapfv" glGetMapfv ::
-   GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glGetMapdv" glGetMapdv ::
-   GLenum -> GLenum -> Ptr GLdouble -> IO ()
-
 foreign import CALLCONV unsafe "glGetMapiv" glGetMapiv ::
    GLenum -> GLenum -> Ptr GLint -> IO ()
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glEvalCoord1f" glEvalCoord1f ::
-   GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glEvalCoord1fv" glEvalCoord1fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glEvalCoord1d" glEvalCoord1d ::
-   GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glEvalCoord1dv" glEvalCoord1dv ::
-   Ptr GLdouble -> IO ()
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glEvalCoord2f" glEvalCoord2f ::
-   GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glEvalCoord2fv" glEvalCoord2fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glEvalCoord2d" glEvalCoord2d ::
-   GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glEvalCoord2dv" glEvalCoord2dv ::
-   Ptr GLdouble -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -607,12 +366,6 @@ mapGrid1 =
           return (n, domain))
       (\(n, (u1, u2)) -> glMapGrid1 n u1 u2)
 
-foreign import CALLCONV unsafe "glMapGrid1f" glMapGrid1f ::
-   GLint -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glMapGrid1d" glMapGrid1d ::
-   GLint -> GLdouble -> GLdouble -> IO ()
-
 mapGrid2 :: Domain d => StateVar ((GLint, (d, d)), (GLint, (d, d)))
 mapGrid2 =
    makeStateVar
@@ -620,12 +373,6 @@ mapGrid2 =
           (u1, u2, v1, v2) <- get4 (,,,) GetMap2GridDomain
           return ((un, (u1, u2)), (vn, (v1, v2))))
       (\((un, (u1, u2)), (vn, (v1, v2))) -> glMapGrid2 un u1 u2 vn v1 v2)
-
-foreign import CALLCONV unsafe "glMapGrid2f" glMapGrid2f ::
-   GLint -> GLfloat -> GLfloat -> GLint -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glMapGrid2d" glMapGrid2d ::
-   GLint -> GLdouble -> GLdouble -> GLint -> GLdouble -> GLdouble -> IO ()
 
 --------------------------------------------------------------------------------
 

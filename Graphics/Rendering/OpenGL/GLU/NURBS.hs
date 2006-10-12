@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.NURBS
--- Copyright   :  (c) Sven Panne 2002-2005
+-- Copyright   :  (c) Sven Panne 2002-2006
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
@@ -13,33 +13,39 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GLU.NURBS (
-   withNURBSObj,
-   withBeginCallback, withVertexCallback, withNormalCallback, withColorCallback,
-   withEndCallback, checkForError,
-   nurbsBeginEndCurve, gluNurbsCurve,
-   nurbsBeginEndSurface, gluNurbsSurface,
-   nurbsBeginEndTrim, gluPwlCurve,
+   NURBSObj, withNURBSObj,
+   NURBSBeginCallback, withNURBSBeginCallback,
+   NURBSVertexCallback, withNURBSVertexCallback,
+   NURBSNormalCallback, withNURBSNormalCallback,
+   NURBSColorCallback, withNURBSColorCallback,
+   NURBSEndCallback, withNURBSEndCallback,
+   checkForNURBSError,
+   nurbsBeginEndCurve, nurbsCurve,
+   nurbsBeginEndSurface, nurbsSurface,
+   TrimmingPoint, nurbsBeginEndTrim, pwlCurve, trimmingCurve,
    NURBSMode(..), setNURBSMode,
-   setCulling,
+   setNURBSCulling,
    SamplingMethod(..), setSamplingMethod,
    loadSamplingMatrices,
-   DisplayMode'(..), setDisplayMode
+   DisplayMode'(..), setDisplayMode'
 ) where
 
 import Control.Monad ( unless )
 import Foreign.Marshal.Array ( withArray )
-import Foreign.Ptr ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
+import Foreign.Ptr ( Ptr, nullPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.Capability ( marshalCapability )
+import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
    Position(..), Size(..), MatrixOrder(ColumnMajor), MatrixComponent, Matrix(..) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket, bracket_ )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3, Normal3, Color4 )
+import Graphics.Rendering.OpenGL.GL.VertexSpec (
+   Vertex2, Vertex3, Normal3, Color4 )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordOutOfMemory )
 
@@ -106,12 +112,12 @@ foreign import CALLCONV safe "gluDeleteNurbsRenderer"
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (begin)
 
-type BeginCallback = PrimitiveMode -> IO ()
+type NURBSBeginCallback = PrimitiveMode -> IO ()
 
 type BeginCallback' = GLenum -> IO ()
 
-withBeginCallback :: NURBSObj -> BeginCallback -> IO a -> IO a
-withBeginCallback nurbsObj beginCallback action =
+withNURBSBeginCallback :: NURBSObj -> NURBSBeginCallback -> IO a -> IO a
+withNURBSBeginCallback nurbsObj beginCallback action =
    bracket (makeBeginCallback (beginCallback . unmarshalPrimitiveMode))
            freeHaskellFunPtr $ \callbackPtr -> do
       setBeginCallback nurbsObj (marshalNURBSCallback Begin) callbackPtr
@@ -126,12 +132,12 @@ foreign import CALLCONV safe "gluNurbsCallback"
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (vertex)
 
-type VertexCallback = Vertex3 GLfloat -> IO ()
+type NURBSVertexCallback = Vertex3 GLfloat -> IO ()
 
 type VertexCallback' = Ptr (Vertex3 GLfloat) -> IO ()
 
-withVertexCallback :: NURBSObj -> VertexCallback -> IO a -> IO a
-withVertexCallback nurbsObj vertexCallback action =
+withNURBSVertexCallback :: NURBSObj -> NURBSVertexCallback -> IO a -> IO a
+withNURBSVertexCallback nurbsObj vertexCallback action =
    bracket (makeVertexCallback (\p -> peek p >>= vertexCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
       setVertexCallback nurbsObj (marshalNURBSCallback Vertex) callbackPtr
@@ -146,12 +152,12 @@ foreign import CALLCONV safe "gluNurbsCallback"
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (normal)
 
-type NormalCallback = Normal3 GLfloat -> IO ()
+type NURBSNormalCallback = Normal3 GLfloat -> IO ()
 
 type NormalCallback' = Ptr (Normal3 GLfloat) -> IO ()
 
-withNormalCallback :: NURBSObj -> NormalCallback -> IO a -> IO a
-withNormalCallback nurbsObj normalCallback action =
+withNURBSNormalCallback :: NURBSObj -> NURBSNormalCallback -> IO a -> IO a
+withNURBSNormalCallback nurbsObj normalCallback action =
    bracket (makeNormalCallback (\p -> peek p >>= normalCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
       setNormalCallback nurbsObj (marshalNURBSCallback Normal) callbackPtr
@@ -166,12 +172,12 @@ foreign import CALLCONV safe "gluNurbsCallback"
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (color)
 
-type ColorCallback = Color4 GLfloat -> IO ()
+type NURBSColorCallback = Color4 GLfloat -> IO ()
 
 type ColorCallback' = Ptr (Color4 GLfloat) -> IO ()
 
-withColorCallback :: NURBSObj -> ColorCallback -> IO a -> IO a
-withColorCallback nurbsObj colorCallback action =
+withNURBSColorCallback :: NURBSObj -> NURBSColorCallback -> IO a -> IO a
+withNURBSColorCallback nurbsObj colorCallback action =
    bracket (makeColorCallback (\p -> peek p >>= colorCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
       setColorCallback nurbsObj (marshalNURBSCallback Color) callbackPtr
@@ -186,20 +192,20 @@ foreign import CALLCONV safe "gluNurbsCallback"
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (end)
 
-type EndCallback = IO ()
+type NURBSEndCallback = IO ()
 
-withEndCallback :: NURBSObj -> EndCallback -> IO a -> IO a
-withEndCallback nurbsObj endCallback action =
+withNURBSEndCallback :: NURBSObj -> NURBSEndCallback -> IO a -> IO a
+withNURBSEndCallback nurbsObj endCallback action =
    bracket (makeEndCallback endCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
       setEndCallback nurbsObj (marshalNURBSCallback End) callbackPtr
       action
 
 foreign import CALLCONV "wrapper" makeEndCallback ::
-   EndCallback -> IO (FunPtr EndCallback)
+   NURBSEndCallback -> IO (FunPtr NURBSEndCallback)
 
 foreign import CALLCONV safe "gluNurbsCallback"
-   setEndCallback :: NURBSObj -> GLenum -> FunPtr EndCallback -> IO ()
+   setEndCallback :: NURBSObj -> GLenum -> FunPtr NURBSEndCallback -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (error)
@@ -219,8 +225,8 @@ foreign import CALLCONV "wrapper" makeErrorCallback ::
 foreign import CALLCONV safe "gluNurbsCallback"
    setErrorCallback :: NURBSObj -> GLenum -> FunPtr ErrorCallback -> IO ()
 
-checkForError :: NURBSObj -> IO a -> IO a
-checkForError nurbsObj = withErrorCallback nurbsObj recordErrorCode
+checkForNURBSError :: NURBSObj -> IO a -> IO a
+checkForNURBSError nurbsObj = withErrorCallback nurbsObj recordErrorCode
 
 --------------------------------------------------------------------------------
 -- chapter 7.3: NURBS Curves
@@ -232,7 +238,13 @@ nurbsBeginEndCurve nurbsObj =
 foreign import CALLCONV safe "gluBeginCurve"
    gluBeginCurve :: NURBSObj -> IO ()
 
--- GLAPI void GLAPIENTRY gluNurbsCurve (GLUnurbs* nurb, GLint knotCount, GLfloat* knots, GLint stride, GLfloat* control, GLint order, GLenum type);
+nurbsCurve :: ControlPoint c => NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr (c GLfloat) -> GLint -> IO ()
+nurbsCurve nurbsObj knotCount knots stride control order =
+   gluNurbsCurve nurbsObj knotCount knots stride (castPtr control) order (map1Target (pseudoPeek control))
+
+pseudoPeek :: Ptr (c GLfloat) -> c GLfloat
+pseudoPeek _ = undefined
+
 foreign import CALLCONV safe "gluNurbsCurve"
    gluNurbsCurve :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLenum -> IO ()
 
@@ -249,7 +261,10 @@ nurbsBeginEndSurface nurbsObj =
 foreign import CALLCONV safe "gluBeginSurface"
    gluBeginSurface :: NURBSObj -> IO ()
 
--- GLAPI void GLAPIENTRY gluNurbsSurface (GLUnurbs* nurb, GLint sKnotCount, GLfloat* sKnots, GLint tKnotCount, GLfloat* tKnots, GLint sStride, GLint tStride, GLfloat* control, GLint sOrder, GLint tOrder, GLenum type);
+nurbsSurface :: ControlPoint c => NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLint -> Ptr (c GLfloat) -> GLint -> GLint -> IO ()
+nurbsSurface nurbsObj sKnotCount sKnots tKnotCount tKnots sStride tStride control sOrder tOrder =
+   gluNurbsSurface nurbsObj sKnotCount sKnots tKnotCount tKnots sStride tStride (castPtr control) sOrder tOrder (map2Target (pseudoPeek control))
+
 foreign import CALLCONV safe "gluNurbsSurface"
    gluNurbsSurface :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLint -> Ptr GLfloat -> GLint -> GLint -> GLenum -> IO ()
 
@@ -258,6 +273,15 @@ foreign import CALLCONV safe "gluEndSurface"
 
 --------------------------------------------------------------------------------
 -- chapter 7.5: Trimming
+
+class TrimmingPoint p where
+   trimmingTarget :: p GLfloat -> GLenum
+
+instance TrimmingPoint Vertex2 where
+   trimmingTarget = marshalNURBSTrim . const Map1Trim2
+
+instance TrimmingPoint Vertex3 where
+   trimmingTarget = marshalNURBSTrim . const Map1Trim3
 
 data NURBSTrim =
      Map1Trim2
@@ -275,9 +299,16 @@ nurbsBeginEndTrim nurbsObj =
 foreign import CALLCONV safe "gluBeginTrim"
    gluBeginTrim :: NURBSObj -> IO ()
 
--- GLAPI void GLAPIENTRY gluPwlCurve (GLUnurbs* nurb, GLint count, GLfloat* data, GLint stride, GLenum type);
+pwlCurve :: TrimmingPoint p => NURBSObj -> GLint -> Ptr (p GLfloat) -> GLint -> IO ()
+pwlCurve nurbsObj count points stride =
+   gluPwlCurve nurbsObj count (castPtr points) stride (trimmingTarget (pseudoPeek points))
+
 foreign import CALLCONV safe "gluPwlCurve"
    gluPwlCurve :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> GLenum -> IO ()
+
+trimmingCurve :: TrimmingPoint c => NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr (c GLfloat) -> GLint -> IO ()
+trimmingCurve nurbsObj knotCount knots stride control order =
+   gluNurbsCurve nurbsObj knotCount knots stride (castPtr control) order (trimmingTarget (pseudoPeek control))
 
 foreign import CALLCONV safe "gluEndTrim"
    gluEndTrim :: NURBSObj -> IO ()
@@ -333,8 +364,8 @@ setNURBSMode nurbsObj = setNURBSProperty nurbsObj NURBSMode . marshalNURBSMode
 
 --------------------------------------------------------------------------------
 
-setCulling :: NURBSObj -> Capability -> IO ()
-setCulling nurbsObj = setNURBSProperty nurbsObj Culling . fromIntegral . marshalCapability
+setNURBSCulling :: NURBSObj -> Capability -> IO ()
+setNURBSCulling nurbsObj = setNURBSProperty nurbsObj Culling . fromIntegral . marshalCapability
 
 --------------------------------------------------------------------------------
 
@@ -430,5 +461,5 @@ marshalDisplayMode' x = case x of
    OutlinePolygon -> 100240
    OutlinePatch -> 100241
 
-setDisplayMode :: NURBSObj -> DisplayMode' -> IO ()
-setDisplayMode nurbsObj = setNURBSProperty nurbsObj DisplayMode' . marshalDisplayMode'
+setDisplayMode' :: NURBSObj -> DisplayMode' -> IO ()
+setDisplayMode' nurbsObj = setNURBSProperty nurbsObj DisplayMode' . marshalDisplayMode'
