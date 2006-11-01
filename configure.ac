@@ -53,6 +53,9 @@ FPTOOLS_CHECK_HTYPE([GLfloat])
 FPTOOLS_CHECK_HTYPE([GLclampf])
 FPTOOLS_CHECK_HTYPE([GLdouble])
 FPTOOLS_CHECK_HTYPE([GLclampd])
+FPTOOLS_CHECK_HTYPE([GLchar])
+FPTOOLS_CHECK_HTYPE([GLintptr])
+FPTOOLS_CHECK_HTYPE([GLsizeiptr])
 
 AC_DEFINE_UNQUOTED([GLU_CFLAGS],
   [`echo '' $GLU_CFLAGS | sed -e 's/-[[^ ]]*/,"&"/g' -e 's/^ *,//'`],

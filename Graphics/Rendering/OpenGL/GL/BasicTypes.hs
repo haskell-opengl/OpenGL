@@ -14,15 +14,10 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLboolean, GLbitfield, GLbyte, GLshort, GLint, GLintptr, GLubyte,
-   GLushort, GLuint, GLsizei, GLsizeiptr, GLfloat, GLclampf, GLdouble, GLclampd,
-   Capability(..)
+   GLboolean, GLbyte, GLubyte, GLchar, GLshort, GLushort, GLint, GLuint,
+   GLsizei, GLenum, GLintptr, GLsizeiptr, GLbitfield, GLfloat, GLclampf,
+   GLdouble, GLclampd, Capability(..)
 ) where
-
---------------------------------------------------------------------------------
-
-import Data.Int
-import Data.Word
 
 --------------------------------------------------------------------------------
 
@@ -30,33 +25,50 @@ import Data.Word
 
 --------------------------------------------------------------------------------
 
--- | Enumerated binary integer value (min. 32 bits)
-type GLenum = HTYPE_GLENUM
+import Data.Int
+import Data.Word
+
+-- If we don't find modern OpenGL headers at configuration time, make some
+-- educated guesses here.
+
+#if !defined(HTYPE_GLCHAR) || !defined(HTYPE_GLINTPTR) || !defined(HTYPE_GLSIZEIPTR)
+import Foreign.C.Types
+#endif
+
+#if !defined(HTYPE_GLCHAR)
+#define HTYPE_GLCHAR CChar
+#endif
+
+#if !defined(HTYPE_GLINTPTR)
+#define HTYPE_GLINTPTR CPtrdiff
+#endif
+
+#if !defined(HTYPE_GLSIZEIPTR)
+#define HTYPE_GLSIZEIPTR CPtrdiff
+#endif
+
+--------------------------------------------------------------------------------
 
 -- | Boolean (min. 1 bit)
 type GLboolean = HTYPE_GLBOOLEAN
 
--- | Bit field (min. 32 bits)
-type GLbitfield = HTYPE_GLBITFIELD
-
 -- | Signed 2\'s complement binary integer (min. 8 bits)
 type GLbyte = HTYPE_GLBYTE
-
--- | Signed 2\'s complement binary integer (min. 16 bits)
-type GLshort = HTYPE_GLSHORT
-
--- | Signed 2\'s complement binary integer (min. 32 bits)
-type GLint = HTYPE_GLINT
-
--- | Signed 2\'s complement binary integer (sufficiently large enough to hold
--- any address)
-type GLintptr = Int32 -- TODO: Use autoconf stuff for this!
 
 -- | Unsigned binary integer (min. 8 bits)
 type GLubyte = HTYPE_GLUBYTE
 
+-- | Characters making up strings
+type GLchar = HTYPE_GLCHAR
+
+-- | Signed 2\'s complement binary integer (min. 16 bits)
+type GLshort = HTYPE_GLSHORT
+
 -- | Unsigned binary integer (min. 16 bits)
 type GLushort = HTYPE_GLUSHORT
+
+-- | Signed 2\'s complement binary integer (min. 32 bits)
+type GLint = HTYPE_GLINT
 
 -- | Unsigned binary integer (min. 32 bits)
 type GLuint = HTYPE_GLUINT
@@ -64,9 +76,19 @@ type GLuint = HTYPE_GLUINT
 -- | Non-negatitve binary integer size (min. 32 bits)
 type GLsizei = HTYPE_GLSIZEI
 
+-- | Enumerated binary integer value (min. 32 bits)
+type GLenum = HTYPE_GLENUM
+
+-- | Signed 2\'s complement binary integer (sufficiently large enough to hold
+-- any address)
+type GLintptr = HTYPE_GLINTPTR
+
 -- | Non-negatitve binary integer size (sufficiently large enough to hold any
 -- address)
-type GLsizeiptr = Int32 -- TODO: Use autoconf stuff for this!
+type GLsizeiptr = HTYPE_GLSIZEIPTR
+
+-- | Bit field (min. 32 bits)
+type GLbitfield = HTYPE_GLBITFIELD
 
 -- | Floating-point value (min. 32 bits)
 type GLfloat = HTYPE_GLFLOAT
