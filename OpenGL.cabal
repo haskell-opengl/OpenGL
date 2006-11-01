@@ -58,6 +58,7 @@ exposed-modules:
 	Graphics.Rendering.OpenGL.GL.Rectangles,
 	Graphics.Rendering.OpenGL.GL.SavingState,
 	Graphics.Rendering.OpenGL.GL.Selection,
+	Graphics.Rendering.OpenGL.GL.Shaders,
 	Graphics.Rendering.OpenGL.GL.StateVar,
 	Graphics.Rendering.OpenGL.GL.StringQueries,
 	Graphics.Rendering.OpenGL.GL.Texturing.Application,

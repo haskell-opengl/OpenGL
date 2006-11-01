@@ -25,6 +25,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Clipping,
    module Graphics.Rendering.OpenGL.GL.RasterPos,
    module Graphics.Rendering.OpenGL.GL.Colors,
+   module Graphics.Rendering.OpenGL.GL.Shaders,
 
    -- * Rasterization
    module Graphics.Rendering.OpenGL.GL.Antialiasing,
