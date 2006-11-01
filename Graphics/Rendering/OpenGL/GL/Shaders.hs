@@ -14,10 +14,14 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders (
-   VertexShader(VertexShader), FragmentShader(FragmentShader), Program(Program)
+   Shader, VertexShader(VertexShader), FragmentShader(FragmentShader),
+   compileShader,
+   Program(Program),
+   attachShader, detachShader, linkProgram, useProgram, validateProgram
 ) where
 
 import Control.Monad ( replicateM, mapM_ )
+import Control.Monad.Fix ( MonadFix(..) )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLchar, GLint, GLuint, GLenum, GLsizei )
@@ -32,43 +36,52 @@ import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 
 --------------------------------------------------------------------------------
 
-data ShaderType =
-     VertexShader'
-   | FragmentShader'
-   deriving ( Eq, Ord, Show )
-
-marshalShaderType :: ShaderType -> GLenum
-marshalShaderType x = case x of
-   VertexShader' -> 0x8B31
-   FragmentShader' -> 0x8B30
+class Shader a where
+   shaderID :: a -> GLuint
+   makeShader :: GLuint -> a
+   shaderType :: a -> GLenum
 
 --------------------------------------------------------------------------------
 
 newtype VertexShader = VertexShader { vertexShaderID :: GLuint }
    deriving ( Eq, Ord, Show )
 
-instance ObjectName VertexShader where
-   genObjectNames = genShaderNames VertexShader' VertexShader
-   deleteObjectNames = deleteShaderNames vertexShaderID
-   isObjectName = isShaderName vertexShaderID
+instance Shader VertexShader where
+   makeShader = VertexShader
+   shaderID = vertexShaderID
+   shaderType = const 0x8B31
 
 newtype FragmentShader = FragmentShader { fragmentShaderID :: GLuint }
    deriving ( Eq, Ord, Show )
 
+instance Shader FragmentShader where
+   makeShader = FragmentShader
+   shaderID = fragmentShaderID
+   shaderType = const 0x8B30
+
+--------------------------------------------------------------------------------
+
+instance ObjectName VertexShader where
+   genObjectNames = genShaderNames
+   deleteObjectNames = deleteShaderNames
+   isObjectName = isShaderName
+
 instance ObjectName FragmentShader where
-   genObjectNames = genShaderNames FragmentShader' FragmentShader
-   deleteObjectNames = deleteShaderNames fragmentShaderID
-   isObjectName = isShaderName fragmentShaderID
+   genObjectNames = genShaderNames
+   deleteObjectNames = deleteShaderNames
+   isObjectName = isShaderName
 
-genShaderNames :: ShaderType -> (GLuint -> a) -> Int -> IO [a]
-genShaderNames shaderType makeShader n =
-   replicateM n . fmap makeShader . glCreateShader . marshalShaderType $ shaderType
+genShaderNames :: Shader a => Int -> IO [a]
+genShaderNames n = replicateM n createShader
 
-deleteShaderNames :: (a -> GLuint) -> [a] -> IO ()
-deleteShaderNames shaderID = mapM_ (glDeleteShader . shaderID)
+createShader :: Shader a => IO a
+createShader = mfix (fmap makeShader . glCreateShader . shaderType)
 
-isShaderName :: (a -> GLuint) -> a -> IO Bool
-isShaderName shaderID = fmap unmarshalGLboolean . glIsShader . shaderID
+deleteShaderNames :: Shader a => [a] -> IO ()
+deleteShaderNames = mapM_ (glDeleteShader . shaderID)
+
+isShaderName :: Shader a => a -> IO Bool
+isShaderName = fmap unmarshalGLboolean . glIsShader . shaderID
 
 EXTENSION_ENTRY("OpenGL 2.0",glCreateShader,GLenum -> IO GLuint)
 EXTENSION_ENTRY("OpenGL 2.0",glDeleteShader,GLuint -> IO ())
@@ -76,7 +89,11 @@ EXTENSION_ENTRY("OpenGL 2.0",glIsShader,GLuint -> IO GLboolean)
 
 --------------------------------------------------------------------------------
 
+compileShader :: Shader a => a -> IO ()
+compileShader = glCompileShader . shaderID
+
 EXTENSION_ENTRY("OpenGL 2.0",glCompileShader,GLuint -> IO ())
+
 EXTENSION_ENTRY("OpenGL 2.0",glShaderSource,GLuint -> GLsizei -> Ptr (Ptr GLchar) -> Ptr GLint -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glGetShaderSource,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glGetShaderInfoLog,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
@@ -98,14 +115,34 @@ EXTENSION_ENTRY("OpenGL 2.0",glIsProgram,GLuint -> IO GLboolean)
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glAttachShader,GLuint -> GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glDetachShader,GLuint -> GLuint -> IO ())
+attachShader :: Shader a => Program -> a -> IO ()
+attachShader program = glAttachShader program . shaderID
+
+EXTENSION_ENTRY("OpenGL 2.0",glAttachShader,Program -> GLuint -> IO ())
+
+detachShader :: Shader a => Program -> a -> IO ()
+detachShader program = glAttachShader program . shaderID
+
+EXTENSION_ENTRY("OpenGL 2.0",glDetachShader,Program -> GLuint -> IO ())
+
 EXTENSION_ENTRY("OpenGL 2.0",glGetAttachedShaders,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glLinkProgram,GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUseProgram,GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glValidateProgram,GLuint -> IO ())
+linkProgram :: Program -> IO ()
+linkProgram = glLinkProgram
+
+EXTENSION_ENTRY("OpenGL 2.0",glLinkProgram,Program -> IO ())
+
+useProgram :: Program -> IO ()
+useProgram = glUseProgram
+
+EXTENSION_ENTRY("OpenGL 2.0",glUseProgram,Program -> IO ())
+
+validateProgram :: Program -> IO ()
+validateProgram = glValidateProgram
+
+EXTENSION_ENTRY("OpenGL 2.0",glValidateProgram,Program -> IO ())
+
 EXTENSION_ENTRY("OpenGL 2.0",glGetProgramInfoLog,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glGetProgramiv,GLuint -> GLenum -> Ptr GLint -> IO ())
