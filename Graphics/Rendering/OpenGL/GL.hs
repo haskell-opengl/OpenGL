@@ -67,6 +67,7 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Clipping
 import Graphics.Rendering.OpenGL.GL.RasterPos
 import Graphics.Rendering.OpenGL.GL.Colors
+import Graphics.Rendering.OpenGL.GL.Shaders
 
 import Graphics.Rendering.OpenGL.GL.Antialiasing
 import Graphics.Rendering.OpenGL.GL.Points
