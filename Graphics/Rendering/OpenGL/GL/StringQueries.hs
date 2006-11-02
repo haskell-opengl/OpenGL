@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.StringQueries (
-   vendor, renderer, glVersion, glExtensions
+   vendor, renderer, glVersion, glExtensions, shadingLanguageVersion
 ) where
 
 import Foreign.C.String ( peekCString )
@@ -37,6 +37,9 @@ glVersion = makeGettableStateVar (getString Version)
 glExtensions :: GettableStateVar [String]
 glExtensions = makeGettableStateVar (fmap words $ getString Extensions)
 
+shadingLanguageVersion :: GettableStateVar String
+shadingLanguageVersion = makeGettableStateVar (getString ShadingLanguageVersion)
+
 --------------------------------------------------------------------------------
 
 data StringName =
@@ -44,7 +47,7 @@ data StringName =
    | Renderer
    | Version
    | Extensions
-   deriving ( Eq, Ord, Show )
+   | ShadingLanguageVersion
 
 marshalStringName :: StringName -> GLenum
 marshalStringName x = case x of
@@ -52,6 +55,7 @@ marshalStringName x = case x of
    Renderer -> 0x1f01
    Version -> 0x1f02
    Extensions -> 0x1f03
+   ShadingLanguageVersion -> 0x8b8c
 
 --------------------------------------------------------------------------------
 

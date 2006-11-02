@@ -428,6 +428,16 @@ data GetPName =
    | GetTextureBindingRectangle
    | GetCurrentMatrix
    | GetCurrentMatrixStackDepth
+   | GetMaxCombinedTextureImageUnits
+   | GetMaxDrawBuffers
+   | GetMaxFragmentUniformComponents
+   | GetMaxTextureCoords
+   | GetMaxTextureImageUnits
+   | GetMaxVaryingFloats
+   | GetMaxVertexAttribs
+   | GetMaxVertexTextureImageUnits
+   | GetMaxVertexUniformComponents
+   | GetCurrentProgram
    -- GetWeightArrayBufferBinding
    -- GetVertexAttribArrayBufferBinding
 
@@ -826,6 +836,16 @@ marshalGetPName x = case x of
    GetTextureBindingRectangle -> Just 0x84f6
    GetCurrentMatrix -> Just 0x8641
    GetCurrentMatrixStackDepth -> Just 0x8640
+   GetMaxCombinedTextureImageUnits -> Just 0x8b4d
+   GetMaxDrawBuffers -> Just 0x8824
+   GetMaxFragmentUniformComponents -> Just 0x8b49
+   GetMaxTextureCoords -> Just 0x8871
+   GetMaxTextureImageUnits -> Just 0x8872
+   GetMaxVaryingFloats -> Just 0x8b4b
+   GetMaxVertexAttribs -> Just 0x8869
+   GetMaxVertexTextureImageUnits -> Just 0x8b4c
+   GetMaxVertexUniformComponents -> Just 0x8b4a
+   GetCurrentProgram -> Just 0x8b8d
    -- GetWeightArrayBufferBinding -> Just 0x889e
    -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 
