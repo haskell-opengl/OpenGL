@@ -14,11 +14,17 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders (
+   -- * Shader Objects
    Shader, VertexShader, FragmentShader,
-   compileShader, shaderSource, shaderInfoLog, shaderDeleteStatus, compileStatus,
+   shaderDeleteStatus, shaderSource, compileShader, compileStatus, shaderInfoLog,
+
+   -- * Program Objects
    Program,
-   attachShader, detachShader, linkProgram, currentProgram, validateProgram,
-   programInfoLog, programDeleteStatus, linkStatus, validateStatus,
+   programDeleteStatus, attachShader, detachShader, attachedShaders,
+   linkProgram, linkStatus, programInfoLog, validateProgram, validateStatus,
+   currentProgram,
+
+   -- * Implementation limits related to GLSL
    maxCombinedTextureImageUnits, maxDrawBuffers, maxFragmentUniformComponents,
    maxTextureCoords, maxTextureImageUnits, maxVaryingFloats, maxVertexAttribs,
    maxVertexTextureImageUnits, maxVertexUniformComponents
@@ -26,8 +32,12 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 
 import Control.Monad ( replicateM, mapM_ )
 import Control.Monad.Fix ( MonadFix(..) )
+import Data.List ( genericLength )
+import Foreign.C.String ( peekCAStringLen, withCAStringLen )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr )
+import Foreign.Marshal.Array ( allocaArray, withArray )
+import Foreign.Marshal.Utils ( withMany )
+import Foreign.Ptr ( Ptr, castPtr, nullPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLchar, GLint, GLuint, GLenum, GLsizei )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
@@ -39,8 +49,9 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxCombinedTextureImageUnits,GetMaxDrawBuffers,
             GetMaxFragmentUniformComponents,GetMaxTextureCoords,
             GetMaxTextureImageUnits,GetMaxVaryingFloats,GetMaxVertexAttribs,
-            GetMaxVertexTextureImageUnits,GetMaxVertexUniformComponents),
-   getSizei1 )
+            GetMaxVertexTextureImageUnits,GetMaxVertexUniformComponents,
+            GetCurrentProgram),
+   getInteger1, getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar, StateVar,
    makeStateVar )
@@ -51,23 +62,35 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 
 --------------------------------------------------------------------------------
 
-class Shader s where
-   shaderID :: s -> GLuint
-   makeShader :: GLuint -> s
-   shaderType :: s -> GLenum
+type GLStringLen = (Ptr GLchar, GLsizei)
+
+peekGLstringLen :: GLStringLen -> IO String
+peekGLstringLen (p,l) = peekCAStringLen (castPtr p, fromIntegral l)
+
+withGLStringLen :: String -> (GLStringLen -> IO a) -> IO a
+withGLStringLen s act =
+   withCAStringLen s $ \(p,len) ->
+      act (castPtr p, fromIntegral len)
 
 --------------------------------------------------------------------------------
 
 newtype VertexShader = VertexShader { vertexShaderID :: GLuint }
    deriving ( Eq, Ord, Show )
 
+newtype FragmentShader = FragmentShader { fragmentShaderID :: GLuint }
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+class Shader s where
+   shaderID :: s -> GLuint
+   makeShader :: GLuint -> s
+   shaderType :: s -> GLenum
+
 instance Shader VertexShader where
    makeShader = VertexShader
    shaderID = vertexShaderID
    shaderType = const 0x8B31
-
-newtype FragmentShader = FragmentShader { fragmentShaderID :: GLuint }
-   deriving ( Eq, Ord, Show )
 
 instance Shader FragmentShader where
    makeShader = FragmentShader
@@ -112,34 +135,51 @@ EXTENSION_ENTRY("OpenGL 2.0",glCompileShader,GLuint -> IO ())
 --------------------------------------------------------------------------------
 
 shaderSource :: Shader s => s -> StateVar [String]
-shaderSource _ = makeStateVar undefined undefined
+shaderSource s = makeStateVar (getShaderSource s) (setShaderSource s)
+
+setShaderSource :: Shader s => s -> [String] -> IO ()
+setShaderSource s srcs = do
+   let len = genericLength srcs
+   withMany withGLStringLen srcs $ \charBufsAndLengths -> do
+      let (charBufs, lengths) = unzip charBufsAndLengths
+      withArray charBufs $ \charBufsBuf ->
+         withArray lengths $ \lengthsBuf ->
+            glShaderSource (shaderID s) len charBufsBuf lengthsBuf
 
 EXTENSION_ENTRY("OpenGL 2.0",glShaderSource,GLuint -> GLsizei -> Ptr (Ptr GLchar) -> Ptr GLint -> IO ())
+
+getShaderSource :: Shader s => s -> IO [String]
+getShaderSource s = do
+   src <- getString (get (shaderVar fromIntegral ShaderSourceLength s))
+                    (glGetShaderSource (shaderID s))
+   return [src]
+
 EXTENSION_ENTRY("OpenGL 2.0",glGetShaderSource,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
+
+getString :: IO GLsizei -> (GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ()) -> IO String
+getString getLength getStr = do
+   len <- getLength
+   allocaArray (fromIntegral len) $ \buf -> do
+      getStr len nullPtr buf
+      peekGLstringLen (buf, len)
 
 --------------------------------------------------------------------------------
 
 shaderInfoLog :: Shader s => s -> GettableStateVar String
-shaderInfoLog s = getInfoLog (glGetShaderInfoLog (shaderID s)) (get (shaderInfoLogLength s))
+shaderInfoLog s =
+   makeGettableStateVar $
+      getString (get (shaderVar fromIntegral ShaderInfoLogLength s))
+                (glGetShaderInfoLog (shaderID s))
 
 EXTENSION_ENTRY("OpenGL 2.0",glGetShaderInfoLog,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
-
-getInfoLog :: (GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ()) -> (IO GLsizei) -> GettableStateVar String
-getInfoLog _ _ = makeGettableStateVar undefined
 
 --------------------------------------------------------------------------------
 
 shaderDeleteStatus :: Shader s => s -> GettableStateVar Bool
-shaderDeleteStatus = getShaderb ShaderDeleteStatus
+shaderDeleteStatus = shaderVar unmarshalGLboolean ShaderDeleteStatus
 
 compileStatus :: Shader s => s -> GettableStateVar Bool
-compileStatus = getShaderb CompileStatus
-
-shaderInfoLogLength :: Shader s => s -> GettableStateVar GLint
-shaderInfoLogLength = getShaderi ShaderInfoLogLength
-
-shaderSourceLength :: Shader s => s -> GettableStateVar GLint
-shaderSourceLength = getShaderi ShaderSourceLength
+compileStatus = shaderVar unmarshalGLboolean CompileStatus
 
 --------------------------------------------------------------------------------
 
@@ -156,17 +196,12 @@ marshalGetShaderPName x = case x of
    ShaderInfoLogLength -> 0x8B84
    ShaderSourceLength -> 0x8B88
 
-getShaderi :: Shader s => GetShaderPName -> s -> GettableStateVar GLint
-getShaderi p = makeGettableStateVar . getShader id p
-
-getShaderb :: Shader s => GetShaderPName -> s -> GettableStateVar Bool
-getShaderb p = makeGettableStateVar . getShader unmarshalGLboolean p
-
-getShader :: Shader s => (GLint -> a) -> GetShaderPName -> s -> IO a
-getShader f p shader =
-   alloca $ \buf -> do
-      glGetShaderiv (shaderID shader) (marshalGetShaderPName p) buf
-      peek1 f buf
+shaderVar :: Shader s => (GLint -> a) -> GetShaderPName -> s -> GettableStateVar a
+shaderVar f p shader =
+   makeGettableStateVar $
+      alloca $ \buf -> do
+         glGetShaderiv (shaderID shader) (marshalGetShaderPName p) buf
+         peek1 f buf
 
 EXTENSION_ENTRY("OpenGL 2.0",glGetShaderiv,GLuint -> GLenum -> Ptr GLint -> IO ())
 
@@ -192,9 +227,15 @@ attachShader program = glAttachShader program . shaderID
 EXTENSION_ENTRY("OpenGL 2.0",glAttachShader,Program -> GLuint -> IO ())
 
 detachShader :: Shader s => Program -> s -> IO ()
-detachShader program = glAttachShader program . shaderID
+detachShader program = glDetachShader program . shaderID
 
 EXTENSION_ENTRY("OpenGL 2.0",glDetachShader,Program -> GLuint -> IO ())
+
+attachedShaders :: Program -> GettableStateVar ([VertexShader],[FragmentShader])
+attachedShaders p =
+   makeGettableStateVar $ do
+      glGetAttachedShaders (programID p) 0 nullPtr nullPtr -- ToDo!!!
+      return ([],[])
 
 EXTENSION_ENTRY("OpenGL 2.0",glGetAttachedShaders,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLuint -> IO ())
 
@@ -206,7 +247,11 @@ linkProgram = glLinkProgram
 EXTENSION_ENTRY("OpenGL 2.0",glLinkProgram,Program -> IO ())
 
 currentProgram :: StateVar (Maybe Program)
-currentProgram = makeStateVar undefined undefined
+currentProgram =
+   makeStateVar
+      (do p <- getInteger1 fromIntegral GetCurrentProgram
+          return (if p == 0 then Nothing else Just (Program p)))
+      (glUseProgram . maybe (Program 0) id)
 
 EXTENSION_ENTRY("OpenGL 2.0",glUseProgram,Program -> IO ())
 
@@ -216,20 +261,23 @@ validateProgram = glValidateProgram
 EXTENSION_ENTRY("OpenGL 2.0",glValidateProgram,Program -> IO ())
 
 programInfoLog :: Program -> GettableStateVar String
-programInfoLog p = getInfoLog (glGetProgramInfoLog (programID p)) (get (getProgrami ProgramInfoLogLength p))
+programInfoLog p =
+   makeGettableStateVar $
+      getString (get (programVar id ProgramInfoLogLength p))
+                (glGetProgramInfoLog (programID p))
 
 EXTENSION_ENTRY("OpenGL 2.0",glGetProgramInfoLog,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
 
 --------------------------------------------------------------------------------
 
 programDeleteStatus :: Program -> GettableStateVar Bool
-programDeleteStatus = getProgramb ProgramDeleteStatus
+programDeleteStatus = programVar unmarshalGLboolean ProgramDeleteStatus
 
 linkStatus :: Program -> GettableStateVar Bool
-linkStatus = getProgramb LinkStatus
+linkStatus = programVar unmarshalGLboolean LinkStatus
 
 validateStatus :: Program -> GettableStateVar Bool
-validateStatus = getProgramb ValidateStatus
+validateStatus = programVar unmarshalGLboolean ValidateStatus
 
 --------------------------------------------------------------------------------
 
@@ -256,17 +304,12 @@ marshalGetProgramPName x = case x of
    ActiveUniforms -> 0x8B86
    ActiveUniformMaxLength -> 0x8B87
 
-getProgrami :: GetProgramPName -> Program -> GettableStateVar GLint
-getProgrami p = makeGettableStateVar . getProgram id p
-
-getProgramb :: GetProgramPName -> Program -> GettableStateVar Bool
-getProgramb p = makeGettableStateVar . getProgram unmarshalGLboolean p
-
-getProgram :: (GLint -> a) -> GetProgramPName -> Program -> IO a
-getProgram f p program =
-   alloca $ \buf -> do
-      glGetProgramiv (programID program) (marshalGetProgramPName p) buf
-      peek1 f buf
+programVar :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
+programVar f p program =
+   makeGettableStateVar $
+      alloca $ \buf -> do
+         glGetProgramiv (programID program) (marshalGetProgramPName p) buf
+         peek1 f buf
 
 EXTENSION_ENTRY("OpenGL 2.0",glGetProgramiv,GLuint -> GLenum -> Ptr GLint -> IO ())
 
