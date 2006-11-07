@@ -23,9 +23,10 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    programInfoLog, validateProgram, validateStatus, currentProgram,
 
    -- * Implementation limits related to GLSL
-   maxCombinedTextureImageUnits, maxDrawBuffers, maxFragmentUniformComponents,
-   maxTextureCoords, maxTextureImageUnits, maxVaryingFloats, maxVertexAttribs,
-   maxVertexTextureImageUnits, maxVertexUniformComponents
+   maxVertexTextureImageUnits, maxTextureImageUnits,
+   maxCombinedTextureImageUnits, maxTextureCoords, maxDrawBuffers,
+   maxVertexUniformComponents, maxFragmentUniformComponents, maxVertexAttribs,
+   maxVaryingFloats
 ) where
 
 import Control.Monad ( replicateM, mapM_, foldM )
@@ -358,32 +359,66 @@ EXTENSION_ENTRY("OpenGL 2.0",glGetProgramiv,GLuint -> GLenum -> Ptr GLint -> IO 
 
 --------------------------------------------------------------------------------
 
-maxCombinedTextureImageUnits :: GettableStateVar GLint
-maxCombinedTextureImageUnits = getLimit GetMaxCombinedTextureImageUnits
-
-maxDrawBuffers :: GettableStateVar GLint
-maxDrawBuffers = getLimit GetMaxDrawBuffers
-
-maxFragmentUniformComponents :: GettableStateVar GLint
-maxFragmentUniformComponents = getLimit GetMaxFragmentUniformComponents
-
-maxTextureCoords :: GettableStateVar GLint
-maxTextureCoords = getLimit GetMaxTextureCoords
-
-maxTextureImageUnits :: GettableStateVar GLint
-maxTextureImageUnits = getLimit GetMaxTextureImageUnits
-
-maxVaryingFloats :: GettableStateVar GLint
-maxVaryingFloats = getLimit GetMaxVaryingFloats
-
-maxVertexAttribs :: GettableStateVar GLint
-maxVertexAttribs = getLimit GetMaxVertexAttribs
+-- | Contains the number of hardware units that can be used to access texture
+-- maps from the vertex processor. The minimum legal value is 0.
 
 maxVertexTextureImageUnits :: GettableStateVar GLint
 maxVertexTextureImageUnits = getLimit GetMaxVertexTextureImageUnits
 
+-- | Contains the total number of hardware units that can be used to access
+-- texture maps from the fragment processor. The minimum legal value is 2.
+
+maxTextureImageUnits :: GettableStateVar GLint
+maxTextureImageUnits = getLimit GetMaxTextureImageUnits
+
+-- | Contains the total number of hardware units that can be used to access
+-- texture maps from the vertex processor and the fragment processor combined.
+-- Note: If the vertex shader and the fragment processing stage access the same
+-- texture image unit, then that counts as using two texture image units. The
+-- minimum legal value is 2.
+
+maxCombinedTextureImageUnits :: GettableStateVar GLint
+maxCombinedTextureImageUnits = getLimit GetMaxCombinedTextureImageUnits
+
+-- | Contains the number of texture coordinate sets that are available. The
+-- minimum legal value is 2.
+
+maxTextureCoords :: GettableStateVar GLint
+maxTextureCoords = getLimit GetMaxTextureCoords
+
+-- | Contains the maximum number of buffers that can activated via 'drawBuffers'
+-- or which can be simultaneously written into from within a fragment shader
+-- using the special output variable array @gl_FragData@. This constant
+-- effectively defines the size of the @gl_FragData@ array. The minimum legal
+-- value is 1.
+
+maxDrawBuffers :: GettableStateVar GLint
+maxDrawBuffers = getLimit GetMaxDrawBuffers
+
+-- | Contains the number of individual components (i.e., floating-point, integer
+-- or boolean values) that are available for vertex shader uniform variables.
+-- The minimum legal value is 512.
 maxVertexUniformComponents :: GettableStateVar GLint
 maxVertexUniformComponents = getLimit GetMaxVertexUniformComponents
+
+-- | Contains the number of individual components (i.e., floating-point, integer
+-- or boolean values) that are available for fragment shader uniform variables.
+-- The minimum legal value is 64.
+
+maxFragmentUniformComponents :: GettableStateVar GLint
+maxFragmentUniformComponents = getLimit GetMaxFragmentUniformComponents
+
+-- | Contains the number of active vertex attributes that are available. The
+-- minimum legal value is 16.
+
+maxVertexAttribs :: GettableStateVar GLint
+maxVertexAttribs = getLimit GetMaxVertexAttribs
+
+-- | Contains the number of individual floating-point values available for
+-- varying variables. The minimum legal value is 32.
+
+maxVaryingFloats :: GettableStateVar GLint
+maxVaryingFloats = getLimit GetMaxVaryingFloats
 
 getLimit :: GetPName -> GettableStateVar GLsizei
 getLimit = makeGettableStateVar . getSizei1 id
