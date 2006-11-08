@@ -19,10 +19,10 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
    rgbaBits, stencilBits, depthBits, accumBits,
 
    -- * Selecting a Buffer for Writing
-   BufferMode(..), drawBuffer,
+   BufferMode(..), drawBuffer, drawBuffers, maxDrawBuffers,
 
    -- * Fine Control of Buffer Updates
-   indexMask, colorMask, stencilMask, depthMask,
+   indexMask, colorMask, stencilMask, stencilMaskSeparate, depthMask,
 
    -- * Clearing the Buffers
    ClearBuffer(..), clear,
@@ -33,6 +33,9 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
 ) where
 
 import Control.Monad ( liftM4 )
+import Data.List ( genericLength )
+import Foreign.Marshal.Array ( withArray )
+import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BufferMode (
    BufferMode(..), marshalBufferMode, unmarshalBufferMode )
 import Graphics.Rendering.OpenGL.GL.Capability (
@@ -46,6 +49,9 @@ import Graphics.Rendering.OpenGL.GL.BasicTypes (
    Capability
 #endif
    )
+import Graphics.Rendering.OpenGL.GL.Extensions (
+   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.Face ( Face, marshalFace )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,
@@ -54,14 +60,20 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetAccumAlphaBits,GetDrawBuffer,GetIndexWritemask,GetColorWritemask,
             GetDepthWritemask,GetStencilWritemask,GetColorClearValue,
             GetIndexClearValue,GetDepthClearValue,GetStencilClearValue,
-            GetAccumClearValue),
+            GetAccumClearValue,GetMaxDrawBuffers),
    getInteger1, getBoolean1, getBoolean4, getEnum1, getSizei1, getFloat1,
    getFloat4, getDouble1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+   GettableStateVar, makeGettableStateVar,
+   SettableStateVar, makeSettableStateVar,
+   StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(Color4), Index1(Index1) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
+
+--------------------------------------------------------------------------------
+
+#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -129,6 +141,48 @@ drawBuffer =
 
 foreign import CALLCONV unsafe "glDrawBuffer" glDrawBuffer ::
    GLenum -> IO ()
+
+-- | 'drawBuffers' defines the draw buffers to which all fragment colors are
+-- written. The draw buffers being defined correspond in order to the respective
+-- fragment colors. The draw buffer for fragment colors beyond those specified
+-- is set to 'NoBuffers'.
+--
+-- Except for 'NoBuffers', a buffer may not appear more then once in the given
+-- list. Specifying a buffer more then once will result in an
+-- 'Graphics.Rendering.OpenGL.GLU.Errors.InvalidOperation'.
+--
+-- If fixed-function fragment shading is being performed, 'drawBuffers'
+-- specifies a set of draw buffers into which the fragment color is written.
+--
+-- If a fragment shader writes to @gl_FragColor@, 'drawBuffers' specifies a set
+-- of draw buffers into which the single fragment color defined by
+-- @gl_FragColor@ is written. If a fragment shader writes to @gl_FragData@,
+-- 'drawBuffers' specifies a set of draw buffers into which each of the multiple
+-- fragment colors defined by @gl_FragData@ are separately written. If a
+-- fragment shader writes to neither @gl_FragColor@ nor @gl_FragData@, the
+-- values of the fragment colors following shader execution are undefined, and
+-- may differ for each fragment color.
+
+drawBuffers :: SettableStateVar [BufferMode]
+drawBuffers =
+   makeSettableStateVar $ \modes -> do
+      let ms = map marshalBufferMode modes
+          ok = [ x | Just x <- ms ]
+      if null [ () | Nothing <- ms ]
+         then withArray ok $
+                 glDrawBuffers (genericLength ok)
+         else recordInvalidValue
+
+EXTENSION_ENTRY("GL_ARB_draw_buffers or OpenGL 2.0",glDrawBuffers,GLsizei -> Ptr GLenum -> IO ())
+
+-- | Contains the maximum number of buffers that can activated via 'drawBuffers'
+-- or which can be simultaneously written into from within a fragment shader
+-- using the special output variable array @gl_FragData@. This constant
+-- effectively defines the size of the @gl_FragData@ array. The minimum legal
+-- value is 1.
+
+maxDrawBuffers :: GettableStateVar GLint
+maxDrawBuffers = makeGettableStateVar $ getSizei1 id GetMaxDrawBuffers
 
 --------------------------------------------------------------------------------
 
@@ -201,6 +255,13 @@ stencilMask =
    makeStateVar (getInteger1 fromIntegral GetStencilWritemask) glStencilMask
 
 foreign import CALLCONV unsafe "glStencilMask" glStencilMask :: GLuint -> IO ()
+
+stencilMaskSeparate :: Face -> SettableStateVar GLuint
+stencilMaskSeparate face =
+   makeSettableStateVar $
+      glStencilMaskSeparate (marshalFace face)
+
+EXTENSION_ENTRY("OpenGL 2.0",glStencilMaskSeparate,GLenum -> GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 

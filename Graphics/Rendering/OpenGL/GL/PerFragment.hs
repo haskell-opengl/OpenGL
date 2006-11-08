@@ -27,7 +27,8 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    ComparisonFunction(..), alphaFunc,
 
    -- * Stencil Test
-   stencilTest, stencilFunc, StencilOp(..), stencilOp, activeStencilFace,
+   stencilTest, stencilFunc, stencilFuncSeparate, StencilOp(..), stencilOp,
+   stencilOpSeparate, activeStencilFace,
 
    -- * Depth Buffer Test
    depthFunc,
@@ -38,7 +39,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    queryResult, queryResultAvailable,
 
    -- * Blending
-   blend, BlendEquation(..), blendEquation,
+   blend, BlendEquation(..), blendEquation, blendEquationSeparate,
    BlendingFactor(..), blendFuncSeparate, blendFunc, blendColor,
 
    -- * Dithering
@@ -79,13 +80,15 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetDepthBounds,GetAlphaTestFunc,GetAlphaTestRef,GetStencilFunc,
             GetStencilRef,GetStencilValueMask,GetStencilFail,
             GetStencilPassDepthFail,GetStencilPassDepthPass,
-            GetActiveStencilFace,GetDepthFunc,GetBlendEquation,GetBlendDstRGB,
-            GetBlendSrcRGB,GetBlendDstAlpha,GetBlendSrcAlpha,GetBlendSrc,
-            GetBlendDst,GetBlendColor,GetLogicOpMode),
+            GetActiveStencilFace,GetDepthFunc,GetBlendEquation,
+            GetBlendEquationAlpha,GetBlendDstRGB,GetBlendSrcRGB,
+            GetBlendDstAlpha,GetBlendSrcAlpha,GetBlendSrc,GetBlendDst,
+            GetBlendColor,GetLogicOpMode),
    getInteger1, getInteger4, getEnum1, getFloat1, getFloat4, getDouble2,
    getBoolean1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar,
+   SettableStateVar, makeSettableStateVar,
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), rgbaMode )
 
@@ -167,6 +170,13 @@ stencilFunc =
 foreign import CALLCONV unsafe "glStencilFunc" glStencilFunc ::
    GLenum -> GLint -> GLuint -> IO ()
 
+stencilFuncSeparate :: Face -> SettableStateVar (ComparisonFunction, GLint, GLuint)
+stencilFuncSeparate face =
+   makeSettableStateVar $ \(func, ref, mask) ->
+      glStencilFuncSeparate (marshalFace face) (marshalComparisonFunction func) ref mask
+
+EXTENSION_ENTRY("OpenGL 2.0",glStencilFuncSeparate,GLenum -> GLenum -> GLint -> GLuint -> IO ())
+
 --------------------------------------------------------------------------------
 
 data StencilOp =
@@ -217,6 +227,16 @@ stencilOp =
 
 foreign import CALLCONV unsafe "glStencilOp" glStencilOp ::
    GLenum -> GLenum -> GLenum -> IO ()
+
+stencilOpSeparate :: Face -> SettableStateVar (StencilOp, StencilOp, StencilOp)
+stencilOpSeparate face =
+   makeSettableStateVar $ \(sf, spdf, spdp) ->
+      glStencilOpSeparate (marshalFace face)
+                          (marshalStencilOp sf)
+                          (marshalStencilOp spdf)
+                          (marshalStencilOp spdp)
+
+EXTENSION_ENTRY("OpenGL 2.0",glStencilOpSeparate,GLenum -> GLenum -> GLenum -> GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -395,6 +415,17 @@ blendEquation =
       (glBlendEquationEXT . marshalBlendEquation)
 
 EXTENSION_ENTRY("GL_EXT_blend_minmax or GL_EXT_blend_subtract or OpenGL 1.4",glBlendEquationEXT,GLenum -> IO ())
+
+blendEquationSeparate :: StateVar (BlendEquation,BlendEquation)
+blendEquationSeparate =
+   makeStateVar
+      (liftM2 (,) (getEnum1 unmarshalBlendEquation GetBlendEquation)
+                  (getEnum1 unmarshalBlendEquation GetBlendEquationAlpha))
+      (\(funcRGB, funcAlpha) ->
+          glBlendEquationSeparate (marshalBlendEquation funcRGB)
+                                  (marshalBlendEquation funcAlpha))
+
+EXTENSION_ENTRY("GL_EXT_blend_equation_separate or OpenGL 2.0",glBlendEquationSeparate,GLenum -> GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 

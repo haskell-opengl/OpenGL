@@ -24,9 +24,8 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 
    -- * Implementation limits related to GLSL
    maxVertexTextureImageUnits, maxTextureImageUnits,
-   maxCombinedTextureImageUnits, maxTextureCoords, maxDrawBuffers,
-   maxVertexUniformComponents, maxFragmentUniformComponents, maxVertexAttribs,
-   maxVaryingFloats
+   maxCombinedTextureImageUnits, maxTextureCoords, maxVertexUniformComponents,
+   maxFragmentUniformComponents, maxVertexAttribs, maxVaryingFloats
 ) where
 
 import Control.Monad ( replicateM, mapM_, foldM )
@@ -38,18 +37,18 @@ import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
 import Foreign.Marshal.Utils ( withMany )
 import Foreign.Ptr ( Ptr, castPtr, nullPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLchar, GLint, GLuint, GLenum, GLsizei )
+   GLboolean, GLbyte, GLubyte, GLchar, GLshort, GLushort, GLint, GLuint,
+   GLsizei, GLenum, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxCombinedTextureImageUnits,GetMaxDrawBuffers,
-            GetMaxFragmentUniformComponents,GetMaxTextureCoords,
-            GetMaxTextureImageUnits,GetMaxVaryingFloats,GetMaxVertexAttribs,
-            GetMaxVertexTextureImageUnits,GetMaxVertexUniformComponents,
-            GetCurrentProgram),
+   GetPName(GetMaxCombinedTextureImageUnits, GetMaxFragmentUniformComponents,
+            GetMaxTextureCoords, GetMaxTextureImageUnits,GetMaxVaryingFloats,
+            GetMaxVertexAttribs, GetMaxVertexTextureImageUnits,
+            GetMaxVertexUniformComponents, GetCurrentProgram),
    getInteger1, getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar, StateVar,
@@ -359,6 +358,81 @@ EXTENSION_ENTRY("OpenGL 2.0",glGetProgramiv,GLuint -> GLenum -> Ptr GLint -> IO 
 
 --------------------------------------------------------------------------------
 
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttribPointer,GLuint -> GLint -> GLenum -> GLboolean -> GLsizei -> Ptr a -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glDisableVertexAttribArray,GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glEnableVertexAttribArray,GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribPointerv,GLuint -> GLenum -> Ptr (Ptr a) -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glBindAttribLocation,GLuint -> GLuint -> Ptr GLchar -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetActiveAttrib,GLuint -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetAttribLocation,GLuint -> Ptr GLchar -> IO GLint)
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribdv,GLuint -> GLenum -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribfv,GLuint -> GLenum -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribiv,GLuint -> GLenum -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1d,GLuint -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1dv,GLuint -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1f,GLuint -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1fv,GLuint -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1s,GLuint -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1sv,GLuint -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2d,GLuint -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2dv,GLuint -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2f,GLuint -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2fv,GLuint -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2s,GLuint -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2sv,GLuint -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3d,GLuint -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3dv,GLuint -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3f,GLuint -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3fv,GLuint -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3s,GLuint -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3sv,GLuint -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nbv,GLuint -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Niv,GLuint -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nsv,GLuint -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nub,GLuint -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nubv,GLuint -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nuiv,GLuint -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nusv,GLuint -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4bv,GLuint -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4d,GLuint -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4dv,GLuint -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4f,GLuint -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4fv,GLuint -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4iv,GLuint -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4s,GLuint -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4sv,GLuint -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4ubv,GLuint -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4uiv,GLuint -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4usv,GLuint -> Ptr GLushort -> IO ())
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glGetUniformLocation,GLuint -> Ptr GLchar -> IO GLint)
+EXTENSION_ENTRY("OpenGL 2.0",glGetActiveUniform,GLuint -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetUniformfv,GLuint -> GLint -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetUniformiv,GLuint -> GLint -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1f,GLint -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2f,GLint -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3f,GLint -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4f,GLint -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1i,GLint -> GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2i,GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3i,GLint -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4i,GLint -> GLint -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1iv,GLint -> GLsizei -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2iv,GLint -> GLsizei -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3iv,GLint -> GLsizei -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4iv,GLint -> GLsizei -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix2fv,GLint -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix3fv,GLint -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix4fv,GLint -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+
+--------------------------------------------------------------------------------
+
 -- | Contains the number of hardware units that can be used to access texture
 -- maps from the vertex processor. The minimum legal value is 0.
 
@@ -385,15 +459,6 @@ maxCombinedTextureImageUnits = getLimit GetMaxCombinedTextureImageUnits
 
 maxTextureCoords :: GettableStateVar GLint
 maxTextureCoords = getLimit GetMaxTextureCoords
-
--- | Contains the maximum number of buffers that can activated via 'drawBuffers'
--- or which can be simultaneously written into from within a fragment shader
--- using the special output variable array @gl_FragData@. This constant
--- effectively defines the size of the @gl_FragData@ array. The minimum legal
--- value is 1.
-
-maxDrawBuffers :: GettableStateVar GLint
-maxDrawBuffers = getLimit GetMaxDrawBuffers
 
 -- | Contains the number of individual components (i.e., floating-point, integer
 -- or boolean values) that are available for vertex shader uniform variables.

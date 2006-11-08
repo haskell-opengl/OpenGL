@@ -292,6 +292,7 @@ data GetPName =
    | GetLightModelColorControl
    | GetBlendColor
    | GetBlendEquation
+   | GetBlendEquationAlpha
    | GetColorTable
    | GetPostConvolutionColorTable
    | GetPostColorMatrixColorTable
@@ -700,6 +701,7 @@ marshalGetPName x = case x of
    GetLightModelColorControl -> Just 0x81f8
    GetBlendColor -> Just 0x8005
    GetBlendEquation -> Just 0x8009
+   GetBlendEquationAlpha -> Just 0x883d
    GetColorTable -> Just 0x80d0
    GetPostConvolutionColorTable -> Just 0x80d1
    GetPostColorMatrixColorTable -> Just 0x80d2
