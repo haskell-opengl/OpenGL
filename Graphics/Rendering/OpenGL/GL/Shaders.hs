@@ -22,6 +22,14 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    Program, programDeleteStatus, attachedShaders, linkProgram, linkStatus,
    programInfoLog, validateProgram, validateStatus, currentProgram,
 
+   -- * Vertex attributes
+   AttribLocation(..), attribLocation, VariableType(..), activeAttribs,
+   Vertex1(..), VertexAttrib, VertexAttribComponent(..),
+
+   -- * Uniform variables
+   UniformLocation, uniformLocation, activeUniforms, Uniform(..),
+   UniformComponent,
+
    -- * Implementation limits related to GLSL
    maxVertexTextureImageUnits, maxTextureImageUnits,
    maxCombinedTextureImageUnits, maxTextureCoords, maxVertexUniformComponents,
@@ -30,12 +38,14 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 
 import Control.Monad ( replicateM, mapM_, foldM )
 import Control.Monad.Fix ( MonadFix(..) )
+import Data.Int
 import Data.List ( genericLength, (\\) )
 import Foreign.C.String ( peekCAStringLen, withCAStringLen )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
 import Foreign.Marshal.Utils ( withMany )
 import Foreign.Ptr ( Ptr, castPtr, nullPtr )
+import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLbyte, GLubyte, GLchar, GLshort, GLushort, GLint, GLuint,
    GLsizei, GLenum, GLfloat, GLdouble )
@@ -53,10 +63,13 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar, StateVar,
    makeStateVar )
+import Graphics.Rendering.OpenGL.GL.VertexSpec (
+   Vertex2(..), Vertex3(..), Vertex4(..) )
 
 --------------------------------------------------------------------------------
 
 #include "HsOpenGLExt.h"
+#include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
 
@@ -322,6 +335,18 @@ programInfoLogLength = programVar fromIntegral ProgramInfoLogLength
 numAttachedShaders :: Program -> GettableStateVar GLsizei
 numAttachedShaders = programVar fromIntegral AttachedShaders
 
+activeAttributes :: Program -> GettableStateVar GLuint
+activeAttributes = programVar fromIntegral ActiveAttributes
+
+activeAttributeMaxLength :: Program -> GettableStateVar GLsizei
+activeAttributeMaxLength = programVar fromIntegral ActiveAttributeMaxLength
+
+numActiveUniforms :: Program -> GettableStateVar GLuint
+numActiveUniforms = programVar fromIntegral ActiveUniforms
+
+activeUniformMaxLength :: Program -> GettableStateVar GLsizei
+activeUniformMaxLength = programVar fromIntegral ActiveUniformMaxLength
+
 --------------------------------------------------------------------------------
 
 data GetProgramPName =
@@ -358,78 +383,360 @@ EXTENSION_ENTRY("OpenGL 2.0",glGetProgramiv,GLuint -> GLenum -> Ptr GLint -> IO 
 
 --------------------------------------------------------------------------------
 
+newtype AttribLocation = AttribLocation GLuint
+   deriving ( Eq, Ord, Show )
+
+attribLocation :: Program -> String -> StateVar AttribLocation
+attribLocation program name =
+   makeStateVar (getAttribLocation program name)
+                (\location -> bindAttribLocation program location name)
+
+getAttribLocation :: Program -> String -> IO AttribLocation
+getAttribLocation program name =
+   withGLStringLen name $ \(buf,_) ->
+      fmap (AttribLocation . fromIntegral) $
+        glGetAttribLocation program buf
+
+EXTENSION_ENTRY("OpenGL 2.0",glGetAttribLocation,Program -> Ptr GLchar -> IO GLint)
+
+bindAttribLocation :: Program -> AttribLocation -> String -> IO ()
+bindAttribLocation program location name =
+   withGLStringLen name $ \(buf,_) ->
+      glBindAttribLocation program location buf
+
+EXTENSION_ENTRY("OpenGL 2.0",glBindAttribLocation,Program -> AttribLocation -> Ptr GLchar -> IO ())
+
+--------------------------------------------------------------------------------
+
+data VariableType =
+     Float'
+   | FloatVec2
+   | FloatVec3
+   | FloatVec4
+   | FloatMat2
+   | FloatMat3
+   | FloatMat4
+   | Int'
+   | IntVec2
+   | IntVec3
+   | IntVec4
+   | Bool
+   | BoolVec2
+   | BoolVec3
+   | BoolVec4
+   | Sampler1D
+   | Sampler2D
+   | Sampler3D
+   | SamplerCube
+   | Sampler1DShadow
+   | Sampler2DShadow
+   deriving ( Eq, Ord, Show )
+
+unmarshalVariableType :: GLenum -> VariableType
+unmarshalVariableType x
+   | x == 0x1406 = Float'
+   | x == 0x8B50 = FloatVec2
+   | x == 0x8B51 = FloatVec3
+   | x == 0x8B52 = FloatVec4
+   | x == 0x8B5A = FloatMat2
+   | x == 0x8B5B = FloatMat3
+   | x == 0x8B5C = FloatMat4
+   | x == 0x1404 = Int'
+   | x == 0x8B53 = IntVec2
+   | x == 0x8B54 = IntVec3
+   | x == 0x8B55 = IntVec4
+   | x == 0x8B56 = Bool
+   | x == 0x8B57 = BoolVec2
+   | x == 0x8B58 = BoolVec3
+   | x == 0x8B59 = BoolVec4
+   | x == 0x8B5D = Sampler1D
+   | x == 0x8B5E = Sampler2D
+   | x == 0x8B5F = Sampler3D
+   | x == 0x8B60 = SamplerCube
+   | x == 0x8B61 = Sampler1DShadow
+   | x == 0x8B62 = Sampler2DShadow
+   | otherwise = error ("unmarshalVariableType: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+activeVars :: (Program -> GettableStateVar GLuint)
+           -> (Program -> GettableStateVar GLsizei)
+           -> (Program -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
+           -> Program -> GettableStateVar [(GLint,VariableType,String)]
+activeVars numVars maxLength getter program =
+   makeGettableStateVar $ do
+      numActiveVars <- get (numVars program)
+      maxLen <- get (maxLength program)
+      allocaArray (fromIntegral maxLen) $ \nameBuf ->
+         alloca $ \nameLengthBuf ->
+            alloca $ \sizeBuf ->
+               alloca $ \typeBuf ->
+                  flip mapM [0 .. numActiveVars - 1] $ \i -> do
+                    getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
+                    l <- peek nameLengthBuf
+                    s <- peek sizeBuf
+                    t <- peek typeBuf
+                    n <- peekGLstringLen (nameBuf, l)
+                    return (s, unmarshalVariableType t, n)
+
+activeAttribs :: Program -> GettableStateVar [(GLint,VariableType,String)]
+activeAttribs = activeVars activeAttributes activeAttributeMaxLength glGetActiveAttrib
+
+EXTENSION_ENTRY("OpenGL 2.0",glGetActiveAttrib,Program -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
+
+--------------------------------------------------------------------------------
+
 EXTENSION_ENTRY("OpenGL 2.0",glVertexAttribPointer,GLuint -> GLint -> GLenum -> GLboolean -> GLsizei -> Ptr a -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glDisableVertexAttribArray,GLuint -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glEnableVertexAttribArray,GLuint -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribPointerv,GLuint -> GLenum -> Ptr (Ptr a) -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glBindAttribLocation,GLuint -> GLuint -> Ptr GLchar -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetActiveAttrib,GLuint -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetAttribLocation,GLuint -> Ptr GLchar -> IO GLint)
+
 EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribdv,GLuint -> GLenum -> Ptr GLdouble -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribfv,GLuint -> GLenum -> Ptr GLfloat -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribiv,GLuint -> GLenum -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1d,GLuint -> GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1dv,GLuint -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1f,GLuint -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1fv,GLuint -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1s,GLuint -> GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1sv,GLuint -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2d,GLuint -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2dv,GLuint -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2f,GLuint -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2fv,GLuint -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2s,GLuint -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2sv,GLuint -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3d,GLuint -> GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3dv,GLuint -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3f,GLuint -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3fv,GLuint -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3s,GLuint -> GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3sv,GLuint -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nbv,GLuint -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Niv,GLuint -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nsv,GLuint -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nub,GLuint -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nubv,GLuint -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nuiv,GLuint -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nusv,GLuint -> Ptr GLushort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4bv,GLuint -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4d,GLuint -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4dv,GLuint -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4f,GLuint -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4fv,GLuint -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4iv,GLuint -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4s,GLuint -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4sv,GLuint -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4ubv,GLuint -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4uiv,GLuint -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4usv,GLuint -> Ptr GLushort -> IO ())
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetUniformLocation,GLuint -> Ptr GLchar -> IO GLint)
-EXTENSION_ENTRY("OpenGL 2.0",glGetActiveUniform,GLuint -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
+class VertexAttribComponent a where
+   vertexAttrib1 :: AttribLocation -> a -> IO ()
+   vertexAttrib2 :: AttribLocation -> a -> a -> IO ()
+   vertexAttrib3 :: AttribLocation -> a -> a -> a -> IO ()
+   vertexAttrib4 :: AttribLocation -> a -> a -> a -> a -> IO ()
+
+   vertexAttrib1v :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib2v :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib3v :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib4v :: AttribLocation -> Ptr a -> IO ()
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1s,AttribLocation -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2s,AttribLocation -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3s,AttribLocation -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4s,AttribLocation -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1sv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2sv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3sv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4sv,AttribLocation -> Ptr GLshort -> IO ())
+
+instance VertexAttribComponent GLshort_ where
+   vertexAttrib1 = glVertexAttrib1s
+   vertexAttrib2 = glVertexAttrib2s
+   vertexAttrib3 = glVertexAttrib3s
+   vertexAttrib4 = glVertexAttrib4s
+
+   vertexAttrib1v = glVertexAttrib1sv
+   vertexAttrib2v = glVertexAttrib2sv
+   vertexAttrib3v = glVertexAttrib3sv
+   vertexAttrib4v = glVertexAttrib4sv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1f,AttribLocation -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2f,AttribLocation -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3f,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4f,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1fv,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2fv,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3fv,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4fv,AttribLocation -> Ptr GLfloat -> IO ())
+
+instance VertexAttribComponent GLfloat_ where
+   vertexAttrib1 = glVertexAttrib1f
+   vertexAttrib2 = glVertexAttrib2f
+   vertexAttrib3 = glVertexAttrib3f
+   vertexAttrib4 = glVertexAttrib4f
+
+   vertexAttrib1v = glVertexAttrib1fv
+   vertexAttrib2v = glVertexAttrib2fv
+   vertexAttrib3v = glVertexAttrib3fv
+   vertexAttrib4v = glVertexAttrib4fv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1d,AttribLocation -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2d,AttribLocation -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3d,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4d,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1dv,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2dv,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3dv,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4dv,AttribLocation -> Ptr GLdouble -> IO ())
+
+instance VertexAttribComponent GLdouble_ where
+   vertexAttrib1 = glVertexAttrib1d
+   vertexAttrib2 = glVertexAttrib2d
+   vertexAttrib3 = glVertexAttrib3d
+   vertexAttrib4 = glVertexAttrib4d
+
+   vertexAttrib1v = glVertexAttrib1dv
+   vertexAttrib2v = glVertexAttrib2dv
+   vertexAttrib3v = glVertexAttrib3dv
+   vertexAttrib4v = glVertexAttrib4dv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4bv,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4ubv,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4usv,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4iv,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4uiv,AttribLocation -> Ptr GLuint -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nbv,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nubv,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nusv,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Niv,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nuiv,AttribLocation -> Ptr GLuint -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nsv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nub,AttribLocation -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
+
+--------------------------------------------------------------------------------
+
+class VertexAttrib a where
+   vertexAttrib  :: AttribLocation ->     a -> IO ()
+   vertexAttribv :: AttribLocation -> Ptr a -> IO ()
+
+newtype Vertex1 a = Vertex1 a
+   deriving ( Eq, Ord, Show )
+
+instance VertexAttribComponent a => VertexAttrib (Vertex1 a) where
+   vertexAttrib location (Vertex1 x) = vertexAttrib1 location x
+   vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vertex2 a) where
+   vertexAttrib location (Vertex2 x y) = vertexAttrib2 location x y
+   vertexAttribv location = vertexAttrib2v location . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vertex3 a) where
+   vertexAttrib location (Vertex3 x y z) = vertexAttrib3 location x y z
+   vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vertex4 a) where
+   vertexAttrib location (Vertex4 x y z w) = vertexAttrib4 location x y z w
+   vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
+
+--------------------------------------------------------------------------------
+
+newtype UniformLocation = UniformLocation GLint
+   deriving ( Eq, Ord, Show )
+
+uniformLocation :: Program -> String -> GettableStateVar UniformLocation
+uniformLocation program name =
+   makeGettableStateVar $
+      withGLStringLen name $ \(buf,_) ->
+         fmap UniformLocation $
+            glGetUniformLocation program buf
+
+EXTENSION_ENTRY("OpenGL 2.0",glGetUniformLocation,Program -> Ptr GLchar -> IO GLint)
+
+--------------------------------------------------------------------------------
+
+activeUniforms :: Program -> GettableStateVar [(GLint,VariableType,String)]
+activeUniforms = activeVars numActiveUniforms activeUniformMaxLength glGetActiveUniform
+
+EXTENSION_ENTRY("OpenGL 2.0",glGetActiveUniform,Program -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
+
+--------------------------------------------------------------------------------
+
 EXTENSION_ENTRY("OpenGL 2.0",glGetUniformfv,GLuint -> GLint -> Ptr GLfloat -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glGetUniformiv,GLuint -> GLint -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1f,GLint -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2f,GLint -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3f,GLint -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4f,GLint -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1i,GLint -> GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2i,GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3i,GLint -> GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4i,GLint -> GLint -> GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4fv,GLint -> GLsizei -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1iv,GLint -> GLsizei -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2iv,GLint -> GLsizei -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3iv,GLint -> GLsizei -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4iv,GLint -> GLsizei -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix2fv,GLint -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix3fv,GLint -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix4fv,GLint -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+
+--------------------------------------------------------------------------------
+
+class UniformComponent a where
+   uniform1 :: UniformLocation -> a -> IO ()
+   uniform2 :: UniformLocation -> a -> a -> IO ()
+   uniform3 :: UniformLocation -> a -> a -> a -> IO ()
+   uniform4 :: UniformLocation -> a -> a -> a -> a -> IO ()
+
+   uniform1v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
+   uniform2v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
+   uniform3v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
+   uniform4v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1i,UniformLocation -> GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2i,UniformLocation -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3i,UniformLocation -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4i,UniformLocation -> GLint -> GLint -> GLint -> GLint -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
+
+instance UniformComponent GLint_ where
+   uniform1 = glUniform1i
+   uniform2 = glUniform2i
+   uniform3 = glUniform3i
+   uniform4 = glUniform4i
+
+   uniform1v = glUniform1iv
+   uniform2v = glUniform2iv
+   uniform3v = glUniform3iv
+   uniform4v = glUniform4iv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1f,UniformLocation -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2f,UniformLocation -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3f,UniformLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4f,UniformLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
+
+instance UniformComponent GLfloat_ where
+   uniform1 = glUniform1f
+   uniform2 = glUniform2f
+   uniform3 = glUniform3f
+   uniform4 = glUniform4f
+
+   uniform1v = glUniform1fv
+   uniform2v = glUniform2fv
+   uniform3v = glUniform3fv
+   uniform4v = glUniform4fv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix2fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix3fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix4fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix2x3fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix3x2fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix2x4fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix4x2fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix3x4fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix4x3fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+
+--------------------------------------------------------------------------------
+
+class Uniform a where
+   uniform  :: UniformLocation ->                a -> IO ()
+   uniformv :: UniformLocation -> GLsizei -> Ptr a -> IO ()
+
+instance UniformComponent a => Uniform (Vertex1 a) where
+   uniform location (Vertex1 x) = uniform1 location x
+   uniformv location count = uniform1v location count . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Vertex2 a) where
+   uniform location (Vertex2 x y) = uniform2 location x y
+   uniformv location count = uniform2v location count . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Vertex3 a) where
+   uniform location (Vertex3 x y z) = uniform3 location x y z
+   uniformv location count = uniform3v location count . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Vertex4 a) where
+   uniform location (Vertex4 x y z w) = uniform4 location x y z w
+   uniformv location count = uniform4v location count . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
 
 --------------------------------------------------------------------------------
 
