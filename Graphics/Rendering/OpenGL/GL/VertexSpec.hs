@@ -48,6 +48,9 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    IndexComponent,
    Index1(..),
 
+   -- * Generic Vertex Attributes
+   AttribLocation(..), Vertex1(..), VertexAttrib, VertexAttribComponent(..),
+
    -- * Texture Units
    TextureUnit(..), maxTextureUnit
 ) where
@@ -1205,6 +1208,137 @@ instance Storable a => Storable (Index1 a) where
    alignment ~(Index1 s) = alignment s
    peek                  = peek1 Index1 . castPtr
    poke ptr   (Index1 s) = poke1 (castPtr ptr) s
+
+--------------------------------------------------------------------------------
+
+newtype AttribLocation = AttribLocation GLuint
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+-- | The class of all types which can be used as a generic vertex attribute.
+
+class VertexAttribComponent a where
+   vertexAttrib1 :: AttribLocation -> a -> IO ()
+   vertexAttrib2 :: AttribLocation -> a -> a -> IO ()
+   vertexAttrib3 :: AttribLocation -> a -> a -> a -> IO ()
+   vertexAttrib4 :: AttribLocation -> a -> a -> a -> a -> IO ()
+
+   vertexAttrib1v :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib2v :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib3v :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib4v :: AttribLocation -> Ptr a -> IO ()
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1s,AttribLocation -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2s,AttribLocation -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3s,AttribLocation -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4s,AttribLocation -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1sv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2sv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3sv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4sv,AttribLocation -> Ptr GLshort -> IO ())
+
+instance VertexAttribComponent GLshort_ where
+   vertexAttrib1 = glVertexAttrib1s
+   vertexAttrib2 = glVertexAttrib2s
+   vertexAttrib3 = glVertexAttrib3s
+   vertexAttrib4 = glVertexAttrib4s
+
+   vertexAttrib1v = glVertexAttrib1sv
+   vertexAttrib2v = glVertexAttrib2sv
+   vertexAttrib3v = glVertexAttrib3sv
+   vertexAttrib4v = glVertexAttrib4sv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1f,AttribLocation -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2f,AttribLocation -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3f,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4f,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1fv,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2fv,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3fv,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4fv,AttribLocation -> Ptr GLfloat -> IO ())
+
+instance VertexAttribComponent GLfloat_ where
+   vertexAttrib1 = glVertexAttrib1f
+   vertexAttrib2 = glVertexAttrib2f
+   vertexAttrib3 = glVertexAttrib3f
+   vertexAttrib4 = glVertexAttrib4f
+
+   vertexAttrib1v = glVertexAttrib1fv
+   vertexAttrib2v = glVertexAttrib2fv
+   vertexAttrib3v = glVertexAttrib3fv
+   vertexAttrib4v = glVertexAttrib4fv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1d,AttribLocation -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2d,AttribLocation -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3d,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4d,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1dv,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2dv,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3dv,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4dv,AttribLocation -> Ptr GLdouble -> IO ())
+
+instance VertexAttribComponent GLdouble_ where
+   vertexAttrib1 = glVertexAttrib1d
+   vertexAttrib2 = glVertexAttrib2d
+   vertexAttrib3 = glVertexAttrib3d
+   vertexAttrib4 = glVertexAttrib4d
+
+   vertexAttrib1v = glVertexAttrib1dv
+   vertexAttrib2v = glVertexAttrib2dv
+   vertexAttrib3v = glVertexAttrib3dv
+   vertexAttrib4v = glVertexAttrib4dv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4bv,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4ubv,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4usv,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4iv,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4uiv,AttribLocation -> Ptr GLuint -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nbv,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nubv,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nusv,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Niv,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nuiv,AttribLocation -> Ptr GLuint -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nsv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nub,AttribLocation -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
+
+--------------------------------------------------------------------------------
+
+class VertexAttrib a where
+   vertexAttrib  :: AttribLocation ->     a -> IO ()
+   vertexAttribv :: AttribLocation -> Ptr a -> IO ()
+
+newtype Vertex1 a = Vertex1 a
+   deriving ( Eq, Ord, Show )
+
+instance VertexAttribComponent a => VertexAttrib (Vertex1 a) where
+   vertexAttrib location (Vertex1 x) = vertexAttrib1 location x
+   vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vertex2 a) where
+   vertexAttrib location (Vertex2 x y) = vertexAttrib2 location x y
+   vertexAttribv location = vertexAttrib2v location . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vertex3 a) where
+   vertexAttrib location (Vertex3 x y z) = vertexAttrib3 location x y z
+   vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vertex4 a) where
+   vertexAttrib location (Vertex4 x y z w) = vertexAttrib4 location x y z w
+   vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
 
 --------------------------------------------------------------------------------
 

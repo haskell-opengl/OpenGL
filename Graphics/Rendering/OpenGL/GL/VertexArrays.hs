@@ -40,7 +40,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
              CapSecondaryColorArray,CapMatrixIndexArray,CapPrimitiveRestart),
    makeCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLuint, GLsizei, Capability(Enabled) )
+   GLboolean, GLenum, GLint, GLuint, GLsizei, Capability(Enabled) )
 import Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType )
 import Graphics.Rendering.OpenGL.GL.Extensions (
@@ -304,6 +304,13 @@ setSecondaryColorPointer (VertexArrayDescriptor n d s p) =
    glSecondaryColorPointerEXT n (marshalDataType d) s p
 
 EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColorPointerEXT,GLint -> GLenum -> GLsizei -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glVertexAttribPointer,GLuint -> GLint -> GLenum -> GLboolean -> GLsizei -> Ptr a -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glDisableVertexAttribArray,GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glEnableVertexAttribArray,GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribPointerv,GLuint -> GLenum -> Ptr (Ptr a) -> IO ())
 
 --------------------------------------------------------------------------------
 
