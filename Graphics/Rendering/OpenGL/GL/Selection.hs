@@ -1,14 +1,14 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Selection
--- Copyright   :  (c) Sven Panne 2002-2005
+-- Copyright   :  (c) Sven Panne 2002-2006
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
--- Stability   :  provisional
+-- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to section 5.2 (Selection) of the OpenGL 1.5 specs.
+-- This module corresponds to section 5.2 (Selection) of the OpenGL 2.1 specs.
 --
 --------------------------------------------------------------------------------
 

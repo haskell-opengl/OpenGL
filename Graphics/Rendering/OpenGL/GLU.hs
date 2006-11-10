@@ -1,11 +1,11 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU
--- Copyright   :  (c) Sven Panne 2002-2005
+-- Copyright   :  (c) Sven Panne 2002-2006
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
--- Stability   :  provisional
+-- Stability   :  stable
 -- Portability :  portable
 --
 -- A Haskell binding for GLU, OpenGL\'s accompanying utility library.

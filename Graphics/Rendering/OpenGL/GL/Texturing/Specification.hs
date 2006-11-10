@@ -1,16 +1,16 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Specification
--- Copyright   :  (c) Sven Panne 2002-2005
+-- Copyright   :  (c) Sven Panne 2002-2006
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
--- Stability   :  provisional
+-- Stability   :  stable
 -- Portability :  portable
 --
 -- This module corresponds to section 3.8.1 (Texture Image Specification),
 -- section 3.8.2 (Alternate Texture Image Specification Commands), and section
--- 3.8.3 (Compressed Texture Images) of the OpenGL 1.5 specs.
+-- 3.8.3 (Compressed Texture Images) of the OpenGL 2.1 specs.
 --
 --------------------------------------------------------------------------------
 

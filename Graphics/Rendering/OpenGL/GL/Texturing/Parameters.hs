@@ -1,16 +1,16 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Parameters
--- Copyright   :  (c) Sven Panne 2002-2005
+-- Copyright   :  (c) Sven Panne 2002-2006
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
--- Stability   :  provisional
+-- Stability   :  stable
 -- Portability :  portable
 --
 -- This module corresponds to section 3.8.4 (Texture Parameters), section 3.8.7
 -- (Texture Wrap Mode), section 3.8.8 (Texture Minification), and section 3.8.9
--- (Texture Magnification) of the OpenGL 1.5 specs.
+-- (Texture Magnification) of the OpenGL 2.1 specs.
 --
 --------------------------------------------------------------------------------
 

@@ -1,11 +1,11 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL
--- Copyright   :  (c) Sven Panne 2002-2005
+-- Copyright   :  (c) Sven Panne 2002-2006
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
--- Stability   :  provisional
+-- Stability   :  stable
 -- Portability :  portable
 --
 -- A convenience module, combining the Haskell bindings for GL and GLU.
@@ -30,7 +30,7 @@ import Graphics.Rendering.OpenGL.GLU
 
 --------------------------------------------------------------------------------
 -- $SupportedExtensions
--- There is support for full OpenGL 1.5, including the imaging subset, plus some
+-- There is support for full OpenGL 2.1, including the imaging subset, plus some
 -- extensions:
 --
 -- @

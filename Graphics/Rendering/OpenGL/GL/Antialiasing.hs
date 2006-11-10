@@ -1,14 +1,14 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Antialiasing
--- Copyright   :  (c) Sven Panne 2002-2005
+-- Copyright   :  (c) Sven Panne 2002-2006
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
--- Stability   :  provisional
+-- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to section 3.2 (Antialiasing) of the OpenGL 1.5
+-- This module corresponds to section 3.2 (Antialiasing) of the OpenGL 2.1
 -- specs.
 --
 --------------------------------------------------------------------------------
