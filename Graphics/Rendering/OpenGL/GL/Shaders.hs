@@ -23,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    programInfoLog, validateProgram, validateStatus, currentProgram,
 
    -- * Vertex attributes
-   AttribLocation(..), attribLocation, VariableType(..), activeAttribs,
+   attribLocation, VariableType(..), activeAttribs,
 
    -- * Uniform variables
    UniformLocation, uniformLocation, activeUniforms, Uniform(..),
@@ -46,7 +46,7 @@ import Foreign.Marshal.Utils ( withMany )
 import Foreign.Ptr ( Ptr, castPtr, nullPtr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLchar, GLint, GLuint, GLsizei, GLenum, GLfloat, GLdouble )
+   GLboolean, GLchar, GLint, GLuint, GLsizei, GLenum, GLfloat )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
@@ -62,7 +62,9 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar, StateVar,
    makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   AttribLocation(..), Vertex1(..), Vertex2(..), Vertex3(..), Vertex4(..) )
+   AttribLocation(..), Vertex2(..), Vertex3(..), Vertex4(..), TexCoord1(..),
+   TexCoord2(..), TexCoord3(..), TexCoord4(..), Normal3(..), FogCoord1(..),
+   Color3(..), Color4(..), Index1(..) )
 
 --------------------------------------------------------------------------------
 
@@ -481,12 +483,6 @@ EXTENSION_ENTRY("OpenGL 2.0",glGetActiveAttrib,Program -> GLuint -> GLsizei -> P
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribdv,GLuint -> GLenum -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribfv,GLuint -> GLenum -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribiv,GLuint -> GLenum -> Ptr GLint -> IO ())
-
---------------------------------------------------------------------------------
-
 newtype UniformLocation = UniformLocation GLint
    deriving ( Eq, Ord, Show )
 
@@ -588,10 +584,6 @@ class Uniform a where
    uniform  :: UniformLocation ->                a -> IO ()
    uniformv :: UniformLocation -> GLsizei -> Ptr a -> IO ()
 
-instance UniformComponent a => Uniform (Vertex1 a) where
-   uniform location (Vertex1 x) = uniform1 location x
-   uniformv location count = uniform1v location count . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
-
 instance UniformComponent a => Uniform (Vertex2 a) where
    uniform location (Vertex2 x y) = uniform2 location x y
    uniformv location count = uniform2v location count . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
@@ -603,6 +595,42 @@ instance UniformComponent a => Uniform (Vertex3 a) where
 instance UniformComponent a => Uniform (Vertex4 a) where
    uniform location (Vertex4 x y z w) = uniform4 location x y z w
    uniformv location count = uniform4v location count . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (TexCoord1 a) where
+   uniform location (TexCoord1 x) = uniform1 location x
+   uniformv location count = uniform1v location count . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (TexCoord2 a) where
+   uniform location (TexCoord2 x y) = uniform2 location x y
+   uniformv location count = uniform2v location count . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (TexCoord3 a) where
+   uniform location (TexCoord3 x y z) = uniform3 location x y z
+   uniformv location count = uniform3v location count . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (TexCoord4 a) where
+   uniform location (TexCoord4 x y z w) = uniform4 location x y z w
+   uniformv location count = uniform4v location count . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Normal3 a) where
+   uniform location (Normal3 x y z) = uniform3 location x y z
+   uniformv location count = uniform3v location count . (castPtr :: Ptr (Normal3 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (FogCoord1 a) where
+   uniform location (FogCoord1 x) = uniform1 location x
+   uniformv location count = uniform1v location count . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Color3 a) where
+   uniform location (Color3 x y z) = uniform3 location x y z
+   uniformv location count = uniform3v location count . (castPtr :: Ptr (Color3 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Color4 a) where
+   uniform location (Color4 x y z w) = uniform4 location x y z w
+   uniformv location count = uniform4v location count . (castPtr :: Ptr (Color4 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Index1 a) where
+   uniform location (Index1 x) = uniform1 location x
+   uniformv location count = uniform1v location count . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
 --------------------------------------------------------------------------------
 

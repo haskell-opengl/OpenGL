@@ -49,7 +49,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    Index1(..),
 
    -- * Generic Vertex Attributes
-   AttribLocation(..), Vertex1(..), VertexAttrib, VertexAttribComponent(..),
+   AttribLocation(..), VertexAttrib, VertexAttribComponent(..),
 
    -- * Texture Units
    TextureUnit(..), maxTextureUnit
@@ -1231,6 +1231,12 @@ class VertexAttribComponent a where
 
 --------------------------------------------------------------------------------
 
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribdv,GLuint -> GLenum -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribfv,GLuint -> GLenum -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribiv,GLuint -> GLenum -> Ptr GLint -> IO ())
+
+--------------------------------------------------------------------------------
+
 EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1s,AttribLocation -> GLshort -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2s,AttribLocation -> GLshort -> GLshort -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3s,AttribLocation -> GLshort -> GLshort -> GLshort -> IO ())
@@ -1321,13 +1327,6 @@ class VertexAttrib a where
    vertexAttrib  :: AttribLocation ->     a -> IO ()
    vertexAttribv :: AttribLocation -> Ptr a -> IO ()
 
-newtype Vertex1 a = Vertex1 a
-   deriving ( Eq, Ord, Show )
-
-instance VertexAttribComponent a => VertexAttrib (Vertex1 a) where
-   vertexAttrib location (Vertex1 x) = vertexAttrib1 location x
-   vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
-
 instance VertexAttribComponent a => VertexAttrib (Vertex2 a) where
    vertexAttrib location (Vertex2 x y) = vertexAttrib2 location x y
    vertexAttribv location = vertexAttrib2v location . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
@@ -1339,6 +1338,42 @@ instance VertexAttribComponent a => VertexAttrib (Vertex3 a) where
 instance VertexAttribComponent a => VertexAttrib (Vertex4 a) where
    vertexAttrib location (Vertex4 x y z w) = vertexAttrib4 location x y z w
    vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (TexCoord1 a) where
+   vertexAttrib location (TexCoord1 s) = vertexAttrib1 location s
+   vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (TexCoord2 a) where
+   vertexAttrib location (TexCoord2 s t) = vertexAttrib2 location s t
+   vertexAttribv location = vertexAttrib2v location . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (TexCoord3 a) where
+   vertexAttrib location (TexCoord3 s t u) = vertexAttrib3 location s t u
+   vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (TexCoord4 a) where
+   vertexAttrib location (TexCoord4 s t u v) = vertexAttrib4 location s t u v
+   vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Normal3 a) where
+   vertexAttrib location (Normal3 x y z) = vertexAttrib3 location x y z
+   vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (Normal3 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (FogCoord1 a) where
+   vertexAttrib location (FogCoord1 c) = vertexAttrib1 location c
+   vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Color3 a) where
+   vertexAttrib location (Color3 r g b) = vertexAttrib3 location r g b
+   vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (Color3 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Color4 a) where
+   vertexAttrib location (Color4 r g b a) = vertexAttrib4 location r g b a
+   vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (Color4 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Index1 a) where
+   vertexAttrib location (Index1 i) = vertexAttrib1 location i
+   vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
 --------------------------------------------------------------------------------
 
