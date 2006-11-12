@@ -14,14 +14,15 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.StringQueries (
-   vendor, renderer, glVersion, glExtensions, shadingLanguageVersion
+   vendor, renderer, glVersion, glExtensions, shadingLanguageVersion, majorMinor
 ) where
 
+import Data.Char ( isDigit )
 import Foreign.C.String ( peekCString )
 import Foreign.Ptr ( Ptr, nullPtr, castPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar )
+   HasGetter(get), GettableStateVar, makeGettableStateVar )
 
 --------------------------------------------------------------------------------
 
@@ -68,3 +69,22 @@ getString n = do
 
 foreign import CALLCONV unsafe "glGetString" glGetString ::
    GLenum -> IO (Ptr GLubyte)
+
+--------------------------------------------------------------------------------
+
+-- | A utility function to be used with e.g. 'glVersion' or
+-- 'shadingLanguageVersion', transforming a variable containing a string of the
+-- form /major.minor[optional rest]/ into a variable containing a numeric
+-- major\/minor version. If the string is malformed, which should never happen
+-- with a sane OpenGL implementation, it is transformed to @(-1,-1)@.
+
+majorMinor :: GettableStateVar String -> GettableStateVar (Int, Int)
+majorMinor = makeGettableStateVar . fmap parse . get
+   where defaultVersion = (-1, -1)
+         parse str =
+            case span isDigit str of
+               (major@(_:_), '.':rest) ->
+                  case span isDigit rest of
+                     (minor@(_:_), _) -> (read major, read minor)
+                     _ -> defaultVersion
+               _ -> defaultVersion
