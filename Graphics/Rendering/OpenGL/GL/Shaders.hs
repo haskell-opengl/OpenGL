@@ -93,7 +93,7 @@ newtype FragmentShader = FragmentShader { fragmentShaderID :: GLuint }
 
 --------------------------------------------------------------------------------
 
-class Shader s where
+class (Eq s, Ord s, Show s, ObjectName s) => Shader s where
    shaderID :: s -> GLuint
    makeShader :: GLuint -> s
    shaderType :: s -> GLenum
