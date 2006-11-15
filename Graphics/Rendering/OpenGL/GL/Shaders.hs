@@ -171,10 +171,12 @@ EXTENSION_ENTRY("OpenGL 2.0",glGetShaderSource,GLuint -> GLsizei -> Ptr GLsizei 
 stringQuery :: GettableStateVar GLsizei -> (GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ()) -> GettableStateVar String
 stringQuery lengthVar getStr =
    makeGettableStateVar $ do
-      len <- get lengthVar
-      allocaArray (fromIntegral len) $ \buf -> do
-         getStr len nullPtr buf
-         peekGLstringLen (buf, len)
+      len <- get lengthVar -- Note: This includes the NUL character!
+      if len == 0
+        then return ""
+        else allocaArray (fromIntegral len) $ \buf -> do
+                getStr len nullPtr buf
+                peekGLstringLen (buf, len-1)
 
 --------------------------------------------------------------------------------
 
