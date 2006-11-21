@@ -29,6 +29,7 @@ module Graphics.Rendering.OpenGL.GL.Colors (
    attenuation,
 
    lightModelAmbient, lightModelLocalViewer, lightModelTwoSide,
+   vertexProgramTwoSide,
    LightModelColorControl(..), lightModelColorControl,
 
    -- * ColorMaterial
@@ -46,7 +47,8 @@ import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    marshalCapability, unmarshalCapability,
-   EnableCap(CapLighting,CapColorMaterial,CapLight), makeCapability,
+   EnableCap(CapVertexProgramTwoSide,CapLighting,CapColorMaterial,CapLight),
+   makeCapability,
    makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLenum, GLint, GLsizei, GLfloat,Capability )
@@ -392,6 +394,9 @@ foreign import CALLCONV unsafe "glLightModeli" glLightModeli ::
 
 lightModelTwoSide :: StateVar Capability
 lightModelTwoSide = makeLightModelCapVar GetLightModelTwoSide LightModelTwoSide
+
+vertexProgramTwoSide :: StateVar Capability
+vertexProgramTwoSide = makeCapability CapVertexProgramTwoSide
 
 --------------------------------------------------------------------------------
 

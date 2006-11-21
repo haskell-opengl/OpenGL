@@ -125,6 +125,8 @@ data EnableCap =
    | CapStencilTestTwoSide
    | CapRasterPositionUnclipped
    | CapTextureColorTable
+   | CapVertexProgramPointSize
+   | CapVertexProgramTwoSide
 
 marshalEnableCap :: EnableCap -> Maybe GLenum
 marshalEnableCap x = case x of
@@ -213,6 +215,8 @@ marshalEnableCap x = case x of
    CapStencilTestTwoSide -> Just 0x8910
    CapRasterPositionUnclipped -> Just 0x19262
    CapTextureColorTable -> Just 0x80bc
+   CapVertexProgramPointSize -> Just 0x8642
+   CapVertexProgramTwoSide -> Just 0x8643
 
 --------------------------------------------------------------------------------
 

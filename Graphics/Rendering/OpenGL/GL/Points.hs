@@ -14,7 +14,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Points (
    -- * Point Rasterization
-   pointSize,
+   pointSize, vertexProgramPointSize,
 
    -- * Controlling the Derived Size
    pointSizeRange, pointDistanceAttenuation,
@@ -35,7 +35,8 @@ module Graphics.Rendering.OpenGL.GL.Points (
 import Control.Monad ( liftM2 )
 import Foreign.Marshal.Array ( withArray )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapPointSmooth,CapPointSprite), makeCapability )
+   EnableCap(CapVertexProgramPointSize,CapPointSmooth,CapPointSprite),
+   makeCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLfloat, Capability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetPointSize,GetAliasedPointSizeRange,GetSmoothPointSizeRange,
@@ -136,6 +137,11 @@ pointSize :: StateVar GLfloat
 pointSize = makeStateVar (getFloat1 id GetPointSize) glPointSize
 
 foreign import CALLCONV unsafe "glPointSize" glPointSize :: GLfloat -> IO ()
+
+--------------------------------------------------------------------------------
+
+vertexProgramPointSize :: StateVar Capability
+vertexProgramPointSize = makeCapability CapVertexProgramPointSize
 
 --------------------------------------------------------------------------------
 
