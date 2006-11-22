@@ -765,6 +765,12 @@ class FogCoordComponent a where
    fogCoord1 :: a -> IO ()
    fogCoord1v :: Ptr a -> IO ()
 
+instance Storable a => Storable (FogCoord1 a) where
+   sizeOf    ~(FogCoord1 c) = sizeOf c
+   alignment ~(FogCoord1 c) = alignment c
+   peek                     = peek1 FogCoord1 . castPtr
+   poke ptr   (FogCoord1 c) = poke1 (castPtr ptr) c
+
 --------------------------------------------------------------------------------
 
 EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordfEXT,GLfloat -> IO ())
