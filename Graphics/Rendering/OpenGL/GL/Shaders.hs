@@ -40,11 +40,11 @@ import Control.Monad.Fix ( MonadFix(..) )
 import Data.Int
 import Data.List ( genericLength, (\\) )
 import Foreign.C.String ( peekCAStringLen, withCAStringLen )
-import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Alloc ( alloca, allocaBytes )
 import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
 import Foreign.Marshal.Utils ( withMany )
 import Foreign.Ptr ( Ptr, castPtr, nullPtr )
-import Foreign.Storable ( Storable(peek) )
+import Foreign.Storable ( Storable(peek,sizeOf) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLchar, GLint, GLuint, GLsizei, GLenum, GLfloat )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
@@ -506,16 +506,13 @@ EXTENSION_ENTRY("OpenGL 2.0",glGetActiveUniform,Program -> GLuint -> GLsizei -> 
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetUniformfv,GLuint -> GLint -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetUniformiv,GLuint -> GLint -> Ptr GLint -> IO ())
-
---------------------------------------------------------------------------------
-
-class UniformComponent a where
+class Storable a => UniformComponent a where
    uniform1 :: UniformLocation -> a -> IO ()
    uniform2 :: UniformLocation -> a -> a -> IO ()
    uniform3 :: UniformLocation -> a -> a -> a -> IO ()
    uniform4 :: UniformLocation -> a -> a -> a -> a -> IO ()
+
+   getUniform :: Storable (b a) => Program -> UniformLocation -> Ptr (b a) -> IO ()
 
    uniform1v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
    uniform2v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
@@ -529,6 +526,8 @@ EXTENSION_ENTRY("OpenGL 2.0",glUniform2i,UniformLocation -> GLint -> GLint -> IO
 EXTENSION_ENTRY("OpenGL 2.0",glUniform3i,UniformLocation -> GLint -> GLint -> GLint -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glUniform4i,UniformLocation -> GLint -> GLint -> GLint -> GLint -> IO ())
 
+EXTENSION_ENTRY("OpenGL 2.0",glGetUniformiv,Program -> UniformLocation -> Ptr GLint -> IO ())
+
 EXTENSION_ENTRY("OpenGL 2.0",glUniform1iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glUniform2iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glUniform3iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
@@ -539,6 +538,8 @@ instance UniformComponent GLint_ where
    uniform2 = glUniform2i
    uniform3 = glUniform3i
    uniform4 = glUniform4i
+
+   getUniform program location = glGetUniformiv program location . castPtr
 
    uniform1v = glUniform1iv
    uniform2v = glUniform2iv
@@ -552,6 +553,8 @@ EXTENSION_ENTRY("OpenGL 2.0",glUniform2f,UniformLocation -> GLfloat -> GLfloat -
 EXTENSION_ENTRY("OpenGL 2.0",glUniform3f,UniformLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glUniform4f,UniformLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
 
+EXTENSION_ENTRY("OpenGL 2.0",glGetUniformfv,Program -> UniformLocation -> Ptr GLfloat -> IO ())
+
 EXTENSION_ENTRY("OpenGL 2.0",glUniform1fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glUniform2fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
 EXTENSION_ENTRY("OpenGL 2.0",glUniform3fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
@@ -562,6 +565,8 @@ instance UniformComponent GLfloat_ where
    uniform2 = glUniform2f
    uniform3 = glUniform3f
    uniform4 = glUniform4f
+
+   getUniform program location = glGetUniformfv program location . castPtr
 
    uniform1v = glUniform1fv
    uniform2v = glUniform2fv
@@ -583,55 +588,74 @@ EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix4x3fv,UniformLocation -> GLsizei -> 
 --------------------------------------------------------------------------------
 
 class Uniform a where
-   uniform  :: UniformLocation ->                a -> IO ()
+   uniform :: UniformLocation -> StateVar a
    uniformv :: UniformLocation -> GLsizei -> Ptr a -> IO ()
 
+maxComponentSize :: Int
+maxComponentSize = sizeOf (undefined :: GLint) `max` sizeOf (undefined :: GLfloat)
+
+maxNumComponents :: Int
+maxNumComponents = 16
+
+maxUniformBufferSize :: Int
+maxUniformBufferSize = maxComponentSize * maxNumComponents
+
+makeUniformVar :: (UniformComponent a, Storable (b a))
+               => (UniformLocation -> b a -> IO ())
+               -> UniformLocation -> StateVar (b a)
+makeUniformVar setter location = makeStateVar getter (setter location)
+   where getter = do
+            program <- getCurrentProgram
+            allocaBytes maxUniformBufferSize  $ \buf -> do
+            getUniform program location buf
+            peek buf
+
 instance UniformComponent a => Uniform (Vertex2 a) where
-   uniform location (Vertex2 x y) = uniform2 location x y
+   uniform = makeUniformVar $ \location (Vertex2 x y) -> uniform2 location x y
    uniformv location count = uniform2v location count . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (Vertex3 a) where
-   uniform location (Vertex3 x y z) = uniform3 location x y z
+   uniform = makeUniformVar $ \location (Vertex3 x y z) -> uniform3 location x y z
    uniformv location count = uniform3v location count . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (Vertex4 a) where
-   uniform location (Vertex4 x y z w) = uniform4 location x y z w
+   uniform = makeUniformVar $ \location (Vertex4 x y z w) -> uniform4 location x y z w
    uniformv location count = uniform4v location count . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (TexCoord1 a) where
-   uniform location (TexCoord1 x) = uniform1 location x
+   uniform = makeUniformVar $ \location (TexCoord1 s) -> uniform1 location s
    uniformv location count = uniform1v location count . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (TexCoord2 a) where
-   uniform location (TexCoord2 x y) = uniform2 location x y
+   uniform = makeUniformVar $ \location (TexCoord2 s t) -> uniform2 location s t
    uniformv location count = uniform2v location count . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (TexCoord3 a) where
-   uniform location (TexCoord3 x y z) = uniform3 location x y z
+   uniform = makeUniformVar $ \location (TexCoord3 s t r) -> uniform3 location s t  r
    uniformv location count = uniform3v location count . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (TexCoord4 a) where
-   uniform location (TexCoord4 x y z w) = uniform4 location x y z w
+   uniform = makeUniformVar $ \location (TexCoord4 s t r q) -> uniform4 location s t  r q
    uniformv location count = uniform4v location count . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (Normal3 a) where
-   uniform location (Normal3 x y z) = uniform3 location x y z
+   uniform = makeUniformVar $ \location (Normal3 x y z) -> uniform3 location x y z
    uniformv location count = uniform3v location count . (castPtr :: Ptr (Normal3 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (FogCoord1 a) where
-   uniform location (FogCoord1 x) = uniform1 location x
+   uniform = makeUniformVar $ \location (FogCoord1 c) -> uniform1 location c
    uniformv location count = uniform1v location count . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (Color3 a) where
-   uniform location (Color3 x y z) = uniform3 location x y z
+   uniform = makeUniformVar $ \location (Color3 r g b) -> uniform3 location r g b
    uniformv location count = uniform3v location count . (castPtr :: Ptr (Color3 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (Color4 a) where
-   uniform location (Color4 x y z w) = uniform4 location x y z w
+   uniform = makeUniformVar $ \location (Color4 r g b a) -> uniform4 location r g b a
    uniformv location count = uniform4v location count . (castPtr :: Ptr (Color4 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (Index1 a) where
-   uniform location (Index1 x) = uniform1 location x
+   uniform = makeUniformVar $ \location (Index1 i) -> uniform1 location i
    uniformv location count = uniform1v location count . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
 --------------------------------------------------------------------------------
