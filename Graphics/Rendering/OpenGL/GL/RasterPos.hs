@@ -16,8 +16,8 @@
 module Graphics.Rendering.OpenGL.GL.RasterPos (
    currentRasterPosition, RasterPosComponent, RasterPos(..),
    WindowPosComponent, WindowPos(..),
-   currentRasterDistance, currentRasterColor, currentRasterIndex,
-   currentRasterTexCoords, currentRasterPositionValid,
+   currentRasterDistance, currentRasterColor, currentRasterSecondaryColor,
+   currentRasterIndex, currentRasterTexCoords, currentRasterPositionValid,
    rasterPositionUnclipped
 ) where
 
@@ -32,8 +32,9 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentRasterPosition,GetCurrentRasterDistance,
-            GetCurrentRasterColor,GetCurrentRasterIndex,
-            GetCurrentRasterTextureCoords,GetCurrentRasterPositionValid),
+            GetCurrentRasterColor,GetCurrentRasterSecondaryColor,
+            GetCurrentRasterIndex,GetCurrentRasterTextureCoords,
+            GetCurrentRasterPositionValid),
    getBoolean1, getInteger1, getFloat1, getFloat4 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
@@ -285,6 +286,10 @@ currentRasterDistance =
 currentRasterColor :: GettableStateVar (Color4 GLfloat)
 currentRasterColor =
    makeGettableStateVar (getFloat4 Color4 GetCurrentRasterColor)
+
+currentRasterSecondaryColor :: GettableStateVar (Color4 GLfloat)
+currentRasterSecondaryColor =
+   makeGettableStateVar (getFloat4 Color4 GetCurrentRasterSecondaryColor)
 
 currentRasterIndex :: GettableStateVar (Index1 GLint)
 currentRasterIndex =

@@ -40,6 +40,7 @@ data GetPName =
    | GetCurrentNormal
    | GetCurrentTextureCoords
    | GetCurrentRasterColor
+   | GetCurrentRasterSecondaryColor
    | GetCurrentRasterIndex
    | GetCurrentRasterTextureCoords
    | GetCurrentRasterPosition
@@ -451,6 +452,7 @@ marshalGetPName x = case x of
    GetCurrentNormal -> Just 0xb02
    GetCurrentTextureCoords -> Just 0xb03
    GetCurrentRasterColor -> Just 0xb04
+   GetCurrentRasterSecondaryColor -> Just 0x845f
    GetCurrentRasterIndex -> Just 0xb05
    GetCurrentRasterTextureCoords -> Just 0xb06
    GetCurrentRasterPosition -> Just 0xb07
