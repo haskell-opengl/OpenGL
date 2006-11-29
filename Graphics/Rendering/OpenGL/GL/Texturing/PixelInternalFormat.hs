@@ -30,6 +30,10 @@ data PixelInternalFormat =
    | Intensity
    | RGB'
    | RGBA'
+   | SRGB
+   | SRGBAlpha
+   | SLuminance
+   | SLuminanceAlpha
    | Alpha4
    | Alpha8
    | Alpha12
@@ -65,12 +69,20 @@ data PixelInternalFormat =
    | RGB10A2
    | RGBA12
    | RGBA16
+   | SRGB8
+   | SRGB8Alpha8
+   | SLuminance8
+   | SLuminance8Alpha8
    | CompressedAlpha
    | CompressedLuminance
    | CompressedLuminanceAlpha
    | CompressedIntensity
    | CompressedRGB
    | CompressedRGBA
+   | CompressedSRGB
+   | CompressedSRGBAlpha
+   | CompressedSLuminance
+   | CompressedSLuminanceAlpha
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
@@ -81,6 +93,10 @@ marshalPixelInternalFormat x = case x of
    LuminanceAlpha' -> 0x190a
    RGB' -> 0x1907
    RGBA' -> 0x1908
+   SRGB -> 0x8c40
+   SRGBAlpha -> 0x8c42
+   SLuminance -> 0x8c46
+   SLuminanceAlpha -> 0x8c44
    Alpha4 -> 0x803b
    Alpha8 -> 0x803c
    Alpha12 -> 0x803d
@@ -117,12 +133,20 @@ marshalPixelInternalFormat x = case x of
    RGB10A2 -> 0x8059
    RGBA12 -> 0x805a
    RGBA16 -> 0x805b
+   SRGB8 -> 0x8c41
+   SRGB8Alpha8 -> 0x8c43
+   SLuminance8 -> 0x8c47
+   SLuminance8Alpha8 -> 0x8c45
    CompressedAlpha -> 0x84e9
    CompressedLuminance -> 0x84ea
    CompressedLuminanceAlpha -> 0x84eb
    CompressedIntensity -> 0x84ec
    CompressedRGB -> 0x84ed
    CompressedRGBA -> 0x84ee
+   CompressedSRGB -> 0x8c48
+   CompressedSRGBAlpha -> 0x8c49
+   CompressedSLuminance -> 0x8c4a
+   CompressedSLuminanceAlpha -> 0x8c4b
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -136,6 +160,10 @@ unmarshalPixelInternalFormat x
    | x == 0x190a = LuminanceAlpha'
    | x == 0x1907 = RGB'
    | x == 0x1908 = RGBA'
+   | x == 0x8c40 = SRGB
+   | x == 0x8c42 = SRGBAlpha
+   | x == 0x8c46 = SLuminance
+   | x == 0x8c44 = SLuminanceAlpha
    | x == 0x803b = Alpha4
    | x == 0x803c = Alpha8
    | x == 0x803d = Alpha12
@@ -172,15 +200,35 @@ unmarshalPixelInternalFormat x
    | x == 0x8059 = RGB10A2
    | x == 0x805a = RGBA12
    | x == 0x805b = RGBA16
+   | x == 0x8c41 = SRGB8
+   | x == 0x8c43 = SRGB8Alpha8
+   | x == 0x8c47 = SLuminance8
+   | x == 0x8c45 = SLuminance8Alpha8
    | x == 0x84e9 = CompressedAlpha
    | x == 0x84ea = CompressedLuminance
    | x == 0x84eb = CompressedLuminanceAlpha
    | x == 0x84ec = CompressedIntensity
    | x == 0x84ed = CompressedRGB
    | x == 0x84ee = CompressedRGBA
+   | x == 0x8c48 = CompressedSRGB
+   | x == 0x8c49 = CompressedSRGBAlpha
+   | x == 0x8c4a = CompressedSLuminance
+   | x == 0x8c4b = CompressedSLuminanceAlpha
    -- legacy values
    | x == 1 = Luminance'
    | x == 2 = LuminanceAlpha'
    | x == 3 = RGB'
    | x == 4 = RGBA'
    | otherwise = error ("unmarshalPixelInternalFormat: illegal value " ++ show x)
+
+-- Note: The following formats are still missing, it's a bit unclear how to
+-- handle these nicely. From the EXT_texture_sRGB spec:
+--
+--    Accepted by the <internalformat> parameter of TexImage2D, CopyTexImage2D,
+--    and CompressedTexImage2DARB and the <format> parameter of
+--    CompressedTexSubImage2DARB:
+--
+--       COMPRESSED_SRGB_S3TC_DXT1_EXT                  0x8C4C
+--       COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT            0x8C4D
+--       COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT            0x8C4E
+--       COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT            0x8C4F
