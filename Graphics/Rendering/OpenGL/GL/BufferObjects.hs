@@ -47,7 +47,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetVertexArrayBufferBinding,GetNormalArrayBufferBinding,
             GetColorArrayBufferBinding,GetIndexArrayBufferBinding,
             GetTextureCoordArrayBufferBinding,GetEdgeFlagArrayBufferBinding,
-            GetFogCoordArrayBufferBinding,GetSecondaryColorArrayBufferBinding),
+            GetFogCoordArrayBufferBinding,GetSecondaryColorArrayBufferBinding,
+            GetPixelPackBufferBinding,GetPixelUnpackBufferBinding ),
    getInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
@@ -99,17 +100,23 @@ EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glIsBufferARB,GLuint
 data BufferTarget =
      ArrayBuffer
    | ElementArrayBuffer
+   | PixelPackBuffer
+   | PixelUnpackBuffer
    deriving ( Eq, Ord, Show )
 
 marshalBufferTarget :: BufferTarget -> GLenum
 marshalBufferTarget x = case x of
    ArrayBuffer -> 0x8892
    ElementArrayBuffer -> 0x8893
+   PixelPackBuffer -> 0x88eb
+   PixelUnpackBuffer -> 0x88ec
 
 bufferTargetToGetPName :: BufferTarget -> GetPName
 bufferTargetToGetPName x = case x of
    ArrayBuffer -> GetArrayBufferBinding
    ElementArrayBuffer -> GetElementArrayBufferBinding
+   PixelPackBuffer -> GetPixelPackBufferBinding
+   PixelUnpackBuffer -> GetPixelUnpackBufferBinding
 
 --------------------------------------------------------------------------------
 

@@ -439,6 +439,8 @@ data GetPName =
    | GetMaxVertexTextureImageUnits
    | GetMaxVertexUniformComponents
    | GetCurrentProgram
+   | GetPixelPackBufferBinding
+   | GetPixelUnpackBufferBinding
    -- GetWeightArrayBufferBinding
    -- GetVertexAttribArrayBufferBinding
 
@@ -848,6 +850,8 @@ marshalGetPName x = case x of
    GetMaxVertexTextureImageUnits -> Just 0x8b4c
    GetMaxVertexUniformComponents -> Just 0x8b4a
    GetCurrentProgram -> Just 0x8b8d
+   GetPixelPackBufferBinding -> Just 0x88ed
+   GetPixelUnpackBufferBinding -> Just 0x88EF
    -- GetWeightArrayBufferBinding -> Just 0x889e
    -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 
