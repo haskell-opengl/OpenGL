@@ -34,6 +34,7 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
 
 import Control.Monad ( liftM4 )
 import Data.List ( genericLength )
+import Data.Maybe ( isJust, fromJust )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BufferMode (
@@ -64,7 +65,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getInteger1, getBoolean1, getBoolean4, getEnum1, getSizei1, getFloat1,
    getFloat4, getDouble1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar,
+   HasGetter(get), GettableStateVar, makeGettableStateVar,
    SettableStateVar, makeSettableStateVar,
    StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
@@ -142,6 +143,8 @@ drawBuffer =
 foreign import CALLCONV unsafe "glDrawBuffer" glDrawBuffer ::
    GLenum -> IO ()
 
+--------------------------------------------------------------------------------
+
 -- | 'drawBuffers' defines the draw buffers to which all fragment colors are
 -- written. The draw buffers being defined correspond in order to the respective
 -- fragment colors. The draw buffer for fragment colors beyond those specified
@@ -163,17 +166,25 @@ foreign import CALLCONV unsafe "glDrawBuffer" glDrawBuffer ::
 -- values of the fragment colors following shader execution are undefined, and
 -- may differ for each fragment color.
 
-drawBuffers :: SettableStateVar [BufferMode]
-drawBuffers =
-   makeSettableStateVar $ \modes -> do
-      let ms = map marshalBufferMode modes
-          ok = [ x | Just x <- ms ]
-      if null [ () | Nothing <- ms ]
-         then withArray ok $
-                 glDrawBuffers (genericLength ok)
-         else recordInvalidValue
+drawBuffers :: StateVar [BufferMode]
+drawBuffers = makeStateVar getDrawBuffers setDrawBuffers
+
+getDrawBuffers :: IO [BufferMode]
+getDrawBuffers = do
+   n <- get maxDrawBuffers
+   return []
+
+setDrawBuffers :: [BufferMode] -> IO ()
+setDrawBuffers modes = do
+   let ms = map marshalBufferMode modes
+   if all isJust ms
+      then withArray (map fromJust ms) $
+              glDrawBuffers (genericLength ms)
+      else recordInvalidValue
 
 EXTENSION_ENTRY("GL_ARB_draw_buffers or OpenGL 2.0",glDrawBuffers,GLsizei -> Ptr GLenum -> IO ())
+
+--------------------------------------------------------------------------------
 
 -- | Contains the maximum number of buffers that can activated via 'drawBuffers'
 -- or which can be simultaneously written into from within a fragment shader
