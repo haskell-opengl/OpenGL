@@ -61,7 +61,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetAccumAlphaBits,GetDrawBuffer,GetIndexWritemask,GetColorWritemask,
             GetDepthWritemask,GetStencilWritemask,GetColorClearValue,
             GetIndexClearValue,GetDepthClearValue,GetStencilClearValue,
-            GetAccumClearValue,GetMaxDrawBuffers),
+            GetAccumClearValue,GetMaxDrawBuffers,GetDrawBufferN),
    getInteger1, getBoolean1, getBoolean4, getEnum1, getSizei1, getFloat1,
    getFloat4, getDouble1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -172,7 +172,7 @@ drawBuffers = makeStateVar getDrawBuffers setDrawBuffers
 getDrawBuffers :: IO [BufferMode]
 getDrawBuffers = do
    n <- get maxDrawBuffers
-   return []
+   mapM (getEnum1 unmarshalBufferMode . GetDrawBufferN) [ 0 .. n ]
 
 setDrawBuffers :: [BufferMode] -> IO ()
 setDrawBuffers modes = do

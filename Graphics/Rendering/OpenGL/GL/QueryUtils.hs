@@ -412,6 +412,7 @@ data GetPName =
    | GetCurrentProgram
    | GetPixelPackBufferBinding
    | GetPixelUnpackBufferBinding
+   | GetDrawBufferN GLsizei
    -- GetWeightArrayBufferBinding
    -- GetVertexAttribArrayBufferBinding
 
@@ -793,6 +794,7 @@ marshalGetPName x = case x of
    GetCurrentProgram -> Just 0x8b8d
    GetPixelPackBufferBinding -> Just 0x88ed
    GetPixelUnpackBufferBinding -> Just 0x88EF
+   GetDrawBufferN i -> drawBufferIndexToEnum i
    -- GetWeightArrayBufferBinding -> Just 0x889e
    -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 
@@ -830,6 +832,15 @@ modelviewEnumToIndex x
    | x == 0x1700 = Just 0
    | x == 0x850a = Just 1
    | 0x8722 <= x && x <= 0x873f = Just (fromIntegral x - 0x8720)
+   | otherwise = Nothing
+
+--------------------------------------------------------------------------------
+
+-- 0x8825 through 0x8834 are reserved for draw buffers
+
+drawBufferIndexToEnum :: GLsizei -> Maybe GLenum
+drawBufferIndexToEnum i
+   | 0 <= i && i <= 15 = Just (0x8825 + fromIntegral i)
    | otherwise = Nothing
 
 --------------------------------------------------------------------------------
