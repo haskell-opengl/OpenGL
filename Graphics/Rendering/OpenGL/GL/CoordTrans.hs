@@ -63,7 +63,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetMaxTextureStackDepth,GetColorMatrixStackDepth,
             GetMaxColorMatrixStackDepth,GetMaxMatrixPaletteStackDepth),
    getInteger2, getInteger4, getEnum1, getSizei1, getFloatv,
-   getDouble2, getDoublev )
+   getDouble2, getDoublev, modelviewIndexToEnum, modelviewEnumToIndex )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, HasGetter(get), HasSetter(($=)),
    StateVar, makeStateVar )
@@ -154,11 +154,7 @@ data MatrixMode =
 
 marshalMatrixMode :: MatrixMode -> Maybe GLenum
 marshalMatrixMode x = case x of
-   Modelview i
-      | i == 0    -> Just 0x1700
-      | i == 1    -> Just 0x850a
-      | i <= 31   -> Just (0x8722 + fromIntegral i)
-      | otherwise -> Nothing
+   Modelview i -> modelviewIndexToEnum i
    Projection -> Just 0x1701
    Texture -> Just 0x1702
    Color -> Just 0x1800
@@ -166,14 +162,14 @@ marshalMatrixMode x = case x of
 
 unmarshalMatrixMode :: GLenum -> MatrixMode
 unmarshalMatrixMode x
-   | x == 0x1700 = Modelview 0
-   | x == 0x850a = Modelview 1
-   | 0x8722 <= x && x <= 0x873f = Modelview (fromIntegral x - 0x8722)
    | x == 0x1701 = Projection
    | x == 0x1702 = Texture
    | x == 0x1800 = Color
    | x == 0x8840 = MatrixPalette
-   | otherwise = error ("unmarshalMatrixMode: illegal value " ++ show x)
+   | otherwise =
+        case modelviewEnumToIndex x of
+           Just i -> Modelview i
+           Nothing -> error ("unmarshalMatrixMode: illegal value " ++ show x)
 
 matrixModeToGetMatrix :: MatrixMode -> GetPName
 matrixModeToGetMatrix x = case x of

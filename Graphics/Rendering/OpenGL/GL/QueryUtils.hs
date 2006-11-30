@@ -16,6 +16,7 @@
 module Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(..),
    clipPlaneIndexToEnum, lightIndexToEnum,
+   modelviewIndexToEnum, modelviewEnumToIndex,
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4, getIntegerv,
    getEnum1,
@@ -361,38 +362,7 @@ data GetPName =
    | GetActiveVertexUnits
    | GetWeightSumUnity
    | GetVertexBlend
-   | GetModelview0
-   | GetModelview1
-   | GetModelview2
-   | GetModelview3
-   | GetModelview4
-   | GetModelview5
-   | GetModelview6
-   | GetModelview7
-   | GetModelview8
-   | GetModelview9
-   | GetModelview10
-   | GetModelview11
-   | GetModelview12
-   | GetModelview13
-   | GetModelview14
-   | GetModelview15
-   | GetModelview16
-   | GetModelview17
-   | GetModelview18
-   | GetModelview19
-   | GetModelview20
-   | GetModelview21
-   | GetModelview22
-   | GetModelview23
-   | GetModelview24
-   | GetModelview25
-   | GetModelview26
-   | GetModelview27
-   | GetModelview28
-   | GetModelview29
-   | GetModelview30
-   | GetModelview31
+   | GetModelview GLsizei
    | GetCurrentWeight
    | GetWeightArrayType
    | GetWeightArrayStride
@@ -773,38 +743,7 @@ marshalGetPName x = case x of
    GetActiveVertexUnits -> Just 0x86a5
    GetWeightSumUnity -> Just 0x86a6
    GetVertexBlend -> Just 0x86a7
-   GetModelview0 -> Just 0x1700
-   GetModelview1 -> Just 0x850a
-   GetModelview2 -> Just 0x8722
-   GetModelview3 -> Just 0x8723
-   GetModelview4 -> Just 0x8724
-   GetModelview5 -> Just 0x8725
-   GetModelview6 -> Just 0x8726
-   GetModelview7 -> Just 0x8727
-   GetModelview8 -> Just 0x8728
-   GetModelview9 -> Just 0x8729
-   GetModelview10 -> Just 0x872a
-   GetModelview11 -> Just 0x872b
-   GetModelview12 -> Just 0x872c
-   GetModelview13 -> Just 0x872d
-   GetModelview14 -> Just 0x872e
-   GetModelview15 -> Just 0x872f
-   GetModelview16 -> Just 0x8730
-   GetModelview17 -> Just 0x8731
-   GetModelview18 -> Just 0x8732
-   GetModelview19 -> Just 0x8733
-   GetModelview20 -> Just 0x8734
-   GetModelview21 -> Just 0x8735
-   GetModelview22 -> Just 0x8736
-   GetModelview23 -> Just 0x8737
-   GetModelview24 -> Just 0x8738
-   GetModelview25 -> Just 0x8739
-   GetModelview26 -> Just 0x873a
-   GetModelview27 -> Just 0x873b
-   GetModelview28 -> Just 0x873c
-   GetModelview29 -> Just 0x873d
-   GetModelview30 -> Just 0x873e
-   GetModelview31 -> Just 0x873f
+   GetModelview i -> modelviewIndexToEnum i
    GetCurrentWeight -> Just 0x86a8
    GetWeightArrayType -> Just 0x86a9
    GetWeightArrayStride -> Just 0x86aa
@@ -873,6 +812,24 @@ clipPlaneIndexToEnum i
 lightIndexToEnum :: GLsizei -> Maybe GLenum
 lightIndexToEnum i
    | 0 <= i && i <= 0xFFF = Just (0x4000 + fromIntegral i)
+   | otherwise = Nothing
+
+--------------------------------------------------------------------------------
+
+-- 0x1700, 0x850a, and 0x8722 through 0x873f are reserved for modelview matrices
+
+modelviewIndexToEnum :: GLsizei -> Maybe GLenum
+modelviewIndexToEnum 0 = Just 0x1700
+modelviewIndexToEnum 1 = Just 0x850a
+modelviewIndexToEnum i
+   | 2 <= i && i <= 31 = Just (0x8720 + fromIntegral i)
+   | otherwise = Nothing
+
+modelviewEnumToIndex :: GLenum -> Maybe GLsizei
+modelviewEnumToIndex x
+   | x == 0x1700 = Just 0
+   | x == 0x850a = Just 1
+   | 0x8722 <= x && x <= 0x873f = Just (fromIntegral x - 0x8720)
    | otherwise = Nothing
 
 --------------------------------------------------------------------------------
