@@ -181,7 +181,7 @@ EXTENSION_ENTRY("GL_ARB_draw_buffers or OpenGL 2.0",glDrawBuffers,GLsizei -> Ptr
 -- effectively defines the size of the @gl_FragData@ array. The minimum legal
 -- value is 1.
 
-maxDrawBuffers :: GettableStateVar GLint
+maxDrawBuffers :: GettableStateVar GLsizei
 maxDrawBuffers = makeGettableStateVar $ getSizei1 id GetMaxDrawBuffers
 
 --------------------------------------------------------------------------------

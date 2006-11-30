@@ -663,13 +663,13 @@ instance UniformComponent a => Uniform (Index1 a) where
 -- | Contains the number of hardware units that can be used to access texture
 -- maps from the vertex processor. The minimum legal value is 0.
 
-maxVertexTextureImageUnits :: GettableStateVar GLint
+maxVertexTextureImageUnits :: GettableStateVar GLsizei
 maxVertexTextureImageUnits = getLimit GetMaxVertexTextureImageUnits
 
 -- | Contains the total number of hardware units that can be used to access
 -- texture maps from the fragment processor. The minimum legal value is 2.
 
-maxTextureImageUnits :: GettableStateVar GLint
+maxTextureImageUnits :: GettableStateVar GLsizei
 maxTextureImageUnits = getLimit GetMaxTextureImageUnits
 
 -- | Contains the total number of hardware units that can be used to access
@@ -678,38 +678,38 @@ maxTextureImageUnits = getLimit GetMaxTextureImageUnits
 -- texture image unit, then that counts as using two texture image units. The
 -- minimum legal value is 2.
 
-maxCombinedTextureImageUnits :: GettableStateVar GLint
+maxCombinedTextureImageUnits :: GettableStateVar GLsizei
 maxCombinedTextureImageUnits = getLimit GetMaxCombinedTextureImageUnits
 
 -- | Contains the number of texture coordinate sets that are available. The
 -- minimum legal value is 2.
 
-maxTextureCoords :: GettableStateVar GLint
+maxTextureCoords :: GettableStateVar GLsizei
 maxTextureCoords = getLimit GetMaxTextureCoords
 
 -- | Contains the number of individual components (i.e., floating-point, integer
 -- or boolean values) that are available for vertex shader uniform variables.
 -- The minimum legal value is 512.
-maxVertexUniformComponents :: GettableStateVar GLint
+maxVertexUniformComponents :: GettableStateVar GLsizei
 maxVertexUniformComponents = getLimit GetMaxVertexUniformComponents
 
 -- | Contains the number of individual components (i.e., floating-point, integer
 -- or boolean values) that are available for fragment shader uniform variables.
 -- The minimum legal value is 64.
 
-maxFragmentUniformComponents :: GettableStateVar GLint
+maxFragmentUniformComponents :: GettableStateVar GLsizei
 maxFragmentUniformComponents = getLimit GetMaxFragmentUniformComponents
 
 -- | Contains the number of active vertex attributes that are available. The
 -- minimum legal value is 16.
 
-maxVertexAttribs :: GettableStateVar GLint
+maxVertexAttribs :: GettableStateVar GLsizei
 maxVertexAttribs = getLimit GetMaxVertexAttribs
 
 -- | Contains the number of individual floating-point values available for
 -- varying variables. The minimum legal value is 32.
 
-maxVaryingFloats :: GettableStateVar GLint
+maxVaryingFloats :: GettableStateVar GLsizei
 maxVaryingFloats = getLimit GetMaxVaryingFloats
 
 getLimit :: GetPName -> GettableStateVar GLsizei
