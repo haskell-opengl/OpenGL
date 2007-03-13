@@ -43,5 +43,5 @@ throwIfNull msg act = do
       then ioError (userError msg)
       else return res
 
-foreign import CALLCONV unsafe "hs_OpenGL_getProcAddress" hs_OpenGL_getProcAddress
+foreign import ccall unsafe "hs_OpenGL_getProcAddress" hs_OpenGL_getProcAddress
    :: CString -> IO (FunPtr a)
