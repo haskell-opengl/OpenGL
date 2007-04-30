@@ -21,8 +21,8 @@ if test x"$enable_opengl" != xno; then
 FP_CHECK_GLU
 
 if test x"$GLU_LIBS" = xno; then
-  AC_MSG_WARN([no OpenGL library found, so this package will not be built])
-else
+  AC_MSG_FAILURE([no OpenGL library found, so this package cannot be built])
+fi
 
 # check for OpenGL include files
 gl_found_header=no
@@ -34,8 +34,8 @@ AC_CHECK_HEADERS([GL/glu.h OpenGL/glu.h], [glu_found_header=yes])
 CPPFLAGS="$fp_save_cppflags"
 
 if test x"$gl_found_header" = xno || test x"$glu_found_header" = xno; then
-  AC_MSG_WARN([no OpenGL headers found, so this package will not be built])
-else
+  AC_MSG_FAILURE([no OpenGL headers found, so this package cannot be built])
+fi
 
 GL_BUILD_PACKAGE=yes
 
@@ -69,8 +69,6 @@ AC_DEFINE_UNQUOTED([GLU_FRAMEWORKS],
   [`echo '' $GLU_FRAMEWORKS | sed -e 's/-[[^ ]]*/,"&"/g' -e 's/^ *,//'`],
   [Framework flags for GLU, as a list of string literals.])
 
-fi
-fi
 fi
 
 if test x"$GL_BUILD_PACKAGE" = xyes; then
