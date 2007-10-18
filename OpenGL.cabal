@@ -14,6 +14,7 @@ description:
 	a broad set of rendering, texture mapping, special effects, and
 	other powerful visualization functions.  For more information
 	about OpenGL, please see: <http://www.opengl.org/>.
+build-type:     Configure
 extra-source-files:
 	config.guess config.sub install-sh
 	configure.ac configure config.mk.in OpenGL.buildinfo.in
