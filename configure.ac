@@ -10,7 +10,6 @@ AC_CONFIG_HEADERS([include/HsOpenGLConfig.h include/HsOpenGL.h])
 
 # We set this to "yes" later when we have found OpenGL libs and headers.
 GL_BUILD_PACKAGE=no
-AC_SUBST([GL_BUILD_PACKAGE])
 
 # Shall we build this package at all?
 FP_ARG_OPENGL
@@ -84,5 +83,5 @@ case "$host" in
 esac
 AC_SUBST([CALLCONV])
 
-AC_CONFIG_FILES([config.mk OpenGL.buildinfo])
+AC_CONFIG_FILES([OpenGL.buildinfo])
 AC_OUTPUT

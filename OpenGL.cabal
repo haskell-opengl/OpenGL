@@ -17,12 +17,12 @@ description:
 build-type:     Configure
 extra-source-files:
 	config.guess config.sub install-sh
-	configure.ac configure config.mk.in OpenGL.buildinfo.in
+	configure.ac configure OpenGL.buildinfo.in
         include/HsOpenGLConfig.h.in include/HsOpenGL.h.in
 	include/HsOpenGLExt.h include/HsOpenGLTypes.h
 extra-tmp-files:
 	config.log config.status autom4te.cache
-	config.mk OpenGL.buildinfo include/HsOpenGLConfig.h include/HsOpenGL.h
+	OpenGL.buildinfo include/HsOpenGLConfig.h include/HsOpenGL.h
 exposed-modules:
 	Graphics.Rendering.OpenGL.GL.Antialiasing,
 	Graphics.Rendering.OpenGL.GL.BasicTypes,
