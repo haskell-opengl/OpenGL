@@ -8,6 +8,10 @@ AC_CONFIG_SRCDIR([include/HsOpenGL.h.in])
 # contains all kinds of stuff which is needed for using this package.
 AC_CONFIG_HEADERS([include/HsOpenGLConfig.h include/HsOpenGL.h])
 
+# we do not really care about this here, but this avoids a warning about an
+# unknown option
+FP_ARG_COMPILER
+
 # We set this to "yes" later when we have found OpenGL libs and headers.
 GL_BUILD_PACKAGE=no
 

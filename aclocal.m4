@@ -275,3 +275,14 @@ fi
 AC_SUBST([GLU_CFLAGS])
 AC_SUBST([GLU_LIBS])
 ])# FP_CHECK_GLU
+
+
+# FP_ARG_COMPILER
+# -------------
+AC_DEFUN([FP_ARG_COMPILER],
+[AC_ARG_WITH([compiler],
+  [AC_HELP_STRING([--with-compiler@<:@=HC@:>@],
+    [use the given Haskell compiler (default=ghc)])],
+  [with_compiler=$withval],
+  [with_compiler=ghc])
+])# FP_ARG_COMPILER
