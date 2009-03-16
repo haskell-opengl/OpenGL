@@ -1,4 +1,4 @@
-AC_INIT([Haskell OpenGL package], [2.2.1], [sven.panne@aedion.de], [OpenGL])
+AC_INIT([Haskell OpenGL package], [2.3], [sven.panne@aedion.de], [OpenGL])
 
 # Safety check: Ensure that we are in the correct source directory.
 AC_CONFIG_SRCDIR([include/HsOpenGL.h.in])
