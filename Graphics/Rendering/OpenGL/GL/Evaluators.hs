@@ -128,7 +128,7 @@ controlPointPtrs2 uDescriptor vDescriptor ptr =
    [ controlPointPtrs1 vDescriptor p | p <- controlPointPtrs1 uDescriptor ptr ]
 
 sizeOfPtr :: Storable a => Ptr a -> Int
-sizeOfPtr = (flip (const sizeOf) :: Storable a => Ptr a -> a -> Int) undefined
+sizeOfPtr = sizeOf . (const undefined :: Ptr a -> a)
 
 --------------------------------------------------------------------------------
 
