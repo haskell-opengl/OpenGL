@@ -36,9 +36,10 @@ data GL_ErrorCode =
    | GL_InvalidEnum
    | GL_InvalidValue
    | GL_InvalidOperation
+   | GL_InvalidFramebufferOperation
+   | GL_OutOfMemory
    | GL_StackOverflow
    | GL_StackUnderflow
-   | GL_OutOfMemory
    | GL_TableTooLarge
 
 gl_marshalErrorCode :: GL_ErrorCode -> GLenum
@@ -47,9 +48,10 @@ gl_marshalErrorCode x = case x of
    GL_InvalidEnum -> 0x500
    GL_InvalidValue -> 0x501
    GL_InvalidOperation -> 0x502
+   GL_InvalidFramebufferOperation -> 0x0506
+   GL_OutOfMemory -> 0x505
    GL_StackOverflow -> 0x503
    GL_StackUnderflow -> 0x504
-   GL_OutOfMemory -> 0x505
    GL_TableTooLarge -> 0x8031
 
 --------------------------------------------------------------------------------
@@ -108,9 +110,10 @@ data ErrorCategory
    = InvalidEnum
    | InvalidValue
    | InvalidOperation
+   | InvalidFramebufferOperation
+   | OutOfMemory
    | StackOverflow
    | StackUnderflow
-   | OutOfMemory
    | TableTooLarge
    | TesselatorError
    | NURBSError
@@ -120,8 +123,9 @@ unmarshalErrorCategory :: GLenum -> ErrorCategory
 unmarshalErrorCategory c
    | isInvalidEnum c      = InvalidEnum
    | isInvalidValue c     = InvalidValue
-   | isOutOfMemory c      = OutOfMemory
    | isInvalidOperation c = InvalidOperation
+   | isInvalidFramebufferOperation c = InvalidFramebufferOperation 
+   | isOutOfMemory c      = OutOfMemory
    | isStackOverflow c    = StackOverflow
    | isStackUnderflow c   = StackUnderflow
    | isTableTooLarge c    = TableTooLarge
@@ -139,15 +143,19 @@ isInvalidValue c =
    c == gl_marshalErrorCode  GL_InvalidValue ||
    c == glu_marshalErrorCode GLU_InvalidValue
 
-isOutOfMemory :: GLenum -> Bool
-isOutOfMemory c =
-   c == gl_marshalErrorCode  GL_OutOfMemory ||
-   c == glu_marshalErrorCode GLU_OutOfMemory
-
 isInvalidOperation :: GLenum -> Bool
 isInvalidOperation c =
    c == gl_marshalErrorCode  GL_InvalidOperation ||
    c == glu_marshalErrorCode GLU_InvalidOperation
+
+isInvalidFramebufferOperation :: GLenum -> Bool
+isInvalidFramebufferOperation c =
+   c == gl_marshalErrorCode GL_InvalidFramebufferOperation
+
+isOutOfMemory :: GLenum -> Bool
+isOutOfMemory c =
+   c == gl_marshalErrorCode  GL_OutOfMemory ||
+   c == glu_marshalErrorCode GLU_OutOfMemory
 
 isStackOverflow :: GLenum -> Bool
 isStackOverflow c =
