@@ -39,7 +39,7 @@ import Control.Monad ( replicateM, mapM_, foldM )
 import Control.Monad.Fix ( MonadFix(..) )
 import Data.Int
 import Data.List ( genericLength, (\\) )
-import Foreign.C.String ( peekCAStringLen, withCAStringLen )
+import Foreign.C.String ( peekCAStringLen, withCAStringLen, withCAString )
 import Foreign.Marshal.Alloc ( alloca, allocaBytes )
 import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
 import Foreign.Marshal.Utils ( withMany )
@@ -82,6 +82,9 @@ withGLStringLen :: String -> (GLStringLen -> IO a) -> IO a
 withGLStringLen s act =
    withCAStringLen s $ \(p,len) ->
       act (castPtr p, fromIntegral len)
+
+withGLString :: String -> (Ptr GLchar -> IO a) -> IO a
+withGLString s act = withCAString s $ act . castPtr
 
 --------------------------------------------------------------------------------
 
@@ -392,16 +395,16 @@ attribLocation program name =
 
 getAttribLocation :: Program -> String -> IO AttribLocation
 getAttribLocation program name =
-   withGLStringLen name $ \(buf,_) ->
-      fmap (AttribLocation . fromIntegral) $
-        glGetAttribLocation program buf
+   fmap (AttribLocation . fromIntegral) $
+      withGLString name $
+         glGetAttribLocation program
 
 EXTENSION_ENTRY("OpenGL 2.0",glGetAttribLocation,Program -> Ptr GLchar -> IO GLint)
 
 bindAttribLocation :: Program -> AttribLocation -> String -> IO ()
 bindAttribLocation program location name =
-   withGLStringLen name $ \(buf,_) ->
-      glBindAttribLocation program location buf
+   withGLString name $
+      glBindAttribLocation program location
 
 EXTENSION_ENTRY("OpenGL 2.0",glBindAttribLocation,Program -> AttribLocation -> Ptr GLchar -> IO ())
 
@@ -491,9 +494,9 @@ newtype UniformLocation = UniformLocation GLint
 uniformLocation :: Program -> String -> GettableStateVar UniformLocation
 uniformLocation program name =
    makeGettableStateVar $
-      withGLStringLen name $ \(buf,_) ->
-         fmap UniformLocation $
-            glGetUniformLocation program buf
+      fmap UniformLocation $
+         withGLString name $
+            glGetUniformLocation program
 
 EXTENSION_ENTRY("OpenGL 2.0",glGetUniformLocation,Program -> Ptr GLchar -> IO GLint)
 
