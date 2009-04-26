@@ -28,6 +28,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
 
    -- * Mapping Buffer Objects
    BufferAccess(..), MappingFailure(..), withMappedBuffer,
+   mapBuffer, unmapBuffer,
    bufferAccess, bufferMapped
 ) where
 
@@ -49,7 +50,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetTextureCoordArrayBufferBinding,GetEdgeFlagArrayBufferBinding,
             GetFogCoordArrayBufferBinding,GetSecondaryColorArrayBufferBinding,
             GetPixelPackBufferBinding,GetPixelUnpackBufferBinding ),
-   getInteger1 )
+   getInteger1, maybeNullPtr )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( ClientArrayType(..) )
@@ -292,18 +293,23 @@ data MappingFailure =
    | UnmappingFailed
    deriving ( Eq, Ord, Show )
 
+-- | Convenience function for an exception-safe combination of 'mapBuffer' and
+-- 'unmapBuffer'.
 withMappedBuffer :: BufferTarget -> BufferAccess -> (Ptr a -> IO b) -> (MappingFailure -> IO b) -> IO b
 withMappedBuffer t a action err = do
-   buf <- mapBuffer t a
-   if buf == nullPtr
-      then err MappingFailed
-      else do (ret, ok) <- action buf `finallyRet` unmapBuffer t
-              if ok
-                 then return ret
-                 else err UnmappingFailed
+   maybeBuf <- mapBuffer t a
+   case maybeBuf  of
+      Nothing -> err MappingFailed
+      Just buf -> do (ret, ok) <- action buf `finallyRet` unmapBuffer t
+                     if ok
+                        then return ret
+                        else err UnmappingFailed
 
-mapBuffer :: BufferTarget -> BufferAccess -> IO (Ptr a)
-mapBuffer t = glMapBufferARB (marshalBufferTarget t) . marshalBufferAccess
+mapBuffer :: BufferTarget -> BufferAccess -> IO (Maybe (Ptr a))
+mapBuffer t = fmap (maybeNullPtr Nothing Just) . mapBuffer_ t
+
+mapBuffer_ :: BufferTarget -> BufferAccess -> IO (Ptr a)
+mapBuffer_ t = glMapBufferARB (marshalBufferTarget t) . marshalBufferAccess
 
 EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glMapBufferARB,GLenum -> GLenum -> IO (Ptr a))
 

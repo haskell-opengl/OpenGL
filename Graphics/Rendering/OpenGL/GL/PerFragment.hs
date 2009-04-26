@@ -35,6 +35,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 
    -- * Occlusion Queries
    QueryObject(QueryObject), QueryTarget(..), withQuery,
+   beginQuery, endQuery,
    queryCounterBits, currentQuery,
    queryResult, queryResultAvailable,
 
@@ -308,6 +309,8 @@ endQuery = glEndQueryARB . marshalQueryTarget
 
 EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glEndQueryARB,GLenum -> IO ())
 
+-- | Convenience function for an exception-safe combination of 'beginQuery' and
+-- 'endQuery'.
 withQuery :: QueryTarget -> QueryObject -> IO a -> IO a
 withQuery t q = bracket_ (beginQuery t q) (endQuery t)
 

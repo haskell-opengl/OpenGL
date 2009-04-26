@@ -22,12 +22,13 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getEnum1,
    getSizei1,
    getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
-   getDouble1, getDouble2, getDouble4, getDoublev
+   getDouble1, getDouble2, getDouble4, getDoublev,
+   maybeNullPtr
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( Ptr, nullPtr )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLenum, GLint, GLsizei, GLfloat, GLdouble )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
@@ -949,3 +950,9 @@ getDoublev = maybe (const recordInvalidEnum) glGetDoublev . marshalGetPName
 
 foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
    GLenum -> Ptr GLdouble -> IO ()
+
+--------------------------------------------------------------------------------
+
+maybeNullPtr :: b -> (Ptr a -> b) -> Ptr a -> b
+maybeNullPtr n f ptr | ptr == nullPtr = n
+                     | otherwise      = f ptr

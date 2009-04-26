@@ -16,9 +16,10 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
    gluVersion, gluExtensions
 ) where
 
-import Foreign.Ptr ( Ptr, nullPtr, castPtr )
+import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.C.String ( peekCString )
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
+import Graphics.Rendering.OpenGL.GL.QueryUtils ( maybeNullPtr )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar )
 
@@ -45,11 +46,8 @@ marshalStringName x = case x of
 --------------------------------------------------------------------------------
 
 getString :: StringName -> IO String
-getString n = do
-   ptr <- gluGetString (marshalStringName n)
-   if ptr == nullPtr
-      then return ""
-      else peekCString (castPtr ptr)
+getString n = gluGetString (marshalStringName n) >>=
+              maybeNullPtr (return "") (peekCString . castPtr)
 
 foreign import CALLCONV unsafe "gluGetString" gluGetString ::
    GLenum -> IO (Ptr GLubyte)
