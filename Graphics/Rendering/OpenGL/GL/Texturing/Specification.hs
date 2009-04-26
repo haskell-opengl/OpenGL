@@ -116,11 +116,11 @@ foreign import CALLCONV unsafe "glTexImage2D"
 texImage3D :: Proxy -> Level -> PixelInternalFormat -> TextureSize3D -> Border -> PixelData a -> IO ()
 texImage3D proxy level int (TextureSize3D w h d) border pd =
    withPixelData pd $
-      glTexImage3DEXT
+      glTexImage3D
          (marshalProxyTextureTarget proxy Texture3D)
          level (marshalPixelInternalFormat int) w h d border
 
-EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexImage3DEXT,GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLint -> GLenum -> GLenum -> Ptr a -> IO ())
+EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexImage3D,GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLint -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -179,9 +179,9 @@ foreign import CALLCONV unsafe "glTexSubImage2D"
 texSubImage3D :: Level -> TexturePosition3D -> TextureSize3D -> PixelData a -> IO ()
 texSubImage3D level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) pd =
    withPixelData pd $
-      glTexSubImage3DEXT (marshalTextureTarget Texture3D) level xOff yOff zOff w h d
+      glTexSubImage3D (marshalTextureTarget Texture3D) level xOff yOff zOff w h d
 
-EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexSubImage3DEXT,GLenum -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
+EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glTexSubImage3D,GLenum -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -205,9 +205,9 @@ foreign import CALLCONV unsafe "glCopyTexSubImage2D"
 
 copyTexSubImage3D :: Level -> TexturePosition3D -> Position -> TextureSize2D -> IO ()
 copyTexSubImage3D level (TexturePosition3D xOff yOff zOff) (Position x y) (TextureSize2D w h) =
-   glCopyTexSubImage3DEXT (marshalTextureTarget Texture3D) level xOff yOff zOff x y w h
+   glCopyTexSubImage3D (marshalTextureTarget Texture3D) level xOff yOff zOff x y w h
 
-EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glCopyTexSubImage3DEXT,GLenum -> GLint -> GLint -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> IO ())
+EXTENSION_ENTRY("GL_EXT_texture3D or OpenGL 1.2",glCopyTexSubImage3D,GLenum -> GLint -> GLint -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> IO ())
 
 --------------------------------------------------------------------------------
 
