@@ -37,6 +37,7 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
 
 import Control.Monad ( foldM, unless )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
+import Data.Maybe ( fromJust )
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
@@ -52,6 +53,7 @@ import Graphics.Rendering.OpenGL.GL.BeginEnd (
    PrimitiveMode, EdgeFlag(BeginsInteriorEdge) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Vertex3(..), Normal3(..) )
+import Graphics.Rendering.OpenGL.GL.QueryUtils ( maybeNullPtr )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordOutOfMemory )
 
@@ -639,19 +641,29 @@ withCombineCallback tessObj combiner action =
          setCombineCallback tessObj (marshalTessCallback TessCombine) callbackPtr
          action 
 
+-- NOTE: SGI's tesselator has a bug, sometimes passing NULL for the last two
+-- vertices instead of valid vertex data, so we have to work around this. We
+-- just pass the first vertex in these cases, which is OK, because the
+-- corresponding weight is 0.
 combineProperties :: Storable v => Pool -> Combiner v -> CombineCallback v
 combineProperties pool combiner newVertexPtr propertyPtrs weights result = do
    newVertex <- peek newVertexPtr
    [v0, v1, v2, v3] <- mapM (getProperty propertyPtrs) [0..3]
    [w0, w1, w2, w3] <- peekArray 4 weights
-   let wp = WeightedProperties (w0,v0) (w1,v1) (w2,v2) (w3,v3)
+   let defaultProperty = fromJust v0
+       f = maybe defaultProperty id
+       wp = WeightedProperties (w0, f v0) (w1, f v1) (w2, f v2) (w3, f v3)
        av = AnnotatedVertex newVertex (combiner newVertex wp)
    poke result =<< pooledNew pool av
 
-getProperty :: Storable v => Ptr (Ptr (AnnotatedVertex v)) -> Int -> IO v
-getProperty propertyPtrs n = do
-   AnnotatedVertex _ v <- peek =<< peekElemOff propertyPtrs n
-   return v
+getProperty :: Storable v => Ptr (Ptr (AnnotatedVertex v)) -> Int -> IO (Maybe v)
+getProperty propertyPtrs n = peekElemOff propertyPtrs n >>=
+                             maybeNullPtr (return Nothing) peekProperty
+
+peekProperty :: Storable v => Ptr (AnnotatedVertex v) -> IO (Maybe v)
+peekProperty ptr = do
+   AnnotatedVertex _ v <- peek ptr
+   return (Just v)
 
 foreign import CALLCONV "wrapper" makeCombineCallback ::
    CombineCallback v -> IO (FunPtr (CombineCallback v))
