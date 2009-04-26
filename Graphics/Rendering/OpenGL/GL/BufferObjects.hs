@@ -34,7 +34,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
 
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
-import Foreign.Ptr ( Ptr, nullPtr )
+import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLenum, GLint, GLintptr, GLuint, GLsizei, GLsizeiptr )
