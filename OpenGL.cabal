@@ -1,8 +1,9 @@
 name:		OpenGL
-version:	2.3
+version:	2.2.2.0
 license:	BSD3
 license-file:	LICENSE
 maintainer:	Sven Panne <sven.panne@aedion.de>
+bug-reports:	mailto:hopengl@haskell.org
 homepage:	http://www.haskell.org/HOpenGL/
 category:	Graphics
 synopsis:	A binding for the OpenGL graphics system
