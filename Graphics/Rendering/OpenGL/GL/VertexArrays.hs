@@ -38,7 +38,7 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
              CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordArray,
              CapSecondaryColorArray,CapMatrixIndexArray,CapPrimitiveRestart),
-   makeCapability )
+   makeCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
    GLboolean, GLenum, GLint, GLuint, GLsizei, Capability(Enabled) )
 import Graphics.Rendering.OpenGL.GL.DataType (
@@ -57,7 +57,10 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetMaxElementsVertices,GetMaxElementsIndices,
             GetClientActiveTexture,GetArrayElementLockFirst,
             GetArrayElementLockCount,GetPrimitiveRestartIndex),
-   getInteger1, getEnum1, getSizei1 )
+   getInteger1, getEnum1, getSizei1,
+   GetVertexAttribPName(..),
+   getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
+   GetVertexAttribPointerPName(..), getVertexAttribPointer )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( marshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -67,6 +70,7 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
    TextureUnit, marshalTextureUnit, unmarshalTextureUnit )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum, recordInvalidValue )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( AttribLocation(..) )
 
 --------------------------------------------------------------------------------
 
@@ -104,6 +108,7 @@ data ClientArrayType =
    | FogCoordArray
    | SecondaryColorArray
    | MatrixIndexArray
+   | VertexAttribArray AttribLocation
    deriving ( Eq, Ord, Show )
 
 marshalClientArrayType :: ClientArrayType -> GLenum
@@ -117,6 +122,7 @@ marshalClientArrayType x = case x of
    FogCoordArray -> 0x8457
    SecondaryColorArray -> 0x845e
    MatrixIndexArray -> 0x8844
+   VertexAttribArray _ -> error "marshalClientArrayType: should not happen"
 
 -- Hmmm...
 clientArrayTypeToEnableCap :: ClientArrayType -> EnableCap
@@ -130,6 +136,7 @@ clientArrayTypeToEnableCap x = case x of
    FogCoordArray -> CapFogCoordArray
    SecondaryColorArray -> CapSecondaryColorArray
    MatrixIndexArray -> CapMatrixIndexArray
+   VertexAttribArray _ -> error "clientArrayTypeToEnableCap: should not happen"
 
 --------------------------------------------------------------------------------
 
@@ -147,6 +154,7 @@ arrayPointer t = case t of
       makeStateVar
         (do recordInvalidEnum ; return noVertexArrayDescriptor)
         (const recordInvalidEnum)
+   VertexAttribArray location -> vertexAttribPointer location
 
 check :: Bool -> IO () -> IO ()
 check flag val = if flag then val else recordInvalidValue
@@ -307,10 +315,23 @@ EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColorPointerEX
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttribPointer,GLuint -> GLint -> GLenum -> GLboolean -> GLsizei -> Ptr a -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glDisableVertexAttribArray,GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glEnableVertexAttribArray,GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribPointerv,GLuint -> GLenum -> Ptr (Ptr a) -> IO ())
+vertexAttribPointer :: AttribLocation -> StateVar (VertexArrayDescriptor a)
+vertexAttribPointer location =
+   makeStateVar (getVertexAttribPointer_ location) (setVertexAttribPointer location)
+
+getVertexAttribPointer_ :: AttribLocation -> IO (VertexArrayDescriptor a)
+getVertexAttribPointer_ location = do
+   n <- getVertexAttribInteger1 id location GetVertexAttribArraySize
+   d <- getVertexAttribEnum1 unmarshalDataType location GetVertexAttribArrayType
+   s <- getVertexAttribInteger1 fromIntegral location GetVertexAttribArrayStride
+   p <- getVertexAttribPointer location VertexAttribArrayPointer
+   return $ VertexArrayDescriptor n d s p
+
+setVertexAttribPointer :: AttribLocation -> (VertexArrayDescriptor a) -> IO ()
+setVertexAttribPointer location (VertexArrayDescriptor n d s p) =
+   glVertexAttribPointerARB location n (marshalDataType d) 0 s p -- TODO: Handle "normalized" flag
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttribPointerARB,AttribLocation -> GLint -> GLenum -> GLboolean -> GLsizei -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -363,15 +384,24 @@ clientState arrayType =
    makeStateVar (getClientState arrayType) (setClientState arrayType)
 
 getClientState :: ClientArrayType -> IO Capability
-getClientState = get . makeCapability . clientArrayTypeToEnableCap
+getClientState (VertexAttribArray location) =
+   getVertexAttribBoolean1 unmarshalCapability location GetVertexAttribArrayEnabled
+getClientState arrayType = get . makeCapability . clientArrayTypeToEnableCap $ arrayType
 
 setClientState :: ClientArrayType -> Capability -> IO ()
+setClientState (VertexAttribArray location) val =
+   (if val == Enabled then glEnableVertexAttribArrayARB else glDisableVertexAttribArrayARB)
+      location
 setClientState arrayType val =
    (if val == Enabled then glEnableClientState else glDisableClientState)
       (marshalClientArrayType arrayType)
 
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glEnableVertexAttribArrayARB,AttribLocation -> IO ())
+
 foreign import CALLCONV unsafe "glEnableClientState" glEnableClientState ::
    GLenum -> IO ()
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glDisableVertexAttribArrayARB,AttribLocation -> IO ())
 
 foreign import CALLCONV unsafe "glDisableClientState" glDisableClientState ::
    GLenum -> IO ()

@@ -69,6 +69,7 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke (
    poke1, poke2, poke3, poke4,
    peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
+   AttribLocation(..),
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoord,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits,GetRGBAMode),
@@ -1217,11 +1218,6 @@ instance Storable a => Storable (Index1 a) where
 
 --------------------------------------------------------------------------------
 
-newtype AttribLocation = AttribLocation GLuint
-   deriving ( Eq, Ord, Show )
-
---------------------------------------------------------------------------------
-
 -- | The class of all types which can be used as a generic vertex attribute.
 
 class VertexAttribComponent a where
@@ -1237,95 +1233,89 @@ class VertexAttribComponent a where
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribdv,GLuint -> GLenum -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribfv,GLuint -> GLenum -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glGetVertexAttribiv,GLuint -> GLenum -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1sARB,AttribLocation -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2sARB,AttribLocation -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3sARB,AttribLocation -> GLshort -> GLshort -> GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4sARB,AttribLocation -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
 
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1s,AttribLocation -> GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2s,AttribLocation -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3s,AttribLocation -> GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4s,AttribLocation -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
-
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1sv,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2sv,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3sv,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4sv,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1svARB,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2svARB,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3svARB,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4svARB,AttribLocation -> Ptr GLshort -> IO ())
 
 instance VertexAttribComponent GLshort_ where
-   vertexAttrib1 = glVertexAttrib1s
-   vertexAttrib2 = glVertexAttrib2s
-   vertexAttrib3 = glVertexAttrib3s
-   vertexAttrib4 = glVertexAttrib4s
+   vertexAttrib1 = glVertexAttrib1sARB
+   vertexAttrib2 = glVertexAttrib2sARB
+   vertexAttrib3 = glVertexAttrib3sARB
+   vertexAttrib4 = glVertexAttrib4sARB
 
-   vertexAttrib1v = glVertexAttrib1sv
-   vertexAttrib2v = glVertexAttrib2sv
-   vertexAttrib3v = glVertexAttrib3sv
-   vertexAttrib4v = glVertexAttrib4sv
+   vertexAttrib1v = glVertexAttrib1svARB
+   vertexAttrib2v = glVertexAttrib2svARB
+   vertexAttrib3v = glVertexAttrib3svARB
+   vertexAttrib4v = glVertexAttrib4svARB
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1f,AttribLocation -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2f,AttribLocation -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3f,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4f,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1fARB,AttribLocation -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2fARB,AttribLocation -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3fARB,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4fARB,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1fv,AttribLocation -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2fv,AttribLocation -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3fv,AttribLocation -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4fv,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1fvARB,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2fvARB,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3fvARB,AttribLocation -> Ptr GLfloat -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4fvARB,AttribLocation -> Ptr GLfloat -> IO ())
 
 instance VertexAttribComponent GLfloat_ where
-   vertexAttrib1 = glVertexAttrib1f
-   vertexAttrib2 = glVertexAttrib2f
-   vertexAttrib3 = glVertexAttrib3f
-   vertexAttrib4 = glVertexAttrib4f
+   vertexAttrib1 = glVertexAttrib1fARB
+   vertexAttrib2 = glVertexAttrib2fARB
+   vertexAttrib3 = glVertexAttrib3fARB
+   vertexAttrib4 = glVertexAttrib4fARB
 
-   vertexAttrib1v = glVertexAttrib1fv
-   vertexAttrib2v = glVertexAttrib2fv
-   vertexAttrib3v = glVertexAttrib3fv
-   vertexAttrib4v = glVertexAttrib4fv
+   vertexAttrib1v = glVertexAttrib1fvARB
+   vertexAttrib2v = glVertexAttrib2fvARB
+   vertexAttrib3v = glVertexAttrib3fvARB
+   vertexAttrib4v = glVertexAttrib4fvARB
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1d,AttribLocation -> GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2d,AttribLocation -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3d,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4d,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1dARB,AttribLocation -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2dARB,AttribLocation -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3dARB,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4dARB,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib1dv,AttribLocation -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib2dv,AttribLocation -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib3dv,AttribLocation -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4dv,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1dvARB,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2dvARB,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3dvARB,AttribLocation -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4dvARB,AttribLocation -> Ptr GLdouble -> IO ())
 
 instance VertexAttribComponent GLdouble_ where
-   vertexAttrib1 = glVertexAttrib1d
-   vertexAttrib2 = glVertexAttrib2d
-   vertexAttrib3 = glVertexAttrib3d
-   vertexAttrib4 = glVertexAttrib4d
+   vertexAttrib1 = glVertexAttrib1dARB
+   vertexAttrib2 = glVertexAttrib2dARB
+   vertexAttrib3 = glVertexAttrib3dARB
+   vertexAttrib4 = glVertexAttrib4dARB
 
-   vertexAttrib1v = glVertexAttrib1dv
-   vertexAttrib2v = glVertexAttrib2dv
-   vertexAttrib3v = glVertexAttrib3dv
-   vertexAttrib4v = glVertexAttrib4dv
+   vertexAttrib1v = glVertexAttrib1dvARB
+   vertexAttrib2v = glVertexAttrib2dvARB
+   vertexAttrib3v = glVertexAttrib3dvARB
+   vertexAttrib4v = glVertexAttrib4dvARB
 
 --------------------------------------------------------------------------------
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4bv,AttribLocation -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4ubv,AttribLocation -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4usv,AttribLocation -> Ptr GLushort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4iv,AttribLocation -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4uiv,AttribLocation -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4bvARB,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ubvARB,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4usvARB,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ivARB,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4uivARB,AttribLocation -> Ptr GLuint -> IO ())
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nbv,AttribLocation -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nubv,AttribLocation -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nusv,AttribLocation -> Ptr GLushort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Niv,AttribLocation -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nuiv,AttribLocation -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NbvARB,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubvARB,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NusvARB,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NivARB,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NuivARB,AttribLocation -> Ptr GLuint -> IO ())
 
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nsv,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glVertexAttrib4Nub,AttribLocation -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NsvARB,AttribLocation -> Ptr GLshort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubARB,AttribLocation -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
 
 --------------------------------------------------------------------------------
 

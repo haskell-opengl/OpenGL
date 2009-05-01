@@ -23,16 +23,26 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getSizei1,
    getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
    getDouble1, getDouble2, getDouble4, getDoublev,
-   maybeNullPtr
+   maybeNullPtr,
+   AttribLocation(..), GetVertexAttribPName(..),
+   getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
+   GetVertexAttribPointerPName(..), getVertexAttribPointer
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, nullPtr )
+import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLint, GLsizei, GLfloat, GLdouble )
+   GLboolean, GLenum, GLint, GLsizei, GLuint, GLfloat, GLdouble )
+import Graphics.Rendering.OpenGL.GL.Extensions (
+   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
+
+--------------------------------------------------------------------------------
+
+#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -956,3 +966,63 @@ foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
 maybeNullPtr :: b -> (Ptr a -> b) -> Ptr a -> b
 maybeNullPtr n f ptr | ptr == nullPtr = n
                      | otherwise      = f ptr
+--------------------------------------------------------------------------------
+
+newtype AttribLocation = AttribLocation GLuint
+   deriving ( Eq, Ord, Show )
+
+--------------------------------------------------------------------------------
+
+data GetVertexAttribPName =
+     GetVertexAttribArrayEnabled
+   | GetVertexAttribArraySize
+   | GetVertexAttribArrayStride
+   | GetVertexAttribArrayType
+   | GetVertexAttribArrayNormalized
+   | GetCurrentVertexAttrib
+   | GetVertexAttribArrayBufferBinding
+
+marshalGetVertexAttribPName :: GetVertexAttribPName -> GLenum
+marshalGetVertexAttribPName x = case x of
+   GetVertexAttribArrayEnabled -> 0x8622
+   GetVertexAttribArraySize -> 0x8623
+   GetVertexAttribArrayStride -> 0x8624
+   GetVertexAttribArrayType -> 0x8625
+   GetVertexAttribArrayNormalized -> 0x886A
+   GetCurrentVertexAttrib -> 0x8626
+   GetVertexAttribArrayBufferBinding -> 0x889F
+
+--------------------------------------------------------------------------------
+
+getVertexAttribInteger1 :: (GLint -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
+getVertexAttribInteger1 f location n = alloca $ \buf -> do
+   glGetVertexAttribivARB location (marshalGetVertexAttribPName n) buf
+   peek1 f buf
+
+getVertexAttribEnum1 :: (GLenum -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
+getVertexAttribEnum1 f = getVertexAttribInteger1 (f . fromIntegral)
+
+getVertexAttribBoolean1 :: (GLboolean -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
+getVertexAttribBoolean1 f = getVertexAttribInteger1 (f . fromIntegral)
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribivARB,AttribLocation -> GLenum -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribdvARB,AttribLocation -> GLenum -> Ptr GLdouble -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribfvARB,AttribLocation -> GLenum -> Ptr GLfloat -> IO ())
+
+--------------------------------------------------------------------------------
+
+data GetVertexAttribPointerPName =
+   VertexAttribArrayPointer
+
+marshalGetVertexAttribPointerPName :: GetVertexAttribPointerPName -> GLenum
+marshalGetVertexAttribPointerPName x = case x of
+   VertexAttribArrayPointer -> 0x8645
+
+--------------------------------------------------------------------------------
+
+getVertexAttribPointer :: AttribLocation -> GetVertexAttribPointerPName -> IO (Ptr a)
+getVertexAttribPointer location n = alloca $ \buf -> do
+   glGetVertexAttribPointervARB location (marshalGetVertexAttribPointerPName n) buf
+   peek buf
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribPointervARB,AttribLocation -> GLenum -> Ptr (Ptr a) -> IO ())
