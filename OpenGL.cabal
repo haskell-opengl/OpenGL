@@ -17,10 +17,9 @@ description:
 	about OpenGL, please see: <http://www.opengl.org/>.
 build-type:     Configure
 extra-source-files:
-	config.guess config.sub install-sh
-	configure.ac configure OpenGL.buildinfo.in
-        include/HsOpenGLConfig.h.in include/HsOpenGL.h.in
-	include/HsOpenGLExt.h include/HsOpenGLTypes.h
+	OpenGL.buildinfo.in README aclocal.m4 config.guess config.sub configure
+	configure.ac include/HsOpenGL.h.in include/HsOpenGLExt.h
+	include/HsOpenGLTypes.h install-sh include/HsOpenGLConfig.h.in
 extra-tmp-files:
 	config.log config.status autom4te.cache
 	OpenGL.buildinfo include/HsOpenGLConfig.h include/HsOpenGL.h
