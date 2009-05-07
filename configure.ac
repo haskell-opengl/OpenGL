@@ -56,9 +56,15 @@ FPTOOLS_CHECK_HTYPE([GLfloat])
 FPTOOLS_CHECK_HTYPE([GLclampf])
 FPTOOLS_CHECK_HTYPE([GLdouble])
 FPTOOLS_CHECK_HTYPE([GLclampd])
-FPTOOLS_CHECK_HTYPE([GLchar])
-FPTOOLS_CHECK_HTYPE([GLintptr])
-FPTOOLS_CHECK_HTYPE([GLsizeiptr])
+
+# cruel hack for ancient Windows headers
+FPTOOLS_CHECK_HTYPE([char])
+FPTOOLS_CHECK_HTYPE([GLchar], [$fptools_cv_htype_char])
+
+# ... and a similar hack
+FPTOOLS_CHECK_HTYPE([ptrdiff_t])
+FPTOOLS_CHECK_HTYPE([GLintptr], [$fptools_cv_htype_ptrdiff_t])
+FPTOOLS_CHECK_HTYPE([GLsizeiptr], [$fptools_cv_htype_ptrdiff_t])
 
 AC_DEFINE_UNQUOTED([GLU_CFLAGS],
   [`echo '' $GLU_CFLAGS | sed -e 's/-[[^ ]]*/,"&"/g' -e 's/^ *,//'`],
