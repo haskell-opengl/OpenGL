@@ -75,6 +75,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_EXT_fog_coord               | 1.4
 -- GL_EXT_histogram               |
 -- GL_EXT_multi_draw_arrays       | 1.4
+-- GL_EXT_packed_float            | 3.0
 -- GL_EXT_packed_pixels           | 1.2
 -- GL_EXT_polygon_offset          | 1.1
 -- GL_EXT_rescale_normal          | 1.2

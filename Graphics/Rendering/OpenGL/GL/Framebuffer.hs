@@ -16,7 +16,7 @@
 module Graphics.Rendering.OpenGL.GL.Framebuffer (
    -- * Querying the Buffer Configuration
    auxBuffers, doubleBuffer, stereoBuffer,
-   rgbaBits, stencilBits, depthBits, accumBits,
+   rgbaBits, stencilBits, depthBits, accumBits, rgbaSignedComponents,
 
    -- * Selecting a Buffer for Writing
    BufferMode(..), drawBuffer, drawBuffers, maxDrawBuffers,
@@ -58,12 +58,13 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,
             GetBlueBits,GetAlphaBits,GetStencilBits,GetDepthBits,
             GetAccumRedBits,GetAccumGreenBits,GetAccumBlueBits,
-            GetAccumAlphaBits,GetDrawBuffer,GetIndexWritemask,GetColorWritemask,
-            GetDepthWritemask,GetStencilWritemask,GetColorClearValue,
-            GetIndexClearValue,GetDepthClearValue,GetStencilClearValue,
-            GetAccumClearValue,GetMaxDrawBuffers,GetDrawBufferN),
-   getInteger1, getBoolean1, getBoolean4, getEnum1, getSizei1, getFloat1,
-   getFloat4, getDouble1 )
+            GetAccumAlphaBits,GetRGBASignedComponents,GetDrawBuffer,
+            GetIndexWritemask,GetColorWritemask,GetDepthWritemask,
+            GetStencilWritemask,GetColorClearValue,GetIndexClearValue,
+            GetDepthClearValue,GetStencilClearValue,GetAccumClearValue,
+            GetMaxDrawBuffers,GetDrawBufferN),
+   getInteger1, getInteger4, getBoolean1, getBoolean4, getEnum1, getSizei1,
+   getFloat1, getFloat4, getDouble1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), GettableStateVar, makeGettableStateVar,
    SettableStateVar, makeSettableStateVar,
@@ -116,6 +117,15 @@ accumBits =
                     (getSizei1 id GetAccumGreenBits)
                     (getSizei1 id GetAccumBlueBits)
                     (getSizei1 id GetAccumAlphaBits)
+
+rgbaSignedComponents :: GettableStateVar (Color4 Bool)
+rgbaSignedComponents =
+   makeGettableStateVar $
+      getInteger4 (\r g b a -> Color4 (unmarshalGLboolean r)
+                                      (unmarshalGLboolean g)
+                                      (unmarshalGLboolean b)
+                                      (unmarshalGLboolean a))
+                  GetRGBASignedComponents
 
 --------------------------------------------------------------------------------
 

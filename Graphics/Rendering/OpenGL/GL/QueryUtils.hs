@@ -424,6 +424,7 @@ data GetPName =
    | GetPixelPackBufferBinding
    | GetPixelUnpackBufferBinding
    | GetDrawBufferN GLsizei
+   | GetRGBASignedComponents
    -- GetWeightArrayBufferBinding
    -- GetVertexAttribArrayBufferBinding
 
@@ -806,6 +807,7 @@ marshalGetPName x = case x of
    GetPixelPackBufferBinding -> Just 0x88ed
    GetPixelUnpackBufferBinding -> Just 0x88EF
    GetDrawBufferN i -> drawBufferIndexToEnum i
+   GetRGBASignedComponents -> Just 0x8C3C
    -- GetWeightArrayBufferBinding -> Just 0x889e
    -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 
