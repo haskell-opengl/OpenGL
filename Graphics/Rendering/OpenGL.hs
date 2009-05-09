@@ -36,6 +36,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- @
 -- extension                      | core since
 -- -------------------------------+------------
+-- APPLE_ycbcr_422                |
 -- GL_APPLE_packed_pixels         | 1.2
 -- GL_ARB_depth_texture           | 1.4
 -- GL_ARB_imaging                 |
@@ -99,6 +100,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_SGIS_texture_lod            |
 -- GL_SGI_color_matrix            |
 -- GL_SGI_color_table             |
+-- MESA_ycbcr_texture             |
 -- @
 
 --------------------------------------------------------------------------------
