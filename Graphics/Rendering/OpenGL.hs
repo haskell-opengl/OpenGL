@@ -36,8 +36,8 @@ import Graphics.Rendering.OpenGL.GLU
 -- @
 -- extension                      | core since
 -- -------------------------------+------------
--- APPLE_ycbcr_422                |
 -- GL_APPLE_packed_pixels         | 1.2
+-- GL_APPLE_ycbcr_422             |
 -- GL_ARB_depth_texture           | 1.4
 -- GL_ARB_imaging                 |
 -- GL_ARB_multisample             | 1.3
@@ -89,6 +89,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_EXT_vertex_array            | 1.1
 -- GL_HP_convolution_border_modes |
 -- GL_IBM_rasterpos_clip          |
+-- GL_MESA_ycbcr_texture          |
 -- GL_NV_blend_square             | 1.4
 -- GL_NV_depth_clamp              |
 -- GL_NV_fog_distance             |
@@ -100,7 +101,6 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_SGIS_texture_lod            |
 -- GL_SGI_color_matrix            |
 -- GL_SGI_color_table             |
--- MESA_ycbcr_texture             |
 -- @
 
 --------------------------------------------------------------------------------
