@@ -87,6 +87,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_EXT_texture                 | 1.1
 -- GL_EXT_texture3D               | 1.2
 -- GL_EXT_texture_lod_bias        | 1.4
+-- GL_EXT_texture_shared_exponent | 3.0
 -- GL_EXT_texture_object          | 1.1
 -- GL_EXT_vertex_array            | 1.1
 -- GL_HP_convolution_border_modes |

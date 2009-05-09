@@ -14,9 +14,9 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
    TextureQuery, textureInternalFormat, textureSize1D, textureSize2D,
-   textureSize3D, textureBorder, textureRGBASizes, textureIntensitySize,
-   textureLuminanceSize, textureIndexSize, textureDepthBits,
-   textureCompressedImageSize, textureProxyOK
+   textureSize3D, textureBorder, textureRGBASizes, textureSharedSize,
+   textureIntensitySize, textureLuminanceSize, textureIndexSize,
+   textureDepthBits, textureCompressedImageSize, textureProxyOK
 ) where
 
 import Control.Monad ( liftM2, liftM3, liftM4 )
@@ -56,6 +56,7 @@ data TexLevelParameter =
    | DepthBits
    | TextureCompressedImageSize
    | TextureCompressed
+   | TextureSharedSize
 
 marshalTexLevelParameter :: TexLevelParameter -> GLenum
 marshalTexLevelParameter x = case x of
@@ -74,6 +75,7 @@ marshalTexLevelParameter x = case x of
    DepthBits -> 0x0D56
    TextureCompressedImageSize -> 0x86A0
    TextureCompressed -> 0x86A1
+   TextureSharedSize -> 0x8C3F
 
 --------------------------------------------------------------------------------
 
@@ -117,6 +119,11 @@ textureRGBASizes t level =
              (getTexLevelParameteri fromIntegral NoProxy t level TextureGreenSize)
              (getTexLevelParameteri fromIntegral NoProxy t level TextureBlueSize )
              (getTexLevelParameteri fromIntegral NoProxy t level TextureAlphaSize)
+
+textureSharedSize :: TextureQuery GLsizei
+textureSharedSize t level =
+   makeGettableStateVar $
+      getTexLevelParameteri fromIntegral NoProxy t level TextureSharedSize
 
 textureIntensitySize :: TextureQuery GLsizei
 textureIntensitySize t level =
