@@ -28,6 +28,7 @@ data DataType =
    | UnsignedShort
    | Int
    | UnsignedInt
+   | HalfFloat
    | Float
    | TwoBytes
    | ThreeBytes
@@ -59,6 +60,7 @@ marshalDataType x = case x of
    UnsignedShort -> 0x1403
    Int -> 0x1404
    UnsignedInt -> 0x1405
+   HalfFloat -> 0x140B
    Float -> 0x1406
    TwoBytes -> 0x1407
    ThreeBytes -> 0x1408
@@ -89,6 +91,7 @@ unmarshalDataType x
    | x == 0x1403 = UnsignedShort
    | x == 0x1404 = Int
    | x == 0x1405 = UnsignedInt
+   | x == 0x140B = HalfFloat
    | x == 0x1406 = Float
    | x == 0x1407 = TwoBytes
    | x == 0x1408 = ThreeBytes
