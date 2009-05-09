@@ -38,6 +38,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- -------------------------------+------------
 -- GL_APPLE_packed_pixels         | 1.2
 -- GL_APPLE_ycbcr_422             |
+-- GL_ARB_depth_buffer_float      | 3.0
 -- GL_ARB_depth_texture           | 1.4
 -- GL_ARB_half_float_pixel        | 3.0
 -- GL_ARB_imaging                 |

@@ -83,6 +83,8 @@ data PixelInternalFormat =
    | CompressedSRGBAlpha
    | CompressedSLuminance
    | CompressedSLuminanceAlpha
+   | DepthComponent32f
+   | Depth32fStencil8
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
@@ -147,6 +149,8 @@ marshalPixelInternalFormat x = case x of
    CompressedSRGBAlpha -> 0x8c49
    CompressedSLuminance -> 0x8c4a
    CompressedSLuminanceAlpha -> 0x8c4b
+   DepthComponent32f -> 0x8CAC
+   Depth32fStencil8 -> 0x8CAD
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -214,6 +218,8 @@ unmarshalPixelInternalFormat x
    | x == 0x8c49 = CompressedSRGBAlpha
    | x == 0x8c4a = CompressedSLuminance
    | x == 0x8c4b = CompressedSLuminanceAlpha
+   | x == 0x8CAC = DepthComponent32f
+   | x == 0x8CAD = Depth32fStencil8
    -- legacy values
    | x == 1 = Luminance'
    | x == 2 = LuminanceAlpha'
