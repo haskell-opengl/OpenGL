@@ -45,6 +45,7 @@ data DataType =
    | UnsignedInt2101010Rev
    | UnsignedInt248
    | UnsignedInt10f11f11fRev
+   | UnsignedInt5999Rev
    | Float32UnsignedInt248Rev
    | Bitmap                    -- pixel data, deprecated in 3.1
    | UnsignedShort88           -- MESA_ycbcr_texture/APPLE_ycbcr_422
@@ -79,6 +80,7 @@ marshalDataType x = case x of
    UnsignedInt2101010Rev -> 0x8368
    UnsignedInt248 -> 0x84fa
    UnsignedInt10f11f11fRev -> 0x8C3B
+   UnsignedInt5999Rev -> 0x8C3E
    Float32UnsignedInt248Rev -> 0x8DAD
    Bitmap -> 0x1a00
    UnsignedShort88 -> 0x85ba
@@ -112,6 +114,7 @@ unmarshalDataType x
    | x == 0x8368 = UnsignedInt2101010Rev
    | x == 0x84fa = UnsignedInt248
    | x == 0x8C3B = UnsignedInt10f11f11fRev
+   | x == 0x8C3E = UnsignedInt5999Rev
    | x == 0x8DAD = Float32UnsignedInt248Rev
    | x == 0x1a00 = Bitmap
    | x == 0x85ba = UnsignedShort88
