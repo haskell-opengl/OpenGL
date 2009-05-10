@@ -34,7 +34,10 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    CompressedPixelData(..),
    compressedTexImage1D, compressedTexImage2D, compressedTexImage3D,
    compressedTexSubImage1D, compressedTexSubImage2D, compressedTexSubImage3D,
-   getCompressedTexImage
+   getCompressedTexImage,
+
+  -- * Implementation-Dependent Limits
+  maxTextureSize
 ) where
 
 import Foreign.Marshal.Array ( peekArray, allocaArray )
@@ -49,7 +52,9 @@ import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
 import Graphics.Rendering.OpenGL.GL.PixelRectangles (
    PixelInternalFormat, PixelData, Proxy(..) )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetNumCompressedTextureFormats,GetCompressedTextureFormats),
+   GetPName(GetNumCompressedTextureFormats,GetCompressedTextureFormats,
+            GetMaxTextureSize,GetMax3DTextureSize,GetMaxCubeMapTextureSize,
+            GetMaxRectangleTextureSize),
    getInteger1, getIntegerv)
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar )
@@ -307,3 +312,16 @@ compressedTexSubImage3D level (TexturePosition3D xOff yOff zOff) (TextureSize3D 
       glCompressedTexSubImage3DARB (marshalTextureTarget Texture3D) level xOff yOff zOff w h d
 
 EXTENSION_ENTRY("GL_ARB_texture_compression or OpenGL 1.3",glCompressedTexSubImage3DARB,GLenum -> GLint -> GLint -> GLint -> GLint -> GLsizei -> GLsizei -> GLsizei -> GLenum -> GLsizei -> Ptr a -> IO ())
+
+--------------------------------------------------------------------------------
+
+maxTextureSize :: TextureTarget -> GettableStateVar GLsizei
+maxTextureSize = makeGettableStateVar . getInteger1 fromIntegral . textureTargetToMaxQuery
+
+textureTargetToMaxQuery :: TextureTarget -> GetPName
+textureTargetToMaxQuery x = case x of
+   Texture1D -> GetMaxTextureSize
+   Texture2D -> GetMaxTextureSize
+   Texture3D -> GetMax3DTextureSize
+   TextureCubeMap -> GetMaxCubeMapTextureSize
+   TextureRectangle -> GetMaxRectangleTextureSize
