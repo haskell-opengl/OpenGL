@@ -56,6 +56,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_ARB_texture_env_crossbar    | 1.4
 -- GL_ARB_texture_env_dot3        | 1.3
 -- GL_ARB_texture_mirrored_repeat | 1.4
+-- GL_ARB_texture_rectangle       | 3.1
 -- GL_ARB_transpose_matrix        | 1.3
 -- GL_ARB_vertex_buffer_object    | 1.5
 -- GL_ARB_window_pos              | 1.4

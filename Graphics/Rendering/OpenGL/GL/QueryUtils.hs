@@ -367,6 +367,7 @@ data GetPName =
    | GetMaxTextureUnits
    | GetTextureCubeMap
    | GetMaxCubeMapTextureSize
+   | GetMaxRectangleTextureSize
    | GetNumCompressedTextureFormats
    | GetCompressedTextureFormats
    | GetMaxVertexUnits
@@ -750,6 +751,7 @@ marshalGetPName x = case x of
    GetMaxTextureUnits -> Just 0x84e2
    GetTextureCubeMap -> Just 0x8513
    GetMaxCubeMapTextureSize -> Just 0x851c
+   GetMaxRectangleTextureSize -> Just 0x84F8
    GetNumCompressedTextureFormats -> Just 0x86a2
    GetCompressedTextureFormats -> Just 0x86a3
    GetMaxVertexUnits -> Just 0x86a4

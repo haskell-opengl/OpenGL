@@ -44,6 +44,7 @@ data EnableCap =
    | CapLighting
    | CapTexture1D
    | CapTexture2D
+   | CapTextureRectangle
    | CapLineStipple
    | CapPolygonStipple
    | CapCullFace
@@ -134,6 +135,7 @@ marshalEnableCap x = case x of
    CapLighting -> Just 0xb50
    CapTexture1D -> Just 0xde0
    CapTexture2D -> Just 0xde1
+   CapTextureRectangle -> Just 0x84F5
    CapLineStipple -> Just 0xb24
    CapPolygonStipple -> Just 0xb42
    CapCullFace -> Just 0xb44

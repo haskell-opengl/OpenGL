@@ -19,7 +19,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Application (
 
 import Graphics.Rendering.OpenGL.GL.BasicTypes ( Capability )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapTexture1D,CapTexture2D,CapTexture3D,CapTextureCubeMap),
+   EnableCap(CapTexture1D,CapTexture2D,CapTexture3D,CapTextureCubeMap,
+             CapTextureRectangle),
    makeCapability )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
@@ -37,4 +38,4 @@ textureTargetToEnableCap x = case x of
     Texture2D -> CapTexture2D
     Texture3D -> CapTexture3D
     TextureCubeMap -> CapTextureCubeMap
-    TextureRectangle -> error "ToDo: TextureRectangle"
+    TextureRectangle -> CapTextureRectangle

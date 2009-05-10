@@ -428,10 +428,12 @@ data VariableType =
    | BoolVec4
    | Sampler1D
    | Sampler2D
+   | Sampler2DRect
    | Sampler3D
    | SamplerCube
    | Sampler1DShadow
    | Sampler2DShadow
+   | Sampler2DRectShadow
    deriving ( Eq, Ord, Show )
 
 unmarshalVariableType :: GLenum -> VariableType
@@ -453,10 +455,12 @@ unmarshalVariableType x
    | x == 0x8B59 = BoolVec4
    | x == 0x8B5D = Sampler1D
    | x == 0x8B5E = Sampler2D
+   | x == 0x8B63 = Sampler2DRect
    | x == 0x8B5F = Sampler3D
    | x == 0x8B60 = SamplerCube
    | x == 0x8B61 = Sampler1DShadow
    | x == 0x8B62 = Sampler2DShadow
+   | x == 0x8B64 = Sampler2DRectShadow
    | otherwise = error ("unmarshalVariableType: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
