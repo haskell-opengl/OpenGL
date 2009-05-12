@@ -59,6 +59,7 @@ import Graphics.Rendering.OpenGL.GLU
 -- GL_ARB_texture_rectangle       | 3.1
 -- GL_ARB_transpose_matrix        | 1.3
 -- GL_ARB_vertex_buffer_object    | 1.5
+-- GL_ARB_vertex_shader           | 2.0
 -- GL_ARB_window_pos              | 1.4
 -- GL_EXT_abgr                    |
 -- GL_EXT_bgra                    | 1.2

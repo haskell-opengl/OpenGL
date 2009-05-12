@@ -26,6 +26,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    maybeNullPtr,
    AttribLocation(..), GetVertexAttribPName(..),
    getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
+   getVertexAttribFloat4, getVertexAttribIInteger4, getVertexAttribIuInteger4, 
    GetVertexAttribPointerPName(..), getVertexAttribPointer
 ) where
 
@@ -1010,8 +1011,27 @@ getVertexAttribBoolean1 :: (GLboolean -> b) -> AttribLocation -> GetVertexAttrib
 getVertexAttribBoolean1 f = getVertexAttribInteger1 (f . fromIntegral)
 
 EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribivARB,AttribLocation -> GLenum -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribdvARB,AttribLocation -> GLenum -> Ptr GLdouble -> IO ())
+
+getVertexAttribFloat4 :: (GLfloat -> GLfloat -> GLfloat -> GLfloat -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
+getVertexAttribFloat4 f location n = alloca $ \buf -> do
+   glGetVertexAttribfvARB location (marshalGetVertexAttribPName n) buf
+   peek4 f buf
+
 EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribfvARB,AttribLocation -> GLenum -> Ptr GLfloat -> IO ())
+
+getVertexAttribIInteger4 :: (GLint -> GLint -> GLint -> GLint -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
+getVertexAttribIInteger4 f location n = alloca $ \buf -> do
+   glGetVertexAttribIivARB location (marshalGetVertexAttribPName n) buf
+   peek4 f buf
+
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glGetVertexAttribIivARB,AttribLocation -> GLenum -> Ptr GLint -> IO ())
+
+getVertexAttribIuInteger4 :: (GLuint -> GLuint -> GLuint -> GLuint -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
+getVertexAttribIuInteger4 f location n = alloca $ \buf -> do
+   glGetVertexAttribIuivARB location (marshalGetVertexAttribPName n) buf
+   peek4 f buf
+
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glGetVertexAttribIuivARB,AttribLocation -> GLenum -> Ptr GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 

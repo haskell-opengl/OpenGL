@@ -49,7 +49,8 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    Index1(..),
 
    -- * Generic Vertex Attributes
-   AttribLocation(..), VertexAttrib, VertexAttribComponent(..),
+   currentVertexAttrib, currentVertexAttribI, currentVertexAttribIu,
+   AttribLocation(..), VertexAttrib(..), VertexAttribComponent(..),
 
    -- * Texture Units
    TextureUnit(..), maxTextureUnit
@@ -57,6 +58,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 import Data.Int
 import Data.Word
+import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.BasicTypes (
@@ -67,13 +69,16 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke (
    poke1, poke2, poke3, poke4,
-   peek1, peek2, peek3, peek4 )
+   peek1, peek2, peek3, peek4,
+   peek1M, peek2M, peek3M, peek4M )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    AttribLocation(..),
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoord,
             GetCurrentColor, GetCurrentSecondaryColor, GetCurrentIndex,
             GetMaxTextureUnits,GetRGBAMode),
-   getBoolean1, getInteger1, getEnum1, getFloat1, getFloat3, getFloat4 )
+   getBoolean1, getInteger1, getEnum1, getFloat1, getFloat3, getFloat4,
+   GetVertexAttribPName(GetCurrentVertexAttrib),
+   getVertexAttribFloat4, getVertexAttribIInteger4, getVertexAttribIuInteger4  )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
@@ -1218,18 +1223,119 @@ instance Storable a => Storable (Index1 a) where
 
 --------------------------------------------------------------------------------
 
--- | The class of all types which can be used as a generic vertex attribute.
+currentVertexAttrib :: AttribLocation -> StateVar (Vertex4 GLfloat)
+currentVertexAttrib location =
+   makeStateVar
+      (getVertexAttribFloat4 Vertex4 location GetCurrentVertexAttrib)
+      (vertexAttrib location)
 
-class VertexAttribComponent a where
+currentVertexAttribI :: AttribLocation -> StateVar (Vertex4 GLint)
+currentVertexAttribI location =
+   makeStateVar
+      (getVertexAttribIInteger4 Vertex4 location GetCurrentVertexAttrib)
+      (vertexAttribI location)
+
+currentVertexAttribIu :: AttribLocation -> StateVar (Vertex4 GLuint)
+currentVertexAttribIu location =
+   makeStateVar
+      (getVertexAttribIuInteger4 Vertex4 location GetCurrentVertexAttrib)
+      (vertexAttribI location)
+
+--------------------------------------------------------------------------------
+-- The generic vertex attribute API is not as orthogonal as we would like.
+-- Minimal methods: vertexAttrib4v and vertexAttrib4Nv and vertexAttrib4Iv
+
+-- | The class of all types which can be used as a generic vertex attribute.
+-- NOTE: Do not use the methods of this class directly, they were only exported
+-- by accident and will be hidden in future versions of this package.
+
+class (Storable a, Num a) => VertexAttribComponent a where
    vertexAttrib1 :: AttribLocation -> a -> IO ()
    vertexAttrib2 :: AttribLocation -> a -> a -> IO ()
    vertexAttrib3 :: AttribLocation -> a -> a -> a -> IO ()
    vertexAttrib4 :: AttribLocation -> a -> a -> a -> a -> IO ()
 
+   vertexAttrib1N :: AttribLocation -> a -> IO ()
+   vertexAttrib2N :: AttribLocation -> a -> a -> IO ()
+   vertexAttrib3N :: AttribLocation -> a -> a -> a -> IO ()
+   vertexAttrib4N :: AttribLocation -> a -> a -> a -> a -> IO ()
+
+   vertexAttrib1I :: AttribLocation -> a -> IO ()
+   vertexAttrib2I :: AttribLocation -> a -> a -> IO ()
+   vertexAttrib3I :: AttribLocation -> a -> a -> a -> IO ()
+   vertexAttrib4I :: AttribLocation -> a -> a -> a -> a -> IO ()
+
    vertexAttrib1v :: AttribLocation -> Ptr a -> IO ()
    vertexAttrib2v :: AttribLocation -> Ptr a -> IO ()
    vertexAttrib3v :: AttribLocation -> Ptr a -> IO ()
    vertexAttrib4v :: AttribLocation -> Ptr a -> IO ()
+
+   vertexAttrib1Nv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib2Nv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib3Nv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib4Nv :: AttribLocation -> Ptr a -> IO ()
+
+   vertexAttrib1Iv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib2Iv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib3Iv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib4Iv :: AttribLocation -> Ptr a -> IO ()
+
+   vertexAttrib1 location x = vertexAttrib4 location x 0 0 1
+   vertexAttrib2 location x y = vertexAttrib4 location x y 0 1
+   vertexAttrib3 location x y z = vertexAttrib4 location x y z 1
+   vertexAttrib4 location x y z w = allocaArray 4 $ \buf -> do
+                                       poke4 buf x y z w
+                                       vertexAttrib4v location buf
+
+   vertexAttrib1N location x = vertexAttrib4N location x 0 0 1
+   vertexAttrib2N location x y = vertexAttrib4N location x y 0 1
+   vertexAttrib3N location x y z = vertexAttrib4N location x y z 1
+   vertexAttrib4N location x y z w = allocaArray 4 $ \buf -> do
+                                       poke4 buf x y z w
+                                       vertexAttrib4Nv location buf
+
+   vertexAttrib1I location x = vertexAttrib4I location x 0 0 1
+   vertexAttrib2I location x y = vertexAttrib4I location x y 0 1
+   vertexAttrib3I location x y z = vertexAttrib4I location x y z 1
+   vertexAttrib4I location x y z w = allocaArray 4 $ \buf -> do
+                                       poke4 buf x y z w
+                                       vertexAttrib4Iv location buf
+
+   vertexAttrib1v location = peek1M $ vertexAttrib1 location
+   vertexAttrib2v location = peek2M $ vertexAttrib2 location
+   vertexAttrib3v location = peek3M $ vertexAttrib3 location
+
+   vertexAttrib1Nv location = peek1M $ vertexAttrib1N location
+   vertexAttrib2Nv location = peek2M $ vertexAttrib2N location
+   vertexAttrib3Nv location = peek3M $ vertexAttrib3N location
+
+   vertexAttrib1Iv location = peek1M $ vertexAttrib1I location
+   vertexAttrib2Iv location = peek2M $ vertexAttrib2I location
+   vertexAttrib3Iv location = peek3M $ vertexAttrib3I location
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4bvARB,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NbvARB,AttribLocation -> Ptr GLbyte -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4bv,AttribLocation -> Ptr GLbyte -> IO ())
+
+instance VertexAttribComponent GLbyte_ where
+   vertexAttrib4v = glVertexAttrib4bvARB
+   vertexAttrib4Nv = glVertexAttrib4NbvARB
+   vertexAttrib4Iv = glVertexAttribI4bv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubARB,AttribLocation -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ubvARB,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubvARB,AttribLocation -> Ptr GLubyte -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4ubv,AttribLocation -> Ptr GLubyte -> IO ())
+
+instance VertexAttribComponent GLubyte_ where
+   vertexAttrib4N = glVertexAttrib4NubARB
+   vertexAttrib4v = glVertexAttrib4ubvARB
+   vertexAttrib4Nv = glVertexAttrib4NubvARB
+   vertexAttrib4Iv = glVertexAttribI4ubv
 
 --------------------------------------------------------------------------------
 
@@ -1243,6 +1349,10 @@ EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2svARB,Attrib
 EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3svARB,AttribLocation -> Ptr GLshort -> IO ())
 EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4svARB,AttribLocation -> Ptr GLshort -> IO ())
 
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NsvARB,AttribLocation -> Ptr GLshort -> IO ())
+
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4sv,AttribLocation -> Ptr GLshort -> IO ())
+
 instance VertexAttribComponent GLshort_ where
    vertexAttrib1 = glVertexAttrib1sARB
    vertexAttrib2 = glVertexAttrib2sARB
@@ -1253,6 +1363,83 @@ instance VertexAttribComponent GLshort_ where
    vertexAttrib2v = glVertexAttrib2svARB
    vertexAttrib3v = glVertexAttrib3svARB
    vertexAttrib4v = glVertexAttrib4svARB
+
+   vertexAttrib4Nv = glVertexAttrib4NsvARB
+
+   vertexAttrib4Iv = glVertexAttribI4sv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4usvARB,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NusvARB,AttribLocation -> Ptr GLushort -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4usv,AttribLocation -> Ptr GLushort -> IO ())
+
+instance VertexAttribComponent GLushort_ where
+   vertexAttrib4v = glVertexAttrib4usvARB
+   vertexAttrib4Nv = glVertexAttrib4NusvARB
+   vertexAttrib4Iv = glVertexAttribI4usv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1i,AttribLocation -> GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2i,AttribLocation -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3i,AttribLocation -> GLint -> GLint -> GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4i,AttribLocation -> GLint -> GLint -> GLint -> GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ivARB,AttribLocation -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NivARB,AttribLocation -> Ptr GLint -> IO ())
+
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1iv,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2iv,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3iv,AttribLocation -> Ptr GLint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4iv,AttribLocation -> Ptr GLint -> IO ())
+
+instance VertexAttribComponent GLint_ where
+   vertexAttrib1I = glVertexAttribI1i
+   vertexAttrib2I = glVertexAttribI2i
+   vertexAttrib3I = glVertexAttribI3i
+   vertexAttrib4I = glVertexAttribI4i
+
+   vertexAttrib4v = glVertexAttrib4ivARB
+
+   vertexAttrib4Nv = glVertexAttrib4NivARB
+
+   vertexAttrib1Iv = glVertexAttribI1iv
+   vertexAttrib2Iv = glVertexAttribI2iv
+   vertexAttrib3Iv = glVertexAttribI3iv
+   vertexAttrib4Iv = glVertexAttribI4iv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1ui,AttribLocation -> GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2ui,AttribLocation -> GLuint -> GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3ui,AttribLocation -> GLuint -> GLuint -> GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4ui,AttribLocation -> GLuint -> GLuint -> GLuint -> GLuint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4uivARB,AttribLocation -> Ptr GLuint -> IO ())
+
+EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NuivARB,AttribLocation -> Ptr GLuint -> IO ())
+
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1uiv,AttribLocation -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2uiv,AttribLocation -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3uiv,AttribLocation -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4uiv,AttribLocation -> Ptr GLuint -> IO ())
+
+instance VertexAttribComponent GLuint_ where
+   vertexAttrib1I = glVertexAttribI1ui
+   vertexAttrib2I = glVertexAttribI2ui
+   vertexAttrib3I = glVertexAttribI3ui
+   vertexAttrib4I = glVertexAttribI4ui
+
+   vertexAttrib4v = glVertexAttrib4uivARB
+
+   vertexAttrib4Nv = glVertexAttrib4NuivARB
+
+   vertexAttrib1Iv = glVertexAttribI1uiv
+   vertexAttrib2Iv = glVertexAttribI2uiv
+   vertexAttrib3Iv = glVertexAttribI3uiv
+   vertexAttrib4Iv = glVertexAttribI4uiv
 
 --------------------------------------------------------------------------------
 
@@ -1277,6 +1464,19 @@ instance VertexAttribComponent GLfloat_ where
    vertexAttrib3v = glVertexAttrib3fvARB
    vertexAttrib4v = glVertexAttrib4fvARB
 
+   vertexAttrib4Nv = vertexAttrib4v
+
+   vertexAttrib4Iv = vertexAttrib4IvRealFrac
+
+vertexAttrib4IvRealFrac :: (Storable a, RealFrac a) => AttribLocation -> Ptr a -> IO ()
+vertexAttrib4IvRealFrac location = peek4M $ \x y z w ->
+   vertexAttrib4I location (toGLint x) (toGLint y) (toGLint z) (toGLint w)
+
+-- formula 2.6 from the OpenGL 3.1 spec
+toGLint :: RealFrac a => a -> GLint
+toGLint = truncate . (fromIntegral (maxBound :: GLint) *). clamp
+   where clamp = max (-1.0) . min 1.0
+
 --------------------------------------------------------------------------------
 
 EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1dARB,AttribLocation -> GLdouble -> IO ())
@@ -1300,76 +1500,115 @@ instance VertexAttribComponent GLdouble_ where
    vertexAttrib3v = glVertexAttrib3dvARB
    vertexAttrib4v = glVertexAttrib4dvARB
 
---------------------------------------------------------------------------------
+   vertexAttrib4Nv = vertexAttrib4v
 
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4bvARB,AttribLocation -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ubvARB,AttribLocation -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4usvARB,AttribLocation -> Ptr GLushort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ivARB,AttribLocation -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4uivARB,AttribLocation -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NbvARB,AttribLocation -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubvARB,AttribLocation -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NusvARB,AttribLocation -> Ptr GLushort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NivARB,AttribLocation -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NuivARB,AttribLocation -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NsvARB,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubARB,AttribLocation -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
+   vertexAttrib4Iv = vertexAttrib4IvRealFrac
 
 --------------------------------------------------------------------------------
 
 class VertexAttrib a where
-   vertexAttrib  :: AttribLocation ->     a -> IO ()
-   vertexAttribv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttrib   :: AttribLocation ->     a -> IO ()
+   vertexAttribN  :: AttribLocation ->     a -> IO ()
+   vertexAttribI  :: AttribLocation ->     a -> IO ()
+   vertexAttribv  :: AttribLocation -> Ptr a -> IO ()
+   vertexAttribNv :: AttribLocation -> Ptr a -> IO ()
+   vertexAttribIv :: AttribLocation -> Ptr a -> IO ()
 
 instance VertexAttribComponent a => VertexAttrib (Vertex2 a) where
    vertexAttrib location (Vertex2 x y) = vertexAttrib2 location x y
+   vertexAttribN location (Vertex2 x y) = vertexAttrib2N location x y
+   vertexAttribI location (Vertex2 x y) = vertexAttrib2I location x y
    vertexAttribv location = vertexAttrib2v location . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib2Nv location . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib2Iv location . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (Vertex3 a) where
    vertexAttrib location (Vertex3 x y z) = vertexAttrib3 location x y z
+   vertexAttribN location (Vertex3 x y z) = vertexAttrib3N location x y z
+   vertexAttribI location (Vertex3 x y z) = vertexAttrib3I location x y z
    vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib3Nv location . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib3Iv location . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (Vertex4 a) where
    vertexAttrib location (Vertex4 x y z w) = vertexAttrib4 location x y z w
+   vertexAttribN location (Vertex4 x y z w) = vertexAttrib4N location x y z w
+   vertexAttribI location (Vertex4 x y z w) = vertexAttrib4I location x y z w
    vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib4Nv location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib4Iv location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (TexCoord1 a) where
    vertexAttrib location (TexCoord1 s) = vertexAttrib1 location s
+   vertexAttribN location (TexCoord1 s) = vertexAttrib1N location s
+   vertexAttribI location (TexCoord1 s) = vertexAttrib1I location s
    vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib1Nv location . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib1Iv location . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (TexCoord2 a) where
    vertexAttrib location (TexCoord2 s t) = vertexAttrib2 location s t
+   vertexAttribN location (TexCoord2 s t) = vertexAttrib2N location s t
+   vertexAttribI location (TexCoord2 s t) = vertexAttrib2I location s t
    vertexAttribv location = vertexAttrib2v location . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib2Nv location . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib2Iv location . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (TexCoord3 a) where
    vertexAttrib location (TexCoord3 s t u) = vertexAttrib3 location s t u
+   vertexAttribN location (TexCoord3 s t u) = vertexAttrib3N location s t u
+   vertexAttribI location (TexCoord3 s t u) = vertexAttrib3I location s t u
    vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib3Nv location . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib3Iv location . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (TexCoord4 a) where
    vertexAttrib location (TexCoord4 s t u v) = vertexAttrib4 location s t u v
+   vertexAttribN location (TexCoord4 s t u v) = vertexAttrib4N location s t u v
+   vertexAttribI location (TexCoord4 s t u v) = vertexAttrib4I location s t u v
    vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib4Nv location . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib4Iv location . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (Normal3 a) where
    vertexAttrib location (Normal3 x y z) = vertexAttrib3 location x y z
+   vertexAttribN location (Normal3 x y z) = vertexAttrib3N location x y z
+   vertexAttribI location (Normal3 x y z) = vertexAttrib3I location x y z
    vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (Normal3 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib3Nv location . (castPtr :: Ptr (Normal3 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib3Iv location . (castPtr :: Ptr (Normal3 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (FogCoord1 a) where
    vertexAttrib location (FogCoord1 c) = vertexAttrib1 location c
+   vertexAttribN location (FogCoord1 c) = vertexAttrib1N location c
+   vertexAttribI location (FogCoord1 c) = vertexAttrib1I location c
    vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib1Nv location . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib1Iv location . (castPtr :: Ptr (FogCoord1 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (Color3 a) where
    vertexAttrib location (Color3 r g b) = vertexAttrib3 location r g b
+   vertexAttribN location (Color3 r g b) = vertexAttrib3N location r g b
+   vertexAttribI location (Color3 r g b) = vertexAttrib3I location r g b
    vertexAttribv location = vertexAttrib3v location . (castPtr :: Ptr (Color3 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib3Nv location . (castPtr :: Ptr (Color3 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib3Iv location . (castPtr :: Ptr (Color3 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (Color4 a) where
    vertexAttrib location (Color4 r g b a) = vertexAttrib4 location r g b a
+   vertexAttribN location (Color4 r g b a) = vertexAttrib4N location r g b a
+   vertexAttribI location (Color4 r g b a) = vertexAttrib4I location r g b a
    vertexAttribv location = vertexAttrib4v location . (castPtr :: Ptr (Color4 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib4Nv location . (castPtr :: Ptr (Color4 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib4Iv location . (castPtr :: Ptr (Color4 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (Index1 a) where
    vertexAttrib location (Index1 i) = vertexAttrib1 location i
+   vertexAttribN location (Index1 i) = vertexAttrib1N location i
+   vertexAttribI location (Index1 i) = vertexAttrib1I location i
    vertexAttribv location = vertexAttrib1v location . (castPtr :: Ptr (Index1 b) -> Ptr b)
+   vertexAttribNv location = vertexAttrib1Nv location . (castPtr :: Ptr (Index1 b) -> Ptr b)
+   vertexAttribIv location = vertexAttrib1Iv location . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
 --------------------------------------------------------------------------------
 

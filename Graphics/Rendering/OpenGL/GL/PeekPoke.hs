@@ -15,7 +15,8 @@
 
 module Graphics.Rendering.OpenGL.GL.PeekPoke (
    poke1, poke2, poke3, poke4,
-   peek1, peek2, peek3, peek4
+   peek1, peek2, peek3, peek4,
+   peek1M, peek2M, peek3M, peek4M
 ) where
 
 import Foreign.Ptr ( Ptr )
@@ -63,24 +64,44 @@ peek1 f ptr = do
 
 {-# INLINE peek2 #-}
 peek2 :: Storable a => (a -> a -> b) -> Ptr a -> IO b
-peek2 f ptr = do
-   x <- peekElemOff ptr 0
-   y <- peekElemOff ptr 1
-   return $ f x y
+peek2 f = peek2M $ \x y -> return (f x y)
 
 {-# INLINE peek3 #-}
 peek3 :: Storable a => (a -> a -> a -> b) -> Ptr a -> IO b
-peek3 f ptr = do
-   x <- peekElemOff ptr 0
-   y <- peekElemOff ptr 1
-   z <- peekElemOff ptr 2
-   return $ f x y z
+peek3 f = peek3M $ \x y z -> return (f x y z)
 
 {-# INLINE peek4 #-}
 peek4 :: Storable a => (a -> a -> a -> a -> b) -> Ptr a -> IO b
-peek4 f ptr = do
+peek4 f = peek4M $ \x y z w -> return (f x y z w)
+
+--------------------------------------------------------------------------------
+
+{-# INLINE peek1M #-}
+peek1M :: Storable a => (a -> IO b) -> Ptr a -> IO b
+peek1M f ptr = do
+   x <- peekElemOff ptr 0
+   f x
+
+{-# INLINE peek2M #-}
+peek2M :: Storable a => (a -> a -> IO b) -> Ptr a -> IO b
+peek2M f ptr = do
+   x <- peekElemOff ptr 0
+   y <- peekElemOff ptr 1
+   f x y
+
+{-# INLINE peek3M #-}
+peek3M :: Storable a => (a -> a -> a -> IO b) -> Ptr a -> IO b
+peek3M f ptr = do
+   x <- peekElemOff ptr 0
+   y <- peekElemOff ptr 1
+   z <- peekElemOff ptr 2
+   f x y z
+
+{-# INLINE peek4M #-}
+peek4M :: Storable a => (a -> a -> a -> a -> IO b) -> Ptr a -> IO b
+peek4M f ptr = do
    x <- peekElemOff ptr 0
    y <- peekElemOff ptr 1
    z <- peekElemOff ptr 2
    w <- peekElemOff ptr 3
-   return $ f x y z w
+   f x y z w
