@@ -31,7 +31,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    primitiveRestartIndex,
 
    -- * Generic Vertex Attribute Arrays
-   IntegerHandling(..), vertexAttribPointer, vertexAttribArray
+   vertexAttribPointer, vertexAttribArray
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
@@ -62,7 +62,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetMaxElementsVertices,GetMaxElementsIndices,
             GetClientActiveTexture,GetArrayElementLockFirst,
             GetArrayElementLockCount,GetPrimitiveRestartIndex),
-   getInteger1, getEnum1, getSizei1,
+   getInteger1, getEnum1, getSizei1, AttribLocation,
    GetVertexAttribPName(..),
    getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
    GetVertexAttribPointerPName(..), getVertexAttribPointer )
@@ -75,7 +75,7 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
    TextureUnit, marshalTextureUnit, unmarshalTextureUnit )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum, recordInvalidValue )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( AttribLocation(..) )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( IntegerHandling(..) )
 
 --------------------------------------------------------------------------------
 
@@ -529,12 +529,6 @@ foreign import CALLCONV unsafe "glGetPointerv" glGetPointerv ::
    GLenum -> Ptr (Ptr a) -> IO ()
 
 --------------------------------------------------------------------------------
-
-data IntegerHandling =
-     ToFloat
-   | ToNormalizedFloat
-   | KeepIntegral
-   deriving ( Eq, Ord, Show )
 
 vertexAttribPointer :: AttribLocation -> StateVar (IntegerHandling, VertexArrayDescriptor a)
 vertexAttribPointer location = undefined
