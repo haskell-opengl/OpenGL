@@ -986,6 +986,7 @@ data GetVertexAttribPName =
    | GetVertexAttribArrayNormalized
    | GetCurrentVertexAttrib
    | GetVertexAttribArrayBufferBinding
+   | GetVertexAttribArrayInteger
 
 marshalGetVertexAttribPName :: GetVertexAttribPName -> GLenum
 marshalGetVertexAttribPName x = case x of
@@ -996,6 +997,7 @@ marshalGetVertexAttribPName x = case x of
    GetVertexAttribArrayNormalized -> 0x886A
    GetCurrentVertexAttrib -> 0x8626
    GetVertexAttribArrayBufferBinding -> 0x889F
+   GetVertexAttribArrayInteger -> 0x88FD
 
 --------------------------------------------------------------------------------
 

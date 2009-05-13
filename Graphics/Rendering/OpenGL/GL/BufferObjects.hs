@@ -22,6 +22,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
 
    -- * Binding Buffer Objects
    BufferTarget(..), bindBuffer, arrayBufferBinding,
+   vertexAttribArrayBufferBinding,
 
    -- * Handling Buffer Data
    BufferUsage(..), bufferData, TransferDirection(..), bufferSubData,
@@ -55,6 +56,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( ClientArrayType(..) )
+import Graphics.Rendering.OpenGL.GL.VertexSpec ( AttribLocation )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
@@ -213,16 +215,19 @@ clientArrayTypeToGetPName x = case x of
    FogCoordArray -> GetFogCoordArrayBufferBinding
    SecondaryColorArray -> GetSecondaryColorArrayBufferBinding
    MatrixIndexArray -> error "clientArrayTypeToGetPName: impossible"
-   VertexAttribArray _ -> error "clientArrayTypeToGetPName: should not happen"
 
 arrayBufferBinding :: ClientArrayType -> GettableStateVar (Maybe BufferObject)
 arrayBufferBinding t =
    makeGettableStateVar $ case t of
       MatrixIndexArray -> do recordInvalidEnum ; return Nothing
-      VertexAttribArray location -> do
-         buf <- getVertexAttribInteger1 (BufferObject . fromIntegral) location GetVertexAttribArrayBufferBinding
-         return $ if buf == noBufferObject then Nothing else Just buf
       _ -> bufferQuery clientArrayTypeToGetPName t
+
+
+vertexAttribArrayBufferBinding :: AttribLocation -> GettableStateVar (Maybe BufferObject)
+vertexAttribArrayBufferBinding location =
+   makeGettableStateVar $ do
+      buf <- getVertexAttribInteger1 (BufferObject . fromIntegral) location GetVertexAttribArrayBufferBinding
+      return $ if buf == noBufferObject then Nothing else Just buf
 
 --------------------------------------------------------------------------------
 
