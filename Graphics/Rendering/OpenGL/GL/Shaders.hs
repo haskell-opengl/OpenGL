@@ -410,30 +410,58 @@ EXTENSION_ENTRY("OpenGL 2.0",glBindAttribLocation,Program -> AttribLocation -> P
 
 --------------------------------------------------------------------------------
 
+-- Table 2.9 of the OpenGL 3.1 spec: OpenGL Shading Language type tokens
 data VariableType =
      Float'
    | FloatVec2
    | FloatVec3
    | FloatVec4
-   | FloatMat2
-   | FloatMat3
-   | FloatMat4
    | Int'
    | IntVec2
    | IntVec3
    | IntVec4
+   | UnsignedInt'
+   | UnsignedIntVec2
+   | UnsignedIntVec3
+   | UnsignedIntVec4
    | Bool
    | BoolVec2
    | BoolVec3
    | BoolVec4
+   | FloatMat2
+   | FloatMat3
+   | FloatMat4
+   | FloatMat2x3
+   | FloatMat2x4
+   | FloatMat3x2
+   | FloatMat3x4
+   | FloatMat4x2
+   | FloatMat4x3
    | Sampler1D
    | Sampler2D
-   | Sampler2DRect
    | Sampler3D
    | SamplerCube
    | Sampler1DShadow
    | Sampler2DShadow
+   | Sampler1DArray
+   | Sampler2DArray
+   | Sampler1DArrayShadow
+   | Sampler2DArrayShadow
+   | SamplerCubeShadow
+   | Sampler2DRect
    | Sampler2DRectShadow
+   | IntSampler1D
+   | IntSampler2D
+   | IntSampler3D
+   | IntSamplerCube
+   | IntSampler1DArray
+   | IntSampler2DArray
+   | UnsignedIntSampler1D
+   | UnsignedIntSampler2D
+   | UnsignedIntSampler3D
+   | UnsignedIntSamplerCube
+   | UnsignedIntSampler1DArray
+   | UnsignedIntSampler2DArray
    deriving ( Eq, Ord, Show )
 
 unmarshalVariableType :: GLenum -> VariableType
@@ -442,25 +470,52 @@ unmarshalVariableType x
    | x == 0x8B50 = FloatVec2
    | x == 0x8B51 = FloatVec3
    | x == 0x8B52 = FloatVec4
-   | x == 0x8B5A = FloatMat2
-   | x == 0x8B5B = FloatMat3
-   | x == 0x8B5C = FloatMat4
    | x == 0x1404 = Int'
    | x == 0x8B53 = IntVec2
    | x == 0x8B54 = IntVec3
    | x == 0x8B55 = IntVec4
+   | x == 0x1405 = UnsignedInt'
+   | x == 0x8DC6 = UnsignedIntVec2
+   | x == 0x8DC7 = UnsignedIntVec3
+   | x == 0x8DC8 = UnsignedIntVec4
    | x == 0x8B56 = Bool
    | x == 0x8B57 = BoolVec2
    | x == 0x8B58 = BoolVec3
    | x == 0x8B59 = BoolVec4
+   | x == 0x8B5A = FloatMat2
+   | x == 0x8B5B = FloatMat3
+   | x == 0x8B5C = FloatMat4
+   | x == 0x8B65 = FloatMat2x3
+   | x == 0x8B66 = FloatMat2x4
+   | x == 0x8B67 = FloatMat3x2
+   | x == 0x8B68 = FloatMat3x4
+   | x == 0x8B69 = FloatMat4x2
+   | x == 0x8B6A = FloatMat4x3
    | x == 0x8B5D = Sampler1D
    | x == 0x8B5E = Sampler2D
-   | x == 0x8B63 = Sampler2DRect
    | x == 0x8B5F = Sampler3D
    | x == 0x8B60 = SamplerCube
    | x == 0x8B61 = Sampler1DShadow
    | x == 0x8B62 = Sampler2DShadow
+   | x == 0x8DC0 = Sampler1DArray
+   | x == 0x8DC1 = Sampler2DArray
+   | x == 0x8DC3 = Sampler1DArrayShadow
+   | x == 0x8DC4 = Sampler2DArrayShadow
+   | x == 0x8DC5 = SamplerCubeShadow
+   | x == 0x8B63 = Sampler2DRect
    | x == 0x8B64 = Sampler2DRectShadow
+   | x == 0x8DC9 = IntSampler1D
+   | x == 0x8DCA = IntSampler2D
+   | x == 0x8DCB = IntSampler3D
+   | x == 0x8DCC = IntSamplerCube
+   | x == 0x8DCE = IntSampler1DArray
+   | x == 0x8DCF = IntSampler2DArray
+   | x == 0x8DD1 = UnsignedIntSampler1D
+   | x == 0x8DD2 = UnsignedIntSampler2D
+   | x == 0x8DD3 = UnsignedIntSampler3D
+   | x == 0x8DD4 = UnsignedIntSamplerCube
+   | x == 0x8DD6 = UnsignedIntSampler1DArray
+   | x == 0x8DD7 = UnsignedIntSampler2DArray
    | otherwise = error ("unmarshalVariableType: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
