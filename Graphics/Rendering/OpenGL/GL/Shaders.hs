@@ -39,6 +39,7 @@ import Control.Monad ( replicateM, mapM_, foldM )
 import Control.Monad.Fix ( MonadFix(..) )
 import Data.Int
 import Data.List ( genericLength, (\\) )
+import Data.Word
 import Foreign.C.String ( peekCAStringLen, withCAStringLen, withCAString )
 import Foreign.Marshal.Alloc ( alloca, allocaBytes )
 import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
@@ -607,6 +608,33 @@ instance UniformComponent GLint_ where
    uniform2v = glUniform2iv
    uniform3v = glUniform3iv
    uniform4v = glUniform4iv
+
+--------------------------------------------------------------------------------
+
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1ui,UniformLocation -> GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2ui,UniformLocation -> GLuint -> GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3ui,UniformLocation -> GLuint -> GLuint -> GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4ui,UniformLocation -> GLuint -> GLuint -> GLuint -> GLuint -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glGetUniformuiv,Program -> UniformLocation -> Ptr GLuint -> IO ())
+
+EXTENSION_ENTRY("OpenGL 2.0",glUniform1uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform2uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform3uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
+EXTENSION_ENTRY("OpenGL 2.0",glUniform4uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
+
+instance UniformComponent GLuint_ where
+   uniform1 = glUniform1ui
+   uniform2 = glUniform2ui
+   uniform3 = glUniform3ui
+   uniform4 = glUniform4ui
+
+   getUniform program location = glGetUniformuiv program location . castPtr
+
+   uniform1v = glUniform1uiv
+   uniform2v = glUniform2uiv
+   uniform3v = glUniform3uiv
+   uniform4v = glUniform4uiv
 
 --------------------------------------------------------------------------------
 
