@@ -427,8 +427,9 @@ data GetPName =
    | GetPixelUnpackBufferBinding
    | GetDrawBufferN GLsizei
    | GetRGBASignedComponents
+   | GetCopyReadBuffer
+   | GetCopyWriteBuffer
    -- GetWeightArrayBufferBinding
-   -- GetVertexAttribArrayBufferBinding
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
@@ -811,8 +812,9 @@ marshalGetPName x = case x of
    GetPixelUnpackBufferBinding -> Just 0x88EF
    GetDrawBufferN i -> drawBufferIndexToEnum i
    GetRGBASignedComponents -> Just 0x8C3C
+   GetCopyReadBuffer -> Just 0x8F36
+   GetCopyWriteBuffer -> Just 0x8F37
    -- GetWeightArrayBufferBinding -> Just 0x889e
-   -- GetVertexAttribArrayBufferBinding -> Just 0x889f
 
 --------------------------------------------------------------------------------
 

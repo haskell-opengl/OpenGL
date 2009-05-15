@@ -50,7 +50,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetColorArrayBufferBinding,GetIndexArrayBufferBinding,
             GetTextureCoordArrayBufferBinding,GetEdgeFlagArrayBufferBinding,
             GetFogCoordArrayBufferBinding,GetSecondaryColorArrayBufferBinding,
-            GetPixelPackBufferBinding,GetPixelUnpackBufferBinding ),
+            GetPixelPackBufferBinding,GetPixelUnpackBufferBinding,
+            GetCopyReadBuffer,GetCopyWriteBuffer),
    getInteger1, maybeNullPtr,
    GetVertexAttribPName(GetVertexAttribArrayBufferBinding), getVertexAttribInteger1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
@@ -103,6 +104,8 @@ EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glIsBufferARB,GLuint
 
 data BufferTarget =
      ArrayBuffer
+   | CopyReadBuffer
+   | CopyWriteBuffer
    | ElementArrayBuffer
    | PixelPackBuffer
    | PixelUnpackBuffer
@@ -111,6 +114,8 @@ data BufferTarget =
 marshalBufferTarget :: BufferTarget -> GLenum
 marshalBufferTarget x = case x of
    ArrayBuffer -> 0x8892
+   CopyReadBuffer -> 0x8F36
+   CopyWriteBuffer -> 0x8F37
    ElementArrayBuffer -> 0x8893
    PixelPackBuffer -> 0x88eb
    PixelUnpackBuffer -> 0x88ec
@@ -119,6 +124,8 @@ bufferTargetToGetPName :: BufferTarget -> GetPName
 bufferTargetToGetPName x = case x of
    ArrayBuffer -> GetArrayBufferBinding
    ElementArrayBuffer -> GetElementArrayBufferBinding
+   CopyReadBuffer -> GetCopyReadBuffer
+   CopyWriteBuffer -> GetCopyWriteBuffer
    PixelPackBuffer -> GetPixelPackBufferBinding
    PixelUnpackBuffer -> GetPixelUnpackBufferBinding
 
