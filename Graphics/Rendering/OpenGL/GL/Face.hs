@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Face
--- Copyright   :  (c) Sven Panne 2002-2006
+-- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 -- 
 -- Maintainer  :  sven.panne@aedion.de
