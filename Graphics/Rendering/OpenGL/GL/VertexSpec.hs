@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    -- * Vertex Coordinates
    Vertex(..),
    VertexComponent,
-   Vertex2(..), Vertex3(..), Vertex4(..),
+   Vertex1(..), Vertex2(..), Vertex3(..), Vertex4(..),
 
    -- * Auxiliary Vertex Attributes
    -- $AuxiliaryVertexAttributes
@@ -69,9 +69,7 @@ import Graphics.Rendering.OpenGL.GL.Extensions (
    FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke (
-   poke1, poke2, poke3, poke4,
-   peek1, peek2, peek3, peek4,
-   peek1M, peek2M, peek3M, peek4M )
+   poke4, peek1M, peek2M, peek3M, peek4M )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    AttribLocation(..),
    GetPName(GetCurrentTextureCoords, GetCurrentNormal, GetCurrentFogCoord,
@@ -82,8 +80,14 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
    getVertexAttribFloat4, getVertexAttribIInteger4, getVertexAttribIuInteger4  )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.GL.Tensor (
+   Vertex1(..), Vertex2(..), Vertex3(..), Vertex4(..),
+   Vector1(..), Vector2(..), Vector3(..), Vector4(..) )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
    TextureUnit(..), marshalTextureUnit, unmarshalTextureUnit )
+import Graphics.Rendering.OpenGL.GL.VertexAttributes (
+   TexCoord1(..), TexCoord2(..), TexCoord3(..), TexCoord4(..),
+   Normal3(..), FogCoord1(..), Color3(..), Color4(..), Index1(..) )
 
 --------------------------------------------------------------------------------
 
@@ -234,47 +238,17 @@ class Vertex a where
    vertex  ::     a -> IO ()
    vertexv :: Ptr a -> IO ()
 
--- | A vertex with /z/=0 and /w/=1.
-data Vertex2 a = Vertex2 !a !a
-   deriving ( Eq, Ord, Show )
-
 instance VertexComponent a => Vertex (Vertex2 a) where
    vertex (Vertex2 x y) = vertex2 x y
    vertexv = vertex2v . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
-
-instance Storable a => Storable (Vertex2 a) where
-   sizeOf    ~(Vertex2 x _) = 2 * sizeOf x
-   alignment ~(Vertex2 x _) = alignment x
-   peek                     = peek2 Vertex2 . castPtr
-   poke ptr   (Vertex2 x y) = poke2 (castPtr ptr) x y
-
--- | A vertex with /w/=1.
-data Vertex3 a = Vertex3 !a !a !a
-   deriving ( Eq, Ord, Show )
 
 instance VertexComponent a => Vertex (Vertex3 a) where
    vertex (Vertex3 x y z) = vertex3 x y z
    vertexv = vertex3v . (castPtr :: Ptr (Vertex3 b) -> Ptr b)
 
-instance Storable a => Storable (Vertex3 a) where
-   sizeOf    ~(Vertex3 x _ _) = 3 * sizeOf x
-   alignment ~(Vertex3 x _ _) = alignment x
-   peek                       = peek3 Vertex3 . castPtr
-   poke ptr   (Vertex3 x y z) = poke3 (castPtr ptr) x y z
-
--- | A fully-fledged four-dimensional vertex.
-data Vertex4 a = Vertex4 !a !a !a !a
-   deriving ( Eq, Ord, Show )
-
 instance VertexComponent a => Vertex (Vertex4 a) where
    vertex (Vertex4 x y z w) = vertex4 x y z w
    vertexv = vertex4v . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
-
-instance Storable a => Storable (Vertex4 a) where
-   sizeOf    ~(Vertex4 x _ _ _) = 4 * sizeOf x
-   alignment ~(Vertex4 x _ _ _) = alignment x
-   peek                         = peek4 Vertex4 . castPtr
-   poke ptr   (Vertex4 x y z w) = poke4 (castPtr ptr) x y z w
 
 --------------------------------------------------------------------------------
 -- $AuxiliaryVertexAttributes
@@ -567,11 +541,6 @@ class TexCoord a where
    multiTexCoord  :: TextureUnit ->     a -> IO ()
    multiTexCoordv :: TextureUnit -> Ptr a -> IO ()
 
--- | Texture coordinates with /t/=0, /r/=0, and /q/=1.
-
-newtype TexCoord1 a = TexCoord1 a
-   deriving ( Eq, Ord, Show )
-
 instance TexCoordComponent a => TexCoord (TexCoord1 a) where
    texCoord (TexCoord1 s) = texCoord1 s
    texCoordv = texCoord1v . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
@@ -579,17 +548,6 @@ instance TexCoordComponent a => TexCoord (TexCoord1 a) where
       multiTexCoord1 (marshalTextureUnit u) s
    multiTexCoordv u =
       multiTexCoord1v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord1 b) -> Ptr b)
-
-instance Storable a => Storable (TexCoord1 a) where
-   sizeOf    ~(TexCoord1 s) = sizeOf s
-   alignment ~(TexCoord1 s) = alignment s
-   peek                     = peek1 TexCoord1 . castPtr
-   poke ptr   (TexCoord1 s) = poke1 (castPtr ptr) s
-
--- | Texture coordinates with /r/=0 and /q/=1.
-
-data TexCoord2 a = TexCoord2 !a !a
-   deriving ( Eq, Ord, Show )
 
 instance TexCoordComponent a => TexCoord (TexCoord2 a) where
    texCoord (TexCoord2 s t) = texCoord2 s t
@@ -599,17 +557,6 @@ instance TexCoordComponent a => TexCoord (TexCoord2 a) where
    multiTexCoordv u =
       multiTexCoord2v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord2 b) -> Ptr b)
 
-instance Storable a => Storable (TexCoord2 a) where
-   sizeOf    ~(TexCoord2 s _) = 2 * sizeOf s
-   alignment ~(TexCoord2 s _) = alignment s
-   peek                       = peek2 TexCoord2 . castPtr
-   poke ptr   (TexCoord2 s t) = poke2 (castPtr ptr) s t
-
--- | Texture coordinates with /q/=1.
-
-data TexCoord3 a = TexCoord3 !a !a !a
-   deriving ( Eq, Ord, Show )
-
 instance TexCoordComponent a => TexCoord (TexCoord3 a) where
    texCoord (TexCoord3 s t r) = texCoord3 s t r
    texCoordv = texCoord3v . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
@@ -618,17 +565,6 @@ instance TexCoordComponent a => TexCoord (TexCoord3 a) where
    multiTexCoordv u =
       multiTexCoord3v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord3 b) -> Ptr b)
 
-instance Storable a => Storable (TexCoord3 a) where
-   sizeOf    ~(TexCoord3 s _ _) = 3 * sizeOf s
-   alignment ~(TexCoord3 s _ _) = alignment s
-   peek                         = peek3 TexCoord3 . castPtr
-   poke ptr   (TexCoord3 s t r) = poke3 (castPtr ptr) s t r
-
--- | Fully-fledged four-dimensional texture coordinates.
-
-data TexCoord4 a = TexCoord4 !a !a !a !a
-   deriving ( Eq, Ord, Show )
-
 instance TexCoordComponent a => TexCoord (TexCoord4 a) where
    texCoord (TexCoord4 s t r q) = texCoord4 s t r q
    texCoordv = texCoord4v . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
@@ -636,12 +572,6 @@ instance TexCoordComponent a => TexCoord (TexCoord4 a) where
       multiTexCoord4 (marshalTextureUnit u) s t r q
    multiTexCoordv u =
       multiTexCoord4v (marshalTextureUnit u) . (castPtr :: Ptr (TexCoord4 b) -> Ptr b)
-
-instance Storable a => Storable (TexCoord4 a) where
-   sizeOf    ~(TexCoord4 s _ _ _) = 4 * sizeOf s
-   alignment ~(TexCoord4 s _ _ _) = alignment s
-   peek                           = peek4 TexCoord4 . castPtr
-   poke ptr   (TexCoord4 s t r q) = poke4 (castPtr ptr) s t r q
 
 --------------------------------------------------------------------------------
 
@@ -741,20 +671,9 @@ class Normal a where
    normal  ::     a -> IO ()
    normalv :: Ptr a -> IO ()
 
--- A three-dimensional normal.
-
-data Normal3 a = Normal3 !a !a !a
-   deriving ( Eq, Ord, Show )
-
 instance NormalComponent a => Normal (Normal3 a) where
    normal (Normal3 x y z) = normal3 x y z
    normalv = normal3v . (castPtr :: Ptr (Normal3 b) -> Ptr b)
-
-instance Storable a => Storable (Normal3 a) where
-   sizeOf    ~(Normal3 x _ _) = 3 * sizeOf x
-   alignment ~(Normal3 x _ _) = alignment x
-   peek                       = peek3 Normal3 . castPtr
-   poke ptr   (Normal3 x y z) = poke3 (castPtr ptr) x y z
 
 --------------------------------------------------------------------------------
 
@@ -771,12 +690,6 @@ currentFogCoord =
 class FogCoordComponent a where
    fogCoord1 :: a -> IO ()
    fogCoord1v :: Ptr a -> IO ()
-
-instance Storable a => Storable (FogCoord1 a) where
-   sizeOf    ~(FogCoord1 c) = sizeOf c
-   alignment ~(FogCoord1 c) = alignment c
-   peek                     = peek1 FogCoord1 . castPtr
-   poke ptr   (FogCoord1 c) = poke1 (castPtr ptr) c
 
 --------------------------------------------------------------------------------
 
@@ -803,11 +716,6 @@ instance FogCoordComponent GLdouble_ where
 class FogCoord a where
    fogCoord  ::     a -> IO ()
    fogCoordv :: Ptr a -> IO ()
-
--- | A fog coordinate.
-
-newtype FogCoord1 a = FogCoord1 a
-   deriving ( Eq, Ord, Show )
 
 instance FogCoordComponent a => FogCoord (FogCoord1 a) where
    fogCoord (FogCoord1 c) = fogCoord1 c
@@ -1081,35 +989,13 @@ class Color a where
    color  ::     a -> IO ()
    colorv :: Ptr a -> IO ()
 
--- An RGBA color with /A/=1.
-
-data Color3 a = Color3 !a !a !a
-   deriving ( Eq, Ord, Show )
-
 instance ColorComponent a => Color (Color3 a) where
    color (Color3 r g b) = color3 r g b
    colorv = color3v . (castPtr :: Ptr (Color3 b) -> Ptr b)
 
-instance Storable a => Storable (Color3 a) where
-   sizeOf    ~(Color3 r _ _) = 3 * sizeOf r
-   alignment ~(Color3 r _ _) = alignment r
-   peek                      = peek3 Color3 . castPtr
-   poke ptr   (Color3 r g b) = poke3 (castPtr ptr) r g b
-
--- | A fully-fledged RGBA color.
-
-data Color4 a = Color4 !a !a !a !a
-   deriving ( Eq, Ord, Show )
-
 instance ColorComponent a => Color (Color4 a) where
    color (Color4 r g b a) = color4 r g b a
    colorv = color4v . (castPtr :: Ptr (Color4 b) -> Ptr b)
-
-instance Storable a => Storable (Color4 a) where
-   sizeOf    ~(Color4 r _ _ _) = 4 * sizeOf r
-   alignment ~(Color4 r _ _ _) = alignment r
-   peek                        = peek4 Color4 . castPtr
-   poke ptr   (Color4 r g b a) = poke4 (castPtr ptr) r g b a
 
 --------------------------------------------------------------------------------
 
@@ -1207,21 +1093,9 @@ class Index a where
    index  ::     a -> IO ()  -- Collision with Prelude.index
    indexv :: Ptr a -> IO ()
 
--- | A color index.
-
-newtype Index1 a = Index1 a
-   deriving ( Eq, Ord, Show )
-
 instance IndexComponent a => Index (Index1 a) where
    index (Index1 i) = index1 i
    indexv = index1v . (castPtr :: Ptr (Index1 b) -> Ptr b)
-
-instance Storable a => Storable (Index1 a) where
-   sizeOf    ~(Index1 s) = sizeOf s
-   alignment ~(Index1 s) = alignment s
-   peek                  = peek1 Index1 . castPtr
-   poke ptr   (Index1 s) = poke1 (castPtr ptr) s
-
 
 --------------------------------------------------------------------------------
 
@@ -1520,6 +1394,15 @@ class VertexAttrib a where
    vertexAttrib  :: IntegerHandling -> AttribLocation ->     a -> IO ()
    vertexAttribv :: IntegerHandling -> AttribLocation -> Ptr a -> IO ()
 
+instance VertexAttribComponent a => VertexAttrib (Vertex1 a) where
+   vertexAttrib ToFloat location (Vertex1 i) = vertexAttrib1 location i
+   vertexAttrib ToNormalizedFloat location (Vertex1 i) = vertexAttrib1N location i
+   vertexAttrib KeepIntegral location (Vertex1 i) = vertexAttrib1I location i
+
+   vertexAttribv ToFloat location = vertexAttrib1v location . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
+   vertexAttribv ToNormalizedFloat location = vertexAttrib1Nv location . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
+   vertexAttribv KeepIntegral location = vertexAttrib1Iv location . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
+
 instance VertexAttribComponent a => VertexAttrib (Vertex2 a) where
    vertexAttrib ToFloat location (Vertex2 x y) = vertexAttrib2 location x y
    vertexAttrib ToNormalizedFloat location (Vertex2 x y) = vertexAttrib2N location x y
@@ -1546,6 +1429,42 @@ instance VertexAttribComponent a => VertexAttrib (Vertex4 a) where
    vertexAttribv ToFloat location = vertexAttrib4v location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
    vertexAttribv ToNormalizedFloat location = vertexAttrib4Nv location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
    vertexAttribv KeepIntegral location = vertexAttrib4Iv location . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vector1 a) where
+   vertexAttrib ToFloat location (Vector1 i) = vertexAttrib1 location i
+   vertexAttrib ToNormalizedFloat location (Vector1 i) = vertexAttrib1N location i
+   vertexAttrib KeepIntegral location (Vector1 i) = vertexAttrib1I location i
+
+   vertexAttribv ToFloat location = vertexAttrib1v location . (castPtr :: Ptr (Vector1 b) -> Ptr b)
+   vertexAttribv ToNormalizedFloat location = vertexAttrib1Nv location . (castPtr :: Ptr (Vector1 b) -> Ptr b)
+   vertexAttribv KeepIntegral location = vertexAttrib1Iv location . (castPtr :: Ptr (Vector1 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vector2 a) where
+   vertexAttrib ToFloat location (Vector2 x y) = vertexAttrib2 location x y
+   vertexAttrib ToNormalizedFloat location (Vector2 x y) = vertexAttrib2N location x y
+   vertexAttrib KeepIntegral location (Vector2 x y) = vertexAttrib2I location x y
+
+   vertexAttribv ToFloat location = vertexAttrib2v location . (castPtr :: Ptr (Vector2 b) -> Ptr b)
+   vertexAttribv ToNormalizedFloat location = vertexAttrib2Nv location . (castPtr :: Ptr (Vector2 b) -> Ptr b)
+   vertexAttribv KeepIntegral location = vertexAttrib2Iv location . (castPtr :: Ptr (Vector2 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vector3 a) where
+   vertexAttrib ToFloat location (Vector3 x y z) = vertexAttrib3 location x y z
+   vertexAttrib ToNormalizedFloat location (Vector3 x y z) = vertexAttrib3N location x y z
+   vertexAttrib KeepIntegral location (Vector3 x y z) = vertexAttrib3I location x y z
+
+   vertexAttribv ToFloat location = vertexAttrib3v location . (castPtr :: Ptr (Vector3 b) -> Ptr b)
+   vertexAttribv ToNormalizedFloat location = vertexAttrib3Nv location . (castPtr :: Ptr (Vector3 b) -> Ptr b)
+   vertexAttribv KeepIntegral location = vertexAttrib3Iv location . (castPtr :: Ptr (Vector3 b) -> Ptr b)
+
+instance VertexAttribComponent a => VertexAttrib (Vector4 a) where
+   vertexAttrib ToFloat location (Vector4 x y z w) = vertexAttrib4 location x y z w
+   vertexAttrib ToNormalizedFloat location (Vector4 x y z w) = vertexAttrib4N location x y z w
+   vertexAttrib KeepIntegral location (Vector4 x y z w) = vertexAttrib4I location x y z w
+
+   vertexAttribv ToFloat location = vertexAttrib4v location . (castPtr :: Ptr (Vector4 b) -> Ptr b)
+   vertexAttribv ToNormalizedFloat location = vertexAttrib4Nv location . (castPtr :: Ptr (Vector4 b) -> Ptr b)
+   vertexAttribv KeepIntegral location = vertexAttrib4Iv location . (castPtr :: Ptr (Vector4 b) -> Ptr b)
 
 instance VertexAttribComponent a => VertexAttrib (TexCoord1 a) where
    vertexAttrib ToFloat location (TexCoord1 s) = vertexAttrib1 location s

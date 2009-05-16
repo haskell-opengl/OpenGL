@@ -104,10 +104,12 @@ other-modules:
 	Graphics.Rendering.OpenGL.GL.PrimitiveMode,
 	Graphics.Rendering.OpenGL.GL.QueryUtils,
 	Graphics.Rendering.OpenGL.GL.RenderMode,
+	Graphics.Rendering.OpenGL.GL.Tensor,
 	Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat,
 	Graphics.Rendering.OpenGL.GL.Texturing.TexParameter,
 	Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget,
 	Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit,
+	Graphics.Rendering.OpenGL.GL.VertexAttributes,
 	Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 c-sources:	cbits/HsOpenGL.c
 include-dirs:	include
