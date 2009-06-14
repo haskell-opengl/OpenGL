@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    CubeMapTarget(..), marshalCubeMapTarget
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.PixelRectangles ( Proxy(..) )
 
 --------------------------------------------------------------------------------

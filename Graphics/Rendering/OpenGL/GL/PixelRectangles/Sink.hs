@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
    Sink(..), marshalSink, unmarshalSink
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean, GLint )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean )
 

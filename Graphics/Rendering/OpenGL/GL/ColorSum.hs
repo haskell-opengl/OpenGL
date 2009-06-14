@@ -17,8 +17,7 @@ module Graphics.Rendering.OpenGL.GL.ColorSum (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapColorSum), makeCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( Capability )
+   Capability, EnableCap(CapColorSum), makeCapability )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar )
 
 --------------------------------------------------------------------------------

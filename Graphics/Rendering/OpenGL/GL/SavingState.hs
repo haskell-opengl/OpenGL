@@ -18,7 +18,8 @@ module Graphics.Rendering.OpenGL.GL.SavingState (
    ClientAttributeGroup(..), preservingClientAttrib
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLbitfield )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
 
 --------------------------------------------------------------------------------
@@ -81,12 +82,6 @@ preservingAttrib groups = bracket_ (pushAttrib groups) glPopAttrib
 pushAttrib :: [ServerAttributeGroup] -> IO ()
 pushAttrib = glPushAttrib . sum . map marshalServerAttributeGroup
 
-foreign import CALLCONV unsafe "glPushAttrib"
-   glPushAttrib :: GLbitfield -> IO ()
-
-foreign import CALLCONV unsafe "glPopAttrib"
-   glPopAttrib :: IO ()
-
 --------------------------------------------------------------------------------
 
 data ClientAttributeGroup =
@@ -109,9 +104,3 @@ preservingClientAttrib groups =
 
 pushClientAttrib :: [ClientAttributeGroup] -> IO ()
 pushClientAttrib = glPushClientAttrib . sum . map marshalClientAttributeGroup
-
-foreign import CALLCONV unsafe "glPushClientAttrib"
-   glPushClientAttrib :: GLbitfield -> IO ()
-
-foreign import CALLCONV unsafe "glPopClientAttrib"
-   glPopClientAttrib :: IO ()

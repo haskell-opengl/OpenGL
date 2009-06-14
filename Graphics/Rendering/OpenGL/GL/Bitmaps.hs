@@ -17,16 +17,13 @@ module Graphics.Rendering.OpenGL.GL.Bitmaps (
 ) where
 
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, GLfloat )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..), Vector2(..) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex2(..) )
 
 --------------------------------------------------------------------------------
 
-bitmap :: Size -> (Vertex2 GLfloat) -> (Vector2 GLfloat) -> Ptr a -> IO ()
+bitmap :: Size -> (Vertex2 GLfloat) -> (Vector2 GLfloat) -> Ptr GLubyte -> IO ()
 bitmap (Size w h) (Vertex2 xbo ybo) (Vector2 xbi ybi) =
    glBitmap w h xbo ybo xbi ybi
-
-foreign import CALLCONV unsafe "glBitmap"
-   glBitmap :: GLsizei -> GLsizei -> GLfloat -> GLfloat -> GLfloat -> GLfloat
-            -> Ptr a -> IO ()

@@ -43,8 +43,7 @@ import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
 import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLclampf, GLdouble, GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )

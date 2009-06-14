@@ -36,8 +36,8 @@ import Control.Monad ( liftM2 )
 import Foreign.Marshal.Array ( withArray )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexProgramPointSize,CapPointSmooth,CapPointSprite),
-   makeCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLfloat, Capability )
+   Capability, makeCapability )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetPointSize,GetAliasedPointSizeRange,GetSmoothPointSizeRange,
             GetSmoothPointSizeGranularity,GetPointSizeMin,GetPointSizeMax,
@@ -136,8 +136,6 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 pointSize :: StateVar GLfloat
 pointSize = makeStateVar (getFloat1 id GetPointSize) glPointSize
 
-foreign import CALLCONV unsafe "glPointSize" glPointSize :: GLfloat -> IO ()
-
 --------------------------------------------------------------------------------
 
 vertexProgramPointSize :: StateVar Capability
@@ -191,7 +189,7 @@ pointFadeThresholdSize =
 --------------------------------------------------------------------------------
 
 -- | Controls whether point antialiasing is enabled. The initial state is
--- 'Graphics.Rendering.OpenGL.GL.BasicTypes.Disabled'.
+-- 'Graphics.Rendering.OpenGL.GL.Capability.Disabled'.
 
 pointSmooth :: StateVar Capability
 pointSmooth = makeCapability CapPointSmooth
@@ -199,7 +197,7 @@ pointSmooth = makeCapability CapPointSmooth
 --------------------------------------------------------------------------------
 
 -- | Controls whether point sprites are enabled. The initial state is
--- 'Graphics.Rendering.OpenGL.GL.BasicTypes.Disabled'. When point sprites are
+-- 'Graphics.Rendering.OpenGL.GL.Capability.Disabled'. When point sprites are
 -- enabled, the state of point antialiasing (i.e. 'pointSmooth') is ignored.
 
 pointSprite :: StateVar Capability

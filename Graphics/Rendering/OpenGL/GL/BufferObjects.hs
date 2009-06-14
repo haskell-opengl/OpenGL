@@ -37,11 +37,8 @@ import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLint, GLintptr, GLuint, GLsizei, GLsizeiptr )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Exception ( finallyRet )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -59,10 +56,6 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( ClientArrayType(..) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( AttribLocation )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -85,20 +78,14 @@ newtype BufferObject = BufferObject { bufferID :: GLuint }
 instance ObjectName BufferObject where
    genObjectNames n =
       allocaArray n $ \buf -> do
-        glGenBuffersARB (fromIntegral n) buf
+        glGenBuffers (fromIntegral n) buf
         fmap (map BufferObject) $ peekArray n buf
 
    deleteObjectNames bufferObjects =
       withArrayLen (map bufferID bufferObjects) $
-         glDeleteBuffersARB . fromIntegral
+         glDeleteBuffers . fromIntegral
 
-   isObjectName = fmap unmarshalGLboolean . glIsBufferARB . bufferID
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glGenBuffersARB,GLsizei -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glDeleteBuffersARB,GLsizei -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glIsBufferARB,GLuint -> IO GLboolean)
+   isObjectName = fmap unmarshalGLboolean . glIsBuffer . bufferID
 
 --------------------------------------------------------------------------------
 
@@ -207,9 +194,7 @@ noBufferObject = BufferObject 0
 
 setBindBuffer :: BufferTarget -> Maybe BufferObject -> IO ()
 setBindBuffer t =
-   glBindBufferARB (marshalBufferTarget t) . bufferID . maybe noBufferObject id
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glBindBufferARB,GLenum -> GLuint -> IO ())
+   glBindBuffer (marshalBufferTarget t) . bufferID . maybe noBufferObject id
 
 clientArrayTypeToGetPName :: ClientArrayType -> GetPName
 clientArrayTypeToGetPName x = case x of
@@ -250,9 +235,7 @@ getBufferData t = do
 
 setBufferData :: BufferTarget -> (GLsizeiptr, Ptr a, BufferUsage) -> IO ()
 setBufferData t (s, p, u) =
-   glBufferDataARB (marshalBufferTarget t) s p (marshalBufferUsage u)
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glBufferDataARB,GLenum -> GLsizeiptr -> Ptr a -> GLenum -> IO ())
+   glBufferData (marshalBufferTarget t) s p (marshalBufferUsage u)
 
 --------------------------------------------------------------------------------
 
@@ -263,12 +246,8 @@ data TransferDirection =
 
 bufferSubData ::
    BufferTarget -> TransferDirection -> GLintptr -> GLsizeiptr -> Ptr a -> IO ()
-bufferSubData t WriteToBuffer = glBufferSubDataARB (marshalBufferTarget t)
-bufferSubData t ReadFromBuffer = glGetBufferSubDataARB (marshalBufferTarget t)
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glBufferSubDataARB,GLenum -> GLintptr -> GLsizeiptr -> Ptr a -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glGetBufferSubDataARB,GLenum -> GLintptr -> GLsizeiptr -> Ptr a -> IO ())
+bufferSubData t WriteToBuffer = glBufferSubData (marshalBufferTarget t)
+bufferSubData t ReadFromBuffer = glGetBufferSubData (marshalBufferTarget t)
 
 --------------------------------------------------------------------------------
 
@@ -287,21 +266,17 @@ marshalGetBufferPName x = case x of
 
 getBufferParameter :: BufferTarget -> (GLenum -> a) -> GetBufferPName -> IO a
 getBufferParameter t f p = alloca $ \buf -> do
-   glGetBufferParameterivARB (marshalBufferTarget t)
-                             (marshalGetBufferPName p) buf
+   glGetBufferParameteriv (marshalBufferTarget t)
+                          (marshalGetBufferPName p) buf
    peek1 (f . fromIntegral) buf
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glGetBufferParameterivARB,GLenum -> GLenum -> Ptr GLint -> IO ())
 
 --------------------------------------------------------------------------------
 
 getBufferPointer :: BufferTarget -> IO (Ptr a)
 getBufferPointer t = alloca $ \buf -> do
    -- only one pname: GL_BUFFER_MAP_POINTER
-   glGetBufferPointervARB (marshalBufferTarget t) 0x88bd buf
+   glGetBufferPointerv (marshalBufferTarget t) 0x88bd buf
    peek buf
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glGetBufferPointervARB,GLenum -> GLenum -> Ptr (Ptr a) -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -326,14 +301,10 @@ mapBuffer :: BufferTarget -> BufferAccess -> IO (Maybe (Ptr a))
 mapBuffer t = fmap (maybeNullPtr Nothing Just) . mapBuffer_ t
 
 mapBuffer_ :: BufferTarget -> BufferAccess -> IO (Ptr a)
-mapBuffer_ t = glMapBufferARB (marshalBufferTarget t) . marshalBufferAccess
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glMapBufferARB,GLenum -> GLenum -> IO (Ptr a))
+mapBuffer_ t = glMapBuffer (marshalBufferTarget t) . marshalBufferAccess
 
 unmapBuffer :: BufferTarget -> IO Bool
-unmapBuffer = fmap unmarshalGLboolean . glUnmapBufferARB . marshalBufferTarget
-
-EXTENSION_ENTRY("GL_ARB_vertex_buffer_object or OpenGL 1.5",glUnmapBufferARB,GLenum -> IO GLboolean)
+unmapBuffer = fmap unmarshalGLboolean . glUnmapBuffer . marshalBufferTarget
 
 bufferAccess :: BufferTarget -> GettableStateVar BufferAccess
 bufferAccess t = makeGettableStateVar $

@@ -42,30 +42,6 @@ fi
 
 GL_BUILD_PACKAGE=yes
 
-FPTOOLS_CHECK_HTYPE([GLboolean])
-FPTOOLS_CHECK_HTYPE([GLbyte])
-FPTOOLS_CHECK_HTYPE([GLubyte])
-FPTOOLS_CHECK_HTYPE([GLshort])
-FPTOOLS_CHECK_HTYPE([GLushort])
-FPTOOLS_CHECK_HTYPE([GLint])
-FPTOOLS_CHECK_HTYPE([GLuint])
-FPTOOLS_CHECK_HTYPE([GLsizei])
-FPTOOLS_CHECK_HTYPE([GLenum])
-FPTOOLS_CHECK_HTYPE([GLbitfield])
-FPTOOLS_CHECK_HTYPE([GLfloat])
-FPTOOLS_CHECK_HTYPE([GLclampf])
-FPTOOLS_CHECK_HTYPE([GLdouble])
-FPTOOLS_CHECK_HTYPE([GLclampd])
-
-# cruel hack for ancient Windows headers
-FPTOOLS_CHECK_HTYPE([char])
-FPTOOLS_CHECK_HTYPE([GLchar], [$fptools_cv_htype_char])
-
-# ... and a similar hack
-FPTOOLS_CHECK_HTYPE([ptrdiff_t])
-FPTOOLS_CHECK_HTYPE([GLintptr], [$fptools_cv_htype_ptrdiff_t])
-FPTOOLS_CHECK_HTYPE([GLsizeiptr], [$fptools_cv_htype_ptrdiff_t])
-
 AC_DEFINE_UNQUOTED([GLU_CFLAGS],
   [`echo '' $GLU_CFLAGS | sed -e 's/-[[^ ]]*/,"&"/g' -e 's/^ *,//'`],
   [C flags for GLU, as a list of string literals.])

@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.ComparisonFunction (
    unmarshalComparisonFunction
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

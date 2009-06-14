@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.EdgeFlag (
    EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean )
 

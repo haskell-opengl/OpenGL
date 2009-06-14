@@ -43,15 +43,15 @@ import Control.Monad ( liftM2, liftM3 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray, withArray )
 import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   marshalCapability, unmarshalCapability,
+   Capability, marshalCapability, unmarshalCapability,
    EnableCap(CapVertexProgramTwoSide,CapLighting,CapColorMaterial,CapLight),
    makeCapability,
    makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLfloat,Capability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Face (
    Face(..), marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek3 )
@@ -116,8 +116,6 @@ frontFace =
       (getEnum1 unmarshalFrontFaceDirection GetFrontFace)
       (glFrontFace . marshalFrontFaceDirection)
 
-foreign import CALLCONV unsafe "glFrontFace" glFrontFace :: GLenum -> IO ()
-
 --------------------------------------------------------------------------------
 
 data MaterialParameter =
@@ -171,11 +169,11 @@ makeMaterialVar getter setter materialParameter face =
    where mp = marshalMaterialParameter materialParameter
          f  = marshalFace face
 
-foreign import CALLCONV unsafe "glGetMaterialfv" glGetMaterialfvc ::
-   GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glGetMaterialfvc :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glGetMaterialfvc face pname ptr = glGetMaterialfv face pname (castPtr ptr)
 
-foreign import CALLCONV unsafe "glMaterialfv" glMaterialfvc ::
-   GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glMaterialfvc :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glMaterialfvc face pname ptr = glMaterialfv face pname (castPtr ptr)
 
 --------------------------------------------------------------------------------
 
@@ -183,11 +181,11 @@ materialShininess :: Face -> StateVar GLfloat
 materialShininess =
    makeMaterialVar glGetMaterialfvf glMaterialff MaterialShininess
 
-foreign import CALLCONV unsafe "glGetMaterialfv" glGetMaterialfvf ::
-   GLenum -> GLenum -> Ptr GLfloat -> IO ()
+glGetMaterialfvf :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
+glGetMaterialfvf face pname ptr = glGetMaterialfv face pname (castPtr ptr)
 
-foreign import CALLCONV unsafe "glMaterialfv" glMaterialff ::
-   GLenum -> GLenum -> Ptr GLfloat -> IO ()
+glMaterialff :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
+glMaterialff face pname ptr = glMaterialfv face pname (castPtr ptr)
 
 maxShininess :: GettableStateVar GLfloat
 maxShininess = makeGettableStateVar $ getFloat1 id GetMaxShininess
@@ -210,18 +208,12 @@ getMaterialColorIndexes face =
                       buf
       peek3 (\a d s -> (Index1 a, Index1 d, Index1 s)) buf
 
-foreign import CALLCONV unsafe "glGetMaterialiv" glGetMaterialiv ::
-   GLenum -> GLenum -> Ptr GLint -> IO ()
-
 setMaterialColorIndexes ::
    Face -> (Index1 GLint, Index1 GLint, Index1 GLint) -> IO ()
 setMaterialColorIndexes face (Index1 a, Index1 d, Index1 s) =
    withArray [a, d, s] $
       glMaterialiv (marshalFace face)
                    (marshalMaterialParameter MaterialColorIndexes)
-
-foreign import CALLCONV unsafe "glMaterialiv" glMaterialiv ::
-   GLenum -> GLenum -> Ptr GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -276,22 +268,22 @@ makeLightVar getter setter lightParameter defaultValue theLight =
          getLightVar = \l -> alloca $ \buf -> do getter l lp buf ; peek buf
          setLightVar = \val l -> with val $ setter l lp
 
-foreign import CALLCONV unsafe "glGetLightfv" glGetLightfvc ::
-   GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glGetLightfvc :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glGetLightfvc l pname ptr = glGetLightfv l pname (castPtr ptr)
 
-foreign import CALLCONV unsafe "glLightfv" glLightfvc ::
-   GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glLightfvc :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glLightfvc l pname ptr = glLightfv l pname (castPtr ptr)
 
 --------------------------------------------------------------------------------
 
 position :: Light -> StateVar (Vertex4 GLfloat)
 position = makeLightVar glGetLightfvv glLightfvv Position (Vertex4 0 0 0 0)
 
-foreign import CALLCONV unsafe "glLightfv" glLightfvv ::
-   GLenum -> GLenum -> Ptr (Vertex4 GLfloat) -> IO ()
+glLightfvv :: GLenum -> GLenum -> Ptr (Vertex4 GLfloat) -> IO ()
+glLightfvv l pname ptr = glLightfv l pname (castPtr ptr)
 
-foreign import CALLCONV unsafe "glGetLightfv" glGetLightfvv ::
-   GLenum -> GLenum -> Ptr (Vertex4 GLfloat) -> IO ()
+glGetLightfvv :: GLenum -> GLenum -> Ptr (Vertex4 GLfloat) -> IO ()
+glGetLightfvv l pname ptr = glGetLightfv l pname (castPtr ptr)
 
 --------------------------------------------------------------------------------
 
@@ -299,22 +291,16 @@ spotDirection :: Light -> StateVar (Normal3 GLfloat)
 spotDirection =
    makeLightVar glGetLightfvn glLightfvn SpotDirection (Normal3 0 0 0)
 
-foreign import CALLCONV unsafe "glLightfv" glLightfvn ::
-   GLenum -> GLenum -> Ptr (Normal3 GLfloat) -> IO ()
+glLightfvn :: GLenum -> GLenum -> Ptr (Normal3 GLfloat) -> IO ()
+glLightfvn l pname ptr = glLightfv l pname (castPtr ptr)
 
-foreign import CALLCONV unsafe "glGetLightfv" glGetLightfvn ::
-   GLenum -> GLenum -> Ptr (Normal3 GLfloat) -> IO ()
+glGetLightfvn :: GLenum -> GLenum -> Ptr (Normal3 GLfloat) -> IO ()
+glGetLightfvn l pname ptr = glGetLightfv l pname (castPtr ptr)
 
 --------------------------------------------------------------------------------
 
 spotExponent :: Light -> StateVar GLfloat
 spotExponent = makeLightVar glGetLightfv glLightfv SpotExponent 0
-
-foreign import CALLCONV unsafe "glLightfv" glLightfv ::
-   GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glGetLightfv" glGetLightfv ::
-   GLenum -> GLenum -> Ptr GLfloat -> IO ()
 
 maxSpotExponent :: GettableStateVar GLfloat
 maxSpotExponent = makeGettableStateVar $ getFloat1 id GetMaxSpotExponent
@@ -369,10 +355,7 @@ lightModelAmbient =
    makeStateVar
       (getFloat4 Color4 GetLightModelAmbient)
       (\c -> with c $
-                glLightModelfv (marshalLightModelParameter LightModelAmbient))
-
-foreign import CALLCONV unsafe "glLightModelfv" glLightModelfv ::
-   GLenum -> Ptr (Color4 GLfloat) -> IO ()
+                glLightModelfv (marshalLightModelParameter LightModelAmbient) . castPtr)
 
 --------------------------------------------------------------------------------
 
@@ -386,9 +369,6 @@ makeLightModelCapVar pname lightModelParameter =
       (getBoolean1 unmarshalCapability pname)
       (glLightModeli (marshalLightModelParameter lightModelParameter) .
                      fromIntegral . marshalCapability)
-
-foreign import CALLCONV unsafe "glLightModeli" glLightModeli ::
-   GLenum -> GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -465,9 +445,6 @@ colorMaterial =
       (\(face, param) -> glColorMaterial (marshalFace face)
                                          (marshalColorMaterialParameter param))
 
-foreign import CALLCONV unsafe "glColorMaterial" glColorMaterial ::
-   GLenum -> GLenum -> IO ()
-
 --------------------------------------------------------------------------------
 
 data ShadingModel =
@@ -493,5 +470,3 @@ shadeModel =
    makeStateVar
       (getEnum1 unmarshalShadingModel GetShadeModel)
       (glShadeModel . marshalShadingModel)
-
-foreign import CALLCONV unsafe "glShadeModel" glShadeModel :: GLenum -> IO ()

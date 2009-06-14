@@ -18,6 +18,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    NumComponents, DataType(..), Stride, VertexArrayDescriptor(..),
 
    -- * Specifying Data for the Arrays
+   Capability(..),
    ClientArrayType(..), arrayPointer,
    InterleavedArrays(..), interleavedArrays,
 
@@ -41,13 +42,12 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
              CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordArray,
              CapSecondaryColorArray,CapMatrixIndexArray,CapPrimitiveRestart),
-   makeCapability, unmarshalCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLint, GLuint, GLsizei, Capability(Disabled,Enabled) )
+   Capability(..), makeCapability, unmarshalCapability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray
 import Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -62,7 +62,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
             GetMaxElementsVertices,GetMaxElementsIndices,
             GetClientActiveTexture,GetArrayElementLockFirst,
             GetArrayElementLockCount,GetPrimitiveRestartIndex),
-   getInteger1, getEnum1, getSizei1, AttribLocation,
+   getInteger1, getEnum1, getSizei1, AttribLocation(..),
    GetVertexAttribPName(..),
    getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
    GetVertexAttribPointerPName(..), getVertexAttribPointer )
@@ -76,10 +76,6 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum, recordInvalidValue )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( IntegerHandling(..) )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -177,9 +173,6 @@ setVertexPointer :: VertexArrayDescriptor a -> IO ()
 setVertexPointer (VertexArrayDescriptor n d s p) =
    glVertexPointer n (marshalDataType d) s p
 
-foreign import CALLCONV unsafe "glVertexPointer" glVertexPointer ::
-   GLint -> GLenum -> GLsizei -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 normalPointer :: StateVar (VertexArrayDescriptor a)
@@ -195,9 +188,6 @@ getNormalPointer = do
 setNormalPointer :: VertexArrayDescriptor a -> IO ()
 setNormalPointer (VertexArrayDescriptor n d s p) =
    check (n == 3) $ glNormalPointer (marshalDataType d) s p
-
-foreign import CALLCONV unsafe "glNormalPointer" glNormalPointer ::
-   GLenum -> GLsizei -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -216,9 +206,6 @@ setColorPointer :: VertexArrayDescriptor a -> IO ()
 setColorPointer (VertexArrayDescriptor n d s p) =
    check (n == 3 || n == 4) $ glColorPointer n (marshalDataType d) s p
 
-foreign import CALLCONV unsafe "glColorPointer" glColorPointer ::
-   GLint -> GLenum -> GLsizei -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 indexPointer :: StateVar (VertexArrayDescriptor a)
@@ -234,9 +221,6 @@ getIndexPointer = do
 setIndexPointer :: VertexArrayDescriptor a -> IO ()
 setIndexPointer (VertexArrayDescriptor n d s p) =
    check (n == 1) $ glIndexPointer (marshalDataType d) s p
-
-foreign import CALLCONV unsafe "glIndexPointer" glIndexPointer ::
-   GLenum -> GLsizei -> Ptr a -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -255,9 +239,6 @@ setTexCoordPointer :: VertexArrayDescriptor a -> IO ()
 setTexCoordPointer (VertexArrayDescriptor n d s p) =
    glTexCoordPointer n (marshalDataType d) s p
 
-foreign import CALLCONV unsafe "glTexCoordPointer" glTexCoordPointer ::
-   GLint -> GLenum -> GLsizei -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 edgeFlagPointer :: StateVar (VertexArrayDescriptor a)
@@ -273,9 +254,6 @@ setEdgeFlagPointer :: VertexArrayDescriptor a -> IO ()
 setEdgeFlagPointer (VertexArrayDescriptor n d s p) =
    check (n == 1 && d == UnsignedByte) $ glEdgeFlagPointer s p
 
-foreign import CALLCONV unsafe "glEdgeFlagPointer" glEdgeFlagPointer ::
-   GLsizei -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 fogCoordPointer :: StateVar (VertexArrayDescriptor a)
@@ -290,9 +268,7 @@ getFogCoordPointer = do
 
 setFogCoordPointer :: VertexArrayDescriptor a -> IO ()
 setFogCoordPointer (VertexArrayDescriptor n d s p) =
-   check (n == 1) $ glFogCoordPointerEXT (marshalDataType d) s p
-
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordPointerEXT,GLenum -> GLsizei -> Ptr a -> IO ())
+   check (n == 1) $ glFogCoordPointer (marshalDataType d) s p
 
 --------------------------------------------------------------------------------
 
@@ -310,9 +286,7 @@ getSecondaryColorPointer = do
 
 setSecondaryColorPointer :: (VertexArrayDescriptor a) -> IO ()
 setSecondaryColorPointer (VertexArrayDescriptor n d s p) =
-   glSecondaryColorPointerEXT n (marshalDataType d) s p
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColorPointerEXT,GLint -> GLenum -> GLsizei -> Ptr a -> IO ())
+   glSecondaryColorPointer n (marshalDataType d) s p
 
 --------------------------------------------------------------------------------
 
@@ -355,9 +329,6 @@ marshalInterleavedArrays x = case x of
 interleavedArrays :: InterleavedArrays -> Stride -> Ptr a -> IO ()
 interleavedArrays = glInterleavedArrays . marshalInterleavedArrays
 
-foreign import CALLCONV unsafe "glInterleavedArrays" glInterleavedArrays ::
-   GLenum -> GLsizei -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 clientState :: ClientArrayType -> StateVar Capability
@@ -372,20 +343,12 @@ setClientState arrayType val =
    (if val == Enabled then glEnableClientState else glDisableClientState)
       (marshalClientArrayType arrayType)
 
-foreign import CALLCONV unsafe "glEnableClientState" glEnableClientState ::
-   GLenum -> IO ()
-
-foreign import CALLCONV unsafe "glDisableClientState" glDisableClientState ::
-   GLenum -> IO ()
-
 --------------------------------------------------------------------------------
 
 clientActiveTexture :: StateVar TextureUnit
 clientActiveTexture =
    makeStateVar (getEnum1 unmarshalTextureUnit GetClientActiveTexture)
-                (glClientActiveTextureARB . marshalTextureUnit)
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glClientActiveTextureARB,GLenum -> IO ())
+                (glClientActiveTexture . marshalTextureUnit)
 
 --------------------------------------------------------------------------------
 
@@ -400,43 +363,29 @@ type NumIndexBlocks = GLsizei
 arrayElement :: ArrayIndex -> IO ()
 arrayElement = glArrayElement
 
-foreign import CALLCONV unsafe "glArrayElement" glArrayElement :: GLint -> IO ()
-
 drawArrays :: PrimitiveMode -> ArrayIndex -> NumArrayIndices -> IO ()
 drawArrays = glDrawArrays . marshalPrimitiveMode
-
-foreign import CALLCONV unsafe "glDrawArrays" glDrawArrays ::
-   GLenum -> GLint -> GLsizei -> IO ()
 
 multiDrawArrays ::
       PrimitiveMode -> Ptr ArrayIndex -> Ptr NumArrayIndices -> NumIndexBlocks
    -> IO ()
-multiDrawArrays = glMultiDrawArraysEXT . marshalPrimitiveMode
-
-EXTENSION_ENTRY("GL_EXT_multi_draw_arrays or OpenGL 1.4",glMultiDrawArraysEXT,GLenum -> Ptr ArrayIndex -> Ptr GLsizei -> GLsizei -> IO ())
+multiDrawArrays = glMultiDrawArrays . marshalPrimitiveMode
 
 drawElements :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> IO ()
 drawElements m c = glDrawElements (marshalPrimitiveMode m) c . marshalDataType
-
-foreign import CALLCONV unsafe "glDrawElements" glDrawElements ::
-   GLenum -> GLsizei -> GLenum -> Ptr a -> IO ()
 
 multiDrawElements ::
       PrimitiveMode -> Ptr NumArrayIndices -> DataType -> Ptr (Ptr a)
    -> NumIndexBlocks -> IO ()
 multiDrawElements m c =
-   glMultiDrawElementsEXT (marshalPrimitiveMode m) c . marshalDataType
-
-EXTENSION_ENTRY("GL_EXT_multi_draw_arrays or OpenGL 1.4",glMultiDrawElementsEXT,GLenum -> Ptr GLsizei -> GLenum -> Ptr (Ptr a) -> GLsizei -> IO ())
+   glMultiDrawElements (marshalPrimitiveMode m) c . marshalDataType
 
 drawRangeElements ::
       PrimitiveMode -> (ArrayIndex, ArrayIndex) -> NumArrayIndices -> DataType
    -> Ptr a -> IO ()
 drawRangeElements m (s, e) c =
-   glDrawRangeElementsEXT (marshalPrimitiveMode m) (fromIntegral s)
-                          (fromIntegral e) c . marshalDataType
-
-EXTENSION_ENTRY("GL_EXT_draw_range_elements or OpenGL 1.2",glDrawRangeElementsEXT,GLenum -> GLuint -> GLuint -> GLsizei -> GLenum -> Ptr a -> IO ())
+   glDrawRangeElements (marshalPrimitiveMode m) (fromIntegral s)
+                       (fromIntegral e) c . marshalDataType
 
 maxElementsVertices :: GettableStateVar NumArrayIndices
 maxElementsVertices = makeGettableStateVar (getSizei1 id GetMaxElementsVertices)
@@ -458,10 +407,7 @@ getLockArrays = do
       else return Nothing
 
 setLockArrays :: Maybe (ArrayIndex, NumArrayIndices) -> IO ()
-setLockArrays = maybe glUnlockArraysEXT (uncurry glLockArraysEXT)
-
-EXTENSION_ENTRY("GL_EXT_compiled_vertex_array",glLockArraysEXT,GLint -> GLsizei -> IO ())
-EXTENSION_ENTRY("GL_EXT_compiled_vertex_array",glUnlockArraysEXT,IO ())
+setLockArrays = maybe glUnlockArrays (uncurry glLockArrays)
 
 --------------------------------------------------------------------------------
 
@@ -480,12 +426,9 @@ getPrimitiverestartIndex = do
 
 setPrimitiverestartIndex :: Maybe ArrayIndex -> IO ()
 setPrimitiverestartIndex maybeIdx = case maybeIdx of
-   Nothing  -> glDisableClientState primitiveRestartNV
-   Just idx -> do glEnableClientState primitiveRestartNV
-                  glPrimitiveRestartIndexNV (fromIntegral idx)
-   where primitiveRestartNV = 0x8558   -- ToDo: HACK!
-
-EXTENSION_ENTRY("GL_NV_primitive_restart",glPrimitiveRestartIndexNV,GLuint -> IO ())
+   Nothing  -> glDisableClientState gl_PRIMITIVE_RESTART
+   Just idx -> do glEnableClientState gl_PRIMITIVE_RESTART
+                  glPrimitiveRestartIndex (fromIntegral idx)
 
 --------------------------------------------------------------------------------
 
@@ -525,9 +468,6 @@ getPointer n = alloca $ \buf -> do
    glGetPointerv (marshalGetPointervPName n) buf
    peek buf
 
-foreign import CALLCONV unsafe "glGetPointerv" glGetPointerv ::
-   GLenum -> Ptr (Ptr a) -> IO ()
-
 --------------------------------------------------------------------------------
 
 vertexAttribPointer :: AttribLocation -> StateVar (IntegerHandling, VertexArrayDescriptor a)
@@ -548,14 +488,11 @@ getVertexAttribPointer_ location = do
    return (h, VertexArrayDescriptor n d s p)
 
 setVertexAttribPointer :: AttribLocation -> (IntegerHandling, VertexArrayDescriptor a) -> IO ()
-setVertexAttribPointer location (h, VertexArrayDescriptor n d s p) = case h of
-   ToFloat -> glVertexAttribPointerARB location n md (marshalGLboolean False) s p
-   ToNormalizedFloat -> glVertexAttribPointerARB location n md (marshalGLboolean True) s p
+setVertexAttribPointer (AttribLocation location) (h, VertexArrayDescriptor n d s p) = case h of
+   ToFloat -> glVertexAttribPointer location n md (marshalGLboolean False) s p
+   ToNormalizedFloat -> glVertexAttribPointer location n md (marshalGLboolean True) s p
    KeepIntegral -> glVertexAttribIPointer location n md s p
   where md = marshalDataType d
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttribPointerARB,AttribLocation -> GLint -> GLenum -> GLboolean -> GLsizei -> Ptr a -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribIPointer,AttribLocation -> GLint -> GLenum -> GLsizei -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -568,8 +505,5 @@ getVertexAttribArray location =
    getVertexAttribBoolean1 unmarshalCapability location GetVertexAttribArrayEnabled
 
 setVertexAttribArray :: Capability -> AttribLocation -> IO ()
-setVertexAttribArray Disabled = glDisableVertexAttribArrayARB
-setVertexAttribArray Enabled = glEnableVertexAttribArrayARB
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glDisableVertexAttribArrayARB,AttribLocation -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glEnableVertexAttribArrayARB,AttribLocation -> IO ())
+setVertexAttribArray Disabled (AttribLocation location) = glDisableVertexAttribArray location
+setVertexAttribArray Enabled (AttribLocation location) = glEnableVertexAttribArray location

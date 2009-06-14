@@ -53,24 +53,23 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 import Control.Monad ( liftM2, liftM3 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
-import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
              CapSampleCoverage,CapDepthBoundsTest,CapAlphaTest,CapStencilTest,
              CapStencilTestTwoSide,CapDepthTest,CapBlend,CapDither,
              CapIndexLogicOp,CapColorLogicOp),
-   makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLint, GLuint, GLsizei, GLenum, GLclampf, GLclampd, Capability )
+   Capability, makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest
+import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide
 import Graphics.Rendering.OpenGL.GL.BlendingFactor (
    BlendingFactor(..), marshalBlendingFactor, unmarshalBlendingFactor )
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction ( ComparisonFunction(..),
    marshalComparisonFunction, unmarshalComparisonFunction )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.Colors ( Face )
 import Graphics.Rendering.OpenGL.GL.GLboolean (
@@ -95,10 +94,6 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), rgbaMode )
 
 --------------------------------------------------------------------------------
 
-#include "HsOpenGLExt.h"
-
---------------------------------------------------------------------------------
-
 scissor :: StateVar (Maybe (Position, Size))
 scissor =
    makeStateVarMaybe
@@ -106,9 +101,6 @@ scissor =
       (getInteger4 makeSB GetScissorBox)
       (\(Position x y, Size w h) -> glScissor x y w h)
    where makeSB x y w h = (Position x y, Size (fromIntegral w) (fromIntegral h))
-       
-foreign import CALLCONV unsafe "glScissor" glScissor ::
-   GLint -> GLint -> GLsizei -> GLsizei -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -124,9 +116,7 @@ sampleCoverage =
       (return CapSampleCoverage)
       (liftM2 (,) (getFloat1 id GetSampleCoverageValue)
                   (getBoolean1 unmarshalGLboolean GetSampleCoverageInvert))
-      (\(value, invert) -> glSampleCoverageARB value (marshalGLboolean invert))
-
-EXTENSION_ENTRY("GL_ARB_multisample or OpenGL 1.3",glSampleCoverageARB,GLclampf -> GLboolean -> IO ())
+      (\(value, invert) -> glSampleCoverage value (marshalGLboolean invert))
 
 --------------------------------------------------------------------------------
 
@@ -135,9 +125,7 @@ depthBounds =
    makeStateVarMaybe
       (return CapDepthBoundsTest)
       (getDouble2 (,) GetDepthBounds)
-      (uncurry glDepthBoundsEXT)
-       
-EXTENSION_ENTRY("GL_EXT_depth_bounds_test",glDepthBoundsEXT,GLclampd -> GLclampd -> IO ())
+      (uncurry glDepthBounds)
 
 --------------------------------------------------------------------------------
 
@@ -148,9 +136,6 @@ alphaFunc =
       (liftM2 (,) (getEnum1 unmarshalComparisonFunction GetAlphaTestFunc)
                   (getFloat1 id GetAlphaTestRef))
       (uncurry (glAlphaFunc . marshalComparisonFunction))
-
-foreign import CALLCONV unsafe "glAlphaFunc" glAlphaFunc ::
-   GLenum -> GLclampf -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -168,15 +153,10 @@ stencilFunc =
       (\(func, ref, mask) ->
          glStencilFunc (marshalComparisonFunction func) ref mask)
 
-foreign import CALLCONV unsafe "glStencilFunc" glStencilFunc ::
-   GLenum -> GLint -> GLuint -> IO ()
-
 stencilFuncSeparate :: Face -> SettableStateVar (ComparisonFunction, GLint, GLuint)
 stencilFuncSeparate face =
    makeSettableStateVar $ \(func, ref, mask) ->
       glStencilFuncSeparate (marshalFace face) (marshalComparisonFunction func) ref mask
-
-EXTENSION_ENTRY("OpenGL 2.0",glStencilFuncSeparate,GLenum -> GLenum -> GLint -> GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -226,9 +206,6 @@ stencilOp =
                                         (marshalStencilOp spdf)
                                         (marshalStencilOp spdp))
 
-foreign import CALLCONV unsafe "glStencilOp" glStencilOp ::
-   GLenum -> GLenum -> GLenum -> IO ()
-
 stencilOpSeparate :: Face -> SettableStateVar (StencilOp, StencilOp, StencilOp)
 stencilOpSeparate face =
    makeSettableStateVar $ \(sf, spdf, spdp) ->
@@ -237,8 +214,6 @@ stencilOpSeparate face =
                           (marshalStencilOp spdf)
                           (marshalStencilOp spdp)
 
-EXTENSION_ENTRY("OpenGL 2.0",glStencilOpSeparate,GLenum -> GLenum -> GLenum -> GLenum -> IO ())
-
 --------------------------------------------------------------------------------
 
 activeStencilFace :: StateVar (Maybe Face)
@@ -246,9 +221,7 @@ activeStencilFace =
    makeStateVarMaybe
       (return CapStencilTestTwoSide)
       (getEnum1 unmarshalFace GetActiveStencilFace)
-      (glActiveStencilFaceEXT . marshalFace)
-
-EXTENSION_ENTRY("GL_EXT_stencil_two_side",glActiveStencilFaceEXT,GLenum -> IO ())
+      (glActiveStencilFace . marshalFace)
 
 --------------------------------------------------------------------------------
 
@@ -258,8 +231,6 @@ depthFunc =
       (return CapDepthTest)
       (getEnum1 unmarshalComparisonFunction GetDepthFunc)
       (glDepthFunc . marshalComparisonFunction)
-
-foreign import CALLCONV unsafe "glDepthFunc" glDepthFunc :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -271,21 +242,14 @@ newtype QueryObject = QueryObject { queryID :: GLuint }
 instance ObjectName QueryObject where
    genObjectNames n =
       allocaArray n $ \buf -> do
-        glGenQueriesARB (fromIntegral n) buf
+        glGenQueries (fromIntegral n) buf
         fmap (map QueryObject) $ peekArray n buf
 
    deleteObjectNames queryObjects =
       withArrayLen (map queryID queryObjects) $
-         glDeleteQueriesARB . fromIntegral
+         glDeleteQueries . fromIntegral
 
-   isObjectName = fmap unmarshalGLboolean . glIsQueryARB . queryID
-
-
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGenQueriesARB,GLsizei -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glDeleteQueriesARB,GLsizei -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glIsQueryARB,GLuint -> IO GLboolean)
+   isObjectName = fmap unmarshalGLboolean . glIsQuery . queryID
 
 --------------------------------------------------------------------------------
 
@@ -300,14 +264,10 @@ marshalQueryTarget x = case x of
 --------------------------------------------------------------------------------
 
 beginQuery :: QueryTarget -> QueryObject -> IO ()
-beginQuery t = glBeginQueryARB (marshalQueryTarget t) . queryID
-
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glBeginQueryARB,GLenum -> GLuint -> IO ())
+beginQuery t = glBeginQuery (marshalQueryTarget t) . queryID
 
 endQuery :: QueryTarget -> IO ()
-endQuery = glEndQueryARB . marshalQueryTarget
-
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glEndQueryARB,GLenum -> IO ())
+endQuery = glEndQuery . marshalQueryTarget
 
 -- | Convenience function for an exception-safe combination of 'beginQuery' and
 -- 'endQuery'.
@@ -340,10 +300,8 @@ getQueryi :: (GLint -> a) -> GetQueryPName -> QueryTarget -> GettableStateVar a
 getQueryi f p t =
    makeGettableStateVar $
       alloca $ \buf -> do
-         glGetQueryivARB (marshalQueryTarget t) (marshalGetQueryPName p) buf
+         glGetQueryiv (marshalQueryTarget t) (marshalGetQueryPName p) buf
          peek1 f buf
-
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryivARB,GLenum -> GLenum -> Ptr GLint -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -369,10 +327,8 @@ getQueryObjectui ::
 getQueryObjectui f p q =
    makeGettableStateVar $
       alloca $ \buf -> do
-         glGetQueryObjectuivARB (queryID q) (marshalGetQueryObjectPName p) buf
+         glGetQueryObjectuiv (queryID q) (marshalGetQueryObjectPName p) buf
          peek1 f buf
-
-EXTENSION_ENTRY("GL_ARB_occlusion_query or OpenGL 1.5",glGetQueryObjectuivARB,GLuint -> GLenum -> Ptr GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -415,9 +371,7 @@ blendEquation :: StateVar BlendEquation
 blendEquation =
    makeStateVar
       (getEnum1 unmarshalBlendEquation GetBlendEquation)
-      (glBlendEquationEXT . marshalBlendEquation)
-
-EXTENSION_ENTRY("GL_EXT_blend_minmax or GL_EXT_blend_subtract or OpenGL 1.4",glBlendEquationEXT,GLenum -> IO ())
+      (glBlendEquation . marshalBlendEquation)
 
 blendEquationSeparate :: StateVar (BlendEquation,BlendEquation)
 blendEquationSeparate =
@@ -427,8 +381,6 @@ blendEquationSeparate =
       (\(funcRGB, funcAlpha) ->
           glBlendEquationSeparate (marshalBlendEquation funcRGB)
                                   (marshalBlendEquation funcAlpha))
-
-EXTENSION_ENTRY("GL_EXT_blend_equation_separate or OpenGL 2.0",glBlendEquationSeparate,GLenum -> GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -442,12 +394,10 @@ blendFuncSeparate =
           dstAlpha <- getEnum1 unmarshalBlendingFactor GetBlendDstAlpha
           return ((srcRGB, srcAlpha), (dstRGB, dstAlpha)))
       (\((srcRGB, srcAlpha), (dstRGB, dstAlpha)) ->
-         glBlendFuncSeparateEXT (marshalBlendingFactor srcRGB)
-                                (marshalBlendingFactor srcAlpha)
-                                (marshalBlendingFactor dstRGB)
-                                (marshalBlendingFactor dstAlpha))
-
-EXTENSION_ENTRY("GL_EXT_blend_func_separate or OpenGL 1.4",glBlendFuncSeparateEXT,GLenum -> GLenum -> GLenum -> GLenum -> IO ())
+         glBlendFuncSeparate (marshalBlendingFactor srcRGB)
+                             (marshalBlendingFactor srcAlpha)
+                             (marshalBlendingFactor dstRGB)
+                             (marshalBlendingFactor dstAlpha))
 
 blendFunc :: StateVar (BlendingFactor, BlendingFactor)
 blendFunc =
@@ -457,16 +407,11 @@ blendFunc =
       (\(s, d) ->
          glBlendFunc (marshalBlendingFactor s) (marshalBlendingFactor d))
 
-foreign import CALLCONV unsafe "glBlendFunc" glBlendFunc ::
-   GLenum -> GLenum -> IO ()
-
 blendColor :: StateVar (Color4 GLclampf)
 blendColor =
    makeStateVar
       (getFloat4 Color4 GetBlendColor)
-      (\(Color4 r g b a) -> glBlendColorEXT r g b a)
-
-EXTENSION_ENTRY("GL_EXT_blend_color or OpenGL 1.4",glBlendColorEXT,GLclampf -> GLclampf -> GLclampf -> GLclampf -> IO ())
+      (\(Color4 r g b a) -> glBlendColor r g b a)
 
 --------------------------------------------------------------------------------
 
@@ -542,5 +487,3 @@ logicOp =
           return $ if rgba then CapColorLogicOp else CapIndexLogicOp)
       (getEnum1 unmarshalLogicOp GetLogicOpMode)
       (glLogicOp . marshalLogicOp)
-
-foreign import CALLCONV unsafe "glLogicOp" glLogicOp :: GLenum -> IO ()

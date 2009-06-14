@@ -29,14 +29,14 @@
 #define GLuint_   GLuint
 #define GLushort_ GLushort
 #else
-#define GLbyte_   HTYPE_GLBYTE
-#define GLdouble_ HTYPE_GLDOUBLE
-#define GLfloat_  HTYPE_GLFLOAT
-#define GLint_    HTYPE_GLINT
-#define GLshort_  HTYPE_GLSHORT
-#define GLubyte_  HTYPE_GLUBYTE
-#define GLuint_   HTYPE_GLUINT
-#define GLushort_ HTYPE_GLUSHORT
+#define GLbyte_   CSChar
+#define GLdouble_ CDouble
+#define GLfloat_  CFloat
+#define GLint_    CInt
+#define GLshort_  CShort
+#define GLubyte_  CUChar
+#define GLuint_   CUInt
+#define GLushort_ CUShort
 #endif
 
 #endif

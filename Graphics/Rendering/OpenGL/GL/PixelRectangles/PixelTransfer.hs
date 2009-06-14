@@ -20,9 +20,9 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelTransfer (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.Capability (
-   marshalCapability, unmarshalCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLfloat, Capability )
+   Capability, marshalCapability, unmarshalCapability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMapColor,GetMapStencil,GetIndexShift,GetIndexOffset,
             GetRedScale,GetGreenScale,GetBlueScale,GetAlphaScale,GetDepthScale,
@@ -223,9 +223,6 @@ pixelTransferi pn pt =
       (getInteger1 id pn)
       (glPixelTransferi (marshalPixelTransfer pt))
 
-foreign import CALLCONV unsafe "glPixelTransferi" glPixelTransferi ::
-   GLenum -> GLint -> IO ()
-
 pixelTransferf :: GetPName -> PixelTransfer -> StateVar GLfloat
 pixelTransferf pn pt =
    makeStateVar
@@ -248,6 +245,3 @@ pixelTransfer4f (pr, pg, pb, pa) (tr, tg, tb, ta) = makeStateVar get4f set4f
             glPixelTransferf (marshalPixelTransfer tg) g
             glPixelTransferf (marshalPixelTransfer tb) b
             glPixelTransferf (marshalPixelTransfer ta) a
-
-foreign import CALLCONV unsafe "glPixelTransferf" glPixelTransferf ::
-   GLenum -> GLfloat -> IO ()

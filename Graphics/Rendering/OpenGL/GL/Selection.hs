@@ -20,8 +20,8 @@ module Graphics.Rendering.OpenGL.GL.Selection (
 
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLsizei, GLuint, GLfloat )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
 import Graphics.Rendering.OpenGL.GL.IOState (
    IOState, peekIOState, evalIOState, nTimes )
@@ -48,11 +48,6 @@ getHitRecords bufSize action =
          action
       hits <- parseSelectionBuffer numHits buf
       return (value, hits)
-
-foreign import CALLCONV unsafe "glInitNames" glInitNames :: IO ()
-
-foreign import CALLCONV unsafe "glSelectBuffer" glSelectBuffer ::
-   GLsizei -> Ptr GLuint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -86,13 +81,10 @@ newtype Name = Name GLuint
    deriving ( Eq, Ord, Show )
 
 withName :: Name -> IO a -> IO a
-withName name = bracket_ (glPushName name) glPopName
+withName (Name name) = bracket_ (glPushName name) glPopName
 
-foreign import CALLCONV unsafe "glPopName" glPopName :: IO ()
-
-foreign import CALLCONV unsafe "glPushName" glPushName :: Name -> IO ()
-
-foreign import CALLCONV unsafe "glLoadName" loadName :: Name -> IO ()
+loadName :: Name -> IO ()
+loadName (Name n) = glLoadName n
 
 maxNameStackDepth :: GettableStateVar GLsizei
 maxNameStackDepth = makeGettableStateVar (getSizei1 id GetMaxNameStackDepth)

@@ -18,13 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PointParameter (
 ) where
 
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLfloat )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
@@ -44,11 +38,7 @@ marshalPointParameter x = case x of
 --------------------------------------------------------------------------------
 
 pointParameterf :: PointParameter -> GLfloat -> IO ()
-pointParameterf = glPointParameterfARB . marshalPointParameter
-
-EXTENSION_ENTRY("GL_ARB_point_parameters or OpenGL 1.4",glPointParameterfARB,GLenum -> GLfloat -> IO ())
+pointParameterf = glPointParameterf . marshalPointParameter
 
 pointParameterfv :: PointParameter -> Ptr GLfloat -> IO ()
-pointParameterfv = glPointParameterfvARB . marshalPointParameter
-
-EXTENSION_ENTRY("GL_ARB_point_parameters or OpenGL 1.4",glPointParameterfvARB,GLenum -> Ptr GLfloat -> IO ())
+pointParameterfv = glPointParameterfv . marshalPointParameter

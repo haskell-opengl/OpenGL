@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset (
    Reset(..), marshalReset
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 
 --------------------------------------------------------------------------------

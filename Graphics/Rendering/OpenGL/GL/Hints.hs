@@ -16,7 +16,7 @@ module Graphics.Rendering.OpenGL.GL.Hints (
    HintTarget(..), HintMode(..), hint
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetPerspectiveCorrectionHint,GetPointSmoothHint,GetLineSmoothHint,
             GetPolygonSmoothHint,GetFogHint,GetGenerateMipmapHint,
@@ -90,5 +90,3 @@ hint t =
    makeStateVar
       (getEnum1 unmarshalHintMode (hintTargetToGetPName t))
       (glHint (marshalHintTarget t) . marshalHintMode)
-
-foreign import CALLCONV unsafe "glHint" glHint :: GLenum -> GLenum -> IO ()

@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GLU.Mipmapping (
 ) where
 
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, GLint, GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (

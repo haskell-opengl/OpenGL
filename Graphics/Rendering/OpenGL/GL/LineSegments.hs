@@ -29,9 +29,9 @@ module Graphics.Rendering.OpenGL.GL.LineSegments (
 
 import Control.Monad ( liftM2 )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapLineSmooth,CapLineStipple), makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLushort, GLfloat, Capability )
+   Capability, EnableCap(CapLineSmooth,CapLineStipple), makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetLineWidth,GetAliasedLineWidthRange,GetSmoothLineWidthRange,
             GetSmoothLineWidthGranularity,GetLineStippleRepeat,
@@ -88,8 +88,6 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 lineWidth :: StateVar GLfloat
 lineWidth = makeStateVar (getFloat1 id GetLineWidth) glLineWidth
 
-foreign import CALLCONV unsafe "glLineWidth" glLineWidth :: GLfloat -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | Line stippling masks out certain fragments produced by rasterization; those
@@ -129,13 +127,10 @@ lineStipple =
                   (getInteger1 fromIntegral GetLineStipplePattern))
       (uncurry glLineStipple)
 
-foreign import CALLCONV unsafe "glLineStipple" glLineStipple ::
-   GLint -> GLushort -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | Controls whether line antialiasing is enabled. The initial state is
--- 'Graphics.Rendering.OpenGL.GL.BasicTypes.Disabled'.
+-- 'Graphics.Rendering.OpenGL.GL.Capability.Disabled'.
 
 lineSmooth :: StateVar Capability
 lineSmooth = makeCapability CapLineSmooth

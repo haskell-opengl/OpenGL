@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
    TextureUnit(..), marshalTextureUnit, unmarshalTextureUnit
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLuint )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

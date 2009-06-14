@@ -18,8 +18,8 @@ module Graphics.Rendering.OpenGL.GL.Antialiasing (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapMultisample), makeCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLsizei, Capability )
+   Capability, EnableCap(CapMultisample), makeCapability )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetSampleBuffers,GetSamples,GetSubpixelBits), getSizei1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (

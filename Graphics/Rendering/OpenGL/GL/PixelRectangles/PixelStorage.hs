@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage (
    skipPixels, rowAlignment, imageHeight, skipImages
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -123,6 +123,3 @@ pixelStorei pn ps =
    makeStateVar
       (getInteger1 id pn)
       (glPixelStorei (marshalPixelStore ps))
-
-foreign import CALLCONV unsafe "glPixelStorei" glPixelStorei ::
-   GLenum -> GLint -> IO ()

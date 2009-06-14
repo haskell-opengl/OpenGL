@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

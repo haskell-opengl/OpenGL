@@ -19,13 +19,10 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram (
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapHistogram), makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLint, GLsizei )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
     PixelData(..) )
@@ -87,8 +84,6 @@ getHistogramParameteri f proxy p =
          buf
       peek1 f buf
 
-EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogramParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
-
 setHistogram :: Proxy -> (GLsizei, PixelInternalFormat, Sink) -> IO ()
 setHistogram proxy (w, int, sink) =
    glHistogram
@@ -96,8 +91,6 @@ setHistogram proxy (w, int, sink) =
       w
       (marshalPixelInternalFormat' int)
       (marshalSink sink)
-         
-EXTENSION_ENTRY("GL_ARB_imaging",glHistogram,GLenum -> GLsizei -> GLenum -> GLboolean -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -108,14 +101,10 @@ getHistogram reset pd =
          (marshalHistogramTarget Histogram)
          (marshalReset reset)
 
-EXTENSION_ENTRY("GL_ARB_imaging",glGetHistogram,GLenum -> GLboolean -> GLenum -> GLenum -> Ptr a -> IO ())
-
 --------------------------------------------------------------------------------
 
 resetHistogram :: IO ()
 resetHistogram = glResetHistogram (marshalHistogramTarget Histogram)
-
-EXTENSION_ENTRY("GL_ARB_imaging",glResetHistogram,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 

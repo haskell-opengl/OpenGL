@@ -37,20 +37,16 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 
 import Control.Monad ( replicateM, mapM_, foldM )
 import Control.Monad.Fix ( MonadFix(..) )
-import Data.Int
 import Data.List ( genericLength, (\\) )
-import Data.Word
 import Foreign.C.String ( peekCAStringLen, withCAStringLen, withCAString )
+import Foreign.C.Types
 import Foreign.Marshal.Alloc ( alloca, allocaBytes )
 import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
 import Foreign.Marshal.Utils ( withMany )
 import Foreign.Ptr ( Ptr, castPtr, nullPtr )
 import Foreign.Storable ( Storable(peek,sizeOf) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLchar, GLint, GLuint, GLsizei, GLenum, GLfloat )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -69,7 +65,6 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 --------------------------------------------------------------------------------
 
-#include "HsOpenGLExt.h"
 #include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
@@ -136,16 +131,10 @@ deleteShaderNames = mapM_ (glDeleteShader . shaderID)
 isShaderName :: Shader s => s -> IO Bool
 isShaderName = fmap unmarshalGLboolean . glIsShader . shaderID
 
-EXTENSION_ENTRY("OpenGL 2.0",glCreateShader,GLenum -> IO GLuint)
-EXTENSION_ENTRY("OpenGL 2.0",glDeleteShader,GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glIsShader,GLuint -> IO GLboolean)
-
 --------------------------------------------------------------------------------
 
 compileShader :: Shader s => s -> IO ()
 compileShader = glCompileShader . shaderID
-
-EXTENSION_ENTRY("OpenGL 2.0",glCompileShader,GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -162,15 +151,11 @@ setShaderSource shader srcs = do
          withArray lengths $ \lengthsBuf ->
             glShaderSource (shaderID shader) len charBufsBuf lengthsBuf
 
-EXTENSION_ENTRY("OpenGL 2.0",glShaderSource,GLuint -> GLsizei -> Ptr (Ptr GLchar) -> Ptr GLint -> IO ())
-
 getShaderSource :: Shader s => s -> IO [String]
 getShaderSource shader = do
    src <- get (stringQuery (shaderSourceLength shader)
                            (glGetShaderSource (shaderID shader)))
    return [src]
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetShaderSource,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
 
 stringQuery :: GettableStateVar GLsizei -> (GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ()) -> GettableStateVar String
 stringQuery lengthVar getStr =
@@ -187,8 +172,6 @@ stringQuery lengthVar getStr =
 shaderInfoLog :: Shader s => s -> GettableStateVar String
 shaderInfoLog shader =
    stringQuery (shaderInfoLogLength shader) (glGetShaderInfoLog (shaderID shader))
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetShaderInfoLog,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -231,8 +214,6 @@ shaderVar f p shader =
          glGetShaderiv (shaderID shader) (marshalGetShaderPName p) buf
          peek1 f buf
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetShaderiv,GLuint -> GLenum -> Ptr GLint -> IO ())
-
 --------------------------------------------------------------------------------
 
 newtype Program = Program { programID :: GLuint }
@@ -242,10 +223,6 @@ instance ObjectName Program where
    genObjectNames n = replicateM n $ fmap Program glCreateProgram
    deleteObjectNames = mapM_ (glDeleteProgram . programID)
    isObjectName = fmap unmarshalGLboolean . glIsProgram . programID
-
-EXTENSION_ENTRY("OpenGL 2.0",glCreateProgram,IO GLuint)
-EXTENSION_ENTRY("OpenGL 2.0",glDeleteProgram,GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glIsProgram,GLuint -> IO GLboolean)
 
 --------------------------------------------------------------------------------
 
@@ -262,8 +239,6 @@ getAttachedShaderIDs program = do
    allocaArray (fromIntegral numShaders) $ \buf -> do
       glGetAttachedShaders (programID program) numShaders nullPtr buf
       peekArray (fromIntegral numShaders) buf
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetAttachedShaders,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLuint -> IO ())
 
 splitShaderIDs :: [GLuint] -> IO ([VertexShader],[FragmentShader])
 splitShaderIDs ids = do
@@ -282,28 +257,23 @@ partitionM p = foldM select ([],[])
             return $ if b then (x:ts, fs) else (ts, x:fs)
 
 setAttachedShaders :: Program -> ([VertexShader],[FragmentShader]) -> IO ()
-setAttachedShaders program (vs, fs) = do
-   currentIDs <- getAttachedShaderIDs program
+setAttachedShaders p@(Program program) (vs, fs) = do
+   currentIDs <- getAttachedShaderIDs p
    let newIDs = map shaderID vs ++ map shaderID fs
    mapM_ (glAttachShader program) (newIDs \\ currentIDs)
    mapM_ (glDetachShader program) (currentIDs \\ newIDs)
 
-EXTENSION_ENTRY("OpenGL 2.0",glAttachShader,Program -> GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glDetachShader,Program -> GLuint -> IO ())
-
 --------------------------------------------------------------------------------
 
 linkProgram :: Program -> IO ()
-linkProgram = glLinkProgram
-
-EXTENSION_ENTRY("OpenGL 2.0",glLinkProgram,Program -> IO ())
+linkProgram (Program program) = glLinkProgram program
 
 currentProgram :: StateVar (Maybe Program)
 currentProgram =
    makeStateVar
       (do p <- getCurrentProgram
           return $ if p == noProgram then Nothing else Just p)
-      (glUseProgram . maybe noProgram id)
+      ((\(Program p) -> glUseProgram p) . maybe noProgram id)
 
 getCurrentProgram :: IO Program
 getCurrentProgram = fmap Program $ getInteger1 fromIntegral GetCurrentProgram
@@ -311,18 +281,12 @@ getCurrentProgram = fmap Program $ getInteger1 fromIntegral GetCurrentProgram
 noProgram :: Program
 noProgram = Program 0
 
-EXTENSION_ENTRY("OpenGL 2.0",glUseProgram,Program -> IO ())
-
 validateProgram :: Program -> IO ()
-validateProgram = glValidateProgram
-
-EXTENSION_ENTRY("OpenGL 2.0",glValidateProgram,Program -> IO ())
+validateProgram (Program program) = glValidateProgram program
 
 programInfoLog :: Program -> GettableStateVar String
 programInfoLog p =
    stringQuery (programInfoLogLength p) (glGetProgramInfoLog (programID p))
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetProgramInfoLog,GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -385,8 +349,6 @@ programVar f p program =
          glGetProgramiv (programID program) (marshalGetProgramPName p) buf
          peek1 f buf
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetProgramiv,GLuint -> GLenum -> Ptr GLint -> IO ())
-
 --------------------------------------------------------------------------------
 
 attribLocation :: Program -> String -> StateVar AttribLocation
@@ -395,19 +357,15 @@ attribLocation program name =
                 (\location -> bindAttribLocation program location name)
 
 getAttribLocation :: Program -> String -> IO AttribLocation
-getAttribLocation program name =
+getAttribLocation (Program program) name =
    fmap (AttribLocation . fromIntegral) $
       withGLString name $
          glGetAttribLocation program
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetAttribLocation,Program -> Ptr GLchar -> IO GLint)
-
 bindAttribLocation :: Program -> AttribLocation -> String -> IO ()
-bindAttribLocation program location name =
+bindAttribLocation (Program program) (AttribLocation location) name =
    withGLString name $
       glBindAttribLocation program location
-
-EXTENSION_ENTRY("OpenGL 2.0",glBindAttribLocation,Program -> AttribLocation -> Ptr GLchar -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -523,12 +481,12 @@ unmarshalVariableType x
 
 activeVars :: (Program -> GettableStateVar GLuint)
            -> (Program -> GettableStateVar GLsizei)
-           -> (Program -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
+           -> (GLuint -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
            -> Program -> GettableStateVar [(GLint,VariableType,String)]
-activeVars numVars maxLength getter program =
+activeVars numVars maxLength getter p@(Program program) =
    makeGettableStateVar $ do
-      numActiveVars <- get (numVars program)
-      maxLen <- get (maxLength program)
+      numActiveVars <- get (numVars p)
+      maxLen <- get (maxLength p)
       allocaArray (fromIntegral maxLen) $ \nameBuf ->
          alloca $ \nameLengthBuf ->
             alloca $ \sizeBuf ->
@@ -544,28 +502,22 @@ activeVars numVars maxLength getter program =
 activeAttribs :: Program -> GettableStateVar [(GLint,VariableType,String)]
 activeAttribs = activeVars activeAttributes activeAttributeMaxLength glGetActiveAttrib
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetActiveAttrib,Program -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
-
 --------------------------------------------------------------------------------
 
 newtype UniformLocation = UniformLocation GLint
    deriving ( Eq, Ord, Show )
 
 uniformLocation :: Program -> String -> GettableStateVar UniformLocation
-uniformLocation program name =
+uniformLocation (Program program) name =
    makeGettableStateVar $
       fmap UniformLocation $
          withGLString name $
             glGetUniformLocation program
 
-EXTENSION_ENTRY("OpenGL 2.0",glGetUniformLocation,Program -> Ptr GLchar -> IO GLint)
-
 --------------------------------------------------------------------------------
 
 activeUniforms :: Program -> GettableStateVar [(GLint,VariableType,String)]
 activeUniforms = activeVars numActiveUniforms activeUniformMaxLength glGetActiveUniform
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetActiveUniform,Program -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -582,98 +534,44 @@ class Storable a => UniformComponent a where
    uniform3v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
    uniform4v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1i,UniformLocation -> GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2i,UniformLocation -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3i,UniformLocation -> GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4i,UniformLocation -> GLint -> GLint -> GLint -> GLint -> IO ())
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetUniformiv,Program -> UniformLocation -> Ptr GLint -> IO ())
-
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4iv,UniformLocation -> GLsizei -> Ptr GLint -> IO ())
-
 instance UniformComponent GLint_ where
-   uniform1 = glUniform1i
-   uniform2 = glUniform2i
-   uniform3 = glUniform3i
-   uniform4 = glUniform4i
+   uniform1 (UniformLocation ul) = glUniform1i ul
+   uniform2 (UniformLocation ul) = glUniform2i ul
+   uniform3 (UniformLocation ul) = glUniform3i ul
+   uniform4 (UniformLocation ul) = glUniform4i ul
 
-   getUniform program location = glGetUniformiv program location . castPtr
+   getUniform (Program p) (UniformLocation ul) = glGetUniformiv p ul . castPtr
 
-   uniform1v = glUniform1iv
-   uniform2v = glUniform2iv
-   uniform3v = glUniform3iv
-   uniform4v = glUniform4iv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1ui,UniformLocation -> GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2ui,UniformLocation -> GLuint -> GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3ui,UniformLocation -> GLuint -> GLuint -> GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4ui,UniformLocation -> GLuint -> GLuint -> GLuint -> GLuint -> IO ())
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetUniformuiv,Program -> UniformLocation -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4uiv,UniformLocation -> GLsizei -> Ptr GLuint -> IO ())
+   uniform1v (UniformLocation ul) = glUniform1iv ul
+   uniform2v (UniformLocation ul) = glUniform2iv ul
+   uniform3v (UniformLocation ul) = glUniform3iv ul
+   uniform4v (UniformLocation ul) = glUniform4iv ul
 
 instance UniformComponent GLuint_ where
-   uniform1 = glUniform1ui
-   uniform2 = glUniform2ui
-   uniform3 = glUniform3ui
-   uniform4 = glUniform4ui
+   uniform1 (UniformLocation ul) = glUniform1ui ul
+   uniform2 (UniformLocation ul) = glUniform2ui ul
+   uniform3 (UniformLocation ul) = glUniform3ui ul
+   uniform4 (UniformLocation ul) = glUniform4ui ul
 
-   getUniform program location = glGetUniformuiv program location . castPtr
+   getUniform (Program p) (UniformLocation ul) = glGetUniformuiv p ul . castPtr
 
-   uniform1v = glUniform1uiv
-   uniform2v = glUniform2uiv
-   uniform3v = glUniform3uiv
-   uniform4v = glUniform4uiv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1f,UniformLocation -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2f,UniformLocation -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3f,UniformLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4f,UniformLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
-
-EXTENSION_ENTRY("OpenGL 2.0",glGetUniformfv,Program -> UniformLocation -> Ptr GLfloat -> IO ())
-
-EXTENSION_ENTRY("OpenGL 2.0",glUniform1fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform2fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform3fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniform4fv,UniformLocation -> GLsizei -> Ptr GLfloat -> IO ())
+   uniform1v (UniformLocation ul) = glUniform1uiv ul
+   uniform2v (UniformLocation ul) = glUniform2uiv ul
+   uniform3v (UniformLocation ul) = glUniform3uiv ul
+   uniform4v (UniformLocation ul) = glUniform4uiv ul
 
 instance UniformComponent GLfloat_ where
-   uniform1 = glUniform1f
-   uniform2 = glUniform2f
-   uniform3 = glUniform3f
-   uniform4 = glUniform4f
+   uniform1 (UniformLocation ul) = glUniform1f ul
+   uniform2 (UniformLocation ul) = glUniform2f ul
+   uniform3 (UniformLocation ul) = glUniform3f ul
+   uniform4 (UniformLocation ul) = glUniform4f ul
 
-   getUniform program location = glGetUniformfv program location . castPtr
+   getUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
 
-   uniform1v = glUniform1fv
-   uniform2v = glUniform2fv
-   uniform3v = glUniform3fv
-   uniform4v = glUniform4fv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix2fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix3fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.0",glUniformMatrix4fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix2x3fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix3x2fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix2x4fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix4x2fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix3x4fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("OpenGL 2.1",glUniformMatrix4x3fv,UniformLocation -> GLsizei -> GLboolean -> Ptr GLfloat -> IO ())
+   uniform1v (UniformLocation ul) = glUniform1fv ul
+   uniform2v (UniformLocation ul) = glUniform2fv ul
+   uniform3v (UniformLocation ul) = glUniform3fv ul
+   uniform4v (UniformLocation ul) = glUniform4fv ul
 
 --------------------------------------------------------------------------------
 

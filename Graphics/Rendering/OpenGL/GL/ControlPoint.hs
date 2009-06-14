@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.ControlPoint (
 
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek,poke) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Capability ( EnableCap(..) )
 import Graphics.Rendering.OpenGL.GL.Domain ( Domain )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( Stride )

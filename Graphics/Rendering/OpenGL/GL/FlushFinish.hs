@@ -17,6 +17,8 @@ module Graphics.Rendering.OpenGL.GL.FlushFinish (
    flush, finish      
 ) where
 
+import Graphics.Rendering.OpenGL.Raw.Core31
+
 --------------------------------------------------------------------------------
 
 -- | Different GL implementations buffer commands in several different
@@ -35,7 +37,8 @@ module Graphics.Rendering.OpenGL.GL.FlushFinish (
 -- Note that 'flush' can return at any time. It does not wait until the
 -- execution of all previously issued GL commands is complete.
 
-foreign import CALLCONV unsafe "glFlush" flush :: IO ()
+flush :: IO ()
+flush = glFlush
 
 -- | 'finish' does not return until the effects of all previously called GL
 -- commands are complete. Such effects include all changes to GL state, all
@@ -43,4 +46,5 @@ foreign import CALLCONV unsafe "glFlush" flush :: IO ()
 -- 
 -- Note that 'finish' requires a round trip to the server.
 
-foreign import CALLCONV unsafe "glFinish" finish :: IO ()
+finish :: IO ()
+finish = glFinish

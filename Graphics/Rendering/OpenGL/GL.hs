@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL (
    -- * OpenGL Operation
-   module Graphics.Rendering.OpenGL.GL.BasicTypes,
+   module Graphics.Rendering.OpenGL.Raw.Core31,
    module Graphics.Rendering.OpenGL.GL.BeginEnd,
    module Graphics.Rendering.OpenGL.GL.VertexSpec,
    module Graphics.Rendering.OpenGL.GL.VertexArrays,
@@ -57,7 +57,10 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes
+import Graphics.Rendering.OpenGL.Raw.Core31 (
+   GLbitfield,  GLboolean,  GLbyte,  GLchar,  GLclampd,  GLclampf,  GLdouble,
+   GLenum,  GLfloat,  GLhalf,  GLint,  GLintptr,  GLshort,  GLsizei,
+   GLsizeiptr,  GLubyte,  GLuint,  GLushort )
 import Graphics.Rendering.OpenGL.GL.BeginEnd
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.VertexArrays

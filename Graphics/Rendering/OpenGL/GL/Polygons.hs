@@ -26,9 +26,9 @@ import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple,
              CapPolygonOffsetPoint,CapPolygonOffsetLine,CapPolygonOffsetFill),
-   makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLubyte, GLfloat, Capability )
+   Capability, makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
 import Graphics.Rendering.OpenGL.GL.Colors ( Face(..) )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles (
@@ -55,8 +55,6 @@ cullFace :: StateVar (Maybe Face)
 cullFace = makeStateVarMaybe (return CapCullFace)
                              (getEnum1 unmarshalFace GetCullFaceMode)
                              (glCullFace . marshalFace)
-
-foreign import CALLCONV unsafe "glCullFace" glCullFace :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -117,12 +115,6 @@ withoutGaps direction action =
       skipPixels direction $= 0
       action
 
-foreign import CALLCONV unsafe "glGetPolygonStipple" glGetPolygonStipple ::
-   Ptr GLubyte -> IO ()
-
-foreign import CALLCONV unsafe "glPolygonStipple" glPolygonStipple ::
-   Ptr GLubyte -> IO ()
-
 --------------------------------------------------------------------------------
 
 polygonMode :: StateVar (PolygonMode, PolygonMode)
@@ -137,9 +129,6 @@ setPolygonMode (front, back) = do
    glPolygonMode (marshalFace Front) (marshalPolygonMode front)
    glPolygonMode (marshalFace Back ) (marshalPolygonMode back )
 
-foreign import CALLCONV unsafe "glPolygonMode" glPolygonMode ::
-   GLenum -> GLenum -> IO ()
-
 --------------------------------------------------------------------------------
 
 polygonOffset :: StateVar (GLfloat, GLfloat)
@@ -147,9 +136,6 @@ polygonOffset =
    makeStateVar (liftM2 (,) (getFloat1 id GetPolygonOffsetFactor)
                             (getFloat1 id GetPolygonOffsetUnits))
                 (uncurry glPolygonOffset)
-
-foreign import CALLCONV unsafe "glPolygonOffset" glPolygonOffset ::
-   GLfloat -> GLfloat -> IO ()
 
 --------------------------------------------------------------------------------
 

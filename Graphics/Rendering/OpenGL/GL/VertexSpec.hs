@@ -57,16 +57,12 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(..), maxTextureUnit
 ) where
 
-import Data.Int
-import Data.Word
+import Foreign.C.Types
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLbyte, GLshort, GLint, GLubyte, GLushort, GLuint, GLfloat,
-   GLdouble )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke (
    poke4, peek1M, peek2M, peek3M, peek4M )
@@ -91,7 +87,6 @@ import Graphics.Rendering.OpenGL.GL.VertexAttributes (
 
 --------------------------------------------------------------------------------
 
-#include "HsOpenGLExt.h"
 #include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
@@ -107,26 +102,6 @@ class VertexComponent a where
    vertex3v :: Ptr a -> IO ()
    vertex4v :: Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glVertex2s" glVertex2s ::
-   GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3s" glVertex3s ::
-   GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4s" glVertex4s ::
-   GLshort -> GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glVertex2sv" glVertex2sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3sv" glVertex3sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4sv" glVertex4sv ::
-   Ptr GLshort -> IO ()
-
 instance VertexComponent GLshort_ where
    vertex2 = glVertex2s
    vertex3 = glVertex3s
@@ -135,26 +110,6 @@ instance VertexComponent GLshort_ where
    vertex2v = glVertex2sv
    vertex3v = glVertex3sv
    vertex4v = glVertex4sv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glVertex2i" glVertex2i ::
-   GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3i" glVertex3i ::
-   GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4i" glVertex4i ::
-   GLint -> GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glVertex2iv" glVertex2iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3iv" glVertex3iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4iv" glVertex4iv ::
-   Ptr GLint -> IO ()
 
 instance VertexComponent GLint_ where
    vertex2 = glVertex2i
@@ -165,26 +120,6 @@ instance VertexComponent GLint_ where
    vertex3v = glVertex3iv
    vertex4v = glVertex4iv
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glVertex2f" glVertex2f ::
-   GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3f" glVertex3f ::
-   GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4f" glVertex4f ::
-   GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glVertex2fv" glVertex2fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3fv" glVertex3fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4fv" glVertex4fv ::
-   Ptr GLfloat -> IO ()
-
 instance VertexComponent GLfloat_ where
    vertex2 = glVertex2f
    vertex3 = glVertex3f
@@ -193,26 +128,6 @@ instance VertexComponent GLfloat_ where
    vertex2v = glVertex2fv
    vertex3v = glVertex3fv
    vertex4v = glVertex4fv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glVertex2d" glVertex2d ::
-   GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3d" glVertex3d ::
-   GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4d" glVertex4d ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glVertex2dv" glVertex2dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glVertex3dv" glVertex3dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glVertex4dv" glVertex4dv ::
-   Ptr GLdouble -> IO ()
 
 instance VertexComponent GLdouble_ where
    vertex2 = glVertex2d
@@ -302,42 +217,6 @@ class TexCoordComponent a where
    multiTexCoord3v :: GLenum -> Ptr a -> IO ()
    multiTexCoord4v :: GLenum -> Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glTexCoord1s" glTexCoord1s ::
-   GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2s" glTexCoord2s ::
-   GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3s" glTexCoord3s ::
-   GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4s" glTexCoord4s ::
-   GLshort -> GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord1sv" glTexCoord1sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2sv" glTexCoord2sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3sv" glTexCoord3sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4sv" glTexCoord4sv ::
-   Ptr GLshort -> IO ()
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1sARB,GLenum -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2sARB,GLenum -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3sARB,GLenum -> GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4sARB,GLenum -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1svARB,GLenum -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2svARB,GLenum -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3svARB,GLenum -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4svARB,GLenum -> Ptr GLshort -> IO ())
-
 instance TexCoordComponent GLshort_ where
    texCoord1 = glTexCoord1s
    texCoord2 = glTexCoord2s
@@ -349,51 +228,15 @@ instance TexCoordComponent GLshort_ where
    texCoord3v = glTexCoord3sv
    texCoord4v = glTexCoord4sv
 
-   multiTexCoord1 = glMultiTexCoord1sARB
-   multiTexCoord2 = glMultiTexCoord2sARB
-   multiTexCoord3 = glMultiTexCoord3sARB
-   multiTexCoord4 = glMultiTexCoord4sARB
+   multiTexCoord1 = glMultiTexCoord1s
+   multiTexCoord2 = glMultiTexCoord2s
+   multiTexCoord3 = glMultiTexCoord3s
+   multiTexCoord4 = glMultiTexCoord4s
 
-   multiTexCoord1v = glMultiTexCoord1svARB
-   multiTexCoord2v = glMultiTexCoord2svARB
-   multiTexCoord3v = glMultiTexCoord3svARB
-   multiTexCoord4v = glMultiTexCoord4svARB
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glTexCoord1i" glTexCoord1i ::
-   GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2i" glTexCoord2i ::
-   GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3i" glTexCoord3i ::
-   GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4i" glTexCoord4i ::
-   GLint -> GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord1iv" glTexCoord1iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2iv" glTexCoord2iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3iv" glTexCoord3iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4iv" glTexCoord4iv ::
-   Ptr GLint -> IO ()
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1iARB,GLenum -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2iARB,GLenum -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3iARB,GLenum -> GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4iARB,GLenum -> GLint -> GLint -> GLint -> GLint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1ivARB,GLenum -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2ivARB,GLenum -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3ivARB,GLenum -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4ivARB,GLenum -> Ptr GLint -> IO ())
+   multiTexCoord1v = glMultiTexCoord1sv
+   multiTexCoord2v = glMultiTexCoord2sv
+   multiTexCoord3v = glMultiTexCoord3sv
+   multiTexCoord4v = glMultiTexCoord4sv
 
 instance TexCoordComponent GLint_ where
    texCoord1 = glTexCoord1i
@@ -406,51 +249,15 @@ instance TexCoordComponent GLint_ where
    texCoord3v = glTexCoord3iv
    texCoord4v = glTexCoord4iv
 
-   multiTexCoord1 = glMultiTexCoord1iARB
-   multiTexCoord2 = glMultiTexCoord2iARB
-   multiTexCoord3 = glMultiTexCoord3iARB
-   multiTexCoord4 = glMultiTexCoord4iARB
+   multiTexCoord1 = glMultiTexCoord1i
+   multiTexCoord2 = glMultiTexCoord2i
+   multiTexCoord3 = glMultiTexCoord3i
+   multiTexCoord4 = glMultiTexCoord4i
 
-   multiTexCoord1v = glMultiTexCoord1ivARB
-   multiTexCoord2v = glMultiTexCoord2ivARB
-   multiTexCoord3v = glMultiTexCoord3ivARB
-   multiTexCoord4v = glMultiTexCoord4ivARB
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glTexCoord1f" glTexCoord1f ::
-   GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2f" glTexCoord2f ::
-   GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3f" glTexCoord3f ::
-   GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4f" glTexCoord4f ::
-   GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord1fv" glTexCoord1fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2fv" glTexCoord2fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3fv" glTexCoord3fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4fv" glTexCoord4fv ::
-   Ptr GLfloat -> IO ()
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fARB,GLenum -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fARB,GLenum -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fARB,GLenum -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fARB,GLenum -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1fvARB,GLenum -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2fvARB,GLenum -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3fvARB,GLenum -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4fvARB,GLenum -> Ptr GLfloat -> IO ())
+   multiTexCoord1v = glMultiTexCoord1iv
+   multiTexCoord2v = glMultiTexCoord2iv
+   multiTexCoord3v = glMultiTexCoord3iv
+   multiTexCoord4v = glMultiTexCoord4iv
 
 instance TexCoordComponent GLfloat_ where
    texCoord1 = glTexCoord1f
@@ -463,51 +270,15 @@ instance TexCoordComponent GLfloat_ where
    texCoord3v = glTexCoord3fv
    texCoord4v = glTexCoord4fv
 
-   multiTexCoord1 = glMultiTexCoord1fARB
-   multiTexCoord2 = glMultiTexCoord2fARB
-   multiTexCoord3 = glMultiTexCoord3fARB
-   multiTexCoord4 = glMultiTexCoord4fARB
+   multiTexCoord1 = glMultiTexCoord1f
+   multiTexCoord2 = glMultiTexCoord2f
+   multiTexCoord3 = glMultiTexCoord3f
+   multiTexCoord4 = glMultiTexCoord4f
 
-   multiTexCoord1v = glMultiTexCoord1fvARB
-   multiTexCoord2v = glMultiTexCoord2fvARB
-   multiTexCoord3v = glMultiTexCoord3fvARB
-   multiTexCoord4v = glMultiTexCoord4fvARB
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glTexCoord1d" glTexCoord1d ::
-   GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2d" glTexCoord2d ::
-   GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3d" glTexCoord3d ::
-   GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4d" glTexCoord4d ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord1dv" glTexCoord1dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord2dv" glTexCoord2dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord3dv" glTexCoord3dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTexCoord4dv" glTexCoord4dv ::
-   Ptr GLdouble -> IO ()
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dARB,GLenum -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dARB,GLenum -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dARB,GLenum -> GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dARB,GLenum -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord1dvARB,GLenum -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord2dvARB,GLenum -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord3dvARB,GLenum -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glMultiTexCoord4dvARB,GLenum -> Ptr GLdouble -> IO ())
+   multiTexCoord1v = glMultiTexCoord1fv
+   multiTexCoord2v = glMultiTexCoord2fv
+   multiTexCoord3v = glMultiTexCoord3fv
+   multiTexCoord4v = glMultiTexCoord4fv
 
 instance TexCoordComponent GLdouble_ where
    texCoord1 = glTexCoord1d
@@ -520,15 +291,15 @@ instance TexCoordComponent GLdouble_ where
    texCoord3v = glTexCoord3dv
    texCoord4v = glTexCoord4dv
 
-   multiTexCoord1 = glMultiTexCoord1dARB
-   multiTexCoord2 = glMultiTexCoord2dARB
-   multiTexCoord3 = glMultiTexCoord3dARB
-   multiTexCoord4 = glMultiTexCoord4dARB
+   multiTexCoord1 = glMultiTexCoord1d
+   multiTexCoord2 = glMultiTexCoord2d
+   multiTexCoord3 = glMultiTexCoord3d
+   multiTexCoord4 = glMultiTexCoord4d
 
-   multiTexCoord1v = glMultiTexCoord1dvARB
-   multiTexCoord2v = glMultiTexCoord2dvARB
-   multiTexCoord3v = glMultiTexCoord3dvARB
-   multiTexCoord4v = glMultiTexCoord4dvARB
+   multiTexCoord1v = glMultiTexCoord1dv
+   multiTexCoord2v = glMultiTexCoord2dv
+   multiTexCoord3v = glMultiTexCoord3dv
+   multiTexCoord4v = glMultiTexCoord4dv
 
 --------------------------------------------------------------------------------
 
@@ -589,61 +360,21 @@ class NormalComponent a where
    normal3 :: a -> a -> a -> IO ()
    normal3v :: Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glNormal3b" glNormal3b ::
-   GLbyte -> GLbyte -> GLbyte -> IO ()
-
-foreign import CALLCONV unsafe "glNormal3bv" glNormal3bv ::
-   Ptr GLbyte -> IO ()
-
 instance NormalComponent GLbyte_ where
    normal3 = glNormal3b
    normal3v = glNormal3bv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glNormal3s" glNormal3s ::
-   GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glNormal3sv" glNormal3sv ::
-   Ptr GLshort -> IO ()
 
 instance NormalComponent GLshort_ where
    normal3 = glNormal3s
    normal3v = glNormal3sv
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glNormal3i" glNormal3i ::
-   GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glNormal3iv" glNormal3iv ::
-   Ptr GLint -> IO ()
-
 instance NormalComponent GLint_ where
    normal3 = glNormal3i
    normal3v = glNormal3iv
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glNormal3f" glNormal3f ::
-   GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glNormal3fv" glNormal3fv ::
-   Ptr GLfloat -> IO ()
-
 instance NormalComponent GLfloat_ where
    normal3 = glNormal3f
    normal3v = glNormal3fv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glNormal3d" glNormal3d ::
-   GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glNormal3dv" glNormal3dv ::
-   Ptr GLdouble -> IO ()
 
 instance NormalComponent GLdouble_ where
    normal3 = glNormal3d
@@ -691,23 +422,13 @@ class FogCoordComponent a where
    fogCoord1 :: a -> IO ()
    fogCoord1v :: Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordfEXT,GLfloat -> IO ())
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoordfvEXT,Ptr GLfloat -> IO ())
-
 instance FogCoordComponent GLfloat_ where
-   fogCoord1 = glFogCoordfEXT
-   fogCoord1v = glFogCoordfvEXT
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoorddEXT,GLdouble -> IO ())
-EXTENSION_ENTRY("GL_EXT_fog_coord or OpenGL 1.4",glFogCoorddvEXT,Ptr GLdouble -> IO ())
+   fogCoord1 = glFogCoordf
+   fogCoord1v = glFogCoordfv
 
 instance FogCoordComponent GLdouble_ where
-   fogCoord1 = glFogCoorddEXT
-   fogCoord1v = glFogCoorddvEXT
+   fogCoord1 = glFogCoordd
+   fogCoord1v = glFogCoorddv
 
 --------------------------------------------------------------------------------
 
@@ -764,23 +485,6 @@ class ColorComponent a where
    secondaryColor3  :: a -> a -> a -> IO ()
    secondaryColor3v :: Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3b" glColor3b ::
-   GLbyte -> GLbyte -> GLbyte -> IO ()
-
-foreign import CALLCONV unsafe "glColor4b" glColor4b ::
-   GLbyte -> GLbyte -> GLbyte -> GLbyte -> IO ()
-
-foreign import CALLCONV unsafe "glColor3bv" glColor3bv ::
-   Ptr GLbyte -> IO ()
-
-foreign import CALLCONV unsafe "glColor4bv" glColor4bv ::
-   Ptr GLbyte -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3bEXT,GLbyte -> GLbyte -> GLbyte -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3bvEXT,Ptr GLbyte -> IO ())
-
 instance ColorComponent GLbyte_ where
    color3 = glColor3b
    color4 = glColor4b
@@ -788,25 +492,8 @@ instance ColorComponent GLbyte_ where
    color3v = glColor3bv
    color4v = glColor4bv
 
-   secondaryColor3 = glSecondaryColor3bEXT
-   secondaryColor3v = glSecondaryColor3bvEXT
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3s" glColor3s ::
-   GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glColor4s" glColor4s ::
-   GLshort -> GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glColor3sv" glColor3sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glColor4sv" glColor4sv ::
-   Ptr GLshort -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3sEXT,GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3svEXT,Ptr GLshort -> IO ())
+   secondaryColor3 = glSecondaryColor3b
+   secondaryColor3v = glSecondaryColor3bv
 
 instance ColorComponent GLshort_ where
    color3 = glColor3s
@@ -815,25 +502,8 @@ instance ColorComponent GLshort_ where
    color3v = glColor3sv
    color4v = glColor4sv
 
-   secondaryColor3 = glSecondaryColor3sEXT
-   secondaryColor3v = glSecondaryColor3svEXT
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3i" glColor3i ::
-   GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glColor4i" glColor4i ::
-   GLint -> GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glColor3iv" glColor3iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glColor4iv" glColor4iv ::
-   Ptr GLint -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3iEXT,GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ivEXT,Ptr GLint -> IO ())
+   secondaryColor3 = glSecondaryColor3s
+   secondaryColor3v = glSecondaryColor3sv
 
 instance ColorComponent GLint_ where
    color3 = glColor3i
@@ -842,25 +512,8 @@ instance ColorComponent GLint_ where
    color3v = glColor3iv
    color4v = glColor4iv
 
-   secondaryColor3 = glSecondaryColor3iEXT
-   secondaryColor3v = glSecondaryColor3ivEXT
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3f" glColor3f ::
-   GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glColor4f" glColor4f ::
-   GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glColor3fv" glColor3fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glColor4fv" glColor4fv ::
-   Ptr GLfloat -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3fEXT,GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3fvEXT,Ptr GLfloat -> IO ())
+   secondaryColor3 = glSecondaryColor3i
+   secondaryColor3v = glSecondaryColor3iv
 
 instance ColorComponent GLfloat_ where
    color3 = glColor3f
@@ -869,25 +522,8 @@ instance ColorComponent GLfloat_ where
    color3v = glColor3fv
    color4v = glColor4fv
 
-   secondaryColor3 = glSecondaryColor3fEXT
-   secondaryColor3v = glSecondaryColor3fvEXT
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3d" glColor3d ::
-   GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glColor4d" glColor4d ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glColor3dv" glColor3dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glColor4dv" glColor4dv ::
-   Ptr GLdouble -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3dEXT,GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3dvEXT,Ptr GLdouble -> IO ())
+   secondaryColor3 = glSecondaryColor3f
+   secondaryColor3v = glSecondaryColor3fv
 
 instance ColorComponent GLdouble_ where
    color3 = glColor3d
@@ -896,26 +532,8 @@ instance ColorComponent GLdouble_ where
    color3v = glColor3dv
    color4v = glColor4dv
 
-   secondaryColor3 = glSecondaryColor3dEXT
-   secondaryColor3v = glSecondaryColor3dvEXT
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3ub" glColor3ub ::
-   GLubyte -> GLubyte -> GLubyte -> IO ()
-
-foreign import CALLCONV unsafe "glColor4ub" glColor4ub ::
-   GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ()
-
-
-foreign import CALLCONV unsafe "glColor3ubv" glColor3ubv ::
-   Ptr GLubyte -> IO ()
-
-foreign import CALLCONV unsafe "glColor4ubv" glColor4ubv ::
-   Ptr GLubyte -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ubEXT,GLubyte -> GLubyte -> GLubyte -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3ubvEXT,Ptr GLubyte -> IO ())
+   secondaryColor3 = glSecondaryColor3d
+   secondaryColor3v = glSecondaryColor3dv
 
 instance ColorComponent GLubyte_ where
    color3 = glColor3ub
@@ -924,25 +542,8 @@ instance ColorComponent GLubyte_ where
    color3v = glColor3ubv
    color4v = glColor4ubv
 
-   secondaryColor3 = glSecondaryColor3ubEXT
-   secondaryColor3v = glSecondaryColor3ubvEXT
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3us" glColor3us ::
-   GLushort -> GLushort -> GLushort -> IO ()
-
-foreign import CALLCONV unsafe "glColor4us" glColor4us ::
-   GLushort -> GLushort -> GLushort -> GLushort -> IO ()
-
-foreign import CALLCONV unsafe "glColor3usv" glColor3usv ::
-   Ptr GLushort -> IO ()
-
-foreign import CALLCONV unsafe "glColor4usv" glColor4usv ::
-   Ptr GLushort -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3usEXT,GLushort -> GLushort -> GLushort -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3usvEXT,Ptr GLushort -> IO ())
+   secondaryColor3 = glSecondaryColor3ub
+   secondaryColor3v = glSecondaryColor3ubv
 
 instance ColorComponent GLushort_ where
    color3 = glColor3us
@@ -951,25 +552,8 @@ instance ColorComponent GLushort_ where
    color3v = glColor3usv
    color4v = glColor4usv
 
-   secondaryColor3 = glSecondaryColor3usEXT
-   secondaryColor3v = glSecondaryColor3usvEXT
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glColor3ui" glColor3ui ::
-   GLuint -> GLuint -> GLuint -> IO ()
-
-foreign import CALLCONV unsafe "glColor4ui" glColor4ui ::
-   GLuint -> GLuint -> GLuint -> GLuint -> IO ()
-
-foreign import CALLCONV unsafe "glColor3uiv" glColor3uiv ::
-   Ptr GLuint -> IO ()
-
-foreign import CALLCONV unsafe "glColor4uiv" glColor4uiv ::
-   Ptr GLuint -> IO ()
-
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3uiEXT,GLuint -> GLuint -> GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_secondary_color or OpenGL 1.4",glSecondaryColor3uivEXT,Ptr GLuint -> IO ())
+   secondaryColor3 = glSecondaryColor3us
+   secondaryColor3v = glSecondaryColor3usv
 
 instance ColorComponent GLuint_ where
    color3 = glColor3ui
@@ -978,8 +562,8 @@ instance ColorComponent GLuint_ where
    color3v = glColor3uiv
    color4v = glColor4uiv
 
-   secondaryColor3 = glSecondaryColor3uiEXT
-   secondaryColor3v = glSecondaryColor3uivEXT
+   secondaryColor3 = glSecondaryColor3ui
+   secondaryColor3v = glSecondaryColor3uiv
 
 --------------------------------------------------------------------------------
 
@@ -1025,61 +609,21 @@ class IndexComponent a where
    index1 :: a -> IO ()
    index1v :: Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glIndexs" glIndexs ::
-   GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glIndexsv" glIndexsv ::
-   Ptr GLshort -> IO ()
-
 instance IndexComponent GLshort_ where
    index1 = glIndexs
    index1v = glIndexsv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glIndexi" glIndexi ::
-   GLint -> IO ()
-
-foreign import CALLCONV unsafe "glIndexiv" glIndexiv ::
-   Ptr GLint -> IO ()
 
 instance IndexComponent GLint_ where
    index1 = glIndexi
    index1v = glIndexiv
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glIndexf" glIndexf ::
-   GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glIndexfv" glIndexfv ::
-   Ptr GLfloat -> IO ()
-
 instance IndexComponent GLfloat_ where
    index1 = glIndexf
    index1v = glIndexfv
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glIndexd" glIndexd ::
-   GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glIndexdv" glIndexdv ::
-   Ptr GLdouble -> IO ()
-
 instance IndexComponent GLdouble_ where
    index1 = glIndexd
    index1v = glIndexdv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glIndexub" glIndexub ::
-   GLubyte -> IO ()
-
-foreign import CALLCONV unsafe "glIndexubv" glIndexubv ::
-   Ptr GLubyte -> IO ()
 
 instance IndexComponent GLubyte_ where
    index1 = glIndexub
@@ -1197,156 +741,77 @@ class (Storable a, Num a) => VertexAttribComponent a where
    vertexAttrib2Iv location = peek2M $ vertexAttrib2I location
    vertexAttrib3Iv location = peek3M $ vertexAttrib3I location
 
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4bvARB,AttribLocation -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NbvARB,AttribLocation -> Ptr GLbyte -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4bv,AttribLocation -> Ptr GLbyte -> IO ())
-
 instance VertexAttribComponent GLbyte_ where
-   vertexAttrib4v = glVertexAttrib4bvARB
-   vertexAttrib4Nv = glVertexAttrib4NbvARB
-   vertexAttrib4Iv = glVertexAttribI4bv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubARB,AttribLocation -> GLubyte -> GLubyte -> GLubyte -> GLubyte -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ubvARB,AttribLocation -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NubvARB,AttribLocation -> Ptr GLubyte -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4ubv,AttribLocation -> Ptr GLubyte -> IO ())
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4bv al
+   vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nbv al
+   vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4bv al
 
 instance VertexAttribComponent GLubyte_ where
-   vertexAttrib4N = glVertexAttrib4NubARB
-   vertexAttrib4v = glVertexAttrib4ubvARB
-   vertexAttrib4Nv = glVertexAttrib4NubvARB
-   vertexAttrib4Iv = glVertexAttribI4ubv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1sARB,AttribLocation -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2sARB,AttribLocation -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3sARB,AttribLocation -> GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4sARB,AttribLocation -> GLshort -> GLshort -> GLshort -> GLshort -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1svARB,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2svARB,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3svARB,AttribLocation -> Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4svARB,AttribLocation -> Ptr GLshort -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NsvARB,AttribLocation -> Ptr GLshort -> IO ())
-
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4sv,AttribLocation -> Ptr GLshort -> IO ())
+   vertexAttrib4N (AttribLocation al) = glVertexAttrib4Nub al
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4ubv al
+   vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nubv al
+   vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4ubv al
 
 instance VertexAttribComponent GLshort_ where
-   vertexAttrib1 = glVertexAttrib1sARB
-   vertexAttrib2 = glVertexAttrib2sARB
-   vertexAttrib3 = glVertexAttrib3sARB
-   vertexAttrib4 = glVertexAttrib4sARB
+   vertexAttrib1 (AttribLocation al) = glVertexAttrib1s al
+   vertexAttrib2 (AttribLocation al) = glVertexAttrib2s al
+   vertexAttrib3 (AttribLocation al) = glVertexAttrib3s al
+   vertexAttrib4 (AttribLocation al) = glVertexAttrib4s al
 
-   vertexAttrib1v = glVertexAttrib1svARB
-   vertexAttrib2v = glVertexAttrib2svARB
-   vertexAttrib3v = glVertexAttrib3svARB
-   vertexAttrib4v = glVertexAttrib4svARB
+   vertexAttrib1v (AttribLocation al) = glVertexAttrib1sv al
+   vertexAttrib2v (AttribLocation al) = glVertexAttrib2sv al
+   vertexAttrib3v (AttribLocation al) = glVertexAttrib3sv al
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4sv al
 
-   vertexAttrib4Nv = glVertexAttrib4NsvARB
+   vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nsv al
 
-   vertexAttrib4Iv = glVertexAttribI4sv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4usvARB,AttribLocation -> Ptr GLushort -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NusvARB,AttribLocation -> Ptr GLushort -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4usv,AttribLocation -> Ptr GLushort -> IO ())
+   vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4sv al
 
 instance VertexAttribComponent GLushort_ where
-   vertexAttrib4v = glVertexAttrib4usvARB
-   vertexAttrib4Nv = glVertexAttrib4NusvARB
-   vertexAttrib4Iv = glVertexAttribI4usv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1i,AttribLocation -> GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2i,AttribLocation -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3i,AttribLocation -> GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4i,AttribLocation -> GLint -> GLint -> GLint -> GLint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4ivARB,AttribLocation -> Ptr GLint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NivARB,AttribLocation -> Ptr GLint -> IO ())
-
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1iv,AttribLocation -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2iv,AttribLocation -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3iv,AttribLocation -> Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4iv,AttribLocation -> Ptr GLint -> IO ())
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4usv al
+   vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nusv al
+   vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4usv al
 
 instance VertexAttribComponent GLint_ where
-   vertexAttrib1I = glVertexAttribI1i
-   vertexAttrib2I = glVertexAttribI2i
-   vertexAttrib3I = glVertexAttribI3i
-   vertexAttrib4I = glVertexAttribI4i
+   vertexAttrib1I (AttribLocation al) = glVertexAttribI1i al
+   vertexAttrib2I (AttribLocation al) = glVertexAttribI2i al
+   vertexAttrib3I (AttribLocation al) = glVertexAttribI3i al
+   vertexAttrib4I (AttribLocation al) = glVertexAttribI4i al
 
-   vertexAttrib4v = glVertexAttrib4ivARB
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4iv al
 
-   vertexAttrib4Nv = glVertexAttrib4NivARB
+   vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Niv al
 
-   vertexAttrib1Iv = glVertexAttribI1iv
-   vertexAttrib2Iv = glVertexAttribI2iv
-   vertexAttrib3Iv = glVertexAttribI3iv
-   vertexAttrib4Iv = glVertexAttribI4iv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1ui,AttribLocation -> GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2ui,AttribLocation -> GLuint -> GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3ui,AttribLocation -> GLuint -> GLuint -> GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4ui,AttribLocation -> GLuint -> GLuint -> GLuint -> GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4uivARB,AttribLocation -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4NuivARB,AttribLocation -> Ptr GLuint -> IO ())
-
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI1uiv,AttribLocation -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI2uiv,AttribLocation -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI3uiv,AttribLocation -> Ptr GLuint -> IO ())
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glVertexAttribI4uiv,AttribLocation -> Ptr GLuint -> IO ())
+   vertexAttrib1Iv (AttribLocation al) = glVertexAttribI1iv al
+   vertexAttrib2Iv (AttribLocation al) = glVertexAttribI2iv al
+   vertexAttrib3Iv (AttribLocation al) = glVertexAttribI3iv al
+   vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4iv al
 
 instance VertexAttribComponent GLuint_ where
-   vertexAttrib1I = glVertexAttribI1ui
-   vertexAttrib2I = glVertexAttribI2ui
-   vertexAttrib3I = glVertexAttribI3ui
-   vertexAttrib4I = glVertexAttribI4ui
+   vertexAttrib1I (AttribLocation al) = glVertexAttribI1ui al
+   vertexAttrib2I (AttribLocation al) = glVertexAttribI2ui al
+   vertexAttrib3I (AttribLocation al) = glVertexAttribI3ui al
+   vertexAttrib4I (AttribLocation al) = glVertexAttribI4ui al
 
-   vertexAttrib4v = glVertexAttrib4uivARB
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4uiv al
 
-   vertexAttrib4Nv = glVertexAttrib4NuivARB
+   vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nuiv al
 
-   vertexAttrib1Iv = glVertexAttribI1uiv
-   vertexAttrib2Iv = glVertexAttribI2uiv
-   vertexAttrib3Iv = glVertexAttribI3uiv
-   vertexAttrib4Iv = glVertexAttribI4uiv
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1fARB,AttribLocation -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2fARB,AttribLocation -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3fARB,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4fARB,AttribLocation -> GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1fvARB,AttribLocation -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2fvARB,AttribLocation -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3fvARB,AttribLocation -> Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4fvARB,AttribLocation -> Ptr GLfloat -> IO ())
+   vertexAttrib1Iv (AttribLocation al) = glVertexAttribI1uiv al
+   vertexAttrib2Iv (AttribLocation al) = glVertexAttribI2uiv al
+   vertexAttrib3Iv (AttribLocation al) = glVertexAttribI3uiv al
+   vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4uiv al
 
 instance VertexAttribComponent GLfloat_ where
-   vertexAttrib1 = glVertexAttrib1fARB
-   vertexAttrib2 = glVertexAttrib2fARB
-   vertexAttrib3 = glVertexAttrib3fARB
-   vertexAttrib4 = glVertexAttrib4fARB
+   vertexAttrib1 (AttribLocation al) = glVertexAttrib1f al
+   vertexAttrib2 (AttribLocation al) = glVertexAttrib2f al
+   vertexAttrib3 (AttribLocation al) = glVertexAttrib3f al
+   vertexAttrib4 (AttribLocation al) = glVertexAttrib4f al
 
-   vertexAttrib1v = glVertexAttrib1fvARB
-   vertexAttrib2v = glVertexAttrib2fvARB
-   vertexAttrib3v = glVertexAttrib3fvARB
-   vertexAttrib4v = glVertexAttrib4fvARB
+   vertexAttrib1v (AttribLocation al) = glVertexAttrib1fv al
+   vertexAttrib2v (AttribLocation al) = glVertexAttrib2fv al
+   vertexAttrib3v (AttribLocation al) = glVertexAttrib3fv al
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4fv al
 
    vertexAttrib4Nv = vertexAttrib4v
 
@@ -1361,28 +826,16 @@ toGLint :: RealFrac a => a -> GLint
 toGLint = truncate . (fromIntegral (maxBound :: GLint) *). clamp
    where clamp = max (-1.0) . min 1.0
 
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1dARB,AttribLocation -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2dARB,AttribLocation -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3dARB,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4dARB,AttribLocation -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ())
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib1dvARB,AttribLocation -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib2dvARB,AttribLocation -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib3dvARB,AttribLocation -> Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glVertexAttrib4dvARB,AttribLocation -> Ptr GLdouble -> IO ())
-
 instance VertexAttribComponent GLdouble_ where
-   vertexAttrib1 = glVertexAttrib1dARB
-   vertexAttrib2 = glVertexAttrib2dARB
-   vertexAttrib3 = glVertexAttrib3dARB
-   vertexAttrib4 = glVertexAttrib4dARB
+   vertexAttrib1 (AttribLocation al) = glVertexAttrib1d al
+   vertexAttrib2 (AttribLocation al) = glVertexAttrib2d al
+   vertexAttrib3 (AttribLocation al) = glVertexAttrib3d al
+   vertexAttrib4 (AttribLocation al) = glVertexAttrib4d al
 
-   vertexAttrib1v = glVertexAttrib1dvARB
-   vertexAttrib2v = glVertexAttrib2dvARB
-   vertexAttrib3v = glVertexAttrib3dvARB
-   vertexAttrib4v = glVertexAttrib4dvARB
+   vertexAttrib1v (AttribLocation al) = glVertexAttrib1dv al
+   vertexAttrib2v (AttribLocation al) = glVertexAttrib2dv al
+   vertexAttrib3v (AttribLocation al) = glVertexAttrib3dv al
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4dv al
 
    vertexAttrib4Nv = vertexAttrib4v
 

@@ -36,22 +36,11 @@ import Control.Monad ( liftM4 )
 import Data.List ( genericLength )
 import Data.Maybe ( isJust, fromJust )
 import Foreign.Marshal.Array ( withArray )
-import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.BufferMode (
    BufferMode(..), marshalBufferMode, unmarshalBufferMode )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   marshalCapability, unmarshalCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLsizei, GLint, GLuint, GLbitfield, GLfloat, GLclampf,
-   GLclampd,
-#ifdef __HADDOCK__
-   Capability(..)
-#else
-   Capability
-#endif
-   )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Face ( Face, marshalFace )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -72,10 +61,6 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 import Graphics.Rendering.OpenGL.GL.VertexSpec (
    Color4(Color4), Index1(Index1) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -150,9 +135,6 @@ drawBuffer =
       (getEnum1 unmarshalBufferMode GetDrawBuffer)
       (maybe recordInvalidValue glDrawBuffer . marshalBufferMode)
 
-foreign import CALLCONV unsafe "glDrawBuffer" glDrawBuffer ::
-   GLenum -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | 'drawBuffers' defines the draw buffers to which all fragment colors are
@@ -192,8 +174,6 @@ setDrawBuffers modes = do
               glDrawBuffers (genericLength ms)
       else recordInvalidValue
 
-EXTENSION_ENTRY("GL_ARB_draw_buffers or OpenGL 2.0",glDrawBuffers,GLsizei -> Ptr GLenum -> IO ())
-
 --------------------------------------------------------------------------------
 
 -- | Contains the maximum number of buffers that can activated via 'drawBuffers'
@@ -221,8 +201,6 @@ indexMask :: StateVar GLuint
 indexMask =
    makeStateVar (getInteger1 fromIntegral GetIndexWritemask) glIndexMask
 
-foreign import CALLCONV unsafe "glIndexMask" glIndexMask :: GLuint -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | Controls whether the individual color components in the framebuffer can or
@@ -248,9 +226,6 @@ colorMask =
                                         (marshalCapability b)
                                         (marshalCapability a))
 
-foreign import CALLCONV unsafe "glColorMask" glColorMask ::
-   GLboolean -> GLboolean -> GLboolean -> GLboolean -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | Controls whether the depth buffer is enabled for writing. The initial state
@@ -259,8 +234,6 @@ foreign import CALLCONV unsafe "glColorMask" glColorMask ::
 depthMask :: StateVar Capability
 depthMask = makeStateVar (getBoolean1 unmarshalCapability GetDepthWritemask)
                          (glDepthMask . marshalCapability)
-
-foreign import CALLCONV unsafe "glDepthMask" glDepthMask :: GLboolean -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -275,14 +248,10 @@ stencilMask :: StateVar GLuint
 stencilMask =
    makeStateVar (getInteger1 fromIntegral GetStencilWritemask) glStencilMask
 
-foreign import CALLCONV unsafe "glStencilMask" glStencilMask :: GLuint -> IO ()
-
 stencilMaskSeparate :: Face -> SettableStateVar GLuint
 stencilMaskSeparate face =
    makeSettableStateVar $
       glStencilMaskSeparate (marshalFace face)
-
-EXTENSION_ENTRY("OpenGL 2.0",glStencilMaskSeparate,GLenum -> GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -324,8 +293,6 @@ marshalClearBuffer x = case x of
 clear :: [ClearBuffer] -> IO ()
 clear = glClear . sum . map marshalClearBuffer
 
-foreign import CALLCONV unsafe "glClear" glClear :: GLbitfield -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | Controls the red, green, blue, and alpha values used by 'clear' to clear
@@ -335,9 +302,6 @@ foreign import CALLCONV unsafe "glClear" glClear :: GLbitfield -> IO ()
 clearColor :: StateVar (Color4 GLclampf)
 clearColor = makeStateVar (getFloat4 Color4 GetColorClearValue)
                           (\(Color4 r g b a) -> glClearColor r g b a)
-
-foreign import CALLCONV unsafe "glClearColor" glClearColor ::
-    GLclampf -> GLclampf -> GLclampf -> GLclampf -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -351,8 +315,6 @@ clearIndex :: StateVar (Index1 GLfloat)
 clearIndex = makeStateVar (getFloat1 Index1 GetIndexClearValue)
                           (\(Index1 i) -> glClearIndex i)
 
-foreign import CALLCONV unsafe "glClearIndex" glClearIndex :: GLfloat -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | Controls the depth value used by 'clear' to clear the depth buffer. Values
@@ -362,8 +324,6 @@ foreign import CALLCONV unsafe "glClearIndex" glClearIndex :: GLfloat -> IO ()
 clearDepth :: StateVar GLclampd
 clearDepth = makeStateVar (getDouble1 id GetDepthClearValue) glClearDepth
 
-foreign import CALLCONV unsafe "glClearDepth" glClearDepth :: GLclampd -> IO ()
-
 --------------------------------------------------------------------------------
 
 -- | Controls the value /s/ used by 'clear' to clear the stencil buffer. /s/ is
@@ -372,8 +332,6 @@ foreign import CALLCONV unsafe "glClearDepth" glClearDepth :: GLclampd -> IO ()
 
 clearStencil :: StateVar GLint
 clearStencil = makeStateVar (getInteger1 id GetStencilClearValue) glClearStencil
-
-foreign import CALLCONV unsafe "glClearStencil" glClearStencil :: GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -385,9 +343,6 @@ clearAccum :: StateVar (Color4 GLfloat)
 clearAccum =
    makeStateVar (getFloat4 Color4 GetAccumClearValue)
                 (\(Color4 r g b a) -> glClearAccum r g b a)
-
-foreign import CALLCONV unsafe "glClearAccum" glClearAccum ::
-   GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -466,5 +421,3 @@ marshalAccumOp x = case x of
 
 accum :: AccumOp -> GLfloat -> IO ()
 accum = glAccum . marshalAccumOp
-
-foreign import CALLCONV unsafe "glAccum" glAccum :: GLenum -> GLfloat -> IO ()

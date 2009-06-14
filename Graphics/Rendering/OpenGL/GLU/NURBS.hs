@@ -34,9 +34,8 @@ import Control.Monad ( unless )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr, nullPtr, castPtr, FunPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLfloat, Capability )
-import Graphics.Rendering.OpenGL.GL.Capability ( marshalCapability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.Capability ( Capability, marshalCapability )
 import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
    Position(..), Size(..), MatrixOrder(ColumnMajor), MatrixComponent, Matrix(..) )

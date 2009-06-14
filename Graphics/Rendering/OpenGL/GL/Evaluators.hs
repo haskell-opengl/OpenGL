@@ -51,10 +51,11 @@ import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(peek,sizeOf) )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapAutoNormal), makeCapability, makeStateVarMaybe )
+   Capability, EnableCap(CapAutoNormal), makeCapability, makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.Domain
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, Capability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek2, peek4 )
 import Graphics.Rendering.OpenGL.GL.PolygonMode ( marshalPolygonMode )
 import Graphics.Rendering.OpenGL.GL.Polygons ( PolygonMode )
@@ -353,11 +354,6 @@ marshalGetMapQuery x = case x of
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glGetMapiv" glGetMapiv ::
-   GLenum -> GLenum -> Ptr GLint -> IO ()
-
---------------------------------------------------------------------------------
-
 mapGrid1 :: Domain d => StateVar (GLint, (d, d))
 mapGrid1 =
    makeStateVar
@@ -379,25 +375,16 @@ mapGrid2 =
 evalMesh1 :: PolygonMode -> (GLint, GLint) -> IO ()
 evalMesh1 m (p1, p2) = glEvalMesh1 (marshalPolygonMode m) p1 p2
 
-foreign import CALLCONV unsafe "glEvalMesh1" glEvalMesh1 ::
-   GLenum -> GLint -> GLint -> IO ()
-
 evalMesh2 :: PolygonMode -> (GLint, GLint) -> (GLint, GLint) -> IO ()
 evalMesh2 m (p1, p2) (q1, q2) = glEvalMesh2 (marshalPolygonMode m) p1 p2 q1 q2
 
-foreign import CALLCONV unsafe "glEvalMesh2" glEvalMesh2 ::
-   GLenum -> GLint -> GLint -> GLint -> GLint -> IO ()
-
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glEvalPoint1" evalPoint1 ::
-   GLint -> IO ()
+evalPoint1 :: GLint -> IO ()
+evalPoint1 = glEvalPoint1
 
 evalPoint2 :: (GLint, GLint) -> IO ()
 evalPoint2 = uncurry glEvalPoint2
-
-foreign import CALLCONV unsafe "glEvalPoint2" glEvalPoint2 ::
-   GLint -> GLint -> IO ()
 
 --------------------------------------------------------------------------------
 

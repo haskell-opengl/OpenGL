@@ -21,11 +21,11 @@ module Graphics.Rendering.OpenGL.GL.Fog (
 ) where
 
 import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( Ptr, castPtr )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapFog), makeCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLfloat, Capability )
+   Capability , EnableCap(CapFog), makeCapability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetFogIndex,GetFogDensity,GetFogStart,GetFogEnd,GetFogMode,
    GetFogColor,GetFogCoordSrc,GetFogDistanceMode),
@@ -123,18 +123,11 @@ setFogMode (Exp2 density) = do
 fogi :: FogParameter -> GLint -> IO ()
 fogi = glFogi . marshalFogParameter
 
-foreign import CALLCONV unsafe "glFogi" glFogi :: GLenum -> GLint -> IO ()
-
 fogf :: FogParameter -> GLfloat -> IO ()
 fogf = glFogf . marshalFogParameter
 
-foreign import CALLCONV unsafe "glFogf" glFogf :: GLenum -> GLfloat -> IO ()
-
 fogfv :: FogParameter -> Ptr (Color4 GLfloat) -> IO ()
-fogfv = glFogfv . marshalFogParameter
-
-foreign import CALLCONV unsafe "glFogfv" glFogfv ::
-   GLenum -> Ptr (Color4 GLfloat) -> IO ()
+fogfv param ptr = glFogfv (marshalFogParameter param) (castPtr ptr)
 
 --------------------------------------------------------------------------------
 

@@ -23,17 +23,15 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
 
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( castPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapColorTable,CapPostConvolutionColorTable,
              CapPostColorMatrixColorTable,CapTextureColorTable),
-   makeCapability )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLfloat, Capability )
+   Capability, makeCapability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..) )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
     PixelData(..) )
@@ -46,10 +44,6 @@ import Graphics.Rendering.OpenGL.GL.StateVar (
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordInvalidEnum )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -137,15 +131,11 @@ colorTable proxy ct int w pd =
             glColorTable target (marshalPixelInternalFormat' int) w)
          (marshalProxyColorTable proxy ct)
 
-EXTENSION_ENTRY("GL_ARB_imaging",glColorTable,GLenum -> GLenum -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
-
 --------------------------------------------------------------------------------
 
 getColorTable :: ColorTable -> PixelData a -> IO ()
 getColorTable ct pd =
    withPixelData pd $ glGetColorTable (marshalColorTable ct)
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTable,GLenum -> GLenum -> GLenum -> Ptr a -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -153,23 +143,17 @@ copyColorTable :: ColorTable -> PixelInternalFormat -> Position -> GLsizei -> IO
 copyColorTable ct int (Position x y) =
    glCopyColorTable (marshalColorTable ct) (marshalPixelInternalFormat' int) x y
 
-EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorTable,GLenum -> GLenum -> GLint -> GLint -> GLsizei -> IO ())
-
 --------------------------------------------------------------------------------
 
 colorSubTable :: ColorTable -> GLsizei -> GLsizei -> PixelData a -> IO ()
 colorSubTable ct start count pd =
    withPixelData pd $ glColorSubTable (marshalColorTable ct) start count
 
-EXTENSION_ENTRY("GL_ARB_imaging",glColorSubTable,GLenum -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ())
-
 --------------------------------------------------------------------------------
 
 copyColorSubTable :: ColorTable -> GLsizei -> Position -> GLsizei -> IO ()
 copyColorSubTable ct start (Position x y) =
    glCopyColorSubTable (marshalColorTable ct) start x y
-
-EXTENSION_ENTRY("GL_ARB_imaging",glCopyColorSubTable,GLenum -> GLsizei -> GLint -> GLint -> GLsizei -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -219,18 +203,14 @@ getColorTableParameterC4f ct p =
       glGetColorTableParameterfv
          (marshalColorTable ct)
          (marshalColorTablePName p)
-         buf
+         (castPtr buf)
       peek buf
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
 
 colorTableParameterC4f ::
    ColorTable -> ColorTablePName -> Color4 GLfloat -> IO ()
 colorTableParameterC4f ct p c =
-   with c $
-      glColorTableParameterfv (marshalColorTable ct) (marshalColorTablePName p)
-
-EXTENSION_ENTRY("GL_ARB_imaging",glColorTableParameterfv,GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ())
+   with c $ \ptr -> 
+      glColorTableParameterfv (marshalColorTable ct) (marshalColorTablePName p) (castPtr ptr)
 
 --------------------------------------------------------------------------------
 
@@ -247,8 +227,6 @@ getColorTableParameteri f ct p =
          (marshalColorTablePName p)
          buf
       peek1 f buf
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetColorTableParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())
 
 --------------------------------------------------------------------------------
 

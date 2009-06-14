@@ -26,8 +26,8 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
 ) where
 
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLuint, GLsizei, GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
 import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
@@ -64,8 +64,6 @@ genLists_ n = do
               return []
       else return [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
 
-foreign import CALLCONV unsafe "glGenLists" glGenLists :: GLsizei -> IO GLuint
-
 --------------------------------------------------------------------------------
 
 {-# DEPRECATED deleteLists "use `deleteObjectNames' instead" #-}
@@ -75,12 +73,9 @@ deleteLists = deleteLists_
 deleteLists_ :: [DisplayList] -> IO ()
 deleteLists_ = mapM_ (uncurry glDeleteLists) . combineConsecutive
 
-foreign import CALLCONV unsafe "glDeleteLists" glDeleteLists ::
-   DisplayList -> GLsizei -> IO ()
-
-combineConsecutive :: [DisplayList] -> [(DisplayList, GLsizei)]
+combineConsecutive :: [DisplayList] -> [(GLuint, GLsizei)]
 combineConsecutive []     = []
-combineConsecutive (z:zs) = (z, len) : combineConsecutive rest
+combineConsecutive (z@(DisplayList dl) :zs) = (dl, len) : combineConsecutive rest
    where (len, rest) = run (0 :: GLsizei) z zs
          run n x xs = case n + 1 of
                          m -> case xs of
@@ -96,10 +91,7 @@ isList :: DisplayList -> IO Bool
 isList = isList_
 
 isList_ :: DisplayList -> IO Bool
-isList_ = fmap unmarshalGLboolean . glIsList
-
-foreign import CALLCONV unsafe "glIsList" glIsList ::
-   DisplayList -> IO GLboolean
+isList_ (DisplayList dl) = fmap unmarshalGLboolean (glIsList dl)
 
 --------------------------------------------------------------------------------
 
@@ -122,12 +114,7 @@ unmarshalListMode x
 --------------------------------------------------------------------------------
 
 defineList :: DisplayList -> ListMode -> IO a -> IO a
-defineList lst mode = bracket_ (glNewList lst (marshalListMode mode)) glEndList
-
-foreign import CALLCONV unsafe "glNewList" glNewList ::
-   DisplayList -> GLenum -> IO ()
-
-foreign import CALLCONV unsafe "glEndList" glEndList :: IO ()
+defineList (DisplayList dl) mode = bracket_ (glNewList dl (marshalListMode mode)) glEndList
 
 defineNewList :: ListMode -> IO a -> IO DisplayList
 defineNewList mode action = do
@@ -158,17 +145,13 @@ maxListNesting = makeGettableStateVar (getSizei1 id GetMaxListNesting)
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glCallList" callList :: DisplayList -> IO ()
+callList :: DisplayList -> IO ()
+callList (DisplayList dl) = glCallList dl
 
 callLists :: GLsizei -> DataType -> Ptr a -> IO ()
 callLists n = glCallLists n . marshalDataType
 
-foreign import CALLCONV unsafe "glCallLists" glCallLists ::
-   GLsizei -> GLenum -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 listBase :: StateVar DisplayList
-listBase = makeStateVar (getEnum1 DisplayList GetListBase) glListBase
-
-foreign import CALLCONV unsafe "glListBase" glListBase :: DisplayList -> IO ()
+listBase = makeStateVar (getEnum1 DisplayList GetListBase) (\(DisplayList dl) -> glListBase dl)

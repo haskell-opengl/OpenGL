@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.BufferMode (
    BufferMode(..), marshalBufferMode, unmarshalBufferMode
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLsizei )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

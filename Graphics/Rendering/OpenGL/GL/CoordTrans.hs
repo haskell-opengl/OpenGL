@@ -35,6 +35,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
+import Foreign.C.Types
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
@@ -45,12 +46,10 @@ import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapRescaleNormal, CapNormalize,CapDepthClamp,
              CapTextureGenS, CapTextureGenT,
              CapTextureGenR, CapTextureGenQ),
-   makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLfloat, GLdouble, GLclampd, Capability(..) )
+   Capability(..), makeCapability, makeStateVarMaybe )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket, unsafeBracket_ )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
@@ -76,7 +75,6 @@ import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
 
 --------------------------------------------------------------------------------
 
-#include "HsOpenGLExt.h"
 #include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
@@ -97,9 +95,6 @@ import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
 
 depthRange :: StateVar (GLclampd, GLclampd)
 depthRange = makeStateVar (getDouble2 (,) GetDepthRange) (uncurry glDepthRange)
-
-foreign import CALLCONV unsafe "glDepthRange" glDepthRange ::
-   GLclampd -> GLclampd -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -132,9 +127,6 @@ viewport :: StateVar (Position, Size)
 viewport = makeStateVar (getInteger4 makeVp GetViewport)
                         (\(Position x y, Size w h) -> glViewport x y w h)
    where makeVp x y w h = (Position x y, Size (fromIntegral w) (fromIntegral h))
-
-foreign import CALLCONV unsafe "glViewport" glViewport ::
-   GLint -> GLint -> GLsizei -> GLsizei -> IO ()
 
 -- | The implementation-dependent maximum viewport width and height.
 
@@ -206,8 +198,6 @@ matrixMode =
    makeStateVar (getEnum1 unmarshalMatrixMode GetMatrixMode)
                 (maybe recordInvalidValue glMatrixMode . marshalMatrixMode)
 
-foreign import CALLCONV unsafe "glMatrixMode" glMatrixMode :: GLenum -> IO ()
-
 --------------------------------------------------------------------------------
 
 data MatrixOrder = ColumnMajor | RowMajor
@@ -228,9 +218,9 @@ class Storable c => MatrixComponent c where
 instance MatrixComponent GLfloat_ where
    getMatrix = getFloatv
    loadMatrix = glLoadMatrixf
-   loadTransposeMatrix = glLoadTransposeMatrixfARB
+   loadTransposeMatrix = glLoadTransposeMatrixf
    multMatrix_ = glMultMatrixf
-   multTransposeMatrix = glMultTransposeMatrixfARB
+   multTransposeMatrix = glMultTransposeMatrixf
    rotate a (Vector3 x y z) = glRotatef a x y z
    translate (Vector3 x y z) = glTranslatef x y z
    scale = glScalef
@@ -238,35 +228,12 @@ instance MatrixComponent GLfloat_ where
 instance MatrixComponent GLdouble_ where
    getMatrix = getDoublev
    loadMatrix = glLoadMatrixd
-   loadTransposeMatrix = glLoadTransposeMatrixdARB
+   loadTransposeMatrix = glLoadTransposeMatrixd
    multMatrix_ = glMultMatrixd
-   multTransposeMatrix = glMultTransposeMatrixdARB
+   multTransposeMatrix = glMultTransposeMatrixd
    rotate a (Vector3 x y z) = glRotated a x y z
    translate (Vector3 x y z) = glTranslated x y z
    scale = glScaled
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glLoadMatrixf" glLoadMatrixf :: Ptr GLfloat -> IO ()
-foreign import CALLCONV unsafe "glLoadMatrixd" glLoadMatrixd :: Ptr GLdouble -> IO ()
-
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glLoadTransposeMatrixfARB,Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glLoadTransposeMatrixdARB,Ptr GLdouble -> IO ())
-
-foreign import CALLCONV unsafe "glMultMatrixf" glMultMatrixf :: Ptr GLfloat -> IO ()
-foreign import CALLCONV unsafe "glMultMatrixd" glMultMatrixd :: Ptr GLdouble -> IO ()
-
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glMultTransposeMatrixfARB,Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_transpose_matrix or OpenGL 1.3",glMultTransposeMatrixdARB,Ptr GLdouble -> IO ())
-
-foreign import CALLCONV unsafe "glRotatef" glRotatef :: GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
-foreign import CALLCONV unsafe "glRotated" glRotated :: GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glTranslatef" glTranslatef :: GLfloat -> GLfloat -> GLfloat -> IO ()
-foreign import CALLCONV unsafe "glTranslated" glTranslated :: GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glScalef" glScalef :: GLfloat -> GLfloat -> GLfloat -> IO ()
-foreign import CALLCONV unsafe "glScaled" glScaled :: GLdouble -> GLdouble -> GLdouble -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -363,15 +330,16 @@ instance Matrix GLmatrix where
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glLoadIdentity" loadIdentity :: IO ()
+loadIdentity :: IO ()
+loadIdentity = glLoadIdentity
 
 --------------------------------------------------------------------------------
 
-foreign import CALLCONV unsafe "glOrtho" ortho ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+ortho :: GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+ortho = glOrtho
 
-foreign import CALLCONV unsafe "glFrustum" frustum ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+frustum :: GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+frustum = glFrustum
 
 --------------------------------------------------------------------------------
 
@@ -382,9 +350,7 @@ depthClamp = makeCapability CapDepthClamp
 
 activeTexture :: StateVar TextureUnit
 activeTexture = makeStateVar (getEnum1 unmarshalTextureUnit GetActiveTexture)
-                             (glActiveTextureARB . marshalTextureUnit)
-
-EXTENSION_ENTRY("GL_ARB_multitexture or OpenGL 1.3",glActiveTextureARB,GLenum -> IO ())   
+                             (glActiveTexture . marshalTextureUnit)
 
 --------------------------------------------------------------------------------
 
@@ -408,10 +374,6 @@ preservingMatrixMode = bracket (getEnum1 id GetMatrixMode) glMatrixMode . const
 
 unsafePreservingMatrix :: IO a -> IO a
 unsafePreservingMatrix = unsafeBracket_ glPushMatrix glPopMatrix
-
-foreign import CALLCONV unsafe "glPushMatrix" glPushMatrix :: IO ()
-
-foreign import CALLCONV unsafe "glPopMatrix" glPopMatrix :: IO ()
 
 --------------------------------------------------------------------------------
 
@@ -568,17 +530,11 @@ getMode coord = alloca $ \buf -> do
                  buf
    peek1 unmarshalTextureGenMode' buf
 
-foreign import CALLCONV unsafe "glGetTexGeniv" glGetTexGeniv ::
-   GLenum -> GLenum -> Ptr GLint -> IO ()
-
 setMode :: TextureCoordName -> TextureGenMode -> IO ()
 setMode coord mode =
    glTexGeni (marshalTextureCoordName coord)
              (marshalTextureGenParameter TextureGenMode)
              (marshalTextureGenMode mode)
-
-foreign import CALLCONV unsafe "glTexGeni" glTexGeni ::
-    GLenum -> GLenum -> GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -586,18 +542,12 @@ getPlane :: TextureCoordName -> TextureGenParameter -> IO (Plane GLdouble)
 getPlane coord param = alloca $ \planeBuffer -> do
    glGetTexGendv (marshalTextureCoordName coord)
                  (marshalTextureGenParameter param)
-                 planeBuffer
+                 (castPtr planeBuffer)
    peek planeBuffer
-
-foreign import CALLCONV unsafe "glGetTexGendv" glGetTexGendv ::
-   GLenum -> GLenum -> Ptr (Plane GLdouble) -> IO ()
 
 setPlane :: TextureCoordName -> TextureGenParameter -> Plane GLdouble -> IO ()
 setPlane coord param plane =
    with plane $ \planeBuffer ->
       glTexGendv (marshalTextureCoordName coord)
                  (marshalTextureGenParameter param)
-                 planeBuffer
-
-foreign import CALLCONV unsafe "glTexGendv" glTexGendv ::
-   GLenum -> GLenum -> Ptr (Plane GLdouble) -> IO ()
+                 (castPtr planeBuffer)

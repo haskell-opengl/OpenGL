@@ -23,10 +23,9 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    textureCompareFailValue, TextureCompareOperator(..), textureCompareOperator
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLfloat, GLclampf, Capability(..) )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Capability (
-   marshalCapability, unmarshalCapability )
+   Capability(..), marshalCapability, unmarshalCapability )
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction (
    marshalComparisonFunction, unmarshalComparisonFunction )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( TextureCoordName(..) )

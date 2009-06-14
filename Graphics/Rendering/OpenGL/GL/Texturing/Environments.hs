@@ -23,10 +23,11 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Environments (
 
 import Control.Monad ( liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.Storable ( Storable )
 import Foreign.Marshal.Utils ( with )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLenum, GLfloat )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.BlendingFactor (
    marshalBlendingFactor, unmarshalBlendingFactor )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
@@ -113,14 +114,9 @@ texEnv glTexEnv marshalAct t p x =
    marshalAct x $
       glTexEnv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p)
 
-foreign import CALLCONV unsafe "glTexEnvi"
-   glTexEnvi :: GLenum -> GLenum ->  GLint -> IO ()
+glTexEnvC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glTexEnvC4f t p ptr = glTexEnvfv t p (castPtr ptr)
 
-foreign import CALLCONV unsafe "glTexEnvf"
-   glTexEnvf :: GLenum -> GLenum ->  GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexEnvfv"
-   glTexEnvC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -133,14 +129,8 @@ getTexEnv glGetTexEnv unmarshal t p =
      glGetTexEnv (marshalTextureEnvTarget t) (marshalTextureEnvParameter p) buf
      peek1 unmarshal buf
 
-foreign import CALLCONV unsafe "glGetTexEnviv"
-   glGetTexEnviv :: GLenum -> GLenum -> Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glGetTexEnvfv"
-   glGetTexEnvfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glGetTexEnvfv"
-   glGetTexEnvC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glGetTexEnvC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glGetTexEnvC4f t p ptr = glGetTexEnvfv t p (castPtr ptr)
 
 --------------------------------------------------------------------------------
 

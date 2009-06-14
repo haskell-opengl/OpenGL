@@ -18,12 +18,10 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Minmax (
 ) where
 
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapMinmax), makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLboolean, GLenum, GLint )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
    PixelInternalFormat )
@@ -39,10 +37,6 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset (
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
    marshalSink, unmarshalSink )
 import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -71,8 +65,6 @@ setMinmax (int, sink) =
       (marshalPixelInternalFormat' int)
       (marshalSink sink)
 
-EXTENSION_ENTRY("GL_ARB_imaging",glMinmax,GLenum -> GLenum -> GLboolean -> IO ())
-
 --------------------------------------------------------------------------------
 
 getMinmax :: Reset -> PixelData a -> IO ()
@@ -80,14 +72,10 @@ getMinmax reset pd =
    withPixelData pd $
       glGetMinmax (marshalMinmaxTarget Minmax) (marshalReset reset)
 
-EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmax,GLenum -> GLboolean -> GLenum -> GLenum -> Ptr a -> IO ())
-
 --------------------------------------------------------------------------------
 
 resetMinmax :: IO ()
 resetMinmax = glResetMinmax (marshalMinmaxTarget Minmax)
-
-EXTENSION_ENTRY("GL_ARB_imaging",glResetMinmax,GLenum -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -110,5 +98,3 @@ getMinmaxParameteri f p =
          (marshalGetMinmaxParameterPName p)
          buf
       peek1 f buf
-
-EXTENSION_ENTRY("GL_ARB_imaging",glGetMinmaxParameteriv,GLenum -> GLenum -> Ptr GLint -> IO ())

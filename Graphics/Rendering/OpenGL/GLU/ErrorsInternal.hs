@@ -25,7 +25,7 @@ import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.C.String ( peekCString )
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
 import System.IO.Unsafe ( unsafePerformIO )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 -- Alas, GL and GLU define error enumerants with the same names, so we have to
@@ -222,8 +222,6 @@ getGLErrors = getGLErrorsAux []
 
 isError :: GLenum -> Bool
 isError = (/= gl_marshalErrorCode GL_NoError)
-
-foreign import CALLCONV unsafe "glGetError" glGetError :: IO GLenum
 
 --------------------------------------------------------------------------------
 

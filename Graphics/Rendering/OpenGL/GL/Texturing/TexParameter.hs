@@ -22,9 +22,9 @@ import Control.Monad ( liftM2 )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Storable ( Storable )
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLint, GLenum, GLfloat, Capability(..) )
+import Foreign.Ptr ( Ptr, castPtr )
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
@@ -90,15 +90,6 @@ texParameter glTexParameter marshalAct t p x =
    marshalAct x $
       glTexParameter (marshalTextureTarget t) (marshalTexParameter p)
 
-foreign import CALLCONV unsafe "glTexParameteri"
-   glTexParameteri :: GLenum -> GLenum ->  GLint -> IO ()
-
-foreign import CALLCONV unsafe "glTexParameterf"
-   glTexParameterf :: GLenum -> GLenum ->  GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glTexParameterfv"
-   glTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
-
 --------------------------------------------------------------------------------
 
 getTexParameter :: Storable b
@@ -109,15 +100,6 @@ getTexParameter glGetTexParameter unmarshal t p =
    alloca $ \buf -> do
      glGetTexParameter (marshalTextureTarget t) (marshalTexParameter p) buf
      peek1 unmarshal buf
-
-foreign import CALLCONV unsafe "glGetTexParameteriv"
-   glGetTexParameteriv :: GLenum -> GLenum -> Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glGetTexParameterfv"
-   glGetTexParameterfv :: GLenum -> GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glGetTexParameterfv"
-   glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -143,6 +125,12 @@ texParamC4f p t =
    makeStateVar
       (getTexParameter glGetTexParameterC4f id   t p)
       (texParameter    glTexParameterC4f    with t p)
+
+glTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glTexParameterC4f target pname ptr = glTexParameterfv target pname (castPtr ptr)
+
+glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
+glGetTexParameterC4f target pname ptr = glGetTexParameterfv target pname (castPtr ptr)
 
 getTexParameteri :: (GLint -> a) -> TextureTarget -> TexParameter -> IO a
 getTexParameteri = getTexParameter glGetTexParameteriv

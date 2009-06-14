@@ -23,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
    edgeFlag
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLboolean )
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.EdgeFlag (
    EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_, unsafeBracket_ )
@@ -110,10 +110,6 @@ renderPrim :: (IO () -> IO () -> IO a -> IO a) -> PrimitiveMode -> IO a -> IO a
 renderPrim brack_ beginMode =
    brack_ (glBegin (marshalPrimitiveMode beginMode)) glEnd
 
-foreign import CALLCONV unsafe "glBegin" glBegin :: GLenum -> IO ()
-
-foreign import CALLCONV unsafe "glEnd" glEnd :: IO ()
-
 --------------------------------------------------------------------------------
 
 primitiveRestart :: IO ()
@@ -142,5 +138,3 @@ edgeFlag :: StateVar EdgeFlag
 edgeFlag =
    makeStateVar (getBoolean1 unmarshalEdgeFlag GetEdgeFlag)
                 (glEdgeFlag . marshalEdgeFlag)
-
-foreign import CALLCONV unsafe "glEdgeFlag" glEdgeFlag :: GLboolean -> IO ()

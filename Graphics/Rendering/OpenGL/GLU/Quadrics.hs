@@ -21,8 +21,7 @@ module Graphics.Rendering.OpenGL.GLU.Quadrics (
 
 import Control.Monad ( unless )
 import Foreign.Ptr ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLint, GLdouble )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )

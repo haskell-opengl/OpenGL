@@ -21,8 +21,8 @@ import Control.Monad ( liftM2, liftM3, liftM4 )
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLint, GLsizei, GLfloat )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.IOState (
    IOState, getIOState, peekIOState, evalIOState, nTimes )
 import Graphics.Rendering.OpenGL.GL.RenderMode ( withRenderMode )
@@ -107,9 +107,6 @@ getFeedbackTokens bufSize feedbackType action =
       (value, numValues) <- withRenderMode Feedback action
       tokens <- parseFeedbackBuffer numValues buf feedbackType
       return (value, tokens)
-
-foreign import CALLCONV unsafe "glFeedbackBuffer" glFeedbackBuffer ::
-   GLsizei -> GLenum -> Ptr GLfloat -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -199,5 +196,5 @@ parseGLfloat = peekIOState
 newtype PassThroughValue = PassThroughValue GLfloat
    deriving ( Eq, Ord, Show )
 
-foreign import CALLCONV unsafe "glPassThrough" passThrough ::
-   PassThroughValue -> IO ()
+passThrough :: PassThroughValue -> IO ()
+passThrough (PassThroughValue ptv) = glPassThrough ptv

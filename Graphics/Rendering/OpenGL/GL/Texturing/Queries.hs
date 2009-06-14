@@ -21,8 +21,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
 
 import Control.Monad ( liftM2, liftM3, liftM4 )
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLint, GLsizei, GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
@@ -163,6 +162,3 @@ getTexLevelParameteri f proxy t level p =
    alloca $ \buf -> do
       glGetTexLevelParameteriv (either (marshalProxyTextureTarget proxy) (\c -> if proxy == Proxy then marshalProxyTextureTarget Proxy TextureCubeMap else marshalCubeMapTarget c) t) level (marshalTexLevelParameter p) buf
       peek1 f buf
-
-foreign import CALLCONV unsafe "glGetTexLevelParameteriv"
-   glGetTexLevelParameteriv :: GLenum -> GLint -> GLenum -> Ptr GLint -> IO ()

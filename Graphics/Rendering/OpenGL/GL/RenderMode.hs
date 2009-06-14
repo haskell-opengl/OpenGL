@@ -17,7 +17,8 @@ module Graphics.Rendering.OpenGL.GL.RenderMode (
    RenderMode(..), withRenderMode, renderMode
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Exception ( finallyRet )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetRenderMode), getEnum1 )
@@ -55,8 +56,6 @@ withRenderMode newMode action = do
 
 setRenderMode :: RenderMode -> IO GLint
 setRenderMode = glRenderMode . marshalRenderMode
-
-foreign import CALLCONV unsafe "glRenderMode" glRenderMode :: GLenum -> IO GLint
 
 --------------------------------------------------------------------------------
 

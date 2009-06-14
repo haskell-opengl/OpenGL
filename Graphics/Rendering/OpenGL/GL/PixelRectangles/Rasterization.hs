@@ -18,8 +18,8 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
 ) where
 
 import Control.Monad ( liftM2 )
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLsizei, GLfloat )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
 import Graphics.Rendering.OpenGL.GL.PixelFormat ( PixelFormat(..) )
@@ -32,9 +32,6 @@ import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 drawPixels :: Size -> PixelData a -> IO ()
 drawPixels (Size w h) pd = withPixelData pd $ glDrawPixels w h
 
-foreign import CALLCONV unsafe "glDrawPixels" glDrawPixels ::
-   GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 pixelZoom :: StateVar (GLfloat, GLfloat)
@@ -42,6 +39,3 @@ pixelZoom =
    makeStateVar
       (liftM2 (,) (getFloat1 id GetZoomX) (getFloat1 id GetZoomY))
       (uncurry glPixelZoom)
-
-foreign import CALLCONV unsafe "glPixelZoom" glPixelZoom ::
-   GLfloat -> GLfloat -> IO ()

@@ -21,15 +21,13 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
    rasterPositionUnclipped
 ) where
 
-import Data.Int
+import Foreign.C.Types
 import Foreign.Ptr ( Ptr, castPtr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLshort, GLint, GLfloat, GLdouble, Capability )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapRasterPositionUnclipped), makeCapability )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+   Capability, EnableCap(CapRasterPositionUnclipped), makeCapability )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetCurrentRasterPosition,GetCurrentRasterDistance,
             GetCurrentRasterColor,GetCurrentRasterSecondaryColor,
@@ -44,7 +42,6 @@ import Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 --------------------------------------------------------------------------------
 
-#include "HsOpenGLExt.h"
 #include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
@@ -64,26 +61,6 @@ class RasterPosComponent a where
    rasterPos3v :: Ptr a -> IO ()
    rasterPos4v :: Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glRasterPos2s" glRasterPos2s ::
-   GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3s" glRasterPos3s ::
-   GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4s" glRasterPos4s ::
-   GLshort -> GLshort -> GLshort -> GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos2sv" glRasterPos2sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3sv" glRasterPos3sv ::
-   Ptr GLshort -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4sv" glRasterPos4sv ::
-   Ptr GLshort -> IO ()
-
 instance RasterPosComponent GLshort_ where
    rasterPos2 = glRasterPos2s
    rasterPos3 = glRasterPos3s
@@ -92,26 +69,6 @@ instance RasterPosComponent GLshort_ where
    rasterPos2v = glRasterPos2sv
    rasterPos3v = glRasterPos3sv
    rasterPos4v = glRasterPos4sv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glRasterPos2i" glRasterPos2i ::
-   GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3i" glRasterPos3i ::
-   GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4i" glRasterPos4i ::
-   GLint -> GLint -> GLint -> GLint -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos2iv" glRasterPos2iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3iv" glRasterPos3iv ::
-   Ptr GLint -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4iv" glRasterPos4iv ::
-   Ptr GLint -> IO ()
 
 instance RasterPosComponent GLint_ where
    rasterPos2 = glRasterPos2i
@@ -122,26 +79,6 @@ instance RasterPosComponent GLint_ where
    rasterPos3v = glRasterPos3iv
    rasterPos4v = glRasterPos4iv
 
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glRasterPos2f" glRasterPos2f ::
-   GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3f" glRasterPos3f ::
-   GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4f" glRasterPos4f ::
-   GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos2fv" glRasterPos2fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3fv" glRasterPos3fv ::
-   Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4fv" glRasterPos4fv ::
-   Ptr GLfloat -> IO ()
-
 instance RasterPosComponent GLfloat_ where
    rasterPos2 = glRasterPos2f
    rasterPos3 = glRasterPos3f
@@ -150,26 +87,6 @@ instance RasterPosComponent GLfloat_ where
    rasterPos2v = glRasterPos2fv
    rasterPos3v = glRasterPos3fv
    rasterPos4v = glRasterPos4fv
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "glRasterPos2d" glRasterPos2d ::
-   GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3d" glRasterPos3d ::
-   GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4d" glRasterPos4d ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos2dv" glRasterPos2dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos3dv" glRasterPos3dv ::
-   Ptr GLdouble -> IO ()
-
-foreign import CALLCONV unsafe "glRasterPos4dv" glRasterPos4dv ::
-   Ptr GLdouble -> IO ()
 
 instance RasterPosComponent GLdouble_ where
    rasterPos2 = glRasterPos2d
@@ -207,61 +124,33 @@ class WindowPosComponent a where
    windowPos2v :: Ptr a -> IO ()
    windowPos3v :: Ptr a -> IO ()
 
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2sARB,GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3sARB,GLshort -> GLshort -> GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2svARB,Ptr GLshort -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3svARB,Ptr GLshort -> IO ())
-
 instance WindowPosComponent GLshort_ where
-   windowPos2 = glWindowPos2sARB
-   windowPos3 = glWindowPos3sARB
+   windowPos2 = glWindowPos2s
+   windowPos3 = glWindowPos3s
 
-   windowPos2v = glWindowPos2svARB
-   windowPos3v = glWindowPos3svARB
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2iARB,GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3iARB,GLint -> GLint -> GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2ivARB,Ptr GLint -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3ivARB,Ptr GLint -> IO ())
+   windowPos2v = glWindowPos2sv
+   windowPos3v = glWindowPos3sv
 
 instance WindowPosComponent GLint_ where
-   windowPos2 = glWindowPos2iARB
-   windowPos3 = glWindowPos3iARB
+   windowPos2 = glWindowPos2i
+   windowPos3 = glWindowPos3i
 
-   windowPos2v = glWindowPos2ivARB
-   windowPos3v = glWindowPos3ivARB
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2fARB,GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3fARB,GLfloat -> GLfloat -> GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2fvARB,Ptr GLfloat -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3fvARB,Ptr GLfloat -> IO ())
+   windowPos2v = glWindowPos2iv
+   windowPos3v = glWindowPos3iv
 
 instance WindowPosComponent GLfloat_ where
-   windowPos2 = glWindowPos2fARB
-   windowPos3 = glWindowPos3fARB
+   windowPos2 = glWindowPos2f
+   windowPos3 = glWindowPos3f
 
-   windowPos2v = glWindowPos2fvARB
-   windowPos3v = glWindowPos3fvARB
-
---------------------------------------------------------------------------------
-
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2dARB,GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3dARB,GLdouble -> GLdouble -> GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos2dvARB,Ptr GLdouble -> IO ())
-EXTENSION_ENTRY("GL_ARB_window_pos or OpenGL 1.4",glWindowPos3dvARB,Ptr GLdouble -> IO ())
+   windowPos2v = glWindowPos2fv
+   windowPos3v = glWindowPos3fv
 
 instance WindowPosComponent GLdouble_ where
-   windowPos2 = glWindowPos2dARB
-   windowPos3 = glWindowPos3dARB
+   windowPos2 = glWindowPos2d
+   windowPos3 = glWindowPos3d
 
-   windowPos2v = glWindowPos2dvARB
-   windowPos3v = glWindowPos3dvARB
+   windowPos2v = glWindowPos2dv
+   windowPos3v = glWindowPos3dv
 
 --------------------------------------------------------------------------------
 

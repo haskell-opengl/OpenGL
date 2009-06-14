@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PixelData (
 ) where
 
 import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.DataType ( DataType, marshalDataType )
 import Graphics.Rendering.OpenGL.GL.PixelFormat (
    PixelFormat, marshalPixelFormat )

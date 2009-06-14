@@ -21,8 +21,8 @@ module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
    PixelCopyType(..), copyPixels
 ) where
 
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLint, GLsizei )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.BufferMode (
    marshalBufferMode, unmarshalBufferMode )
 import Graphics.Rendering.OpenGL.GL.Framebuffer ( BufferMode(..) )
@@ -40,9 +40,6 @@ readPixels :: Position -> Size -> PixelData a -> IO ()
 readPixels (Position x y) (Size w h) pd =
    withPixelData pd $ glReadPixels x y w h
 
-foreign import CALLCONV unsafe "glReadPixels" glReadPixels ::
-   GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO ()
-
 --------------------------------------------------------------------------------
 
 readBuffer :: StateVar BufferMode
@@ -50,8 +47,6 @@ readBuffer =
    makeStateVar
       (getEnum1 unmarshalBufferMode GetReadBuffer)
       (maybe recordInvalidValue glReadBuffer . marshalBufferMode)
-
-foreign import CALLCONV unsafe "glReadBuffer" glReadBuffer :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -72,6 +67,3 @@ marshalPixelCopyType x = case x of
 copyPixels :: Position -> Size -> PixelCopyType -> IO ()
 copyPixels (Position x y) (Size w h) t =
    glCopyPixels x y w h (marshalPixelCopyType t)
-
-foreign import CALLCONV unsafe "glCopyPixels" glCopyPixels ::
-   GLint -> GLint -> GLsizei -> GLsizei -> GLenum -> IO ()

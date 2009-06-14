@@ -15,12 +15,11 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Capability (
-   marshalCapability, unmarshalCapability,
+   Capability(..), marshalCapability, unmarshalCapability,
    EnableCap(..), makeCapability, makeStateVarMaybe
 ) where
 
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLsizei, Capability(..) )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -28,6 +27,13 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Graphics.Rendering.OpenGL.GL.StateVar (
    HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
+
+--------------------------------------------------------------------------------
+
+data Capability =
+     Disabled
+   | Enabled
+   deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
 
@@ -233,19 +239,12 @@ isEnabled =
          (fmap unmarshalCapability . glIsEnabled) .
    marshalEnableCap
 
-foreign import CALLCONV unsafe "glIsEnabled" glIsEnabled ::
-   GLenum -> IO GLboolean
-
 --------------------------------------------------------------------------------
 
 enable :: EnableCap -> Capability -> IO ()
 enable cap state = maybe recordInvalidEnum (f state) (marshalEnableCap cap)
    where f Disabled = glDisable
          f Enabled  = glEnable
-
-foreign import CALLCONV unsafe "glDisable" glDisable :: GLenum -> IO ()
-
-foreign import CALLCONV unsafe "glEnable" glEnable :: GLenum -> IO ()
 
 --------------------------------------------------------------------------------
 

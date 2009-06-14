@@ -21,9 +21,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
 
 import Data.List ( partition )
 import Foreign.Marshal.Array ( withArray, withArrayLen, peekArray, allocaArray )
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLuint, GLsizei, GLenum, GLclampf )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
@@ -58,15 +57,6 @@ instance ObjectName TextureObject where
 
    isObjectName = fmap unmarshalGLboolean . glIsTexture . textureID
 
-foreign import CALLCONV unsafe "glGenTextures"
-   glGenTextures :: GLsizei -> Ptr GLuint -> IO ()
-
-foreign import CALLCONV unsafe "glDeleteTextures"
-   glDeleteTextures :: GLsizei -> Ptr GLuint -> IO ()
-
-foreign import CALLCONV unsafe "glIsTexture"
-   glIsTexture :: GLuint -> IO GLboolean
-
 --------------------------------------------------------------------------------
 
 textureBinding :: TextureTarget -> StateVar (Maybe TextureObject)
@@ -86,9 +76,6 @@ textureTargetToGetPName x = case x of
     Texture3D -> GetTextureBinding3D
     TextureCubeMap -> GetTextureBindingCubeMap
     TextureRectangle -> GetTextureBindingRectangle
-
-foreign import CALLCONV unsafe "glBindTexture"
-   glBindTexture :: GLenum -> GLuint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -110,9 +97,6 @@ areTexturesResident texObjs = do
                let (resident, nonResident) = partition (unmarshalGLboolean . snd) tr
                return (map fst resident, map fst nonResident)
 
-foreign import CALLCONV unsafe "glAreTexturesResident"
-   glAreTexturesResident :: GLsizei -> Ptr GLuint -> Ptr GLboolean -> IO GLboolean
-
 --------------------------------------------------------------------------------
 
 type TexturePriority = GLclampf
@@ -125,6 +109,3 @@ prioritizeTextures tps =
    withArrayLen (map (textureID . fst) tps) $ \len texObjsBuf ->
       withArray (map snd tps) $
          glPrioritizeTextures (fromIntegral len) texObjsBuf
-
-foreign import CALLCONV unsafe "glPrioritizeTextures"
-   glPrioritizeTextures :: GLsizei -> Ptr GLuint -> Ptr GLclampf -> IO ()

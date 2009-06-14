@@ -19,7 +19,8 @@ module Graphics.Rendering.OpenGL.GL.Clipping (
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr, castPtr )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLsizei, GLdouble )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(CapClipPlane), makeStateVarMaybe )
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Plane(..) )
@@ -45,11 +46,11 @@ clipPlane (ClipPlaneName i) =
       (alloca $ \buf -> do
           getDoublev (GetClipPlane i) (castPtr buf)
           peek1 id (buf :: Ptr (Plane GLdouble)))
-      (\plane -> maybe recordInvalidEnum (with plane . glClipPlane)
+      (\plane -> maybe recordInvalidEnum (with plane . glClipPlane_)
                        (clipPlaneIndexToEnum i))
 
-foreign import CALLCONV unsafe "glClipPlane" glClipPlane ::
-   GLenum -> Ptr (Plane GLdouble) -> IO ()
+glClipPlane_ :: GLenum -> Ptr (Plane GLdouble) -> IO ()
+glClipPlane_ plane ptr = glClipPlane plane (castPtr ptr)
 
 --------------------------------------------------------------------------------
 

@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
 
 import Foreign.Ptr ( Ptr, castPtr )
 import Foreign.C.String ( peekCString )
-import Graphics.Rendering.OpenGL.GL.BasicTypes ( GLenum, GLubyte )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.QueryUtils ( maybeNullPtr )
 import Graphics.Rendering.OpenGL.GL.StateVar (
    GettableStateVar, makeGettableStateVar )

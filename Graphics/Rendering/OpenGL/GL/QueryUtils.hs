@@ -34,16 +34,9 @@ import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, nullPtr )
 import Foreign.Storable ( Storable(peek) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLboolean, GLenum, GLint, GLsizei, GLuint, GLfloat, GLdouble )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
 
 --------------------------------------------------------------------------------
 
@@ -874,9 +867,6 @@ getBoolean4 f n = allocaArray 4 $ \buf -> do
    getBooleanv n buf
    peek4 f buf
 
-foreign import CALLCONV unsafe "glGetBooleanv" glGetBooleanv ::
-   GLenum -> Ptr GLboolean -> IO ()
-
 getBooleanv :: GetPName -> Ptr GLboolean -> IO ()
 getBooleanv = makeGetter glGetBooleanv
 
@@ -903,9 +893,6 @@ getInteger4 f n = allocaArray 4 $ \buf -> do
 
 getIntegerv :: GetPName -> Ptr GLint -> IO ()
 getIntegerv = maybe (const recordInvalidEnum) glGetIntegerv . marshalGetPName
-
-foreign import CALLCONV unsafe "glGetIntegerv" glGetIntegerv ::
-   GLenum -> Ptr GLint -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -941,9 +928,6 @@ getFloat4 f n = allocaArray 4 $ \buf -> do
 getFloatv :: GetPName -> Ptr GLfloat -> IO ()
 getFloatv = maybe (const recordInvalidEnum) glGetFloatv . marshalGetPName
 
-foreign import CALLCONV unsafe "glGetFloatv" glGetFloatv ::
-   GLenum -> Ptr GLfloat -> IO ()
-
 --------------------------------------------------------------------------------
 
 getDouble1 :: (GLdouble -> a) -> GetPName -> IO a
@@ -964,9 +948,6 @@ getDouble4 f n = allocaArray 4 $ \buf -> do
 
 getDoublev :: GetPName -> Ptr GLdouble -> IO ()
 getDoublev = maybe (const recordInvalidEnum) glGetDoublev . marshalGetPName
-
-foreign import CALLCONV unsafe "glGetDoublev" glGetDoublev ::
-   GLenum -> Ptr GLdouble -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -1004,8 +985,8 @@ marshalGetVertexAttribPName x = case x of
 --------------------------------------------------------------------------------
 
 getVertexAttribInteger1 :: (GLint -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
-getVertexAttribInteger1 f location n = alloca $ \buf -> do
-   glGetVertexAttribivARB location (marshalGetVertexAttribPName n) buf
+getVertexAttribInteger1 f (AttribLocation location) n = alloca $ \buf -> do
+   glGetVertexAttribiv location (marshalGetVertexAttribPName n) buf
    peek1 f buf
 
 getVertexAttribEnum1 :: (GLenum -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
@@ -1014,28 +995,20 @@ getVertexAttribEnum1 f = getVertexAttribInteger1 (f . fromIntegral)
 getVertexAttribBoolean1 :: (GLboolean -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
 getVertexAttribBoolean1 f = getVertexAttribInteger1 (f . fromIntegral)
 
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribivARB,AttribLocation -> GLenum -> Ptr GLint -> IO ())
-
 getVertexAttribFloat4 :: (GLfloat -> GLfloat -> GLfloat -> GLfloat -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
-getVertexAttribFloat4 f location n = alloca $ \buf -> do
-   glGetVertexAttribfvARB location (marshalGetVertexAttribPName n) buf
+getVertexAttribFloat4 f (AttribLocation location) n = alloca $ \buf -> do
+   glGetVertexAttribfv location (marshalGetVertexAttribPName n) buf
    peek4 f buf
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribfvARB,AttribLocation -> GLenum -> Ptr GLfloat -> IO ())
 
 getVertexAttribIInteger4 :: (GLint -> GLint -> GLint -> GLint -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
-getVertexAttribIInteger4 f location n = alloca $ \buf -> do
-   glGetVertexAttribIivARB location (marshalGetVertexAttribPName n) buf
+getVertexAttribIInteger4 f (AttribLocation location) n = alloca $ \buf -> do
+   glGetVertexAttribIiv location (marshalGetVertexAttribPName n) buf
    peek4 f buf
-
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glGetVertexAttribIivARB,AttribLocation -> GLenum -> Ptr GLint -> IO ())
 
 getVertexAttribIuInteger4 :: (GLuint -> GLuint -> GLuint -> GLuint -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
-getVertexAttribIuInteger4 f location n = alloca $ \buf -> do
-   glGetVertexAttribIuivARB location (marshalGetVertexAttribPName n) buf
+getVertexAttribIuInteger4 f (AttribLocation location) n = alloca $ \buf -> do
+   glGetVertexAttribIuiv location (marshalGetVertexAttribPName n) buf
    peek4 f buf
-
-EXTENSION_ENTRY("GL_EXT_gpu_shader4 or OpenGL 3.0",glGetVertexAttribIuivARB,AttribLocation -> GLenum -> Ptr GLuint -> IO ())
 
 --------------------------------------------------------------------------------
 
@@ -1049,8 +1022,6 @@ marshalGetVertexAttribPointerPName x = case x of
 --------------------------------------------------------------------------------
 
 getVertexAttribPointer :: AttribLocation -> GetVertexAttribPointerPName -> IO (Ptr a)
-getVertexAttribPointer location n = alloca $ \buf -> do
-   glGetVertexAttribPointervARB location (marshalGetVertexAttribPointerPName n) buf
+getVertexAttribPointer (AttribLocation location) n = alloca $ \buf -> do
+   glGetVertexAttribPointerv location (marshalGetVertexAttribPointerPName n) buf
    peek buf
-
-EXTENSION_ENTRY("GL_ARB_vertex_shader or OpenGL 2.0",glGetVertexAttribPointervARB,AttribLocation -> GLenum -> Ptr (Ptr a) -> IO ())

@@ -19,13 +19,13 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap (
 ) where
 
 import Data.List ( zipWith4 )
-import Data.Word
+import Foreign.C.Types
 import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
 import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArrayLen )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.BasicTypes (
-   GLenum, GLushort, GLuint, GLsizei, GLfloat )
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(GetMaxPixelMapTable,GetPixelMapIToISize,GetPixelMapSToSSize,
             GetPixelMapIToRSize,GetPixelMapIToGSize,GetPixelMapIToBSize,
@@ -96,31 +96,13 @@ instance PixelMapComponent GLushort_ where
    getPixelMapv = glGetPixelMapusv
    pixelMapv = glPixelMapusv
 
-foreign import CALLCONV unsafe "glGetPixelMapusv" glGetPixelMapusv ::
-   GLenum -> Ptr GLushort -> IO ()
-
-foreign import CALLCONV unsafe "glPixelMapusv" glPixelMapusv ::
-   GLenum -> GLsizei -> Ptr GLushort -> IO ()
-
 instance PixelMapComponent GLuint_ where
    getPixelMapv = glGetPixelMapuiv
    pixelMapv = glPixelMapuiv
 
-foreign import CALLCONV unsafe "glGetPixelMapuiv" glGetPixelMapuiv ::
-   GLenum -> Ptr GLuint -> IO ()
-
-foreign import CALLCONV unsafe "glPixelMapuiv" glPixelMapuiv ::
-   GLenum -> GLsizei -> Ptr GLuint -> IO ()
-
 instance PixelMapComponent GLfloat_ where
    getPixelMapv = glGetPixelMapfv
    pixelMapv = glPixelMapfv
-
-foreign import CALLCONV unsafe "glGetPixelMapfv" glGetPixelMapfv ::
-   GLenum -> Ptr GLfloat -> IO ()
-
-foreign import CALLCONV unsafe "glPixelMapfv" glPixelMapfv ::
-   GLenum -> GLsizei -> Ptr GLfloat -> IO ()
 
 --------------------------------------------------------------------------------
 
