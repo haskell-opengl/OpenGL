@@ -21,29 +21,21 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
    colorTableRGBASizes, colorTableLuminanceSize, colorTableIntesitySize,
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( castPtr )
-import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapColorTable,CapPostConvolutionColorTable,
-             CapPostColorMatrixColorTable,CapTextureColorTable),
-   Capability, makeCapability )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..) )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
-    PixelData(..) )
-import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
-import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   PixelInternalFormat(..), marshalPixelInternalFormat',
-   unmarshalPixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   recordInvalidEnum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

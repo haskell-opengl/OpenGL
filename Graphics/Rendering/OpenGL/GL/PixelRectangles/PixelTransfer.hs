@@ -19,25 +19,12 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelTransfer (
    rgbaScale, rgbaBias
 ) where
 
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, marshalCapability, unmarshalCapability )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMapColor,GetMapStencil,GetIndexShift,GetIndexOffset,
-            GetRedScale,GetGreenScale,GetBlueScale,GetAlphaScale,GetDepthScale,
-            GetRedBias,GetGreenBias,GetBlueBias,GetAlphaBias,GetDepthBias,
-            GetPostConvolutionRedScale,GetPostConvolutionGreenScale,
-            GetPostConvolutionBlueScale,GetPostConvolutionAlphaScale,
-            GetPostConvolutionRedBias,GetPostConvolutionGreenBias,
-            GetPostConvolutionBlueBias,GetPostConvolutionAlphaBias,
-            GetPostColorMatrixRedScale,GetPostColorMatrixGreenScale,
-            GetPostColorMatrixBlueScale,GetPostColorMatrixAlphaScale,
-            GetPostColorMatrixRedBias,GetPostColorMatrixGreenBias,
-            GetPostColorMatrixBlueBias,GetPostColorMatrixAlphaBias),
-   getBoolean1, getInteger1, getFloat1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

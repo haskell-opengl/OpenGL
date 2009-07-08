@@ -29,53 +29,28 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    ArrayIndex, NumArrayIndices, NumIndexBlocks,
    arrayElement, drawArrays, multiDrawArrays, drawElements, multiDrawElements,
    drawRangeElements, maxElementsVertices, maxElementsIndices, lockArrays,
-   primitiveRestartIndex,
+   primitiveRestartIndex, primitiveRestartIndexNV,
 
    -- * Generic Vertex Attribute Arrays
    vertexAttribPointer, vertexAttribArray
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr, nullPtr )
-import Foreign.Storable ( Storable(peek) )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapVertexArray,CapNormalArray,CapColorArray,CapIndexArray,
-             CapTextureCoordArray,CapEdgeFlagArray,CapFogCoordArray,
-             CapSecondaryColorArray,CapMatrixIndexArray,CapPrimitiveRestart),
-   Capability(..), makeCapability, unmarshalCapability )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.DataType
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray
-import Graphics.Rendering.OpenGL.GL.DataType (
-   DataType(..), marshalDataType, unmarshalDataType )
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   marshalGLboolean, unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetVertexArraySize,GetVertexArrayType,GetVertexArrayStride,
-            GetNormalArrayType,GetNormalArrayStride,GetColorArraySize,
-            GetColorArrayType,GetColorArrayStride,GetSecondaryColorArraySize,
-            GetSecondaryColorArrayType,GetSecondaryColorArrayStride,
-            GetIndexArrayType,GetIndexArrayStride,
-            GetFogCoordArrayType,GetFogCoordArrayStride,
-            GetTextureCoordArraySize,GetTextureCoordArrayType,
-            GetTextureCoordArrayStride,GetEdgeFlagArrayStride,
-            GetMaxElementsVertices,GetMaxElementsIndices,
-            GetClientActiveTexture,GetArrayElementLockFirst,
-            GetArrayElementLockCount,GetPrimitiveRestartIndex),
-   getInteger1, getEnum1, getSizei1, AttribLocation(..),
-   GetVertexAttribPName(..),
-   getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
-   GetVertexAttribPointerPName(..), getVertexAttribPointer )
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( marshalPrimitiveMode )
-import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get),
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
-   TextureUnit, marshalTextureUnit, unmarshalTextureUnit )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   recordInvalidEnum, recordInvalidValue )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( IntegerHandling(..) )
+import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
 
 --------------------------------------------------------------------------------
 
@@ -85,14 +60,7 @@ type Stride = GLsizei
 
 data VertexArrayDescriptor a =
    VertexArrayDescriptor !NumComponents !DataType !Stride !(Ptr a)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq (VertexArrayDescriptor a)
-instance Ord (VertexArrayDescriptor a)
-instance Show (VertexArrayDescriptor a)
-#else
    deriving ( Eq, Ord, Show )
-#endif
 
 noVertexArrayDescriptor :: VertexArrayDescriptor a
 noVertexArrayDescriptor = VertexArrayDescriptor 0 Byte 0 nullPtr
@@ -411,24 +379,33 @@ setLockArrays = maybe glUnlockArrays (uncurry glLockArrays)
 
 --------------------------------------------------------------------------------
 
--- We almost could use makeStateVarMaybe below, but, alas, this is client state.
-
 primitiveRestartIndex :: StateVar (Maybe ArrayIndex)
 primitiveRestartIndex =
-   makeStateVar getPrimitiverestartIndex setPrimitiverestartIndex
+   makeStateVarMaybe
+      (return CapPrimitiveRestart)
+      (getInteger1 id GetPrimitiveRestartIndex)
+      (glPrimitiveRestartIndex . fromIntegral)
 
-getPrimitiverestartIndex :: IO (Maybe ArrayIndex)
-getPrimitiverestartIndex = do
-   state <- get (makeCapability CapPrimitiveRestart)
-   if state == Enabled
-      then fmap Just $ getInteger1 fromIntegral GetPrimitiveRestartIndex
+--------------------------------------------------------------------------------
+
+-- We almost could use makeStateVarMaybe below, but, alas, this is client state.
+
+primitiveRestartIndexNV :: StateVar (Maybe ArrayIndex)
+primitiveRestartIndexNV =
+   makeStateVar getPrimitiveRestartIndexNV setPrimitiveRestartIndexNV
+
+getPrimitiveRestartIndexNV :: IO (Maybe ArrayIndex)
+getPrimitiveRestartIndexNV = do
+   on <- getBoolean1 unmarshalGLboolean GetPrimitiveRestartNV
+   if on
+      then fmap Just $ getInteger1 fromIntegral GetPrimitiveRestartIndexNV
       else return Nothing
 
-setPrimitiverestartIndex :: Maybe ArrayIndex -> IO ()
-setPrimitiverestartIndex maybeIdx = case maybeIdx of
-   Nothing  -> glDisableClientState gl_PRIMITIVE_RESTART
-   Just idx -> do glEnableClientState gl_PRIMITIVE_RESTART
-                  glPrimitiveRestartIndex (fromIntegral idx)
+setPrimitiveRestartIndexNV :: Maybe ArrayIndex -> IO ()
+setPrimitiveRestartIndexNV maybeIdx = case maybeIdx of
+   Nothing  -> glDisableClientState gl_PRIMITIVE_RESTART_NV
+   Just idx -> do glEnableClientState gl_PRIMITIVE_RESTART_NV
+                  glPrimitiveRestartIndexNV (fromIntegral idx)
 
 --------------------------------------------------------------------------------
 

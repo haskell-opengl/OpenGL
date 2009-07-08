@@ -35,47 +35,24 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
+import Data.StateVar
 import Foreign.C.Types
-import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArray )
-import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr, castPtr )
-import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapRescaleNormal, CapNormalize,CapDepthClamp,
-             CapTextureGenS, CapTextureGenT,
-             CapTextureGenR, CapTextureGenQ),
-   Capability(..), makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Foreign.ForeignPtr
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Tensor
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.Exception ( bracket, unsafeBracket_ )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek4, poke4 )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetDepthRange,GetViewport,GetMaxViewportDims,GetMatrixMode,
-            GetModelviewMatrix,GetProjectionMatrix,
-            GetTextureMatrix, GetColorMatrix,GetMatrixPalette,GetActiveTexture,
-            GetCurrentMatrixStackDepth,GetModelviewStackDepth,
-            GetMaxModelviewStackDepth,GetProjectionStackDepth,
-            GetMaxProjectionStackDepth,GetTextureStackDepth,
-            GetMaxTextureStackDepth,GetColorMatrixStackDepth,
-            GetMaxColorMatrixStackDepth,GetMaxMatrixPaletteStackDepth),
-   getInteger2, getInteger4, getEnum1, getSizei1, getFloatv,
-   getDouble2, getDoublev, modelviewIndexToEnum, modelviewEnumToIndex )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, HasGetter(get), HasSetter(($=)),
-   StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Tensor (
-   Vector1(..), Vector2(..), Vector3(..), Vector4(..) )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
-   marshalTextureUnit, unmarshalTextureUnit )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( TextureUnit )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   recordInvalidEnum, recordInvalidValue )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLTypes.h"
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
@@ -215,7 +192,8 @@ class Storable c => MatrixComponent c where
    translate :: Vector3 c -> IO ()
    scale :: c -> c -> c -> IO ()
 
-instance MatrixComponent GLfloat_ where
+-- GLfloat instance
+instance MatrixComponent CFloat where
    getMatrix = getFloatv
    loadMatrix = glLoadMatrixf
    loadTransposeMatrix = glLoadTransposeMatrixf
@@ -225,7 +203,8 @@ instance MatrixComponent GLfloat_ where
    translate (Vector3 x y z) = glTranslatef x y z
    scale = glScalef
 
-instance MatrixComponent GLdouble_ where
+-- GLfloat instance
+instance MatrixComponent CDouble where
    getMatrix = getDoublev
    loadMatrix = glLoadMatrixd
    loadTransposeMatrix = glLoadTransposeMatrixd
@@ -311,14 +290,7 @@ multMatrix mat =
 --------------------------------------------------------------------------------
 
 data GLmatrix a = GLmatrix MatrixOrder (ForeignPtr a)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq (GLmatrix a)
-instance Ord (GLmatrix a)
-instance Show (GLmatrix a)
-#else
    deriving ( Eq, Ord, Show )
-#endif
 
 instance Matrix GLmatrix where
    withNewMatrix order f = do

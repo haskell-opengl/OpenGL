@@ -19,14 +19,11 @@ module Graphics.Rendering.OpenGL.GL.Capability (
    EnableCap(..), makeCapability, makeStateVarMaybe
 ) where
 
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   marshalGLboolean, unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   clipPlaneIndexToEnum, lightIndexToEnum )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 
@@ -127,7 +124,7 @@ data EnableCap =
    | CapMatrixPalette
    | CapDepthClamp
    | CapDepthBoundsTest
-   | CapPrimitiveRestart -- NOTE: client state!
+   | CapPrimitiveRestart
    | CapPointSprite
    | CapStencilTestTwoSide
    | CapRasterPositionUnclipped
@@ -218,7 +215,7 @@ marshalEnableCap x = case x of
    CapMatrixPalette -> Just 0x8840
    CapDepthClamp -> Just 0x864f
    CapDepthBoundsTest -> Just 0x8890
-   CapPrimitiveRestart -> Just 0x8558
+   CapPrimitiveRestart -> Just gl_PRIMITIVE_RESTART
    CapPointSprite -> Just 0x8861
    CapStencilTestTwoSide -> Just 0x8910
    CapRasterPositionUnclipped -> Just 0x19262

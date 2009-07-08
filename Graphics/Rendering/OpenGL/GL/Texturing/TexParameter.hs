@@ -18,19 +18,17 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    combineTexParams, combineTexParamsMaybe
 ) where
 
-import Control.Monad ( liftM2 )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Utils ( with )
-import Foreign.Storable ( Storable )
-import Foreign.Ptr ( Ptr, castPtr )
+import Control.Monad
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalTextureTarget )
-import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 
 --------------------------------------------------------------------------------
 

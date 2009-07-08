@@ -32,35 +32,20 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
    AccumOp(..), accum
 ) where
 
-import Control.Monad ( liftM4 )
-import Data.List ( genericLength )
-import Data.Maybe ( isJust, fromJust )
-import Foreign.Marshal.Array ( withArray )
-import Graphics.Rendering.OpenGL.GL.BufferMode (
-   BufferMode(..), marshalBufferMode, unmarshalBufferMode )
+import Control.Monad
+import Data.List
+import Data.Maybe
+import Data.StateVar
+import Foreign.Marshal.Array
+import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.Capability
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.Face
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.Face ( Face, marshalFace )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetAuxBuffers,GetDoublebuffer,GetStereo,GetRedBits,GetGreenBits,
-            GetBlueBits,GetAlphaBits,GetStencilBits,GetDepthBits,
-            GetAccumRedBits,GetAccumGreenBits,GetAccumBlueBits,
-            GetAccumAlphaBits,GetRGBASignedComponents,GetDrawBuffer,
-            GetIndexWritemask,GetColorWritemask,GetDepthWritemask,
-            GetStencilWritemask,GetColorClearValue,GetIndexClearValue,
-            GetDepthClearValue,GetStencilClearValue,GetAccumClearValue,
-            GetMaxDrawBuffers,GetDrawBufferN),
-   getInteger1, getInteger4, getBoolean1, getBoolean4, getEnum1, getSizei1,
-   getFloat1, getFloat4, getDouble1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), GettableStateVar, makeGettableStateVar,
-   SettableStateVar, makeSettableStateVar,
-   StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Color4(Color4), Index1(Index1) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

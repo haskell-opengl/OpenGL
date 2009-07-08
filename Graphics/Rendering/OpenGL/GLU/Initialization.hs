@@ -16,38 +16,21 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
    gluVersion, gluExtensions
 ) where
 
-import Foreign.Ptr ( Ptr, castPtr )
-import Foreign.C.String ( peekCString )
+import Data.StateVar
+import Foreign.C.String
+import Foreign.Ptr
+import Graphics.Rendering.GLU.Raw
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.QueryUtils ( maybeNullPtr )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar )
 
 --------------------------------------------------------------------------------
 
 gluVersion :: GettableStateVar String
-gluVersion = makeGettableStateVar (getString Version)
+gluVersion = makeGettableStateVar (getString glu_VERSION)
 
 gluExtensions :: GettableStateVar [String]
-gluExtensions = makeGettableStateVar (fmap words $ getString Extensions)
+gluExtensions = makeGettableStateVar (fmap words $ getString glu_EXTENSIONS)
 
---------------------------------------------------------------------------------
-
-data StringName =
-     Version
-   | Extensions
-   deriving ( Eq, Ord, Show )
-
-marshalStringName :: StringName -> GLenum
-marshalStringName x = case x of
-   Version -> 0x189c0
-   Extensions -> 0x189c1
-
---------------------------------------------------------------------------------
-
-getString :: StringName -> IO String
-getString n = gluGetString (marshalStringName n) >>=
+getString :: GLenum -> IO String
+getString n = gluGetString n >>=
               maybeNullPtr (return "") (peekCString . castPtr)
-
-foreign import CALLCONV unsafe "gluGetString" gluGetString ::
-   GLenum -> IO (Ptr GLubyte)

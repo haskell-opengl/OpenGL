@@ -18,19 +18,15 @@ module Graphics.Rendering.OpenGL.GL.Selection (
    RenderMode(..), renderMode
 ) where
 
-import Foreign.Marshal.Array ( allocaArray )
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.IOState
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.RenderMode
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
-import Graphics.Rendering.OpenGL.GL.IOState (
-   IOState, peekIOState, evalIOState, nTimes )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxNameStackDepth,GetNameStackDepth), getSizei1 )
-import Graphics.Rendering.OpenGL.GL.RenderMode (
-   RenderMode(..), withRenderMode, renderMode )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

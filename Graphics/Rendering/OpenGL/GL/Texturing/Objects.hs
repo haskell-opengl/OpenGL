@@ -19,24 +19,16 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
    TexturePriority, texturePriority, prioritizeTextures
 ) where
 
-import Data.List ( partition )
-import Foreign.Marshal.Array ( withArray, withArrayLen, peekArray, allocaArray )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.List
+import Data.StateVar
+import Foreign.Marshal.Array
+import Graphics.Rendering.OpenGL.GL.BufferObjects
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetTextureBinding1D,GetTextureBinding2D,GetTextureBinding3D,
-            GetTextureBindingCubeMap,GetTextureBindingRectangle),
-   getEnum1)
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
-   TexParameter(TextureResident,TexturePriority), texParamf, getTexParameteri )
-import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
-   TextureTarget(..) )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   marshalTextureTarget )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

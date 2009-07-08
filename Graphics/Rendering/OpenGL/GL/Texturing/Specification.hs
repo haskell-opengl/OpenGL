@@ -40,25 +40,16 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
   maxTextureSize
 ) where
 
-import Foreign.Marshal.Array ( peekArray, allocaArray )
-import Foreign.Ptr ( Ptr )
+import Data.StateVar
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.PixelRectangles
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..) )
-import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
-import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   marshalPixelInternalFormat, marshalPixelInternalFormat' )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles (
-   PixelInternalFormat, PixelData, Proxy(..) )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetNumCompressedTextureFormats,GetCompressedTextureFormats,
-            GetMaxTextureSize,GetMax3DTextureSize,GetMaxCubeMapTextureSize,
-            GetMaxRectangleTextureSize),
-   getInteger1, getIntegerv)
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget,
-   CubeMapTarget(..), marshalCubeMapTarget )
 
 --------------------------------------------------------------------------------
 
@@ -192,14 +183,7 @@ compressedTextureFormats =
 
 data CompressedPixelData a =
      CompressedPixelData !CompressedTextureFormat GLsizei (Ptr a)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq (CompressedPixelData a)
-instance Ord (CompressedPixelData a)
-instance Show (CompressedPixelData a)
-#else
    deriving ( Eq, Ord, Show )
-#endif
 
 withCompressedPixelData ::
    CompressedPixelData a -> (GLenum -> GLsizei -> Ptr a -> b) -> b

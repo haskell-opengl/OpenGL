@@ -18,17 +18,10 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage (
    skipPixels, rowAlignment, imageHeight, skipImages
 ) where
 
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   marshalGLboolean, unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetUnpackSwapBytes,GetUnpackLSBFirst,GetUnpackRowLength,
-            GetUnpackSkipRows,GetUnpackSkipPixels,GetUnpackAlignment,
-            GetUnpackImageHeight,GetUnpackSkipImages,GetPackSwapBytes,
-            GetPackLSBFirst,GetPackRowLength,GetPackSkipRows,GetPackSkipPixels,
-            GetPackAlignment,GetPackImageHeight,GetPackSkipImages),
-   getBoolean1, getInteger1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 

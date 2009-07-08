@@ -16,21 +16,17 @@ module Graphics.Rendering.OpenGL.GL.Clipping (
    ClipPlaneName(..), clipPlane, maxClipPlanes
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr, castPtr )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapClipPlane), makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Plane(..) )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetClipPlane,GetMaxClipPlanes),
-   clipPlaneIndexToEnum, getDoublev, getSizei1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

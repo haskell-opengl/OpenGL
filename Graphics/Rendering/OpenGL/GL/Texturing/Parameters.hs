@@ -23,34 +23,18 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    textureCompareFailValue, TextureCompareOperator(..), textureCompareOperator
 ) where
 
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.ComparisonFunction
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.PerFragment
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.GL.Texturing.Specification
+import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability(..), marshalCapability, unmarshalCapability )
-import Graphics.Rendering.OpenGL.GL.ComparisonFunction (
-   marshalComparisonFunction, unmarshalComparisonFunction )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( TextureCoordName(..) )
-import Graphics.Rendering.OpenGL.GL.PerFragment ( ComparisonFunction )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles (
-   PixelInternalFormat(..) )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxTextureMaxAnisotropy,GetMaxTextureLODBias), getFloat1)
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar,
-   StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
-   Level, TextureTarget(..) )
-import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
-   TexParameter(TextureMinFilter,TextureMagFilter,TextureWrapS,TextureWrapT,
-                TextureWrapR,TextureBorderColor,TextureMinLOD,TextureMaxLOD,
-                TextureBaseLevel,TextureMaxLevel,TextureMaxAnisotropy,
-                TextureLODBias,GenerateMipmap,DepthTextureMode,
-                TextureCompareMode,TextureCompareFunc,TextureCompareFailValue,
-                TextureCompare,TextureCompareOperator),
-   texParami, texParamf, texParamC4f, combineTexParams, combineTexParamsMaybe )
-import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   marshalPixelInternalFormat, unmarshalPixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 

@@ -19,30 +19,19 @@ module Graphics.Rendering.OpenGL.GL.Polygons (
    polygonOffsetPoint, polygonOffsetLine, polygonOffsetFill
 ) where
 
-import Control.Monad ( liftM2 )
-import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
-import Foreign.Marshal.Array ( allocaArray, withArray, peekArray, pokeArray )
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapPolygonSmooth,CapCullFace,CapPolygonStipple,
-             CapPolygonOffsetPoint,CapPolygonOffsetLine,CapPolygonOffsetFill),
-   Capability, makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Control.Monad
+import Data.StateVar
+import Foreign.ForeignPtr
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.Face
+import Graphics.Rendering.OpenGL.GL.PixelRectangles
+import Graphics.Rendering.OpenGL.GL.PolygonMode
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.SavingState
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
-import Graphics.Rendering.OpenGL.GL.Colors ( Face(..) )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles (
-   PixelStoreDirection(..), rowLength, skipRows, skipPixels )
-import Graphics.Rendering.OpenGL.GL.PolygonMode (
-   PolygonMode(..), marshalPolygonMode, unmarshalPolygonMode )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetCullFaceMode,GetPolygonMode,GetPolygonOffsetFactor,
-            GetPolygonOffsetUnits),
-   getInteger2, getEnum1, getFloat1 )
-import Graphics.Rendering.OpenGL.GL.SavingState (
-   ClientAttributeGroup(PixelStoreAttributes), preservingClientAttrib )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasSetter(($=)), StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

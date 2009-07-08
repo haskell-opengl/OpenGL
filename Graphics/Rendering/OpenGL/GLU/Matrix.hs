@@ -21,28 +21,24 @@ import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( withArray )
 import Foreign.Ptr ( Ptr )
 import Foreign.Storable ( Storable(peek,peekElemOff) )
+import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.CoordTrans (
    MatrixOrder(..), Matrix(..), MatrixComponent,
    Vector3(..), Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3(..), Vertex4(..) )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
 --------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
-
---------------------------------------------------------------------------------
 -- matrix setup
 
-foreign import CALLCONV unsafe "gluOrtho2D" ortho2D ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+ortho2D :: GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+ortho2D = gluOrtho2D
 
-foreign import CALLCONV unsafe "gluPerspective" perspective ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+
+perspective :: GLdouble -> GLdouble -> GLdouble -> GLdouble -> IO ()
+perspective = gluPerspective
 
 lookAt :: Vertex3 GLdouble -> Vertex3 GLdouble -> Vector3 GLdouble -> IO ()
 lookAt (Vertex3 eyeX    eyeY    eyeZ)
@@ -50,18 +46,10 @@ lookAt (Vertex3 eyeX    eyeY    eyeZ)
        (Vector3 upX     upY     upZ) =
    gluLookAt eyeX eyeY eyeZ centerX centerY centerZ upX upY upZ
 
-foreign import CALLCONV unsafe "gluLookAt" gluLookAt ::
-      GLdouble -> GLdouble -> GLdouble
-   -> GLdouble -> GLdouble -> GLdouble
-   -> GLdouble -> GLdouble -> GLdouble -> IO ()
-
 pickMatrix ::
    (GLdouble, GLdouble) -> (GLdouble, GLdouble) -> (Position, Size) -> IO ()
 pickMatrix (x, y) (w, h) viewport =
    withViewport viewport $ gluPickMatrix x y w h
-
-foreign import CALLCONV unsafe "gluPickMatrix" gluPickMatrix ::
-   GLdouble -> GLdouble -> GLdouble -> GLdouble -> Ptr GLint -> IO ()
 
 --------------------------------------------------------------------------------
 -- coordinate projection
@@ -76,11 +64,6 @@ project (Vertex3 objX objY objZ) model proj viewport =
    withViewport viewport $ \viewBuf ->
    getVertex3 $ gluProject objX objY objZ modelBuf projBuf viewBuf
 
-foreign import CALLCONV unsafe "gluProject" gluProject ::
-      GLdouble -> GLdouble -> GLdouble
-   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint
-   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
-
 unProject ::
       Matrix m
    => Vertex3 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
@@ -90,11 +73,6 @@ unProject (Vertex3 objX objY objZ) model proj viewport =
    withColumnMajor proj $ \projBuf ->
    withViewport viewport $ \viewBuf ->
    getVertex3 $ gluUnProject objX objY objZ modelBuf projBuf viewBuf
-
-foreign import CALLCONV unsafe "gluUnProject" gluUnProject ::
-      GLdouble -> GLdouble -> GLdouble
-   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint
-   -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint
 
 unProject4 ::
       Matrix m
@@ -107,8 +85,6 @@ unProject4 (Vertex4 objX objY objZ clipW) model proj viewport near far =
    withViewport viewport $ \viewBuf ->
    getVertex4 $
       gluUnProject4 objX objY objZ clipW modelBuf projBuf viewBuf near far
-
-EXTENSION_ENTRY("GLU 1.3",gluUnProject4,GLdouble -> GLdouble -> GLdouble -> GLdouble -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLint -> GLclampd -> GLclampd -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> Ptr GLdouble -> IO GLint)
 
 --------------------------------------------------------------------------------
 

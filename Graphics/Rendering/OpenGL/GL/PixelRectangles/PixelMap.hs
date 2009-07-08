@@ -18,28 +18,17 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap (
    maxPixelMapTable, pixelMap, pixelMapIToRGBA, pixelMapRGBAToRGBA,
 ) where
 
-import Data.List ( zipWith4 )
+import Data.List
+import Data.StateVar
 import Foreign.C.Types
-import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
-import Foreign.Marshal.Array ( allocaArray, peekArray, pokeArray, withArrayLen )
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Foreign.ForeignPtr
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxPixelMapTable,GetPixelMapIToISize,GetPixelMapSToSSize,
-            GetPixelMapIToRSize,GetPixelMapIToGSize,GetPixelMapIToBSize,
-            GetPixelMapIToASize,GetPixelMapRToRSize,GetPixelMapGToGSize,
-            GetPixelMapBToBSize,GetPixelMapAToASize),
-   getInteger1, getSizei1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasSetter(($=)), HasGetter(get), GettableStateVar, makeGettableStateVar,
-   StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLTypes.h"
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
@@ -92,15 +81,18 @@ class Storable c => PixelMapComponent c where
    getPixelMapv :: GLenum -> Ptr c -> IO ()
    pixelMapv :: GLenum -> GLsizei -> Ptr c -> IO ()
 
-instance PixelMapComponent GLushort_ where
+-- GLushort instance
+instance PixelMapComponent CUShort where
    getPixelMapv = glGetPixelMapusv
    pixelMapv = glPixelMapusv
 
-instance PixelMapComponent GLuint_ where
+-- GLuint instance
+instance PixelMapComponent CUInt where
    getPixelMapv = glGetPixelMapuiv
    pixelMapv = glPixelMapuiv
 
-instance PixelMapComponent GLfloat_ where
+-- GLfloat instance
+instance PixelMapComponent CFloat where
    getPixelMapv = glGetPixelMapfv
    pixelMapv = glPixelMapfv
 
@@ -133,14 +125,7 @@ class PixelMap m where
 --------------------------------------------------------------------------------
 
 data GLpixelmap a = GLpixelmap Int (ForeignPtr a)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq (GLpixelmap a)
-instance Ord (GLpixelmap a)
-instance Show (GLpixelmap a)
-#else
    deriving ( Eq, Ord, Show )
-#endif
 
 instance PixelMap GLpixelmap where
    withNewPixelMap size f = do

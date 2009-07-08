@@ -32,8 +32,11 @@ module Graphics.Rendering.OpenGL.GLU.NURBS (
 
 import Control.Monad ( unless )
 import Foreign.Marshal.Array ( withArray )
-import Foreign.Ptr ( Ptr, nullPtr, castPtr, FunPtr, freeHaskellFunPtr )
+import Foreign.Ptr ( Ptr, nullPtr, castPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
+import Graphics.Rendering.GLU.Raw hiding (
+   NURBSBeginCallback, NURBSVertexCallback, NURBSNormalCallback,
+   NURBSColorCallback, NURBSEndCallback )
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Capability ( Capability, marshalCapability )
 import Graphics.Rendering.OpenGL.GL.ControlPoint
@@ -49,46 +52,13 @@ import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordOutOfMemory )
 
 --------------------------------------------------------------------------------
-
-data NURBSCallback =
-     Error
-   | Begin
-   | Vertex
-   | Normal
-   | Color
-   | TextureCoord
-   | End
-   | BeginData
-   | VertexData
-   | NormalData
-   | ColorData
-   | TextureCoordData
-   | EndData
-
-marshalNURBSCallback :: NURBSCallback -> GLenum
-marshalNURBSCallback x = case x of
-   Error -> 100103
-   Begin -> 100164
-   Vertex -> 100165
-   Normal -> 100166
-   Color -> 100167
-   TextureCoord -> 100168
-   End -> 100169
-   BeginData -> 100170
-   VertexData -> 100171
-   NormalData -> 100172
-   ColorData -> 100173
-   TextureCoordData -> 100174
-   EndData -> 100175
-
---------------------------------------------------------------------------------
 -- chapter 7.1: The NURBS Object
 
 -- an opaque pointer to a NURBS object
-newtype NURBSObj = NURBSObj (Ptr NURBSObj)
+type NURBSObj = Ptr GLUnurbs
 
 isNullNURBSObj :: NURBSObj -> Bool
-isNullNURBSObj (NURBSObj ptr) = ptr == nullPtr
+isNullNURBSObj = (nullPtr ==)
 
 withNURBSObj :: a -> (NURBSObj -> IO a) -> IO a
 withNURBSObj failureValue action =
@@ -98,95 +68,57 @@ withNURBSObj failureValue action =
                                     return failureValue
                             else action nurbsObj)
 
-foreign import CALLCONV safe "gluNewNurbsRenderer"
-   gluNewNurbsRenderer :: IO NURBSObj
-
 safeDeleteNurbsRenderer :: NURBSObj -> IO ()
 safeDeleteNurbsRenderer nurbsObj =
    unless (isNullNURBSObj nurbsObj) $ gluDeleteNurbsRenderer nurbsObj
-
-foreign import CALLCONV safe "gluDeleteNurbsRenderer"
-   gluDeleteNurbsRenderer :: NURBSObj -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (begin)
 
 type NURBSBeginCallback = PrimitiveMode -> IO ()
 
-type BeginCallback' = GLenum -> IO ()
-
 withNURBSBeginCallback :: NURBSObj -> NURBSBeginCallback -> IO a -> IO a
 withNURBSBeginCallback nurbsObj beginCallback action =
-   bracket (makeBeginCallback (beginCallback . unmarshalPrimitiveMode))
+   bracket (makeNURBSBeginCallback (beginCallback . unmarshalPrimitiveMode))
            freeHaskellFunPtr $ \callbackPtr -> do
-      setBeginCallback nurbsObj (marshalNURBSCallback Begin) callbackPtr
+      gluNurbsCallback nurbsObj glu_NURBS_BEGIN callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeBeginCallback ::
-   BeginCallback' -> IO (FunPtr BeginCallback')
-
-foreign import CALLCONV safe "gluNurbsCallback"
-   setBeginCallback :: NURBSObj -> GLenum -> FunPtr BeginCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (vertex)
 
 type NURBSVertexCallback = Vertex3 GLfloat -> IO ()
 
-type VertexCallback' = Ptr (Vertex3 GLfloat) -> IO ()
-
 withNURBSVertexCallback :: NURBSObj -> NURBSVertexCallback -> IO a -> IO a
 withNURBSVertexCallback nurbsObj vertexCallback action =
-   bracket (makeVertexCallback (\p -> peek p >>= vertexCallback))
+   bracket (makeNURBSVertexCallback (\p -> peek (castPtr p) >>= vertexCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      setVertexCallback nurbsObj (marshalNURBSCallback Vertex) callbackPtr
+      gluNurbsCallback nurbsObj glu_NURBS_VERTEX callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeVertexCallback ::
-   VertexCallback' -> IO (FunPtr VertexCallback')
-
-foreign import CALLCONV safe "gluNurbsCallback"
-   setVertexCallback :: NURBSObj -> GLenum -> FunPtr VertexCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (normal)
 
 type NURBSNormalCallback = Normal3 GLfloat -> IO ()
 
-type NormalCallback' = Ptr (Normal3 GLfloat) -> IO ()
-
 withNURBSNormalCallback :: NURBSObj -> NURBSNormalCallback -> IO a -> IO a
 withNURBSNormalCallback nurbsObj normalCallback action =
-   bracket (makeNormalCallback (\p -> peek p >>= normalCallback))
+   bracket (makeNURBSNormalCallback (\p -> peek (castPtr p) >>= normalCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      setNormalCallback nurbsObj (marshalNURBSCallback Normal) callbackPtr
+      gluNurbsCallback nurbsObj glu_NURBS_NORMAL callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeNormalCallback ::
-   NormalCallback' -> IO (FunPtr NormalCallback')
-
-foreign import CALLCONV safe "gluNurbsCallback"
-   setNormalCallback :: NURBSObj -> GLenum -> FunPtr NormalCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (color)
 
 type NURBSColorCallback = Color4 GLfloat -> IO ()
 
-type ColorCallback' = Ptr (Color4 GLfloat) -> IO ()
-
 withNURBSColorCallback :: NURBSObj -> NURBSColorCallback -> IO a -> IO a
 withNURBSColorCallback nurbsObj colorCallback action =
-   bracket (makeColorCallback (\p -> peek p >>= colorCallback))
+   bracket (makeNURBSColorCallback (\p -> peek (castPtr p) >>= colorCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      setColorCallback nurbsObj (marshalNURBSCallback Color) callbackPtr
+      gluNurbsCallback nurbsObj glu_NURBS_COLOR callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeColorCallback ::
-   ColorCallback' -> IO (FunPtr ColorCallback')
-
-foreign import CALLCONV safe "gluNurbsCallback"
-   setColorCallback :: NURBSObj -> GLenum -> FunPtr ColorCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (end)
@@ -195,16 +127,10 @@ type NURBSEndCallback = IO ()
 
 withNURBSEndCallback :: NURBSObj -> NURBSEndCallback -> IO a -> IO a
 withNURBSEndCallback nurbsObj endCallback action =
-   bracket (makeEndCallback endCallback)
+   bracket (makeNURBSEndCallback endCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
-      setEndCallback nurbsObj (marshalNURBSCallback End) callbackPtr
+      gluNurbsCallback nurbsObj glu_NURBS_END callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeEndCallback ::
-   NURBSEndCallback -> IO (FunPtr NURBSEndCallback)
-
-foreign import CALLCONV safe "gluNurbsCallback"
-   setEndCallback :: NURBSObj -> GLenum -> FunPtr NURBSEndCallback -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.2: Callbacks (error)
@@ -213,16 +139,10 @@ type ErrorCallback = GLenum -> IO ()
 
 withErrorCallback :: NURBSObj -> ErrorCallback -> IO a -> IO a
 withErrorCallback nurbsObj errorCallback action =
-   bracket (makeErrorCallback errorCallback)
+   bracket (makeNURBSErrorCallback errorCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
-      setErrorCallback nurbsObj (marshalNURBSCallback Error) callbackPtr
+      gluNurbsCallback nurbsObj glu_NURBS_ERROR callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeErrorCallback ::
-   ErrorCallback -> IO (FunPtr ErrorCallback)
-
-foreign import CALLCONV safe "gluNurbsCallback"
-   setErrorCallback :: NURBSObj -> GLenum -> FunPtr ErrorCallback -> IO ()
 
 checkForNURBSError :: NURBSObj -> IO a -> IO a
 checkForNURBSError nurbsObj = withErrorCallback nurbsObj recordErrorCode
@@ -234,8 +154,6 @@ nurbsBeginEndCurve :: NURBSObj -> IO a -> IO a
 nurbsBeginEndCurve nurbsObj =
    bracket_ (gluBeginCurve nurbsObj) (gluEndCurve nurbsObj)
 
-foreign import CALLCONV safe "gluBeginCurve"
-   gluBeginCurve :: NURBSObj -> IO ()
 
 nurbsCurve :: ControlPoint c => NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr (c GLfloat) -> GLint -> IO ()
 nurbsCurve nurbsObj knotCount knots stride control order =
@@ -244,12 +162,6 @@ nurbsCurve nurbsObj knotCount knots stride control order =
 pseudoPeek :: Ptr (c GLfloat) -> c GLfloat
 pseudoPeek _ = undefined
 
-foreign import CALLCONV safe "gluNurbsCurve"
-   gluNurbsCurve :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLenum -> IO ()
-
-foreign import CALLCONV safe "gluEndCurve"
-   gluEndCurve :: NURBSObj -> IO ()
-
 --------------------------------------------------------------------------------
 -- chapter 7.4: NURBS Surfaces
 
@@ -257,18 +169,10 @@ nurbsBeginEndSurface :: NURBSObj -> IO a -> IO a
 nurbsBeginEndSurface nurbsObj =
    bracket_ (gluBeginSurface nurbsObj) (gluEndSurface nurbsObj)
 
-foreign import CALLCONV safe "gluBeginSurface"
-   gluBeginSurface :: NURBSObj -> IO ()
 
 nurbsSurface :: ControlPoint c => NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLint -> Ptr (c GLfloat) -> GLint -> GLint -> IO ()
 nurbsSurface nurbsObj sKnotCount sKnots tKnotCount tKnots sStride tStride control sOrder tOrder =
    gluNurbsSurface nurbsObj sKnotCount sKnots tKnotCount tKnots sStride tStride (castPtr control) sOrder tOrder (map2Target (pseudoPeek control))
-
-foreign import CALLCONV safe "gluNurbsSurface"
-   gluNurbsSurface :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr GLfloat -> GLint -> GLint -> Ptr GLfloat -> GLint -> GLint -> GLenum -> IO ()
-
-foreign import CALLCONV safe "gluEndSurface"
-   gluEndSurface :: NURBSObj -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 7.5: Trimming
@@ -277,74 +181,22 @@ class TrimmingPoint p where
    trimmingTarget :: p GLfloat -> GLenum
 
 instance TrimmingPoint Vertex2 where
-   trimmingTarget = marshalNURBSTrim . const Map1Trim2
+   trimmingTarget = const glu_MAP1_TRIM_2
 
 instance TrimmingPoint Vertex3 where
-   trimmingTarget = marshalNURBSTrim . const Map1Trim3
-
-data NURBSTrim =
-     Map1Trim2
-   | Map1Trim3
-
-marshalNURBSTrim :: NURBSTrim -> GLenum
-marshalNURBSTrim x = case x of
-   Map1Trim2 -> 100210
-   Map1Trim3 -> 100211
+   trimmingTarget = const glu_MAP1_TRIM_3
 
 nurbsBeginEndTrim :: NURBSObj -> IO a -> IO a
 nurbsBeginEndTrim nurbsObj =
    bracket_ (gluBeginTrim nurbsObj) (gluEndTrim nurbsObj)
 
-foreign import CALLCONV safe "gluBeginTrim"
-   gluBeginTrim :: NURBSObj -> IO ()
-
 pwlCurve :: TrimmingPoint p => NURBSObj -> GLint -> Ptr (p GLfloat) -> GLint -> IO ()
 pwlCurve nurbsObj count points stride =
    gluPwlCurve nurbsObj count (castPtr points) stride (trimmingTarget (pseudoPeek points))
 
-foreign import CALLCONV safe "gluPwlCurve"
-   gluPwlCurve :: NURBSObj -> GLint -> Ptr GLfloat -> GLint -> GLenum -> IO ()
-
 trimmingCurve :: TrimmingPoint c => NURBSObj -> GLint -> Ptr GLfloat -> GLint -> Ptr (c GLfloat) -> GLint -> IO ()
 trimmingCurve nurbsObj knotCount knots stride control order =
    gluNurbsCurve nurbsObj knotCount knots stride (castPtr control) order (trimmingTarget (pseudoPeek control))
-
-foreign import CALLCONV safe "gluEndTrim"
-   gluEndTrim :: NURBSObj -> IO ()
-
---------------------------------------------------------------------------------
--- chapter 7.6: NURBS Properties
-
-data NURBSProperty =
-     AutoLoadMatrix
-   | Culling
-   | ParametricTolerance
-   | SamplingTolerance
-   | DisplayMode'
-   | SamplingMethod
-   | UStep
-   | VStep
-   | NURBSMode
-
-marshalNURBSProperty :: NURBSProperty -> GLenum
-marshalNURBSProperty x = case x of
-   AutoLoadMatrix -> 100200
-   Culling -> 100201
-   ParametricTolerance -> 100202
-   SamplingTolerance -> 100203
-   DisplayMode' -> 100204
-   SamplingMethod -> 100205
-   UStep -> 100206
-   VStep -> 100207
-   NURBSMode -> 100160
-
---------------------------------------------------------------------------------
-
-setNURBSProperty :: NURBSObj -> NURBSProperty -> GLfloat -> IO ()
-setNURBSProperty nurbsObj = gluNurbsProperty nurbsObj . marshalNURBSProperty
-
-foreign import CALLCONV safe "gluNurbsProperty"
-   gluNurbsProperty :: NURBSObj -> GLenum -> GLfloat -> IO ()
 
 --------------------------------------------------------------------------------
 
@@ -354,17 +206,17 @@ data NURBSMode =
    deriving ( Eq, Ord, Show )
 
 marshalNURBSMode :: NURBSMode -> GLfloat
-marshalNURBSMode x = case x of
-   NURBSTessellator -> 100161
-   NURBSRenderer -> 100162
+marshalNURBSMode x = fromIntegral $ case x of
+   NURBSTessellator -> glu_NURBS_TESSELLATOR
+   NURBSRenderer -> glu_NURBS_RENDERER
 
 setNURBSMode :: NURBSObj -> NURBSMode -> IO ()
-setNURBSMode nurbsObj = setNURBSProperty nurbsObj NURBSMode . marshalNURBSMode
+setNURBSMode nurbsObj = gluNurbsProperty nurbsObj glu_NURBS_MODE . marshalNURBSMode
 
 --------------------------------------------------------------------------------
 
 setNURBSCulling :: NURBSObj -> Capability -> IO ()
-setNURBSCulling nurbsObj = setNURBSProperty nurbsObj Culling . fromIntegral . marshalCapability
+setNURBSCulling nurbsObj = gluNurbsProperty nurbsObj glu_CULLING . fromIntegral . marshalCapability
 
 --------------------------------------------------------------------------------
 
@@ -376,15 +228,15 @@ data SamplingMethod' =
    | ObjectParametricError'
 
 marshalSamplingMethod' :: SamplingMethod' -> GLfloat
-marshalSamplingMethod' x = case x of
-   PathLength' -> 100215
-   ParametricError' -> 100216
-   DomainDistance' -> 100217
-   ObjectPathLength' -> 100209
-   ObjectParametricError' -> 100208
+marshalSamplingMethod' x = fromIntegral $ case x of
+   PathLength' -> glu_PATH_LENGTH
+   ParametricError' -> glu_PARAMETRIC_TOLERANCE
+   DomainDistance' -> glu_DOMAIN_DISTANCE
+   ObjectPathLength' -> glu_OBJECT_PATH_LENGTH
+   ObjectParametricError' -> glu_OBJECT_PARAMETRIC_ERROR
 
 setSamplingMethod' :: NURBSObj -> SamplingMethod' -> IO ()
-setSamplingMethod' nurbsObj = setNURBSProperty nurbsObj SamplingMethod . marshalSamplingMethod'
+setSamplingMethod' nurbsObj = gluNurbsProperty nurbsObj glu_SAMPLING_METHOD . marshalSamplingMethod'
 
 --------------------------------------------------------------------------------
 
@@ -399,26 +251,26 @@ data SamplingMethod =
 setSamplingMethod :: NURBSObj -> SamplingMethod -> IO ()
 setSamplingMethod nurbsObj x = case x of
    PathLength s -> do
-      setNURBSProperty nurbsObj SamplingTolerance s
+      gluNurbsProperty nurbsObj glu_SAMPLING_TOLERANCE s
       setSamplingMethod' nurbsObj PathLength'
    ParametricError p -> do
-      setNURBSProperty nurbsObj ParametricTolerance p
+      gluNurbsProperty nurbsObj glu_PARAMETRIC_TOLERANCE p
       setSamplingMethod' nurbsObj ParametricError'
    DomainDistance u v -> do
-      setNURBSProperty nurbsObj UStep u
-      setNURBSProperty nurbsObj VStep v
+      gluNurbsProperty nurbsObj glu_U_STEP u
+      gluNurbsProperty nurbsObj glu_V_STEP v
       setSamplingMethod' nurbsObj DomainDistance'
    ObjectPathLength s -> do
-      setNURBSProperty nurbsObj SamplingTolerance s
+      gluNurbsProperty nurbsObj glu_SAMPLING_TOLERANCE s
       setSamplingMethod' nurbsObj ObjectPathLength'
    ObjectParametricError p -> do
-      setNURBSProperty nurbsObj ParametricTolerance p
+      gluNurbsProperty nurbsObj glu_PARAMETRIC_TOLERANCE p
       setSamplingMethod' nurbsObj ObjectParametricError'
 
 --------------------------------------------------------------------------------
 
 setAutoLoadMatrix :: NURBSObj -> Bool -> IO ()
-setAutoLoadMatrix nurbsObj = setNURBSProperty nurbsObj AutoLoadMatrix . marshalGLboolean
+setAutoLoadMatrix nurbsObj = gluNurbsProperty nurbsObj glu_AUTO_LOAD_MATRIX . marshalGLboolean
 
 loadSamplingMatrices :: (Matrix m1, Matrix m2) => NURBSObj -> Maybe (m1 GLfloat, m2 GLfloat, (Position, Size)) -> IO ()
 loadSamplingMatrices nurbsObj =
@@ -443,9 +295,6 @@ withMatrixColumnMajor mat act =
                                             3, 7, 11, 15 ]
             withArray elems act
 
-foreign import CALLCONV safe "gluLoadSamplingMatrices"
-   gluLoadSamplingMatrices :: NURBSObj -> Ptr GLfloat -> Ptr GLfloat -> Ptr GLint -> IO ()
-
 --------------------------------------------------------------------------------
 
 data DisplayMode' =
@@ -455,10 +304,10 @@ data DisplayMode' =
    deriving ( Eq, Ord, Show )
 
 marshalDisplayMode' :: DisplayMode' -> GLfloat
-marshalDisplayMode' x = case x of
-   Fill' -> 100012
-   OutlinePolygon -> 100240
-   OutlinePatch -> 100241
+marshalDisplayMode' x = fromIntegral $ case x of
+   Fill' -> glu_FILL
+   OutlinePolygon -> glu_OUTLINE_POLYGON
+   OutlinePatch -> glu_OUTLINE_PATCH
 
 setDisplayMode' :: NURBSObj -> DisplayMode' -> IO ()
-setDisplayMode' nurbsObj = setNURBSProperty nurbsObj DisplayMode' . marshalDisplayMode'
+setDisplayMode' nurbsObj = gluNurbsProperty nurbsObj glu_DISPLAY_MODE . marshalDisplayMode'

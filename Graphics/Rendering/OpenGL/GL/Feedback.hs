@@ -17,20 +17,17 @@ module Graphics.Rendering.OpenGL.GL.Feedback (
    getFeedbackTokens, PassThroughValue(..), passThrough
 ) where
 
-import Control.Monad ( liftM2, liftM3, liftM4 )
-import Foreign.Marshal.Array ( allocaArray )
-import Foreign.Ptr ( Ptr, plusPtr )
-import Foreign.Storable ( Storable(sizeOf) )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Control.Monad
+import Data.StateVar
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.IOState
+import Graphics.Rendering.OpenGL.GL.RenderMode
+import Graphics.Rendering.OpenGL.GL.Selection
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.IOState (
-   IOState, getIOState, peekIOState, evalIOState, nTimes )
-import Graphics.Rendering.OpenGL.GL.RenderMode ( withRenderMode )
-import Graphics.Rendering.OpenGL.GL.Selection ( RenderMode(Feedback) )
-import Graphics.Rendering.OpenGL.GL.StateVar ( HasGetter(get) )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Vertex2(..), Vertex3(..), Vertex4(..), Index1(..), Color4(..),
-   TexCoord4(..), rgbaMode )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

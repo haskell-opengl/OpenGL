@@ -35,37 +35,23 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    maxFragmentUniformComponents, maxVertexAttribs, maxVaryingFloats
 ) where
 
-import Control.Monad ( replicateM, mapM_, foldM )
-import Control.Monad.Fix ( MonadFix(..) )
-import Data.List ( genericLength, (\\) )
-import Foreign.C.String ( peekCAStringLen, withCAStringLen, withCAString )
+import Control.Monad
+import Control.Monad.Fix
+import Data.List
+import Data.StateVar
+import Foreign.C.String
 import Foreign.C.Types
-import Foreign.Marshal.Alloc ( alloca, allocaBytes )
-import Foreign.Marshal.Array ( allocaArray, withArray, peekArray )
-import Foreign.Marshal.Utils ( withMany )
-import Foreign.Ptr ( Ptr, castPtr, nullPtr )
-import Foreign.Storable ( Storable(peek,sizeOf) )
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.BufferObjects
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxCombinedTextureImageUnits, GetMaxFragmentUniformComponents,
-            GetMaxTextureCoords, GetMaxTextureImageUnits,GetMaxVaryingFloats,
-            GetMaxVertexAttribs, GetMaxVertexTextureImageUnits,
-            GetMaxVertexUniformComponents, GetCurrentProgram),
-   getInteger1, getSizei1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), GettableStateVar, makeGettableStateVar, StateVar,
-   makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   AttribLocation(..), Vertex2(..), Vertex3(..), Vertex4(..), TexCoord1(..),
-   TexCoord2(..), TexCoord3(..), TexCoord4(..), Normal3(..), FogCoord1(..),
-   Color3(..), Color4(..), Index1(..) )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLTypes.h"
 
 --------------------------------------------------------------------------------
 
@@ -534,7 +520,8 @@ class Storable a => UniformComponent a where
    uniform3v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
    uniform4v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
 
-instance UniformComponent GLint_ where
+-- GLint instance
+instance UniformComponent CInt where
    uniform1 (UniformLocation ul) = glUniform1i ul
    uniform2 (UniformLocation ul) = glUniform2i ul
    uniform3 (UniformLocation ul) = glUniform3i ul
@@ -547,7 +534,8 @@ instance UniformComponent GLint_ where
    uniform3v (UniformLocation ul) = glUniform3iv ul
    uniform4v (UniformLocation ul) = glUniform4iv ul
 
-instance UniformComponent GLuint_ where
+-- GLuint instance
+instance UniformComponent CUInt where
    uniform1 (UniformLocation ul) = glUniform1ui ul
    uniform2 (UniformLocation ul) = glUniform2ui ul
    uniform3 (UniformLocation ul) = glUniform3ui ul
@@ -560,7 +548,8 @@ instance UniformComponent GLuint_ where
    uniform3v (UniformLocation ul) = glUniform3uiv ul
    uniform4v (UniformLocation ul) = glUniform4uiv ul
 
-instance UniformComponent GLfloat_ where
+-- GLfloat instance
+instance UniformComponent CFloat where
    uniform1 (UniformLocation ul) = glUniform1f ul
    uniform2 (UniformLocation ul) = glUniform2f ul
    uniform3 (UniformLocation ul) = glUniform3f ul

@@ -20,7 +20,8 @@ module Graphics.Rendering.OpenGL.GLU.Quadrics (
 ) where
 
 import Control.Monad ( unless )
-import Foreign.Ptr ( Ptr, nullPtr, FunPtr, freeHaskellFunPtr )
+import Foreign.Ptr ( Ptr, nullPtr, freeHaskellFunPtr )
+import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
@@ -39,29 +40,19 @@ data QuadricDrawStyle =
 
 marshalQuadricDrawStyle :: QuadricDrawStyle -> GLenum
 marshalQuadricDrawStyle x = case x of
-   PointStyle -> 0x186aa
-   LineStyle -> 0x186ab
-   FillStyle -> 0x186ac
-   SilhouetteStyle -> 0x186ad
-
---------------------------------------------------------------------------------
-
-data QuadricCallback =
-     Error'2
-   deriving ( Eq, Ord, Show )
-
-marshalQuadricCallback :: QuadricCallback -> GLenum
-marshalQuadricCallback x = case x of
-   Error'2 -> 0x18707
+   PointStyle -> glu_POINT
+   LineStyle -> glu_LINE
+   FillStyle -> glu_FILL
+   SilhouetteStyle -> glu_SILHOUETTE
 
 --------------------------------------------------------------------------------
 
 type QuadricNormal = Maybe ShadingModel
 
 marshalQuadricNormal :: QuadricNormal -> GLenum
-marshalQuadricNormal (Just Smooth) = 0x186a0
-marshalQuadricNormal (Just Flat  ) = 0x186a1
-marshalQuadricNormal Nothing       = 0x186a2
+marshalQuadricNormal (Just Smooth) = glu_SMOOTH
+marshalQuadricNormal (Just Flat  ) = glu_FLAT
+marshalQuadricNormal Nothing       = glu_NONE
 
 --------------------------------------------------------------------------------
 
@@ -72,8 +63,8 @@ data QuadricOrientation =
 
 marshalQuadricOrientation :: QuadricOrientation -> GLenum
 marshalQuadricOrientation x = case x of
-   Outside -> 0x186b4
-   Inside -> 0x186b5
+   Outside -> glu_OUTSIDE
+   Inside -> glu_INSIDE
 
 --------------------------------------------------------------------------------
 
@@ -129,10 +120,14 @@ withQuadricObj failure success =
                               then failure
                               else success quadricObj)
 
-withErrorCallback :: QuadricObj -> QuadricCallback' -> IO a -> IO a
+safeDeleteQuadric :: QuadricObj -> IO ()
+safeDeleteQuadric quadricObj =
+   unless (isNullQuadricObj quadricObj) $ gluDeleteQuadric quadricObj
+
+withErrorCallback :: QuadricObj -> QuadricCallback -> IO a -> IO a
 withErrorCallback quadricObj callback action =
    bracket (makeQuadricCallback callback) freeHaskellFunPtr $ \callbackPtr -> do
-      gluQuadricCallback quadricObj (marshalQuadricCallback Error'2) callbackPtr
+      gluQuadricCallback quadricObj glu_ERROR callbackPtr
       action
 
 setStyle :: QuadricObj -> QuadricStyle -> IO ()
@@ -154,58 +149,7 @@ renderPrimitive quadricObj (PartialDisk i o s l a w) =
 
 --------------------------------------------------------------------------------
 
--- 'Char' is a fake here, any marshalable type would do
-newtype QuadricObj = QuadricObj (Ptr Char)
-   deriving ( Eq )
+type QuadricObj = Ptr GLUquadric
 
 isNullQuadricObj :: QuadricObj -> Bool
-isNullQuadricObj = (QuadricObj nullPtr ==)
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "gluNewQuadric" gluNewQuadric :: IO QuadricObj
-
-safeDeleteQuadric :: QuadricObj -> IO ()
-safeDeleteQuadric quadricObj =
-   unless (isNullQuadricObj quadricObj) $ gluDeleteQuadric quadricObj
-
-foreign import CALLCONV unsafe "gluDeleteQuadric" gluDeleteQuadric ::
-   QuadricObj -> IO ()
-
---------------------------------------------------------------------------------
-
-type QuadricCallback' = GLenum -> IO ()
-
-foreign import CALLCONV "wrapper" makeQuadricCallback ::
-   QuadricCallback' -> IO (FunPtr QuadricCallback')
-
-foreign import CALLCONV unsafe "gluQuadricCallback" gluQuadricCallback ::
-   QuadricObj -> GLenum -> FunPtr QuadricCallback' -> IO ()
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV unsafe "gluQuadricNormals" gluQuadricNormals ::
-   QuadricObj -> GLenum -> IO ()
-
-foreign import CALLCONV unsafe "gluQuadricTexture" gluQuadricTexture ::
-   QuadricObj -> GLboolean -> IO ()
-
-foreign import CALLCONV unsafe "gluQuadricOrientation" gluQuadricOrientation ::
-   QuadricObj -> GLenum -> IO ()
-
-foreign import CALLCONV unsafe "gluQuadricDrawStyle" gluQuadricDrawStyle ::
-   QuadricObj -> GLenum -> IO ()
-
---------------------------------------------------------------------------------
-
-foreign import CALLCONV safe "gluSphere" gluSphere ::
-   QuadricObj -> Radius -> Slices -> Stacks -> IO ()
-
-foreign import CALLCONV safe "gluCylinder" gluCylinder ::
-  QuadricObj -> Radius -> Radius -> Height -> Slices -> Stacks -> IO ()
-
-foreign import CALLCONV safe "gluDisk" gluDisk ::
-   QuadricObj -> Radius -> Radius -> Slices -> Loops -> IO ()
-
-foreign import CALLCONV safe "gluPartialDisk" gluPartialDisk ::
-   QuadricObj -> Radius -> Radius -> Slices -> Loops -> Angle -> Angle -> IO ()
+isNullQuadricObj = (nullPtr ==)

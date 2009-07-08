@@ -23,21 +23,13 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
    edgeFlag
 ) where
 
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.EdgeFlag
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.EdgeFlag (
-   EdgeFlag(..), marshalEdgeFlag, unmarshalEdgeFlag )
-import Graphics.Rendering.OpenGL.GL.Exception ( bracket_, unsafeBracket_ )
-import Graphics.Rendering.OpenGL.GL.Extensions (
-   FunPtr, unsafePerformIO, Invoker, getProcAddress )
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode (
-   PrimitiveMode(..), marshalPrimitiveMode )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   getBoolean1, GetPName(GetEdgeFlag) )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
+import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
 
 --------------------------------------------------------------------------------
 
@@ -113,9 +105,7 @@ renderPrim brack_ beginMode =
 --------------------------------------------------------------------------------
 
 primitiveRestart :: IO ()
-primitiveRestart = glPrimitiveRestartNV
-
-EXTENSION_ENTRY("GL_NV_primitive_restart",glPrimitiveRestartNV,IO ())
+primitiveRestart = glPrimitiveRestart
 
 --------------------------------------------------------------------------------
 

@@ -35,6 +35,7 @@ import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Ptr ( Ptr, nullPtr )
 import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.NV
 import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
@@ -391,6 +392,8 @@ data GetPName =
    | GetFogDistanceMode
    | GetDepthBounds
    | GetPrimitiveRestartIndex
+   | GetPrimitiveRestartNV
+   | GetPrimitiveRestartIndexNV
    | GetActiveStencilFace
    | GetArrayBufferBinding
    | GetElementArrayBufferBinding
@@ -775,7 +778,9 @@ marshalGetPName x = case x of
    GetMaxSpotExponent -> Just 0x8505
    GetFogDistanceMode -> Just 0x855a
    GetDepthBounds -> Just 0x8891
-   GetPrimitiveRestartIndex -> Just 0x8559
+   GetPrimitiveRestartIndex -> Just gl_PRIMITIVE_RESTART_INDEX
+   GetPrimitiveRestartNV -> Just gl_PRIMITIVE_RESTART_NV
+   GetPrimitiveRestartIndexNV -> Just gl_PRIMITIVE_RESTART_INDEX_NV
    GetActiveStencilFace -> Just 0x8911
    GetArrayBufferBinding -> Just 0x8894
    GetElementArrayBufferBinding -> Just 0x8895

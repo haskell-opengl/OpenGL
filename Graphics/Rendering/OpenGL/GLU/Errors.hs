@@ -18,10 +18,8 @@ module Graphics.Rendering.OpenGL.GLU.Errors (
    Error(..), ErrorCategory(..), errors
 ) where
 
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   Error(..), ErrorCategory(..), getErrors )
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 
 --------------------------------------------------------------------------------
 

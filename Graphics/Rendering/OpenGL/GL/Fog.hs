@@ -20,19 +20,14 @@ module Graphics.Rendering.OpenGL.GL.Fog (
    FogDistanceMode(..), fogDistanceMode
 ) where
 
-import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr, castPtr )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability , EnableCap(CapFog), makeCapability )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetFogIndex,GetFogDensity,GetFogStart,GetFogEnd,GetFogMode,
-   GetFogColor,GetFogCoordSrc,GetFogDistanceMode),
-   getInteger1, getFloat1, getFloat4 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Color4(Color4), Index1(Index1) )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

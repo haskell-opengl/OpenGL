@@ -21,23 +21,20 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Environments (
    constantColor, textureUnitLODBias
 ) where
 
-import Control.Monad ( liftM2 )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Ptr ( Ptr, castPtr )
-import Foreign.Storable ( Storable )
-import Foreign.Marshal.Utils ( with )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Control.Monad
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.BlendingFactor
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PerFragment
+import Graphics.Rendering.OpenGL.GL.Texturing.Parameters
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.BlendingFactor (
-   marshalBlendingFactor, unmarshalBlendingFactor )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.PerFragment ( BlendingFactor )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)), StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.Parameters ( LOD )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
-   marshalTextureUnit, unmarshalTextureUnit )
-import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..), TextureUnit )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

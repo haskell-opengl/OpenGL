@@ -17,26 +17,17 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Minmax (
    minmax, getMinmax, resetMinmax
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapMinmax), makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
-   PixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
-    PixelData(..) )
-import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
-import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   marshalPixelInternalFormat', unmarshalPixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram (
-   Reset(..), Sink )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset (
-   marshalReset )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
-   marshalSink, unmarshalSink )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

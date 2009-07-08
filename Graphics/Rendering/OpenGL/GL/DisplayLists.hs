@@ -25,20 +25,17 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
    genLists, deleteLists, isList,
 ) where
 
-import Foreign.Ptr ( Ptr )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.BufferObjects
+import Graphics.Rendering.OpenGL.GL.DataType
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexArrays
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.DataType ( marshalDataType )
-import Graphics.Rendering.OpenGL.GL.VertexArrays ( DataType )
-import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetListIndex,GetListMode,GetMaxListNesting,GetListBase),
-   getEnum1, getSizei1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordOutOfMemory )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

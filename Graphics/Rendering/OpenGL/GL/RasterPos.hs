@@ -21,28 +21,15 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
    rasterPositionUnclipped
 ) where
 
+import Data.StateVar
 import Foreign.C.Types
-import Foreign.Ptr ( Ptr, castPtr )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapRasterPositionUnclipped), makeCapability )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetCurrentRasterPosition,GetCurrentRasterDistance,
-            GetCurrentRasterColor,GetCurrentRasterSecondaryColor,
-            GetCurrentRasterIndex,GetCurrentRasterTextureCoords,
-            GetCurrentRasterPositionValid),
-   getBoolean1, getInteger1, getFloat1, getFloat4 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Vertex2(..), Vertex3(..), Vertex4(..), TexCoord4(..),
-   Color4(..), Index1(..) )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLTypes.h"
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
@@ -61,7 +48,8 @@ class RasterPosComponent a where
    rasterPos3v :: Ptr a -> IO ()
    rasterPos4v :: Ptr a -> IO ()
 
-instance RasterPosComponent GLshort_ where
+-- GLshort instance
+instance RasterPosComponent CShort where
    rasterPos2 = glRasterPos2s
    rasterPos3 = glRasterPos3s
    rasterPos4 = glRasterPos4s
@@ -70,7 +58,8 @@ instance RasterPosComponent GLshort_ where
    rasterPos3v = glRasterPos3sv
    rasterPos4v = glRasterPos4sv
 
-instance RasterPosComponent GLint_ where
+-- GLint instance
+instance RasterPosComponent CInt where
    rasterPos2 = glRasterPos2i
    rasterPos3 = glRasterPos3i
    rasterPos4 = glRasterPos4i
@@ -79,7 +68,8 @@ instance RasterPosComponent GLint_ where
    rasterPos3v = glRasterPos3iv
    rasterPos4v = glRasterPos4iv
 
-instance RasterPosComponent GLfloat_ where
+-- GLfloat instance
+instance RasterPosComponent CFloat where
    rasterPos2 = glRasterPos2f
    rasterPos3 = glRasterPos3f
    rasterPos4 = glRasterPos4f
@@ -88,7 +78,8 @@ instance RasterPosComponent GLfloat_ where
    rasterPos3v = glRasterPos3fv
    rasterPos4v = glRasterPos4fv
 
-instance RasterPosComponent GLdouble_ where
+-- GLdouble instance
+instance RasterPosComponent CDouble where
    rasterPos2 = glRasterPos2d
    rasterPos3 = glRasterPos3d
    rasterPos4 = glRasterPos4d
@@ -124,28 +115,32 @@ class WindowPosComponent a where
    windowPos2v :: Ptr a -> IO ()
    windowPos3v :: Ptr a -> IO ()
 
-instance WindowPosComponent GLshort_ where
+-- GLshort instance
+instance WindowPosComponent CShort where
    windowPos2 = glWindowPos2s
    windowPos3 = glWindowPos3s
 
    windowPos2v = glWindowPos2sv
    windowPos3v = glWindowPos3sv
 
-instance WindowPosComponent GLint_ where
+-- GLint instance
+instance WindowPosComponent CInt where
    windowPos2 = glWindowPos2i
    windowPos3 = glWindowPos3i
 
    windowPos2v = glWindowPos2iv
    windowPos3v = glWindowPos3iv
 
-instance WindowPosComponent GLfloat_ where
+-- GLfloat instance
+instance WindowPosComponent CFloat where
    windowPos2 = glWindowPos2f
    windowPos3 = glWindowPos3f
 
    windowPos2v = glWindowPos2fv
    windowPos3v = glWindowPos3fv
 
-instance WindowPosComponent GLdouble_ where
+-- GLdouble instance
+instance WindowPosComponent CDouble where
    windowPos2 = glWindowPos2d
    windowPos3 = glWindowPos3d
 

@@ -50,47 +50,25 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    LogicOp(..), logicOp
 ) where
 
-import Control.Monad ( liftM2, liftM3 )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
-import Graphics.Rendering.OpenGL.GL.BufferObjects ( ObjectName(..) )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapScissorTest,CapSampleAlphaToCoverage,CapSampleAlphaToOne,
-             CapSampleCoverage,CapDepthBoundsTest,CapAlphaTest,CapStencilTest,
-             CapStencilTestTwoSide,CapDepthTest,CapBlend,CapDither,
-             CapIndexLogicOp,CapColorLogicOp),
-   Capability, makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Control.Monad
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Graphics.Rendering.OpenGL.GL.BlendingFactor
+import Graphics.Rendering.OpenGL.GL.BufferObjects
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.ComparisonFunction
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.Face
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest
 import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide
-import Graphics.Rendering.OpenGL.GL.BlendingFactor (
-   BlendingFactor(..), marshalBlendingFactor, unmarshalBlendingFactor )
-import Graphics.Rendering.OpenGL.GL.ComparisonFunction ( ComparisonFunction(..),
-   marshalComparisonFunction, unmarshalComparisonFunction )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
-import Graphics.Rendering.OpenGL.GL.Face ( marshalFace, unmarshalFace )
-import Graphics.Rendering.OpenGL.GL.Colors ( Face )
-import Graphics.Rendering.OpenGL.GL.GLboolean (
-   marshalGLboolean, unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetScissorBox,GetSampleCoverageValue,GetSampleCoverageInvert,
-            GetDepthBounds,GetAlphaTestFunc,GetAlphaTestRef,GetStencilFunc,
-            GetStencilRef,GetStencilValueMask,GetStencilFail,
-            GetStencilPassDepthFail,GetStencilPassDepthPass,
-            GetActiveStencilFace,GetDepthFunc,GetBlendEquation,
-            GetBlendEquationAlpha,GetBlendDstRGB,GetBlendSrcRGB,
-            GetBlendDstAlpha,GetBlendSrcAlpha,GetBlendSrc,GetBlendDst,
-            GetBlendColor,GetLogicOpMode),
-   getInteger1, getInteger4, getEnum1, getFloat1, getFloat4, getDouble2,
-   getBoolean1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), GettableStateVar, makeGettableStateVar,
-   SettableStateVar, makeSettableStateVar,
-   StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..), rgbaMode )
 
 --------------------------------------------------------------------------------
 

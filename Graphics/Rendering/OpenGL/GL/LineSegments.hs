@@ -27,18 +27,12 @@ module Graphics.Rendering.OpenGL.GL.LineSegments (
    aliasedLineWidthRange, smoothLineWidthRange, smoothLineWidthGranularity
 ) where
 
-import Control.Monad ( liftM2 )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapLineSmooth,CapLineStipple), makeCapability, makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Control.Monad
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetLineWidth,GetAliasedLineWidthRange,GetSmoothLineWidthRange,
-            GetSmoothLineWidthGranularity,GetLineStippleRepeat,
-            GetLineStipplePattern),
-   getInteger1, getFloat1, getFloat2 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

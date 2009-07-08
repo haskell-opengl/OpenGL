@@ -21,78 +21,13 @@ module Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordInvalidEnum, recordInvalidValue, recordOutOfMemory
 ) where
 
-import Foreign.Ptr ( Ptr, castPtr )
+import Foreign.Ptr ( castPtr )
 import Foreign.C.String ( peekCString )
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
 import System.IO.Unsafe ( unsafePerformIO )
+import Graphics.Rendering.GLU.Raw
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.Raw.Core31
-
---------------------------------------------------------------------------------
--- Alas, GL and GLU define error enumerants with the same names, so we have to
--- rename these to avoid name clashes. Ugly, ugly, ugly...
-
-data GL_ErrorCode =
-     GL_NoError
-   | GL_InvalidEnum
-   | GL_InvalidValue
-   | GL_InvalidOperation
-   | GL_InvalidFramebufferOperation
-   | GL_OutOfMemory
-   | GL_StackOverflow
-   | GL_StackUnderflow
-   | GL_TableTooLarge
-
-gl_marshalErrorCode :: GL_ErrorCode -> GLenum
-gl_marshalErrorCode x = case x of
-   GL_NoError -> 0x0
-   GL_InvalidEnum -> 0x500
-   GL_InvalidValue -> 0x501
-   GL_InvalidOperation -> 0x502
-   GL_InvalidFramebufferOperation -> 0x0506
-   GL_OutOfMemory -> 0x505
-   GL_StackOverflow -> 0x503
-   GL_StackUnderflow -> 0x504
-   GL_TableTooLarge -> 0x8031
-
---------------------------------------------------------------------------------
--- See comment above
-
-data GLU_ErrorCode =
-     GLU_InvalidEnum
-   | GLU_InvalidValue
-   | GLU_OutOfMemory
-   | GLU_InvalidOperation
-
-glu_marshalErrorCode :: GLU_ErrorCode -> GLenum
-glu_marshalErrorCode x = case x of
-   GLU_InvalidEnum -> 0x18a24
-   GLU_InvalidValue -> 0x18a25
-   GLU_OutOfMemory -> 0x18a26
-   GLU_InvalidOperation -> 0x18a28
-
---------------------------------------------------------------------------------
-
--- only the errors with the smallest and the largsest enum value
-data NurbsError =
-     NurbsError1
-   | NurbsError37
-
-marshalNurbsError :: NurbsError -> GLenum
-marshalNurbsError x = case x of
-   NurbsError1 -> 0x1879b
-   NurbsError37 -> 0x187bf
-
---------------------------------------------------------------------------------
-
--- only the errors with the smallest and the largsest enum value
-data TessError =
-     TessError1
-   | TessError8
-
-marshalTessError :: TessError -> GLenum
-marshalTessError x = case x of
-   TessError1 -> 0x18737
-   TessError8 -> 0x1873e
 
 --------------------------------------------------------------------------------
 
@@ -134,50 +69,34 @@ unmarshalErrorCategory c
    | otherwise = error "unmarshalErrorCategory"
 
 isInvalidEnum :: GLenum -> Bool
-isInvalidEnum c =
-   c == gl_marshalErrorCode  GL_InvalidEnum ||
-   c == glu_marshalErrorCode GLU_InvalidEnum
+isInvalidEnum c = c == gl_INVALID_ENUM || c == glu_INVALID_ENUM
 
 isInvalidValue :: GLenum -> Bool
-isInvalidValue c =
-   c == gl_marshalErrorCode  GL_InvalidValue ||
-   c == glu_marshalErrorCode GLU_InvalidValue
+isInvalidValue c = c == gl_INVALID_VALUE || c == glu_INVALID_VALUE
 
 isInvalidOperation :: GLenum -> Bool
-isInvalidOperation c =
-   c == gl_marshalErrorCode  GL_InvalidOperation ||
-   c == glu_marshalErrorCode GLU_InvalidOperation
+isInvalidOperation c = c == gl_INVALID_OPERATION || c == glu_INVALID_OPERATION
 
 isInvalidFramebufferOperation :: GLenum -> Bool
-isInvalidFramebufferOperation c =
-   c == gl_marshalErrorCode GL_InvalidFramebufferOperation
+isInvalidFramebufferOperation c = c == gl_INVALID_FRAMEBUFFER_OPERATION
 
 isOutOfMemory :: GLenum -> Bool
-isOutOfMemory c =
-   c == gl_marshalErrorCode  GL_OutOfMemory ||
-   c == glu_marshalErrorCode GLU_OutOfMemory
+isOutOfMemory c = c == gl_OUT_OF_MEMORY || c == glu_OUT_OF_MEMORY
 
 isStackOverflow :: GLenum -> Bool
-isStackOverflow c =
-   c == gl_marshalErrorCode GL_StackOverflow
+isStackOverflow c = c == gl_STACK_OVERFLOW
 
 isStackUnderflow :: GLenum -> Bool
-isStackUnderflow c =
-   c == gl_marshalErrorCode GL_StackUnderflow
+isStackUnderflow c = c == gl_STACK_UNDERFLOW
 
 isTableTooLarge :: GLenum -> Bool
-isTableTooLarge c =
-   c == gl_marshalErrorCode GL_TableTooLarge
+isTableTooLarge c = c == gl_TABLE_TOO_LARGE
 
 isTesselatorError :: GLenum -> Bool
-isTesselatorError c =
-   marshalTessError TessError1 <= c &&
-   c <= marshalTessError TessError8
+isTesselatorError c = glu_TESS_ERROR1 <= c && c <= glu_TESS_ERROR8
 
 isNURBSError :: GLenum -> Bool
-isNURBSError c =
-   marshalNurbsError NurbsError1 <= c &&
-   c <= marshalNurbsError NurbsError37
+isNURBSError c = glu_NURBS_ERROR1 <= c && c <= glu_NURBS_ERROR37
 
 --------------------------------------------------------------------------------
 
@@ -190,9 +109,6 @@ makeError e = do
    ptr <- gluErrorString e
    description <- peekCString (castPtr ptr)
    return $ Error category description
-
-foreign import CALLCONV unsafe "gluErrorString" gluErrorString ::
-   GLenum -> IO (Ptr GLubyte)
 
 --------------------------------------------------------------------------------
 
@@ -221,7 +137,7 @@ getGLErrors = getGLErrorsAux []
                else return $ reverse acc
 
 isError :: GLenum -> Bool
-isError = (/= gl_marshalErrorCode GL_NoError)
+isError = (/= gl_NO_ERROR)
 
 --------------------------------------------------------------------------------
 
@@ -236,13 +152,13 @@ recordErrorCode e = do
    return ()
 
 recordInvalidEnum :: IO ()
-recordInvalidEnum = recordErrorCode (gl_marshalErrorCode GL_InvalidEnum)
+recordInvalidEnum = recordErrorCode gl_INVALID_ENUM
 
 recordInvalidValue :: IO ()
-recordInvalidValue = recordErrorCode (gl_marshalErrorCode GL_InvalidValue)
+recordInvalidValue = recordErrorCode gl_INVALID_VALUE
 
 recordOutOfMemory :: IO ()
-recordOutOfMemory = recordErrorCode (glu_marshalErrorCode GLU_OutOfMemory)
+recordOutOfMemory = recordErrorCode gl_OUT_OF_MEMORY
 
 -- ToDo: Make this thread-safe
 getErrorCodesAux :: ([GLenum] -> ([GLenum],Bool)) -> IO [GLenum]

@@ -39,35 +39,21 @@ module Graphics.Rendering.OpenGL.GL.Colors (
    ShadingModel(..), shadeModel
 ) where
 
-import Control.Monad ( liftM2, liftM3 )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( allocaArray, withArray )
-import Foreign.Marshal.Utils ( with )
-import Foreign.Ptr ( Ptr, castPtr )
-import Foreign.Storable ( Storable(peek) )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, marshalCapability, unmarshalCapability,
-   EnableCap(CapVertexProgramTwoSide,CapLighting,CapColorMaterial,CapLight),
-   makeCapability,
-   makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Control.Monad
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Foreign.Marshal.Utils
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.Face
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.Face (
-   Face(..), marshalFace, unmarshalFace )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek3 )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxLights, GetFrontFace,GetShadeModel,
-            GetLightModelAmbient, GetLightModelLocalViewer,
-            GetLightModelTwoSide, GetLightModelColorControl,
-            GetColorMaterialFace,GetColorMaterialParameter,
-            GetMaxShininess,GetMaxSpotExponent),
-   getBoolean1, getEnum1, getSizei1, getFloat1, getFloat4, lightIndexToEnum )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), HasSetter(($=)),
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Color4(..), Normal3(..), Vertex4(..), Index1(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

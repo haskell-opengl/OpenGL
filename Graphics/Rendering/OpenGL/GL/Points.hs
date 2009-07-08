@@ -32,21 +32,13 @@ module Graphics.Rendering.OpenGL.GL.Points (
    aliasedPointSizeRange, smoothPointSizeRange, smoothPointSizeGranularity
 ) where
 
-import Control.Monad ( liftM2 )
-import Foreign.Marshal.Array ( withArray )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapVertexProgramPointSize,CapPointSmooth,CapPointSprite),
-   Capability, makeCapability )
+import Control.Monad
+import Data.StateVar
+import Foreign.Marshal.Array
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.PointParameter
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetPointSize,GetAliasedPointSizeRange,GetSmoothPointSizeRange,
-            GetSmoothPointSizeGranularity,GetPointSizeMin,GetPointSizeMax,
-            GetPointDistanceAttenuation,GetPointFadeThresholdSize),
-   getFloat1, getFloat2, getFloat3 )
-import Graphics.Rendering.OpenGL.GL.PointParameter (
-   PointParameter(..), pointParameterf, pointParameterfv )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 

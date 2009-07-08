@@ -43,34 +43,24 @@ module Graphics.Rendering.OpenGL.GL.Evaluators (
    autoNormal
 ) where
 
-import Control.Monad ( zipWithM_ )
-import Data.List ( genericLength )
-import Foreign.ForeignPtr ( ForeignPtr, mallocForeignPtrArray, withForeignPtr )
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( allocaArray )
-import Foreign.Ptr ( Ptr, plusPtr )
-import Foreign.Storable ( Storable(peek,sizeOf) )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapAutoNormal), makeCapability, makeStateVarMaybe )
+import Control.Monad
+import Data.List
+import Data.StateVar
+import Foreign.ForeignPtr
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.Domain
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PolygonMode
+import Graphics.Rendering.OpenGL.GL.Polygons
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek2, peek4 )
-import Graphics.Rendering.OpenGL.GL.PolygonMode ( marshalPolygonMode )
-import Graphics.Rendering.OpenGL.GL.Polygons ( PolygonMode )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetMaxEvalOrder,
-            GetMap1GridSegments,GetMap1GridDomain,
-            GetMap2GridSegments,GetMap2GridDomain),
-   getSizei1, getInteger1, getInteger2 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexArrays ( NumComponents, Stride )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLTypes.h"
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
@@ -177,14 +167,7 @@ class Map1 m where
 
 data (ControlPoint c, Domain d) => GLmap1 c d =
    GLmap1 (MapDescriptor d) (ForeignPtr d)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq d => Eq (GLmap1 c d)
-instance Ord d => Ord (GLmap1 c d)
-instance Show d => Show (GLmap1 c d)
-#else
    deriving ( Eq, Ord, Show )
-#endif
 
 instance Map1 GLmap1 where
    withNewMap1 descriptor act = do
@@ -284,14 +267,7 @@ class Map2 m where
 
 data (ControlPoint c, Domain d) => GLmap2 c d =
    GLmap2 (MapDescriptor d)  (MapDescriptor d) (ForeignPtr d)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq d => Eq (GLmap2 c d)
-instance Ord d => Ord (GLmap2 c d)
-instance Show d => Show (GLmap2 c d)
-#else
    deriving ( Eq, Ord, Show )
-#endif
 
 instance Map2 GLmap2 where
    withNewMap2 uDescriptor vDescriptor act = do

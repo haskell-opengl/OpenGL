@@ -41,8 +41,9 @@ import Data.Maybe ( fromJust )
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
-import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, FunPtr, freeHaskellFunPtr )
+import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
+import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
@@ -58,60 +59,6 @@ import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
 
 --------------------------------------------------------------------------------
 
-data TessCallback =
-     TessBegin
-   | Begin
-   | TessVertex
-   | Vertex
-   | TessEnd
-   | End
-   | TessError
-   | Error'
-   | TessEdgeFlag
-   | EdgeFlag
-   | TessCombine
-   | TessBeginData
-   | TessVertexData
-   | TessEndData
-   | TessErrorData
-   | TessEdgeFlagData
-   | TessCombineData
-
-marshalTessCallback :: TessCallback -> GLenum
-marshalTessCallback x = case x of
-   TessBegin -> 0x18704
-   Begin -> 0x18704
-   TessVertex -> 0x18705
-   Vertex -> 0x18705
-   TessEnd -> 0x18706
-   End -> 0x18706
-   TessError -> 0x18707
-   Error' -> 0x18707
-   TessEdgeFlag -> 0x18708
-   EdgeFlag -> 0x18708
-   TessCombine -> 0x18709
-   TessBeginData -> 0x1870a
-   TessVertexData -> 0x1870b
-   TessEndData -> 0x1870c
-   TessErrorData -> 0x1870d
-   TessEdgeFlagData -> 0x1870e
-   TessCombineData -> 0x1870f
-
---------------------------------------------------------------------------------
-
-data TessProperty =
-     TessWindingRule
-   | TessBoundaryOnly
-   | TessTolerance
-
-marshalTessProperty :: TessProperty -> GLenum
-marshalTessProperty x = case x of
-   TessWindingRule -> 0x1872c
-   TessBoundaryOnly -> 0x1872d
-   TessTolerance -> 0x1872e
-
---------------------------------------------------------------------------------
-
 data TessWinding =
      TessWindingOdd
    | TessWindingNonzero
@@ -122,11 +69,11 @@ data TessWinding =
 
 marshalTessWinding :: TessWinding -> GLenum
 marshalTessWinding x = case x of
-   TessWindingOdd -> 0x18722
-   TessWindingNonzero -> 0x18723
-   TessWindingPositive -> 0x18724
-   TessWindingNegative -> 0x18725
-   TessWindingAbsGeqTwo -> 0x18726
+   TessWindingOdd -> glu_TESS_WINDING_ODD
+   TessWindingNonzero -> glu_TESS_WINDING_NONZERO
+   TessWindingPositive -> glu_TESS_WINDING_POSITIVE
+   TessWindingNegative -> glu_TESS_WINDING_NEGATIVE
+   TessWindingAbsGeqTwo -> glu_TESS_WINDING_ABS_GEQ_TWO
 
 --------------------------------------------------------------------------------
 
@@ -134,13 +81,7 @@ marshalTessWinding x = case x of
 -- property, e.g. color, texture coordinates, etc.
 
 data AnnotatedVertex v = AnnotatedVertex (Vertex3 GLdouble) v
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (AnnotatedVertex v)
-instance Ord v => Ord (AnnotatedVertex v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 offsetOfProperty :: Storable v => v -> Int
 offsetOfProperty v = alignOffset v (3 * sizeOf x)
@@ -179,13 +120,7 @@ instance Storable v => Storable (AnnotatedVertex v) where
 -- | A complex contour, which can be self-intersecting and\/or concave.
 
 newtype ComplexContour v = ComplexContour [AnnotatedVertex v]
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (ComplexContour v)
-instance Ord v => Ord (ComplexContour v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 sizeOfComplexContour :: Storable v => ComplexContour v -> Int
 sizeOfComplexContour (ComplexContour vs) =
@@ -202,13 +137,7 @@ pokeComplexContour ptr (ComplexContour vs) =
 -- and possibly intersecting contours.
 
 newtype ComplexPolygon v = ComplexPolygon [ComplexContour v]
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (ComplexPolygon v)
-instance Ord v => Ord (ComplexPolygon v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 sizeOfComplexPolygon :: Storable v => ComplexPolygon v -> Int
 sizeOfComplexPolygon (ComplexPolygon complexContours) =
@@ -239,13 +168,7 @@ data WeightedProperties v
                         (GLclampf, v)
                         (GLclampf, v)
                         (GLclampf, v)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (WeightedProperties v)
-instance Ord v => Ord (WeightedProperties v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 -- | A function combining given vertex properties into a property for a newly
 -- generated vertex
@@ -286,25 +209,13 @@ type Tessellator p v
 -- | A simple, non-self-intersecting contour
 
 newtype SimpleContour v = SimpleContour [AnnotatedVertex v]
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (SimpleContour v)
-instance Ord v => Ord (SimpleContour v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 -- | The contours of a complex polygon, represented by one or more
 -- non-intersecting simple contours
 
 newtype PolygonContours v = PolygonContours [SimpleContour v]
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (PolygonContours v)
-instance Ord v => Ord (PolygonContours v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 extractContours :: Storable v => Tessellator PolygonContours v
 extractContours windingRule tolerance normal combiner complexPoly = do
@@ -339,24 +250,12 @@ type TriangleVertex v = AnnotatedVertex (v,EdgeFlag)
 
 data Triangle v
    = Triangle (TriangleVertex v) (TriangleVertex v) (TriangleVertex v)
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (Triangle v)
-instance Ord v => Ord (Triangle v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 -- | A triangulation of a complex polygon
 
 newtype Triangulation v = Triangulation [Triangle v]
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (Triangulation v)
-instance Ord v => Ord (Triangulation v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 triangulate :: Storable v => Tessellator Triangulation v
 triangulate windingRule tolerance normal combiner complexPoly = do
@@ -390,22 +289,10 @@ collectTriangles _            = error "triangles left"
 --------------------------------------------------------------------------------
 
 data Primitive v = Primitive PrimitiveMode [AnnotatedVertex v]
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (Primitive v)
-instance Ord v => Ord (Primitive v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 newtype SimplePolygon v = SimplePolygon [Primitive v]
-#ifdef __HADDOCK__
--- Help Haddock a bit, because it doesn't do any instance inference.
-instance Eq v => Eq (SimplePolygon v)
-instance Ord v => Ord (SimplePolygon v)
-#else
    deriving ( Eq, Ord )
-#endif
 
 tessellate :: Storable v => Tessellator SimplePolygon v
 tessellate windingRule tolerance normal combiner complexPoly = do
@@ -439,10 +326,10 @@ tessellate windingRule tolerance normal combiner complexPoly = do
 -- chapter 5.1: The Tessellation Object
 
 -- an opaque pointer to a tessellator object
-newtype TessellatorObj = TessellatorObj (Ptr TessellatorObj)
+type TessellatorObj = Ptr GLUtesselator
 
 isNullTesselatorObj :: TessellatorObj -> Bool
-isNullTesselatorObj (TessellatorObj ptr) = ptr == nullPtr
+isNullTesselatorObj = (nullPtr ==)
 
 withTessellatorObj :: a -> (TessellatorObj -> IO a) -> IO a
 withTessellatorObj failureValue action =
@@ -452,14 +339,9 @@ withTessellatorObj failureValue action =
                                    return failureValue
                            else action tessObj)
 
-foreign import CALLCONV unsafe "gluNewTess" gluNewTess :: IO TessellatorObj
-
 safeDeleteTess :: TessellatorObj -> IO ()
 safeDeleteTess tessObj =
    unless (isNullTesselatorObj tessObj) $ gluDeleteTess tessObj
-
-foreign import CALLCONV unsafe "gluDeleteTess" gluDeleteTess ::
-   TessellatorObj -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.2: Polygon Definition (polygons)
@@ -481,12 +363,6 @@ tessBeginEndPolygon tessObj ptr f = do
    gluTessEndPolygon tessObj
    return res
 
-foreign import CALLCONV safe "gluTessBeginPolygon" gluTessBeginPolygon ::
-   TessellatorObj -> Ptr p -> IO ()
-
-foreign import CALLCONV safe "gluTessEndPolygon" gluTessEndPolygon ::
-   TessellatorObj -> IO ()
-
 --------------------------------------------------------------------------------
 -- chapter 5.2: Polygon Definition (contours)
 
@@ -507,81 +383,48 @@ tessBeginEndContour tessObj f = do
    gluTessEndContour tessObj
    return res
 
-foreign import CALLCONV safe "gluTessBeginContour" gluTessBeginContour ::
-   TessellatorObj -> IO ()
-
-foreign import CALLCONV safe "gluTessEndContour" gluTessEndContour ::
-   TessellatorObj -> IO ()
-
 --------------------------------------------------------------------------------
 -- chapter 5.2: Polygon Definition (vertices)
 
 defineVertex :: TessellatorObj -> Ptr (AnnotatedVertex v) -> IO ()
 defineVertex tessObj ptr = gluTessVertex tessObj (castPtr ptr) ptr
 
-foreign import CALLCONV safe "gluTessVertex" gluTessVertex ::
-   TessellatorObj -> Ptr (Vertex3 GLdouble) -> Ptr (AnnotatedVertex v) -> IO ()
-
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (begin)
 
 type BeginCallback  = PrimitiveMode -> IO ()
 
-type BeginCallback' = GLenum -> IO ()
-
 withBeginCallback :: TessellatorObj -> BeginCallback -> IO a -> IO a
 withBeginCallback tessObj beginCallback action =
-   bracket (makeBeginCallback (beginCallback . unmarshalPrimitiveMode))
+   bracket (makeTessBeginCallback (beginCallback . unmarshalPrimitiveMode))
            freeHaskellFunPtr $ \callbackPtr -> do
-      setBeginCallback tessObj (marshalTessCallback TessBegin) callbackPtr
+      gluTessCallback tessObj glu_TESS_BEGIN callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeBeginCallback ::
-   BeginCallback' -> IO (FunPtr BeginCallback')
-
-foreign import CALLCONV unsafe "gluTessCallback" setBeginCallback ::
-   TessellatorObj -> GLenum -> FunPtr BeginCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (edgeFlag)
 
 type EdgeFlagCallback  = EdgeFlag -> IO ()
 
-type EdgeFlagCallback' = GLboolean -> IO ()
-
 withEdgeFlagCallback :: TessellatorObj -> EdgeFlagCallback -> IO a -> IO a
 withEdgeFlagCallback tessObj edgeFlagCallback action =
-   bracket (makeEdgeFlagCallback (edgeFlagCallback . unmarshalEdgeFlag))
+   bracket (makeTessEdgeFlagCallback (edgeFlagCallback . unmarshalEdgeFlag))
            freeHaskellFunPtr $ \callbackPtr -> do
-      setEdgeFlagCallback tessObj (marshalTessCallback TessEdgeFlag) callbackPtr
+      gluTessCallback tessObj glu_TESS_EDGE_FLAG callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeEdgeFlagCallback ::
-   EdgeFlagCallback' -> IO (FunPtr EdgeFlagCallback')
-
-foreign import CALLCONV unsafe "gluTessCallback" setEdgeFlagCallback ::
-   TessellatorObj -> GLenum -> FunPtr EdgeFlagCallback' -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (vertex)
 
 type VertexCallback v = AnnotatedVertex v -> IO ()
 
-type VertexCallback' v = Ptr (AnnotatedVertex v) -> IO ()
-
 withVertexCallback ::
    Storable v => TessellatorObj -> VertexCallback v -> IO a -> IO a
 withVertexCallback tessObj vertexCallback action =
-   bracket (makeVertexCallback (\p -> peek p >>= vertexCallback))
+   bracket (makeTessVertexCallback (\p -> peek p >>= vertexCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      setVertexCallback tessObj (marshalTessCallback TessVertex) callbackPtr
+      gluTessCallback tessObj glu_TESS_VERTEX callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeVertexCallback ::
-   VertexCallback' v -> IO (FunPtr (VertexCallback' v))
-
-foreign import CALLCONV unsafe "gluTessCallback" setVertexCallback ::
-   TessellatorObj -> GLenum -> FunPtr (VertexCallback' v) -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (end)
@@ -590,15 +433,9 @@ type EndCallback  = IO ()
 
 withEndCallback :: TessellatorObj -> EndCallback -> IO a -> IO a
 withEndCallback tessObj endCallback action =
-   bracket (makeEndCallback endCallback) freeHaskellFunPtr $ \callbackPtr -> do
-      setEndCallback tessObj (marshalTessCallback TessEnd) callbackPtr
+   bracket (makeTessEndCallback endCallback) freeHaskellFunPtr $ \callbackPtr -> do
+      gluTessCallback tessObj glu_TESS_END callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeEndCallback ::
-   EndCallback -> IO (FunPtr EndCallback)
-
-foreign import CALLCONV unsafe "gluTessCallback" setEndCallback ::
-   TessellatorObj -> GLenum -> FunPtr EndCallback -> IO ()
 
 --------------------------------------------------------------------------------
 -- chapter 5.3: Callbacks (error)
@@ -607,16 +444,10 @@ type ErrorCallback = GLenum -> IO ()
 
 withErrorCallback :: TessellatorObj -> ErrorCallback -> IO a -> IO a
 withErrorCallback tessObj errorCallback action =
-   bracket (makeErrorCallback errorCallback)
+   bracket (makeTessErrorCallback errorCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
-      setErrorCallback tessObj (marshalTessCallback TessError) callbackPtr
+      gluTessCallback tessObj glu_TESS_ERROR callbackPtr
       action
-
-foreign import CALLCONV "wrapper" makeErrorCallback ::
-   ErrorCallback -> IO (FunPtr ErrorCallback)
-
-foreign import CALLCONV unsafe "gluTessCallback" setErrorCallback ::
-   TessellatorObj -> GLenum -> FunPtr ErrorCallback -> IO ()
 
 checkForError :: TessellatorObj -> IO a -> IO a
 checkForError tessObj = withErrorCallback tessObj recordErrorCode
@@ -625,7 +456,7 @@ checkForError tessObj = withErrorCallback tessObj recordErrorCode
 -- chapter 5.3: Callbacks (combine)
 
 type CombineCallback v =
-      Ptr (Vertex3 GLdouble)
+      Ptr GLdouble
    -> Ptr (Ptr (AnnotatedVertex v))
    -> Ptr GLclampf
    -> Ptr (Ptr (AnnotatedVertex v))
@@ -635,9 +466,9 @@ withCombineCallback ::
    Storable v => TessellatorObj -> Combiner v -> IO a -> IO a
 withCombineCallback tessObj combiner action =
    withPool $ \vertexPool ->
-      bracket (makeCombineCallback (combineProperties vertexPool combiner))
+      bracket (makeTessCombineCallback (combineProperties vertexPool combiner))
               freeHaskellFunPtr $ \callbackPtr -> do
-         setCombineCallback tessObj (marshalTessCallback TessCombine) callbackPtr
+         gluTessCallback tessObj glu_TESS_COMBINE callbackPtr
          action 
 
 -- NOTE: SGI's tesselator has a bug, sometimes passing NULL for the last two
@@ -646,7 +477,7 @@ withCombineCallback tessObj combiner action =
 -- corresponding weight is 0.
 combineProperties :: Storable v => Pool -> Combiner v -> CombineCallback v
 combineProperties pool combiner newVertexPtr propertyPtrs weights result = do
-   newVertex <- peek newVertexPtr
+   newVertex <- peek (castPtr newVertexPtr :: Ptr (Vertex3 GLdouble))
    [v0, v1, v2, v3] <- mapM (getProperty propertyPtrs) [0..3]
    [w0, w1, w2, w3] <- peekArray 4 weights
    let defaultProperty = fromJust v0
@@ -664,12 +495,6 @@ peekProperty ptr = do
    AnnotatedVertex _ v <- peek ptr
    return (Just v)
 
-foreign import CALLCONV "wrapper" makeCombineCallback ::
-   CombineCallback v -> IO (FunPtr (CombineCallback v))
-
-foreign import CALLCONV unsafe "gluTessCallback" setCombineCallback ::
-   TessellatorObj -> GLenum -> FunPtr (CombineCallback v) -> IO ()
-
 --------------------------------------------------------------------------------
 -- chapter 5.4: Control over Tessellation
 
@@ -684,25 +509,14 @@ setTessellatorProperties tessObj windingRule tolerance normal boundaryOnly = do
 
 setWindingRule :: TessellatorObj -> TessWinding -> IO ()
 setWindingRule tessObj =
-   tessProperty tessObj TessWindingRule . fromIntegral . marshalTessWinding
+   gluTessProperty tessObj glu_TESS_WINDING_RULE . fromIntegral . marshalTessWinding
 
 setBoundaryOnly :: TessellatorObj -> Bool -> IO ()
 setBoundaryOnly tessObj =
-   tessProperty tessObj TessBoundaryOnly . marshalGLboolean
+   gluTessProperty tessObj glu_TESS_BOUNDARY_ONLY . marshalGLboolean
 
 setTolerance :: TessellatorObj -> Tolerance -> IO ()
-setTolerance tessObj =
-   tessProperty tessObj TessTolerance
-
-tessProperty :: TessellatorObj -> TessProperty -> GLdouble -> IO ()
-tessProperty tessObj =
-   gluTessProperty tessObj . marshalTessProperty
-
-foreign import CALLCONV unsafe "gluTessProperty" gluTessProperty ::
-   TessellatorObj -> GLenum -> GLdouble -> IO ()
+setTolerance tessObj = gluTessProperty tessObj glu_TESS_TOLERANCE
 
 setNormal :: TessellatorObj -> Normal3 GLdouble -> IO ()
 setNormal tessObj (Normal3 x y z) = gluTessNormal tessObj x y z
-
-foreign import CALLCONV unsafe "gluTessNormal" gluTessNormal ::
-   TessellatorObj -> GLdouble -> GLdouble -> GLdouble -> IO ()

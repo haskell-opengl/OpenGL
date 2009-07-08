@@ -21,18 +21,16 @@ module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
    PixelCopyType(..), copyPixels
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.BufferMode
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.Framebuffer
+import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.PixelRectangles
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.BufferMode (
-   marshalBufferMode, unmarshalBufferMode )
-import Graphics.Rendering.OpenGL.GL.Framebuffer ( BufferMode(..) )
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles ( PixelData )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetReadBuffer), getEnum1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

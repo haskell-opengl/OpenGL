@@ -17,13 +17,12 @@ module Graphics.Rendering.OpenGL.GL.StringQueries (
    vendor, renderer, glVersion, glExtensions, shadingLanguageVersion, majorMinor
 ) where
 
-import Data.Char ( isDigit )
-import Foreign.C.String ( peekCString )
+import Data.Char
+import Data.StateVar
+import Foreign.C.String
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.QueryUtils ( maybeNullPtr )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), GettableStateVar, makeGettableStateVar )
 
 --------------------------------------------------------------------------------
 

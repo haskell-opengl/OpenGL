@@ -18,31 +18,20 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram (
    histogramRGBASizes, histogramLuminanceSize
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Graphics.Rendering.OpenGL.GL.Capability (
-   EnableCap(CapHistogram), makeStateVarMaybe )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
-    PixelData(..) )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
-   PixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.PixelData ( withPixelData )
-import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   marshalPixelInternalFormat', unmarshalPixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable ( Proxy(..) )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
-   Sink(..), marshalSink, unmarshalSink )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset (
-   Reset(..), marshalReset )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Color4(..) )
-
---------------------------------------------------------------------------------
-
-#include "HsOpenGLExt.h"
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

@@ -16,13 +16,9 @@ module Graphics.Rendering.OpenGL.GL.Hints (
    HintTarget(..), HintMode(..), hint
 ) where
 
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetPerspectiveCorrectionHint,GetPointSmoothHint,GetLineSmoothHint,
-            GetPolygonSmoothHint,GetFogHint,GetGenerateMipmapHint,
-            GetTextureCompressionHint,GetPackCMYKHint,GetUnpackCMYKHint),
-   getEnum1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
 
 --------------------------------------------------------------------------------
 

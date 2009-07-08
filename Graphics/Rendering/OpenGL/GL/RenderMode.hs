@@ -17,13 +17,11 @@ module Graphics.Rendering.OpenGL.GL.RenderMode (
    RenderMode(..), withRenderMode, renderMode
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.Exception ( finallyRet )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetRenderMode), getEnum1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   HasGetter(get), GettableStateVar, makeGettableStateVar )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

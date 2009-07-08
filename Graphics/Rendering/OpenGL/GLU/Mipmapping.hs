@@ -16,7 +16,7 @@ module Graphics.Rendering.OpenGL.GLU.Mipmapping (
    scaleImage, build1DMipmaps, build2DMipmaps
 ) where
 
-import Foreign.Ptr ( Ptr )
+import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
@@ -34,13 +34,10 @@ scaleImage (Size widthIn  heightIn)  pdIn (Size widthOut heightOut) pdOut =
    withPixelData pdIn $ \fIn dIn pIn ->
       withPixelData pdOut $ \fOut dOut pOut ->
          if fIn == fOut
-            then gluScaleImage
-                    fIn widthIn heightIn dIn pIn widthOut heightOut dOut pOut
+            then do gluScaleImage
+                      fIn widthIn heightIn dIn pIn widthOut heightOut dOut pOut
+                    return ()   -- TODO: Should we use the return value?
             else recordInvalidValue
-
-foreign import CALLCONV unsafe "gluScaleImage" gluScaleImage ::
-   GLenum -> GLsizei -> GLsizei -> GLenum -> Ptr a
-          -> GLsizei -> GLsizei -> GLenum -> Ptr b -> IO ()
 
 --------------------------------------------------------------------------------
 -- Section 3.2 (Automatic Mipmapping)
@@ -56,9 +53,6 @@ build1DMipmaps target internalFormat height pd = do
          height
    return ()   -- TODO: Should we use the return value?
 
-foreign import CALLCONV unsafe "gluBuild1DMipmaps" gluBuild1DMipmaps ::
-      GLenum -> GLint -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO GLint
-
 --------------------------------------------------------------------------------
 
 build2DMipmaps :: TextureTarget -> PixelInternalFormat -> GLsizei -> GLsizei
@@ -70,6 +64,3 @@ build2DMipmaps target internalFormat width height pd = do
          (marshalPixelInternalFormat internalFormat)
          width height
    return ()   -- TODO: Should we use the return value?
-
-foreign import CALLCONV unsafe "gluBuild2DMipmaps" gluBuild2DMipmaps ::
-      GLenum -> GLint -> GLsizei -> GLsizei -> GLenum -> GLenum -> Ptr a -> IO GLint

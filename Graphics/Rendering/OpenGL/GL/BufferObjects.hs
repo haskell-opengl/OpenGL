@@ -33,29 +33,19 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    bufferAccess, bufferMapped
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( withArrayLen, peekArray, allocaArray )
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peek) )
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.VertexArrays
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.Exception ( finallyRet )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetArrayBufferBinding,GetElementArrayBufferBinding,
-            GetVertexArrayBufferBinding,GetNormalArrayBufferBinding,
-            GetColorArrayBufferBinding,GetIndexArrayBufferBinding,
-            GetTextureCoordArrayBufferBinding,GetEdgeFlagArrayBufferBinding,
-            GetFogCoordArrayBufferBinding,GetSecondaryColorArrayBufferBinding,
-            GetPixelPackBufferBinding,GetPixelUnpackBufferBinding,
-            GetCopyReadBuffer,GetCopyWriteBuffer),
-   getInteger1, maybeNullPtr,
-   GetVertexAttribPName(GetVertexAttribArrayBufferBinding), getVertexAttribInteger1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar, makeStateVar )
-import Graphics.Rendering.OpenGL.GL.VertexArrays ( ClientArrayType(..) )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( AttribLocation )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
 
 --------------------------------------------------------------------------------
 

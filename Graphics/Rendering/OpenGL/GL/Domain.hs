@@ -27,10 +27,6 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils (
 
 --------------------------------------------------------------------------------
 
-#include "HsOpenGLTypes.h"
-
---------------------------------------------------------------------------------
-
 class Storable d => Domain d where
    glMap1      :: GLenum -> d -> d -> GLint -> GLint -> Ptr d -> IO ()
    glMap2      :: GLenum -> d -> d -> GLint -> GLint -> d -> d -> GLint -> GLint -> Ptr d -> IO ()
@@ -46,7 +42,8 @@ class Storable d => Domain d where
 
 --------------------------------------------------------------------------------
 
-instance Domain GLfloat_ where
+-- GLfloat instance
+instance Domain CFloat where
    glMap1      = glMap1f
    glMap2      = glMap2f
    glGetMapv   = glGetMapfv
@@ -59,7 +56,8 @@ instance Domain GLfloat_ where
    get2        = getFloat2
    get4        = getFloat4
 
-instance Domain GLdouble_ where
+-- GLdouble instance
+instance Domain CDouble where
    glMap1      = glMap1d
    glMap2      = glMap2d
    glGetMapv   = glGetMapdv

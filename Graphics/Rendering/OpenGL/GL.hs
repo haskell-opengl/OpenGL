@@ -52,7 +52,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Hints,
 
    -- * State and State Requests
-   module Graphics.Rendering.OpenGL.GL.StateVar,
+   module Data.StateVar,
    module Graphics.Rendering.OpenGL.GL.StringQueries,
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
@@ -93,6 +93,6 @@ import Graphics.Rendering.OpenGL.GL.DisplayLists
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
 
-import Graphics.Rendering.OpenGL.GL.StateVar
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.StringQueries
 import Graphics.Rendering.OpenGL.GL.SavingState

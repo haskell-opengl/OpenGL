@@ -17,15 +17,14 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
    PixelData(..), PixelFormat(..), drawPixels, pixelZoom
 ) where
 
-import Control.Monad ( liftM2 )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Control.Monad
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.PixelFormat
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
-import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData(..), withPixelData )
-import Graphics.Rendering.OpenGL.GL.PixelFormat ( PixelFormat(..) )
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetZoomX,GetZoomY), getFloat1 )
-import Graphics.Rendering.OpenGL.GL.StateVar ( StateVar, makeStateVar )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

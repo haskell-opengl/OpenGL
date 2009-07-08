@@ -19,23 +19,17 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
    textureDepthBits, textureCompressedImageSize, textureProxyOK
 ) where
 
-import Control.Monad ( liftM2, liftM3, liftM4 )
-import Foreign.Marshal.Alloc ( alloca )
+import Control.Monad
+import Data.StateVar
+import Foreign.Marshal.Alloc
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PixelRectangles
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.GL.Texturing.Specification
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1 )
-import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
-   unmarshalPixelInternalFormat )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles (
-   Proxy(..), PixelInternalFormat(..) )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar )
-import Graphics.Rendering.OpenGL.GL.Texturing.Specification (
-   TextureTarget(..), CubeMapTarget, Level, Border,
-   TextureSize1D(..), TextureSize2D(..), TextureSize3D(..) )
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   marshalProxyTextureTarget, marshalCubeMapTarget )
-import Graphics.Rendering.OpenGL.GL.VertexSpec( Color4(..) )
 
 --------------------------------------------------------------------------------
 

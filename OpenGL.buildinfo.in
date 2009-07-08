@@ -1,8 +1,0 @@
--- @configure_input@
--- System-dependent values used by Distribution.Simple.defaultUserHooks
---
-buildable: @BUILD_PACKAGE_BOOL@
-ghc-options: -DCALLCONV=@CALLCONV@
-cc-options: -DCALLCONV=@CALLCONV@ @GLU_CFLAGS@
-ld-options: @GLU_LIBS@
-frameworks: @GLU_FRAMEWORKS@

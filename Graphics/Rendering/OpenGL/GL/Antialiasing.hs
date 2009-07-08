@@ -17,13 +17,10 @@ module Graphics.Rendering.OpenGL.GL.Antialiasing (
    sampleBuffers, samples, multisample, subpixelBits
 ) where
 
-import Graphics.Rendering.OpenGL.GL.Capability (
-   Capability, EnableCap(CapMultisample), makeCapability )
+import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.QueryUtils (
-   GetPName(GetSampleBuffers,GetSamples,GetSubpixelBits), getSizei1 )
-import Graphics.Rendering.OpenGL.GL.StateVar (
-   GettableStateVar, makeGettableStateVar, StateVar )
 
 --------------------------------------------------------------------------------
 
