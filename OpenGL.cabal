@@ -104,4 +104,4 @@ other-modules:
    Graphics.Rendering.OpenGL.GL.VertexAttributes,
    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 ghc-options: -Wall
-build-depends: base >= 3 && < 5, OpenGLRaw, GLURaw, StateVar
+build-depends: base >= 3 && < 5, OpenGLRaw >= 1.0.1.0, GLURaw, StateVar
