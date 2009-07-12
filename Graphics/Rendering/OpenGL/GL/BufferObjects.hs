@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.BufferObjects (
    -- * Object Names
-   ObjectName(..),
+   module Data.ObjectName,
 
    -- * Buffer Objects
    BufferObject(BufferObject),
@@ -33,6 +33,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    bufferAccess, bufferMapped
 ) where
 
+import Data.ObjectName
 import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
@@ -46,17 +47,6 @@ import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.Core31
-
---------------------------------------------------------------------------------
-
--- | An 'ObjectName' corresponds to the general OpenGL notion of an explicitly
--- handled object name, e.g. a display list name, a texture object name, a
--- buffer object name, etc.
-
-class ObjectName a where
-   genObjectNames :: Int -> IO [a]
-   deleteObjectNames:: [a] -> IO ()
-   isObjectName :: a -> IO Bool
 
 --------------------------------------------------------------------------------
 
