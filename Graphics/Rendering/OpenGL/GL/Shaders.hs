@@ -38,6 +38,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 import Control.Monad
 import Control.Monad.Fix
 import Data.List
+import Data.ObjectName
 import Data.StateVar
 import Foreign.C.String
 import Foreign.C.Types
@@ -46,7 +47,6 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.BufferObjects
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils

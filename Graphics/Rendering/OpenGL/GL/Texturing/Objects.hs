@@ -20,9 +20,9 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
 ) where
 
 import Data.List
+import Data.ObjectName
 import Data.StateVar
 import Foreign.Marshal.Array
-import Graphics.Rendering.OpenGL.GL.BufferObjects
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter

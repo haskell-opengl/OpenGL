@@ -51,11 +51,11 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 ) where
 
 import Control.Monad
+import Data.ObjectName
 import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Graphics.Rendering.OpenGL.GL.BlendingFactor
-import Graphics.Rendering.OpenGL.GL.BufferObjects
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction
 import Graphics.Rendering.OpenGL.GL.CoordTrans
