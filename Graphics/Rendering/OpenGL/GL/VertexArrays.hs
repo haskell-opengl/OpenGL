@@ -448,7 +448,7 @@ getPointer n = alloca $ \buf -> do
 --------------------------------------------------------------------------------
 
 vertexAttribPointer :: AttribLocation -> StateVar (IntegerHandling, VertexArrayDescriptor a)
-vertexAttribPointer location = undefined
+vertexAttribPointer location =
    makeStateVar (getVertexAttribPointer_ location) (setVertexAttribPointer location)
 
 getVertexAttribPointer_ :: AttribLocation -> IO (IntegerHandling, VertexArrayDescriptor a)
