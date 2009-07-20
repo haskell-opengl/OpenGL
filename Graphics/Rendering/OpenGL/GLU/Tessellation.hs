@@ -38,6 +38,7 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
 import Control.Monad ( foldM, unless )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
 import Data.Maybe ( fromJust )
+import Data.Tensor
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
@@ -51,11 +52,9 @@ import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
 import Graphics.Rendering.OpenGL.GL.BeginEnd (
    PrimitiveMode, EdgeFlag(BeginsInteriorEdge) )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Vertex3(..), Normal3(..) )
-import Graphics.Rendering.OpenGL.GL.QueryUtils ( maybeNullPtr )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   recordErrorCode, recordOutOfMemory )
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 
 --------------------------------------------------------------------------------
 
@@ -218,7 +217,7 @@ newtype PolygonContours v = PolygonContours [SimpleContour v]
    deriving ( Eq, Ord )
 
 extractContours :: Storable v => Tessellator PolygonContours v
-extractContours windingRule tolerance normal combiner complexPoly = do
+extractContours windingRule tolerance theNormal combiner complexPoly = do
 
    vertices <- newIORef []
    let addVertex v = modifyIORef vertices (v:)
@@ -232,7 +231,7 @@ extractContours windingRule tolerance normal combiner complexPoly = do
        getContours = fmap (PolygonContours . reverse) (readIORef contours)
 
    withTessellatorObj (PolygonContours [])$ \tessObj -> do
-      setTessellatorProperties tessObj windingRule tolerance normal True
+      setTessellatorProperties tessObj windingRule tolerance theNormal True
       withVertexCallback tessObj addVertex $
          withEndCallback tessObj finishContour $
             checkForError tessObj $
@@ -258,7 +257,7 @@ newtype Triangulation v = Triangulation [Triangle v]
    deriving ( Eq, Ord )
 
 triangulate :: Storable v => Tessellator Triangulation v
-triangulate windingRule tolerance normal combiner complexPoly = do
+triangulate windingRule tolerance theNormal combiner complexPoly = do
 
    edgeFlagState <- newIORef BeginsInteriorEdge
    let registerEdgeFlag = writeIORef edgeFlagState
@@ -273,7 +272,7 @@ triangulate windingRule tolerance normal combiner complexPoly = do
           return $ Triangulation (collectTriangles (reverse vs))
 
    withTessellatorObj (Triangulation []) $ \tessObj -> do
-      setTessellatorProperties tessObj windingRule tolerance normal False
+      setTessellatorProperties tessObj windingRule tolerance theNormal False
       withEdgeFlagCallback tessObj registerEdgeFlag $
          withVertexCallback tessObj addVertex $
             checkForError tessObj $
@@ -295,7 +294,7 @@ newtype SimplePolygon v = SimplePolygon [Primitive v]
    deriving ( Eq, Ord )
 
 tessellate :: Storable v => Tessellator SimplePolygon v
-tessellate windingRule tolerance normal combiner complexPoly = do
+tessellate windingRule tolerance theNormal combiner complexPoly = do
 
    beginModeState <- newIORef undefined
    let setPrimitiveMode = writeIORef beginModeState
@@ -313,7 +312,7 @@ tessellate windingRule tolerance normal combiner complexPoly = do
        getSimplePolygon = fmap (SimplePolygon . reverse) (readIORef primitives)
 
    withTessellatorObj (SimplePolygon []) $ \tessObj -> do
-      setTessellatorProperties tessObj windingRule tolerance normal False
+      setTessellatorProperties tessObj windingRule tolerance theNormal False
       withBeginCallback tessObj setPrimitiveMode $
          withVertexCallback tessObj addVertex $
             withEndCallback tessObj finishPrimitive $
@@ -501,10 +500,10 @@ peekProperty ptr = do
 setTessellatorProperties ::
     TessellatorObj -> TessWinding -> Tolerance -> Normal3 GLdouble -> Bool
  -> IO ()
-setTessellatorProperties tessObj windingRule tolerance normal boundaryOnly = do
+setTessellatorProperties tessObj windingRule tolerance theNormal boundaryOnly = do
    setWindingRule tessObj windingRule
    setTolerance tessObj tolerance
-   setNormal tessObj normal
+   setNormal tessObj theNormal
    setBoundaryOnly tessObj boundaryOnly
 
 setWindingRule :: TessellatorObj -> TessWinding -> IO ()

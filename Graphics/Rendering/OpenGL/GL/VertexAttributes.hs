@@ -21,17 +21,15 @@ module Graphics.Rendering.OpenGL.GL.VertexAttributes (
    Index1(..)
 ) where
 
-import Control.Applicative ( Applicative(..) )
-import Control.Monad ( ap )
-import Data.Foldable ( Foldable(..) )
-import Data.Ix ( Ix )
-import Data.Traversable ( Traversable(..) )
-import Data.Typeable (
-   Typeable(..), mkTyCon, mkTyConApp, Typeable1(..), typeOfDefault )
-import Foreign.Ptr ( castPtr )
-import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.OpenGL.GL.PeekPoke (
-   peek1, poke2, poke3, poke4, poke1, peek2, peek3, peek4 )
+import Control.Applicative
+import Control.Monad
+import Data.Foldable
+import Data.Ix
+import Data.Traversable
+import Data.Typeable
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
 
 --------------------------------------------------------------------------------
 
@@ -67,8 +65,8 @@ instance Typeable a => Typeable (TexCoord1 a) where
 instance Storable a => Storable (TexCoord1 a) where
    sizeOf    ~(TexCoord1 s) = sizeOf s
    alignment ~(TexCoord1 s) = alignment s
-   peek = peek1 TexCoord1 . castPtr
-   poke ptr (TexCoord1 s) = poke1 (castPtr ptr) s
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -104,8 +102,8 @@ instance Typeable a => Typeable (TexCoord2 a) where
 instance Storable a => Storable (TexCoord2 a) where
    sizeOf ~(TexCoord2 x _) = 2 * sizeOf x
    alignment ~(TexCoord2 x _) = alignment x
-   peek = peek2 TexCoord2 . castPtr
-   poke ptr (TexCoord2 x y) = poke2 (castPtr ptr) x y
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -141,8 +139,8 @@ instance Typeable a => Typeable (TexCoord3 a) where
 instance Storable a => Storable (TexCoord3 a) where
    sizeOf ~(TexCoord3 x _ _) = 3 * sizeOf x
    alignment ~(TexCoord3 x _ _) = alignment x
-   peek = peek3 TexCoord3 . castPtr
-   poke ptr (TexCoord3 x y z) = poke3 (castPtr ptr) x y z
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -178,8 +176,8 @@ instance Typeable a => Typeable (TexCoord4 a) where
 instance Storable a => Storable (TexCoord4 a) where
    sizeOf ~(TexCoord4 x _ _ _) = 4 * sizeOf x
    alignment ~(TexCoord4 x _ _ _) = alignment x
-   peek = peek4 TexCoord4 . castPtr
-   poke ptr (TexCoord4 x y z w) = poke4 (castPtr ptr) x y z w
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -214,8 +212,8 @@ instance Typeable a => Typeable (Normal3 a) where
 instance Storable a => Storable (Normal3 a) where
    sizeOf ~(Normal3 x _ _) = 3 * sizeOf x
    alignment ~(Normal3 x _ _) = alignment x
-   peek = peek3 Normal3 . castPtr
-   poke ptr (Normal3 x y z) = poke3 (castPtr ptr) x y z
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -251,8 +249,8 @@ instance Typeable a => Typeable (FogCoord1 a) where
 instance Storable a => Storable (FogCoord1 a) where
    sizeOf    ~(FogCoord1 s) = sizeOf s
    alignment ~(FogCoord1 s) = alignment s
-   peek = peek1 FogCoord1 . castPtr
-   poke ptr (FogCoord1 s) = poke1 (castPtr ptr) s
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -288,8 +286,8 @@ instance Typeable a => Typeable (Color3 a) where
 instance Storable a => Storable (Color3 a) where
    sizeOf ~(Color3 x _ _) = 3 * sizeOf x
    alignment ~(Color3 x _ _) = alignment x
-   peek = peek3 Color3 . castPtr
-   poke ptr (Color3 x y z) = poke3 (castPtr ptr) x y z
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -325,8 +323,8 @@ instance Typeable a => Typeable (Color4 a) where
 instance Storable a => Storable (Color4 a) where
    sizeOf ~(Color4 x _ _ _) = 4 * sizeOf x
    alignment ~(Color4 x _ _ _) = alignment x
-   peek = peek4 Color4 . castPtr
-   poke ptr (Color4 x y z w) = poke4 (castPtr ptr) x y z w
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
 
 --------------------------------------------------------------------------------
 
@@ -362,5 +360,26 @@ instance Typeable a => Typeable (Index1 a) where
 instance Storable a => Storable (Index1 a) where
    sizeOf    ~(Index1 s) = sizeOf s
    alignment ~(Index1 s) = alignment s
-   peek = peek1 Index1 . castPtr
-   poke ptr (Index1 s) = poke1 (castPtr ptr) s
+   peek = peekApplicativeTraversable
+   poke = pokeFoldable
+
+--------------------------------------------------------------------------------
+
+peekApplicativeTraversable :: (Applicative t, Traversable t, Storable a) => Ptr (t a) -> IO (t a)
+peekApplicativeTraversable = Data.Traversable.mapM peek . addresses
+
+addresses :: (Applicative t, Traversable t, Storable a) => Ptr (t a) -> t (Ptr a)
+addresses = snd . mapAccumL nextPtr 0 . pure . castPtr
+
+nextPtr :: Storable a => Int -> Ptr a -> (Int, Ptr a)
+nextPtr offset ptr = (offset + 1, advancePtr ptr offset)
+
+--------------------------------------------------------------------------------
+
+pokeFoldable :: (Foldable t, Storable a) => Ptr (t a) -> t a -> IO ()
+pokeFoldable ptr xs = foldlM pokeAndAdvance (castPtr ptr) xs >> return ()
+
+pokeAndAdvance :: Storable a => Ptr a -> a -> IO (Ptr a)
+pokeAndAdvance ptr value = do
+   poke ptr value
+   return $ ptr `plusPtr` sizeOf value

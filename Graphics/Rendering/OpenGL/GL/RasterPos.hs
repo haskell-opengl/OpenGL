@@ -22,6 +22,7 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
 ) where
 
 import Data.StateVar
+import Data.Tensor
 import Foreign.C.Types
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Capability

@@ -40,6 +40,7 @@ import Control.Monad.Fix
 import Data.List
 import Data.ObjectName
 import Data.StateVar
+import Data.Tensor
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.Marshal.Alloc

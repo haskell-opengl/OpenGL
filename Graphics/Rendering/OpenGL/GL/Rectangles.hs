@@ -16,10 +16,10 @@ module Graphics.Rendering.OpenGL.GL.Rectangles (
    Rect(..)
 ) where
 
+import Data.Tensor
 import Foreign.C.Types
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex2(..) )
 
 --------------------------------------------------------------------------------
 

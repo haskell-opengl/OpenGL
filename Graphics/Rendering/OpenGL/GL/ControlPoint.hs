@@ -17,15 +17,14 @@ module Graphics.Rendering.OpenGL.GL.ControlPoint (
    ControlPoint(..)
 ) where
 
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peek,poke) )
+import Data.Tensor
+import Foreign.Ptr
+import Foreign.Storable
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.Capability ( EnableCap(..) )
-import Graphics.Rendering.OpenGL.GL.Domain ( Domain )
-import Graphics.Rendering.OpenGL.GL.VertexArrays ( Stride )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Vertex3, Vertex4, Index1, Color4, Normal3, TexCoord1, TexCoord2, TexCoord3,
-   TexCoord4 )
+import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.Domain
+import Graphics.Rendering.OpenGL.GL.VertexArrays
+import Graphics.Rendering.OpenGL.GL.VertexSpec
 
 --------------------------------------------------------------------------------
 

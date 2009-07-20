@@ -96,7 +96,6 @@ other-modules:
    Graphics.Rendering.OpenGL.GL.PrimitiveMode,
    Graphics.Rendering.OpenGL.GL.QueryUtils,
    Graphics.Rendering.OpenGL.GL.RenderMode,
-   Graphics.Rendering.OpenGL.GL.Tensor,
    Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat,
    Graphics.Rendering.OpenGL.GL.Texturing.TexParameter,
    Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget,
@@ -104,4 +103,5 @@ other-modules:
    Graphics.Rendering.OpenGL.GL.VertexAttributes,
    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 ghc-options: -Wall
-build-depends: base >= 3 && < 5, OpenGLRaw >= 1.0.1.0, GLURaw, StateVar, ObjectName
+build-depends:
+   base >= 3 && < 5, OpenGLRaw >= 1.0.1.0, GLURaw, StateVar, ObjectName, Tensor

@@ -19,6 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Feedback (
 
 import Control.Monad
 import Data.StateVar
+import Data.Tensor
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable

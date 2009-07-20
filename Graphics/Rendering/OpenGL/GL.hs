@@ -53,6 +53,7 @@ module Graphics.Rendering.OpenGL.GL (
 
    -- * State and State Requests
    module Data.StateVar,
+   module Data.Tensor,
    module Graphics.Rendering.OpenGL.GL.StringQueries,
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
@@ -94,5 +95,6 @@ import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
 
 import Data.StateVar
+import Data.Tensor
 import Graphics.Rendering.OpenGL.GL.StringQueries
 import Graphics.Rendering.OpenGL.GL.SavingState

@@ -17,18 +17,16 @@ module Graphics.Rendering.OpenGL.GLU.Matrix (
    project, unProject, unProject4
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( withArray )
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peek,peekElemOff) )
+import Data.Tensor
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
 import Graphics.Rendering.GLU.Raw
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.CoordTrans (
-   MatrixOrder(..), Matrix(..), MatrixComponent,
-   Vector3(..), Position(..), Size(..) )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( unmarshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex3(..), Vertex4(..) )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 
 --------------------------------------------------------------------------------
 -- matrix setup
@@ -48,8 +46,8 @@ lookAt (Vertex3 eyeX    eyeY    eyeZ)
 
 pickMatrix ::
    (GLdouble, GLdouble) -> (GLdouble, GLdouble) -> (Position, Size) -> IO ()
-pickMatrix (x, y) (w, h) viewport =
-   withViewport viewport $ gluPickMatrix x y w h
+pickMatrix (x, y) (w, h) viewPort =
+   withViewport viewPort $ gluPickMatrix x y w h
 
 --------------------------------------------------------------------------------
 -- coordinate projection
@@ -58,20 +56,20 @@ project ::
       Matrix m
    => Vertex3 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
    -> IO (Vertex3 GLdouble)
-project (Vertex3 objX objY objZ) model proj viewport =
+project (Vertex3 objX objY objZ) model proj viewPort =
    withColumnMajor model $ \modelBuf ->
    withColumnMajor proj $ \projBuf ->
-   withViewport viewport $ \viewBuf ->
+   withViewport viewPort $ \viewBuf ->
    getVertex3 $ gluProject objX objY objZ modelBuf projBuf viewBuf
 
 unProject ::
       Matrix m
    => Vertex3 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
    -> IO (Vertex3 GLdouble)
-unProject (Vertex3 objX objY objZ) model proj viewport =
+unProject (Vertex3 objX objY objZ) model proj viewPort =
    withColumnMajor model $ \modelBuf ->
    withColumnMajor proj $ \projBuf ->
-   withViewport viewport $ \viewBuf ->
+   withViewport viewPort $ \viewBuf ->
    getVertex3 $ gluUnProject objX objY objZ modelBuf projBuf viewBuf
 
 unProject4 ::
@@ -79,10 +77,10 @@ unProject4 ::
    => Vertex4 GLdouble -> m GLdouble -> m GLdouble -> (Position, Size)
    -> GLclampd -> GLclampd
    -> IO (Vertex4 GLdouble)
-unProject4 (Vertex4 objX objY objZ clipW) model proj viewport near far =
+unProject4 (Vertex4 objX objY objZ clipW) model proj viewPort near far =
    withColumnMajor model $ \modelBuf ->
    withColumnMajor proj $ \projBuf ->
-   withViewport viewport $ \viewBuf ->
+   withViewport viewPort $ \viewBuf ->
    getVertex4 $
       gluUnProject4 objX objY objZ clipW modelBuf projBuf viewBuf near far
 

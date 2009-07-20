@@ -30,26 +30,24 @@ module Graphics.Rendering.OpenGL.GLU.NURBS (
    DisplayMode'(..), setDisplayMode'
 ) where
 
-import Control.Monad ( unless )
-import Foreign.Marshal.Array ( withArray )
-import Foreign.Ptr ( Ptr, nullPtr, castPtr, freeHaskellFunPtr )
-import Foreign.Storable ( Storable(..) )
+import Control.Monad
+import Data.Tensor
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
 import Graphics.Rendering.GLU.Raw hiding (
    NURBSBeginCallback, NURBSVertexCallback, NURBSNormalCallback,
    NURBSColorCallback, NURBSEndCallback )
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.Capability ( Capability, marshalCapability )
+import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ControlPoint
-import Graphics.Rendering.OpenGL.GL.CoordTrans (
-   Position(..), Size(..), MatrixOrder(ColumnMajor), MatrixComponent, Matrix(..) )
-import Graphics.Rendering.OpenGL.GL.Exception ( bracket, bracket_ )
-import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
-import Graphics.Rendering.OpenGL.GL.BeginEnd ( PrimitiveMode )
-import Graphics.Rendering.OpenGL.GL.VertexSpec (
-   Vertex2, Vertex3, Normal3, Color4 )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
-   recordErrorCode, recordOutOfMemory )
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode
+import Graphics.Rendering.OpenGL.GL.BeginEnd
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 
 --------------------------------------------------------------------------------
 -- chapter 7.1: The NURBS Object

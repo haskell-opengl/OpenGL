@@ -16,11 +16,11 @@ module Graphics.Rendering.OpenGL.GL.Bitmaps (
    bitmap
 ) where
 
-import Foreign.Ptr ( Ptr )
+import Data.Tensor
+import Foreign.Ptr
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..), Vector2(..) )
-import Graphics.Rendering.OpenGL.GL.VertexSpec ( Vertex2(..) )
+import Graphics.Rendering.OpenGL.GL.CoordTrans
 
 --------------------------------------------------------------------------------
 

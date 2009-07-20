@@ -20,7 +20,6 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 
    -- * Matrices
    MatrixMode(..), matrixMode,
-   Vector1(..), Vector2(..), Vector3(..), Vector4(..),
    MatrixOrder(..), MatrixComponent(rotate,translate,scale), Matrix(..),
    currentMatrix, matrix, multMatrix, GLmatrix, loadIdentity,
    ortho, frustum, depthClamp,
@@ -36,6 +35,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 ) where
 
 import Data.StateVar
+import Data.Tensor
 import Foreign.C.Types
 import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
@@ -47,7 +47,6 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal

@@ -17,7 +17,6 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    -- * Vertex Coordinates
    Vertex(..),
    VertexComponent,
-   Vertex1(..), Vertex2(..), Vertex3(..), Vertex4(..),
 
    -- * Auxiliary Vertex Attributes
    -- $AuxiliaryVertexAttributes
@@ -58,6 +57,7 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
 ) where
 
 import Data.StateVar
+import Data.Tensor
 import Foreign.C.Types
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -65,7 +65,6 @@ import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexAttributes
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility

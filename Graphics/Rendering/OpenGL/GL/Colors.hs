@@ -41,6 +41,7 @@ module Graphics.Rendering.OpenGL.GL.Colors (
 
 import Control.Monad
 import Data.StateVar
+import Data.Tensor
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
