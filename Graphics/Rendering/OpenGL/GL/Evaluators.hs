@@ -59,7 +59,9 @@ import Graphics.Rendering.OpenGL.GL.PolygonMode
 import Graphics.Rendering.OpenGL.GL.Polygons
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexArrays
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glEvalMesh1, glEvalMesh2, glEvalPoint1, glEvalPoint2, glGetMapiv, gl_COEFF,
+   gl_DOMAIN, gl_ORDER )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -324,9 +326,9 @@ data GetMapQuery =
 
 marshalGetMapQuery :: GetMapQuery -> GLenum
 marshalGetMapQuery x = case x of
-   Coeff -> 0xa00
-   Order -> 0xa01
-   Domain -> 0xa02
+   Coeff -> gl_COEFF
+   Order -> gl_ORDER
+   Domain -> gl_DOMAIN
 
 --------------------------------------------------------------------------------
 

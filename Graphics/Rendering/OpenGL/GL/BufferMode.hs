@@ -18,6 +18,7 @@ module Graphics.Rendering.OpenGL.GL.BufferMode (
 ) where
 
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( gl_AUX0 )
 
 --------------------------------------------------------------------------------
 
@@ -63,31 +64,34 @@ data BufferMode =
 
 marshalBufferMode :: BufferMode -> Maybe GLenum
 marshalBufferMode x = case x of
-   NoBuffers -> Just 0x0
-   FrontLeftBuffer -> Just 0x400
-   FrontRightBuffer -> Just 0x401
-   BackLeftBuffer -> Just 0x402
-   BackRightBuffer -> Just 0x403
-   FrontBuffers -> Just 0x404
-   BackBuffers -> Just 0x405
-   LeftBuffers -> Just 0x406
-   RightBuffers -> Just 0x407
-   FrontAndBackBuffers -> Just 0x408
+   NoBuffers -> Just gl_NONE
+   FrontLeftBuffer -> Just gl_FRONT_LEFT
+   FrontRightBuffer -> Just gl_FRONT_RIGHT
+   BackLeftBuffer -> Just gl_BACK_LEFT
+   BackRightBuffer -> Just gl_BACK_RIGHT
+   FrontBuffers -> Just gl_FRONT
+   BackBuffers -> Just gl_BACK
+   LeftBuffers -> Just gl_LEFT
+   RightBuffers -> Just gl_RIGHT
+   FrontAndBackBuffers -> Just gl_FRONT_AND_BACK
    AuxBuffer i
-      | i <= 246  -> Just (0x409 + fromIntegral i)
+      | fromIntegral i <= maxAuxBuffer -> Just (gl_AUX0 + fromIntegral i)
       | otherwise -> Nothing
 
 unmarshalBufferMode :: GLenum -> BufferMode
 unmarshalBufferMode x
-   | x == 0x0 = NoBuffers
-   | x == 0x400 = FrontLeftBuffer
-   | x == 0x401 = FrontRightBuffer
-   | x == 0x402 = BackLeftBuffer
-   | x == 0x403 = BackRightBuffer
-   | x == 0x404 = FrontBuffers
-   | x == 0x405 = BackBuffers
-   | x == 0x406 = LeftBuffers
-   | x == 0x407 = RightBuffers
-   | x == 0x408 = FrontAndBackBuffers
-   | 0x409 <= x && x <= 0x4ff = AuxBuffer (fromIntegral x - 0x409)
+   | x == gl_NONE = NoBuffers
+   | x == gl_FRONT_LEFT = FrontLeftBuffer
+   | x == gl_FRONT_RIGHT = FrontRightBuffer
+   | x == gl_BACK_LEFT = BackLeftBuffer
+   | x == gl_BACK_RIGHT = BackRightBuffer
+   | x == gl_FRONT = FrontBuffers
+   | x == gl_BACK = BackBuffers
+   | x == gl_LEFT = LeftBuffers
+   | x == gl_RIGHT = RightBuffers
+   | x == gl_FRONT_AND_BACK = FrontAndBackBuffers
+   | gl_AUX0 <= x && x <= gl_AUX0 + maxAuxBuffer = AuxBuffer (fromIntegral (x - gl_AUX0))
    | otherwise = error ("unmarshalBufferMode: illegal value " ++ show x)
+
+maxAuxBuffer :: GLenum
+maxAuxBuffer = 246

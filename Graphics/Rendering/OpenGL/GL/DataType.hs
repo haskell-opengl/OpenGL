@@ -17,6 +17,8 @@ module Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType
 ) where
 
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_2_BYTES, gl_3_BYTES, gl_4_BYTES, gl_BITMAP )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -58,69 +60,73 @@ data DataType =
 
 marshalDataType :: DataType -> GLenum
 marshalDataType x = case x of
-   UnsignedByte -> 0x1401
-   Byte -> 0x1400
-   UnsignedShort -> 0x1403
-   Short -> 0x1402
-   UnsignedInt -> 0x1405
-   Int -> 0x1404
-   HalfFloat -> 0x140B
-   Float -> 0x1406
-   UnsignedByte332 -> 0x8032
-   UnsignedByte233Rev -> 0x8362
-   UnsignedShort565 -> 0x8363
-   UnsignedShort565Rev -> 0x8364
-   UnsignedShort4444 -> 0x8033
-   UnsignedShort4444Rev -> 0x8365
-   UnsignedShort5551 -> 0x8034
-   UnsignedShort1555Rev -> 0x8366
-   UnsignedInt8888 -> 0x8035
-   UnsignedInt8888Rev -> 0x8367
-   UnsignedInt1010102 -> 0x8036
-   UnsignedInt2101010Rev -> 0x8368
-   UnsignedInt248 -> 0x84fa
-   UnsignedInt10f11f11fRev -> 0x8C3B
-   UnsignedInt5999Rev -> 0x8C3E
-   Float32UnsignedInt248Rev -> 0x8DAD
-   Bitmap -> 0x1a00
+   UnsignedByte -> gl_UNSIGNED_BYTE
+   Byte -> gl_BYTE
+   UnsignedShort -> gl_UNSIGNED_SHORT
+   Short -> gl_SHORT
+   UnsignedInt -> gl_UNSIGNED_INT
+   Int -> gl_INT
+   HalfFloat -> gl_HALF_FLOAT
+   Float -> gl_FLOAT
+   UnsignedByte332 -> gl_UNSIGNED_BYTE_3_3_2
+   UnsignedByte233Rev -> gl_UNSIGNED_BYTE_2_3_3_REV
+   UnsignedShort565 -> gl_UNSIGNED_SHORT_5_6_5
+   UnsignedShort565Rev -> gl_UNSIGNED_SHORT_5_6_5_REV
+   UnsignedShort4444 -> gl_UNSIGNED_SHORT_4_4_4_4
+   UnsignedShort4444Rev -> gl_UNSIGNED_SHORT_4_4_4_4_REV
+   UnsignedShort5551 -> gl_UNSIGNED_SHORT_5_5_5_1
+   UnsignedShort1555Rev -> gl_UNSIGNED_SHORT_1_5_5_5_REV
+   UnsignedInt8888 -> gl_UNSIGNED_INT_8_8_8_8
+   UnsignedInt8888Rev -> gl_UNSIGNED_INT_8_8_8_8_REV
+   UnsignedInt1010102 -> gl_UNSIGNED_INT_10_10_10_2
+   UnsignedInt2101010Rev -> gl_UNSIGNED_INT_2_10_10_10_REV
+   UnsignedInt248 -> gl_UNSIGNED_INT_24_8
+   UnsignedInt10f11f11fRev -> gl_UNSIGNED_INT_10F_11F_11F_REV
+   UnsignedInt5999Rev -> gl_UNSIGNED_INT_5_9_9_9_REV
+   Float32UnsignedInt248Rev -> gl_FLOAT_32_UNSIGNED_INT_24_8_REV
+   Bitmap -> gl_BITMAP
+   -- TODO: Use UNSIGNED_SHORT_8_8_APPLE from APPLE_ycbcr_422 extension
    UnsignedShort88 -> 0x85ba
+   -- TODO: Use UNSIGNED_SHORT_8_8_REV_APPLE from APPLE_ycbcr_422 extension
    UnsignedShort88Rev -> 0x85bb
-   Double -> 0x140a
-   TwoBytes -> 0x1407
-   ThreeBytes -> 0x1408
-   FourBytes -> 0x1409
+   Double -> gl_DOUBLE
+   TwoBytes -> gl_2_BYTES
+   ThreeBytes -> gl_3_BYTES
+   FourBytes -> gl_4_BYTES
 
 unmarshalDataType :: GLenum -> DataType
 unmarshalDataType x
-   | x == 0x1401 = UnsignedByte
-   | x == 0x1400 = Byte
-   | x == 0x1403 = UnsignedShort
-   | x == 0x1402 = Short
-   | x == 0x1405 = UnsignedInt
-   | x == 0x1404 = Int
-   | x == 0x140B = HalfFloat
-   | x == 0x1406 = Float
-   | x == 0x8032 = UnsignedByte332
-   | x == 0x8362 = UnsignedByte233Rev
-   | x == 0x8363 = UnsignedShort565
-   | x == 0x8364 = UnsignedShort565Rev
-   | x == 0x8033 = UnsignedShort4444
-   | x == 0x8365 = UnsignedShort4444Rev
-   | x == 0x8034 = UnsignedShort5551
-   | x == 0x8366 = UnsignedShort1555Rev
-   | x == 0x8035 = UnsignedInt8888
-   | x == 0x8367 = UnsignedInt8888Rev
-   | x == 0x8036 = UnsignedInt1010102
-   | x == 0x8368 = UnsignedInt2101010Rev
-   | x == 0x84fa = UnsignedInt248
-   | x == 0x8C3B = UnsignedInt10f11f11fRev
-   | x == 0x8C3E = UnsignedInt5999Rev
-   | x == 0x8DAD = Float32UnsignedInt248Rev
-   | x == 0x1a00 = Bitmap
+   | x == gl_UNSIGNED_BYTE = UnsignedByte
+   | x == gl_BYTE = Byte
+   | x == gl_UNSIGNED_SHORT = UnsignedShort
+   | x == gl_SHORT = Short
+   | x == gl_UNSIGNED_INT = UnsignedInt
+   | x == gl_INT = Int
+   | x == gl_HALF_FLOAT = HalfFloat
+   | x == gl_FLOAT = Float
+   | x == gl_UNSIGNED_BYTE_3_3_2 = UnsignedByte332
+   | x == gl_UNSIGNED_BYTE_2_3_3_REV = UnsignedByte233Rev
+   | x == gl_UNSIGNED_SHORT_5_6_5 = UnsignedShort565
+   | x == gl_UNSIGNED_SHORT_5_6_5_REV = UnsignedShort565Rev
+   | x == gl_UNSIGNED_SHORT_4_4_4_4 = UnsignedShort4444
+   | x == gl_UNSIGNED_SHORT_4_4_4_4_REV = UnsignedShort4444Rev
+   | x == gl_UNSIGNED_SHORT_5_5_5_1 = UnsignedShort5551
+   | x == gl_UNSIGNED_SHORT_1_5_5_5_REV = UnsignedShort1555Rev
+   | x == gl_UNSIGNED_INT_8_8_8_8 = UnsignedInt8888
+   | x == gl_UNSIGNED_INT_8_8_8_8_REV = UnsignedInt8888Rev
+   | x == gl_UNSIGNED_INT_10_10_10_2 = UnsignedInt1010102
+   | x == gl_UNSIGNED_INT_2_10_10_10_REV = UnsignedInt2101010Rev
+   | x == gl_UNSIGNED_INT_24_8 = UnsignedInt248
+   | x == gl_UNSIGNED_INT_10F_11F_11F_REV = UnsignedInt10f11f11fRev
+   | x == gl_UNSIGNED_INT_5_9_9_9_REV = UnsignedInt5999Rev
+   | x == gl_FLOAT_32_UNSIGNED_INT_24_8_REV = Float32UnsignedInt248Rev
+   | x == gl_BITMAP = Bitmap
+   -- TODO: Use UNSIGNED_SHORT_8_8_APPLE from APPLE_ycbcr_422 extension
    | x == 0x85ba = UnsignedShort88
+   -- TODO: Use UNSIGNED_SHORT_8_8_REV_APPLE from APPLE_ycbcr_422 extension
    | x == 0x85bb = UnsignedShort88Rev
-   | x == 0x140a = Double
-   | x == 0x1407 = TwoBytes
-   | x == 0x1408 = ThreeBytes
-   | x == 0x1409 = FourBytes
+   | x == gl_DOUBLE = Double
+   | x == gl_2_BYTES = TwoBytes
+   | x == gl_3_BYTES = ThreeBytes
+   | x == gl_4_BYTES = FourBytes
    | otherwise = error ("unmarshalDataType: illegal value " ++ show x)

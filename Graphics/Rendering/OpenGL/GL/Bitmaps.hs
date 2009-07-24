@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Bitmaps (
 import Data.Tensor
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glBitmap )
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 
 --------------------------------------------------------------------------------

@@ -20,11 +20,17 @@ module Graphics.Rendering.OpenGL.GL.ControlPoint (
 import Data.Tensor
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Domain
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_MAP1_COLOR_4, gl_MAP1_INDEX, gl_MAP1_NORMAL, gl_MAP1_TEXTURE_COORD_1,
+   gl_MAP1_TEXTURE_COORD_2, gl_MAP1_TEXTURE_COORD_3, gl_MAP1_TEXTURE_COORD_4,
+   gl_MAP1_VERTEX_3, gl_MAP2_COLOR_4, gl_MAP2_INDEX, gl_MAP2_NORMAL,
+   gl_MAP2_TEXTURE_COORD_1, gl_MAP2_TEXTURE_COORD_2, gl_MAP2_TEXTURE_COORD_3,
+   gl_MAP2_TEXTURE_COORD_4, gl_MAP2_VERTEX_3, gl_MAP2_VERTEX_4 )
 
 --------------------------------------------------------------------------------
 
@@ -142,21 +148,21 @@ data MapTarget =
 
 marshalMapTarget :: MapTarget -> GLenum
 marshalMapTarget x = case x of
-   Map1Color4 -> 0xd90
-   Map1Index -> 0xd91
-   Map1Normal -> 0xd92
-   Map1TextureCoord1 -> 0xd93
-   Map1TextureCoord2 -> 0xd94
-   Map1TextureCoord3 -> 0xd95
-   Map1TextureCoord4 -> 0xd96
-   Map1Vertex3 -> 0xd97
-   Map1Vertex4 -> 0xd98
-   Map2Color4 -> 0xdb0
-   Map2Index -> 0xdb1
-   Map2Normal -> 0xdb2
-   Map2TextureCoord1 -> 0xdb3
-   Map2TextureCoord2 -> 0xdb4
-   Map2TextureCoord3 -> 0xdb5
-   Map2TextureCoord4 -> 0xdb6
-   Map2Vertex3 -> 0xdb7
-   Map2Vertex4 -> 0xdb8
+   Map1Color4 -> gl_MAP1_COLOR_4
+   Map1Index -> gl_MAP1_INDEX
+   Map1Normal -> gl_MAP1_NORMAL
+   Map1TextureCoord1 -> gl_MAP1_TEXTURE_COORD_1
+   Map1TextureCoord2 -> gl_MAP1_TEXTURE_COORD_2
+   Map1TextureCoord3 -> gl_MAP1_TEXTURE_COORD_3
+   Map1TextureCoord4 -> gl_MAP1_TEXTURE_COORD_4
+   Map1Vertex3 -> gl_MAP1_VERTEX_3
+   Map1Vertex4 -> gl_MAP1_VERTEX_3
+   Map2Color4 -> gl_MAP2_COLOR_4
+   Map2Index -> gl_MAP2_INDEX
+   Map2Normal -> gl_MAP2_NORMAL
+   Map2TextureCoord1 -> gl_MAP2_TEXTURE_COORD_1
+   Map2TextureCoord2 -> gl_MAP2_TEXTURE_COORD_2
+   Map2TextureCoord3 -> gl_MAP2_TEXTURE_COORD_3
+   Map2TextureCoord4 -> gl_MAP2_TEXTURE_COORD_4
+   Map2Vertex3 -> gl_MAP2_VERTEX_3
+   Map2Vertex4 -> gl_MAP2_VERTEX_4

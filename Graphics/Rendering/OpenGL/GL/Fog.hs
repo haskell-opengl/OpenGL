@@ -26,7 +26,10 @@ import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glFogf, glFogfv, glFogi, gl_EXP, gl_EXP2, gl_EYE_PLANE, gl_FOG_COLOR,
+   gl_FOG_COORD, gl_FOG_COORD_SRC, gl_FOG_DENSITY, gl_FOG_END, gl_FOG_INDEX,
+   gl_FOG_MODE, gl_FOG_START, gl_FRAGMENT_DEPTH )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -48,13 +51,14 @@ data FogParameter =
 
 marshalFogParameter :: FogParameter -> GLenum
 marshalFogParameter x = case x of
-   FogIndex -> 0xb61
-   FogDensity -> 0xb62
-   FogStart -> 0xb63
-   FogEnd -> 0xb64
-   FogMode -> 0xb65
-   FogColor -> 0xb66
-   FogCoordSrc -> 0x8450
+   FogIndex -> gl_FOG_INDEX
+   FogDensity -> gl_FOG_DENSITY
+   FogStart -> gl_FOG_START
+   FogEnd -> gl_FOG_END
+   FogMode -> gl_FOG_MODE
+   FogColor -> gl_FOG_COLOR
+   FogCoordSrc -> gl_FOG_COORD_SRC
+   -- TODO: Use FOG_DISTANCE_MODE_NV from NV_fog_distance extension
    FogDistanceMode -> 0x855a
 
 --------------------------------------------------------------------------------
@@ -65,17 +69,18 @@ data FogMode' =
    | Exp2'
 
 marshalFogMode' :: FogMode' -> GLint
-marshalFogMode' x = case x of
-   Linear' -> 0x2601
-   Exp' -> 0x800
-   Exp2' -> 0x801
+marshalFogMode' x = fromIntegral $ case x of
+   Linear' -> gl_LINEAR
+   Exp' -> gl_EXP
+   Exp2' -> gl_EXP2
 
 unmarshalFogMode' :: GLint -> FogMode'
 unmarshalFogMode' x
-   | x == 0x2601 = Linear'
-   | x == 0x800 = Exp'
-   | x == 0x801 = Exp2'
+   | y == gl_LINEAR = Linear'
+   | y == gl_EXP = Exp'
+   | y == gl_EXP2 = Exp2'
    | otherwise = error ("unmarshalFogMode': illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 
@@ -146,15 +151,16 @@ data FogCoordSrc =
    deriving ( Eq, Ord, Show )
 
 marshalFogCoordSrc :: FogCoordSrc -> GLint
-marshalFogCoordSrc x = case x of
-   FogCoord -> 0x8451
-   FragmentDepth -> 0x8452
+marshalFogCoordSrc x = fromIntegral $ case x of
+   FogCoord -> gl_FOG_COORD
+   FragmentDepth -> gl_FRAGMENT_DEPTH
 
 unmarshalFogCoordSrc :: GLint -> FogCoordSrc
 unmarshalFogCoordSrc x
-   | x == 0x8451 = FogCoord
-   | x == 0x8452 = FragmentDepth
+   | y == gl_FOG_COORD = FogCoord
+   | y == gl_FRAGMENT_DEPTH = FragmentDepth
    | otherwise = error ("unmarshalFogCoordSrc: illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 
@@ -173,17 +179,22 @@ data FogDistanceMode =
    deriving ( Eq, Ord, Show )
 
 marshalFogDistanceMode :: FogDistanceMode -> GLint
-marshalFogDistanceMode x = case x of
+marshalFogDistanceMode x = fromIntegral $ case x of
+   -- TODO: Use EYE_RADIAL_NV from NV_fog_distance extension
    EyeRadial -> 0x855b
-   EyePlaneSigned -> 0x2502
+   EyePlaneSigned ->gl_EYE_PLANE
+   -- TODO: Use EYE_PLANE_ABSOLUTE_NV from NV_fog_distance extension
    EyePlaneAbsolute -> 0x855c
 
 unmarshalFogDistanceMode :: GLint -> FogDistanceMode
 unmarshalFogDistanceMode x
-   | x== 0x855b = EyeRadial
-   | x == 0x2502 = EyePlaneSigned
-   | x == 0x855c = EyePlaneAbsolute
+   -- TODO: Use EYE_RADIAL_NV from NV_fog_distance extension
+   | y == 0x855b = EyeRadial
+   | y == gl_EYE_PLANE = EyePlaneSigned
+   -- TODO: Use EYE_PLANE_ABSOLUTE_NV from NV_fog_distance extension
+   | y == 0x855c = EyePlaneAbsolute
    | otherwise = error ("unmarshalFogDistanceMode: illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 

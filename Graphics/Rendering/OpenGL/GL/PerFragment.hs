@@ -65,10 +65,11 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glAlphaFunc, gl_INDEX_LOGIC_OP )
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest
-import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide
+import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest ( glDepthBounds )
+import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide ( glActiveStencilFace )
 
 --------------------------------------------------------------------------------
 
@@ -151,25 +152,25 @@ data StencilOp =
 
 marshalStencilOp :: StencilOp -> GLenum
 marshalStencilOp x = case x of
-   OpZero -> 0x0
-   OpKeep -> 0x1e00
-   OpReplace -> 0x1e01
-   OpIncr -> 0x1e02
-   OpIncrWrap -> 0x8507
-   OpDecr -> 0x1e03
-   OpDecrWrap -> 0x8508
-   OpInvert -> 0x150a
+   OpZero -> gl_ZERO
+   OpKeep -> gl_KEEP
+   OpReplace -> gl_REPLACE
+   OpIncr -> gl_INCR
+   OpIncrWrap -> gl_INCR_WRAP
+   OpDecr -> gl_DECR
+   OpDecrWrap -> gl_DECR_WRAP
+   OpInvert -> gl_INVERT
 
 unmarshalStencilOp :: GLenum -> StencilOp
 unmarshalStencilOp x
-   | x == 0x0 = OpZero
-   | x == 0x1e00 = OpKeep
-   | x == 0x1e01 = OpReplace
-   | x == 0x1e02 = OpIncr
-   | x == 0x8507 = OpIncrWrap
-   | x == 0x1e03 = OpDecr
-   | x == 0x8508 = OpDecrWrap
-   | x == 0x150a = OpInvert
+   | x == gl_ZERO = OpZero
+   | x == gl_KEEP = OpKeep
+   | x == gl_REPLACE = OpReplace
+   | x == gl_INCR = OpIncr
+   | x == gl_INCR_WRAP = OpIncrWrap
+   | x == gl_DECR = OpDecr
+   | x == gl_DECR_WRAP = OpDecrWrap
+   | x == gl_INVERT = OpInvert
    | otherwise = error ("unmarshalStencilOp: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -237,7 +238,7 @@ data QueryTarget =
 
 marshalQueryTarget :: QueryTarget -> GLenum
 marshalQueryTarget x = case x of
-   SamplesPassed -> 0x8914
+   SamplesPassed -> gl_SAMPLES_PASSED
 
 --------------------------------------------------------------------------------
 
@@ -260,8 +261,8 @@ data GetQueryPName =
 
 marshalGetQueryPName :: GetQueryPName -> GLenum
 marshalGetQueryPName x = case x of
-   QueryCounterBits -> 0x8864
-   CurrentQuery -> 0x8865
+   QueryCounterBits -> gl_QUERY_COUNTER_BITS
+   CurrentQuery -> gl_CURRENT_QUERY
 
 --------------------------------------------------------------------------------
 
@@ -289,8 +290,8 @@ data GetQueryObjectPName =
 
 marshalGetQueryObjectPName :: GetQueryObjectPName -> GLenum
 marshalGetQueryObjectPName x = case x of
-   QueryResult -> 0x8866
-   QueryResultAvailable -> 0x8867
+   QueryResult -> gl_QUERY_RESULT
+   QueryResultAvailable -> gl_QUERY_RESULT_AVAILABLE
 
 --------------------------------------------------------------------------------
 
@@ -326,21 +327,21 @@ data BlendEquation =
 
 marshalBlendEquation :: BlendEquation -> GLenum
 marshalBlendEquation x = case x of
-   FuncAdd -> 0x8006
-   FuncSubtract -> 0x800a
-   FuncReverseSubtract -> 0x800b
-   Min -> 0x8007
-   Max -> 0x8008
-   LogicOp -> 0xbf1
+   FuncAdd -> gl_FUNC_ADD
+   FuncSubtract -> gl_FUNC_SUBTRACT
+   FuncReverseSubtract -> gl_FUNC_REVERSE_SUBTRACT
+   Min -> gl_MIN
+   Max -> gl_MAX
+   LogicOp -> gl_INDEX_LOGIC_OP
 
 unmarshalBlendEquation :: GLenum -> BlendEquation
 unmarshalBlendEquation x
-   | x == 0x8006 = FuncAdd
-   | x == 0x800a = FuncSubtract
-   | x == 0x800b = FuncReverseSubtract
-   | x == 0x8007 = Min
-   | x == 0x8008 = Max
-   | x == 0xbf1 = LogicOp
+   | x == gl_FUNC_ADD = FuncAdd
+   | x == gl_FUNC_SUBTRACT = FuncSubtract
+   | x == gl_FUNC_REVERSE_SUBTRACT = FuncReverseSubtract
+   | x == gl_MIN = Min
+   | x == gl_MAX = Max
+   | x == gl_INDEX_LOGIC_OP = LogicOp
    | otherwise = error ("unmarshalBlendEquation: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -419,41 +420,41 @@ data LogicOp =
 
 marshalLogicOp :: LogicOp -> GLenum
 marshalLogicOp x = case x of
-   Clear -> 0x1500
-   And -> 0x1501
-   AndReverse -> 0x1502
-   Copy -> 0x1503
-   AndInverted -> 0x1504
-   Noop -> 0x1505
-   Xor -> 0x1506
-   Or -> 0x1507
-   Nor -> 0x1508
-   Equiv -> 0x1509
-   Invert -> 0x150a
-   OrReverse -> 0x150b
-   CopyInverted -> 0x150c
-   OrInverted -> 0x150d
-   Nand -> 0x150e
-   Set -> 0x150f
+   Clear -> gl_CLEAR
+   And -> gl_AND
+   AndReverse -> gl_AND_REVERSE
+   Copy -> gl_COPY
+   AndInverted -> gl_AND_INVERTED
+   Noop -> gl_NOOP
+   Xor -> gl_XOR
+   Or -> gl_OR
+   Nor -> gl_NOR
+   Equiv -> gl_EQUIV
+   Invert -> gl_INVERT
+   OrReverse -> gl_OR_REVERSE
+   CopyInverted -> gl_COPY_INVERTED
+   OrInverted -> gl_OR_INVERTED
+   Nand -> gl_NAND
+   Set -> gl_SET
 
 unmarshalLogicOp :: GLenum -> LogicOp
 unmarshalLogicOp x
-   | x == 0x1500 = Clear
-   | x == 0x1501 = And
-   | x == 0x1502 = AndReverse
-   | x == 0x1503 = Copy
-   | x == 0x1504 = AndInverted
-   | x == 0x1505 = Noop
-   | x == 0x1506 = Xor
-   | x == 0x1507 = Or
-   | x == 0x1508 = Nor
-   | x == 0x1509 = Equiv
-   | x == 0x150a = Invert
-   | x == 0x150b = OrReverse
-   | x == 0x150c = CopyInverted
-   | x == 0x150d = OrInverted
-   | x == 0x150e = Nand
-   | x == 0x150f = Set
+   | x == gl_CLEAR = Clear
+   | x == gl_AND = And
+   | x == gl_AND_REVERSE = AndReverse
+   | x == gl_COPY = Copy
+   | x == gl_AND_INVERTED = AndInverted
+   | x == gl_NOOP = Noop
+   | x == gl_XOR = Xor
+   | x == gl_OR = Or
+   | x == gl_NOR = Nor
+   | x == gl_EQUIV = Equiv
+   | x == gl_INVERT = Invert
+   | x == gl_OR_REVERSE = OrReverse
+   | x == gl_COPY_INVERTED = CopyInverted
+   | x == gl_OR_INVERTED = OrInverted
+   | x == gl_NAND = Nand
+   | x == gl_SET = Set
    | otherwise = error ("unmarshalLogicOp: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

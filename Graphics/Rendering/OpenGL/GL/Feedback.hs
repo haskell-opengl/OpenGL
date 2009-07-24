@@ -27,7 +27,11 @@ import Graphics.Rendering.OpenGL.GL.IOState
 import Graphics.Rendering.OpenGL.GL.RenderMode
 import Graphics.Rendering.OpenGL.GL.Selection
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glFeedbackBuffer, glPassThrough, gl_2D, gl_3D, gl_3D_COLOR,
+   gl_3D_COLOR_TEXTURE, gl_4D_COLOR_TEXTURE, gl_BITMAP_TOKEN,
+   gl_COPY_PIXEL_TOKEN, gl_DRAW_PIXEL_TOKEN, gl_LINE_RESET_TOKEN, gl_LINE_TOKEN,
+   gl_PASS_THROUGH_TOKEN, gl_POINT_TOKEN, gl_POLYGON_TOKEN )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -67,14 +71,14 @@ data FeedbackTag =
 
 unmarshalFeedbackTag :: GLenum -> FeedbackTag
 unmarshalFeedbackTag x
-   | x == 0x701 = PointTag
-   | x == 0x702 = LineTag
-   | x == 0x707 = LineResetTag
-   | x == 0x703 = PolygonTag
-   | x == 0x704 = BitmapTag
-   | x == 0x705 = DrawPixelTag
-   | x == 0x706 = CopyPixelTag
-   | x == 0x700 = PassThroughTag
+   | x == gl_POINT_TOKEN = PointTag
+   | x == gl_LINE_TOKEN = LineTag
+   | x == gl_LINE_RESET_TOKEN = LineResetTag
+   | x == gl_POLYGON_TOKEN = PolygonTag
+   | x == gl_BITMAP_TOKEN = BitmapTag
+   | x == gl_DRAW_PIXEL_TOKEN = DrawPixelTag
+   | x == gl_COPY_PIXEL_TOKEN = CopyPixelTag
+   | x == gl_PASS_THROUGH_TOKEN = PassThroughTag
    | otherwise = error ("unmarshalFeedbackTag: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -89,11 +93,11 @@ data FeedbackType =
 
 marshalFeedbackType :: FeedbackType -> GLenum
 marshalFeedbackType x = case x of
-   TwoD -> 0x600
-   ThreeD -> 0x601
-   ThreeDColor -> 0x602
-   ThreeDColorTexture -> 0x603
-   FourDColorTexture -> 0x604
+   TwoD -> gl_2D
+   ThreeD -> gl_3D
+   ThreeDColor -> gl_3D_COLOR
+   ThreeDColorTexture -> gl_3D_COLOR_TEXTURE
+   FourDColorTexture -> gl_4D_COLOR_TEXTURE
 
 --------------------------------------------------------------------------------
 

@@ -50,7 +50,16 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glFrustum, glGetTexGendv, glGetTexGeniv, glLoadIdentity, glLoadMatrixd,
+   glLoadMatrixf, glLoadTransposeMatrixd, glLoadTransposeMatrixf, glMatrixMode,
+   glMultMatrixd, glMultMatrixf, glMultTransposeMatrixd, glMultTransposeMatrixf,
+   glOrtho, glPopMatrix, glPushMatrix, glRotated, glRotatef, glScaled, glScalef,
+   glTexGendv, glTexGeni, glTranslated, glTranslatef, gl_EYE_LINEAR,
+   gl_EYE_PLANE, gl_NORMAL_MAP, gl_OBJECT_LINEAR, gl_OBJECT_PLANE,
+   gl_PROJECTION, gl_Q, gl_R, gl_REFLECTION_MAP, gl_S, gl_SPHERE_MAP, gl_T,
+   gl_TEXTURE_GEN_MODE )
+import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette ( gl_MATRIX_PALETTE )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -124,17 +133,17 @@ data MatrixMode =
 marshalMatrixMode :: MatrixMode -> Maybe GLenum
 marshalMatrixMode x = case x of
    Modelview i -> modelviewIndexToEnum i
-   Projection -> Just 0x1701
-   Texture -> Just 0x1702
-   Color -> Just 0x1800
-   MatrixPalette -> Just 0x8840
+   Projection -> Just gl_PROJECTION
+   Texture -> Just gl_TEXTURE
+   Color -> Just gl_COLOR
+   MatrixPalette -> Just gl_MATRIX_PALETTE
 
 unmarshalMatrixMode :: GLenum -> MatrixMode
 unmarshalMatrixMode x
-   | x == 0x1701 = Projection
-   | x == 0x1702 = Texture
-   | x == 0x1800 = Color
-   | x == 0x8840 = MatrixPalette
+   | x == gl_PROJECTION = Projection
+   | x == gl_TEXTURE = Texture
+   | x == gl_COLOR = Color
+   | x == gl_MATRIX_PALETTE = MatrixPalette
    | otherwise =
         case modelviewEnumToIndex x of
            Just i -> Modelview i
@@ -401,10 +410,10 @@ data TextureCoordName =
 
 marshalTextureCoordName :: TextureCoordName -> GLenum
 marshalTextureCoordName x = case x of
-   S -> 0x2000
-   T -> 0x2001
-   R -> 0x2002
-   Q -> 0x2003
+   S -> gl_S
+   T -> gl_T
+   R -> gl_R
+   Q -> gl_Q
 
 --------------------------------------------------------------------------------
 
@@ -415,9 +424,9 @@ data TextureGenParameter =
 
 marshalTextureGenParameter :: TextureGenParameter -> GLenum
 marshalTextureGenParameter x = case x of
-   TextureGenMode -> 0x2500
-   ObjectPlane -> 0x2501
-   EyePlane -> 0x2502
+   TextureGenMode -> gl_TEXTURE_GEN_MODE
+   ObjectPlane -> gl_OBJECT_PLANE
+   EyePlane -> gl_EYE_PLANE
 
 --------------------------------------------------------------------------------
 
@@ -429,21 +438,22 @@ data TextureGenMode' =
    | ReflectionMap'
 
 marshalTextureGenMode' :: TextureGenMode' -> GLint
-marshalTextureGenMode' x = case x of
-   EyeLinear' -> 0x2400
-   ObjectLinear' -> 0x2401
-   SphereMap' -> 0x2402
-   NormalMap' -> 0x8511
-   ReflectionMap' -> 0x8512
+marshalTextureGenMode' x = fromIntegral $ case x of
+   EyeLinear' -> gl_EYE_LINEAR
+   ObjectLinear' -> gl_OBJECT_LINEAR
+   SphereMap' -> gl_SPHERE_MAP
+   NormalMap' -> gl_NORMAL_MAP
+   ReflectionMap' -> gl_REFLECTION_MAP
 
 unmarshalTextureGenMode' :: GLint -> TextureGenMode'
 unmarshalTextureGenMode' x
-   | x == 0x2400 = EyeLinear'
-   | x == 0x2401 = ObjectLinear'
-   | x == 0x2402 = SphereMap'
-   | x == 0x8511 = NormalMap'
-   | x == 0x8512 = ReflectionMap'
+   | y == gl_EYE_LINEAR = EyeLinear'
+   | y == gl_OBJECT_LINEAR = ObjectLinear'
+   | y == gl_SPHERE_MAP = SphereMap'
+   | y == gl_NORMAL_MAP = NormalMap'
+   | y == gl_REFLECTION_MAP = ReflectionMap'
    | otherwise = error ("unmarshalTextureGenMode': illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 

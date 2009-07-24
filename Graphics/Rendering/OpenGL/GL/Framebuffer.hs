@@ -44,7 +44,9 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glAccum, glClearAccum, glClearIndex, glIndexMask, gl_ACCUM,
+   gl_ACCUM_BUFFER_BIT, gl_ADD, gl_LOAD, gl_MULT, gl_RETURN )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -251,10 +253,10 @@ data ClearBuffer =
 
 marshalClearBuffer :: ClearBuffer -> GLbitfield
 marshalClearBuffer x = case x of
-   ColorBuffer -> 0x4000
-   AccumBuffer -> 0x200
-   StencilBuffer -> 0x400
-   DepthBuffer -> 0x100
+   ColorBuffer -> gl_COLOR_BUFFER_BIT
+   AccumBuffer -> gl_ACCUM_BUFFER_BIT
+   StencilBuffer -> gl_STENCIL_BUFFER_BIT
+   DepthBuffer -> gl_DEPTH_BUFFER_BIT
 
 --------------------------------------------------------------------------------
 
@@ -370,11 +372,11 @@ data AccumOp =
 
 marshalAccumOp :: AccumOp -> GLenum
 marshalAccumOp x = case x of
-   Accum -> 0x100
-   Load -> 0x101
-   Return -> 0x102
-   Mult -> 0x103
-   Add -> 0x104
+   Accum -> gl_ACCUM
+   Load -> gl_LOAD
+   Return -> gl_RETURN
+   Mult -> gl_MULT
+   Add -> gl_ADD
 
 --------------------------------------------------------------------------------
 

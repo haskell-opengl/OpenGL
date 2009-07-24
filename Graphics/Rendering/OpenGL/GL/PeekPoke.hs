@@ -19,8 +19,8 @@ module Graphics.Rendering.OpenGL.GL.PeekPoke (
    peek1M, peek2M, peek3M, peek4M
 ) where
 
-import Foreign.Ptr ( Ptr )
-import Foreign.Storable ( Storable(peekElemOff,pokeElemOff) )
+import Foreign.Ptr
+import Foreign.Storable
 
 --------------------------------------------------------------------------------
 -- The implementation is little bit verbose/redundant, but seems to generate

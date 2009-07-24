@@ -35,23 +35,23 @@ data ComparisonFunction =
 
 marshalComparisonFunction :: ComparisonFunction -> GLenum
 marshalComparisonFunction x = case x of
-   Never -> 0x200
-   Less -> 0x201
-   Equal -> 0x202
-   Lequal -> 0x203
-   Greater -> 0x204
-   Notequal -> 0x205
-   Gequal -> 0x206
-   Always -> 0x207
+   Never -> gl_NEVER
+   Less -> gl_LESS
+   Equal -> gl_EQUAL
+   Lequal -> gl_LEQUAL
+   Greater -> gl_GREATER
+   Notequal -> gl_NOTEQUAL
+   Gequal -> gl_GEQUAL
+   Always -> gl_ALWAYS
 
 unmarshalComparisonFunction :: GLenum -> ComparisonFunction
 unmarshalComparisonFunction x
-   | x == 0x200 = Never
-   | x == 0x201 = Less
-   | x == 0x202 = Equal
-   | x == 0x203 = Lequal
-   | x == 0x204 = Greater
-   | x == 0x205 = Notequal
-   | x == 0x206 = Gequal
-   | x == 0x207 = Always
+   | x == gl_NEVER = Never
+   | x == gl_LESS = Less
+   | x == gl_EQUAL = Equal
+   | x == gl_LEQUAL = Lequal
+   | x == gl_GREATER = Greater
+   | x == gl_NOTEQUAL = Notequal
+   | x == gl_GEQUAL = Gequal
+   | x == gl_ALWAYS = Always
    | otherwise = error ("unmarshalComparisonFunction: illegal value " ++ show x)

@@ -80,12 +80,12 @@ data BufferTarget =
 
 marshalBufferTarget :: BufferTarget -> GLenum
 marshalBufferTarget x = case x of
-   ArrayBuffer -> 0x8892
-   CopyReadBuffer -> 0x8F36
-   CopyWriteBuffer -> 0x8F37
-   ElementArrayBuffer -> 0x8893
-   PixelPackBuffer -> 0x88eb
-   PixelUnpackBuffer -> 0x88ec
+   ArrayBuffer -> gl_ARRAY_BUFFER
+   CopyReadBuffer -> gl_COPY_READ_BUFFER
+   CopyWriteBuffer -> gl_COPY_WRITE_BUFFER
+   ElementArrayBuffer -> gl_ELEMENT_ARRAY_BUFFER
+   PixelPackBuffer -> gl_PIXEL_PACK_BUFFER
+   PixelUnpackBuffer -> gl_PIXEL_UNPACK_BUFFER
 
 bufferTargetToGetPName :: BufferTarget -> GetPName
 bufferTargetToGetPName x = case x of
@@ -112,27 +112,27 @@ data BufferUsage =
 
 marshalBufferUsage :: BufferUsage -> GLenum
 marshalBufferUsage x = case x of
-   StreamDraw -> 0x88e0
-   StreamRead -> 0x88e1
-   StreamCopy -> 0x88e2
-   StaticDraw -> 0x88e4
-   StaticRead -> 0x88e5
-   StaticCopy -> 0x88e6
-   DynamicDraw -> 0x88e8
-   DynamicRead -> 0x88e9
-   DynamicCopy -> 0x88ea
+   StreamDraw -> gl_STREAM_DRAW
+   StreamRead -> gl_STREAM_READ
+   StreamCopy -> gl_STREAM_COPY
+   StaticDraw -> gl_STATIC_DRAW
+   StaticRead -> gl_STATIC_READ
+   StaticCopy -> gl_STATIC_COPY
+   DynamicDraw -> gl_DYNAMIC_DRAW
+   DynamicRead -> gl_DYNAMIC_READ
+   DynamicCopy -> gl_DYNAMIC_COPY
 
 unmarshalBufferUsage :: GLenum -> BufferUsage
 unmarshalBufferUsage x
-   | x == 0x88e0 = StreamDraw
-   | x == 0x88e1 = StreamRead
-   | x == 0x88e2 = StreamCopy
-   | x == 0x88e4 = StaticDraw
-   | x == 0x88e5 = StaticRead
-   | x == 0x88e6 = StaticCopy
-   | x == 0x88e8 = DynamicDraw
-   | x == 0x88e9 = DynamicRead
-   | x == 0x88ea = DynamicCopy
+   | x == gl_STREAM_DRAW = StreamDraw
+   | x == gl_STREAM_READ = StreamRead
+   | x == gl_STREAM_COPY = StreamCopy
+   | x == gl_STATIC_DRAW = StaticDraw
+   | x == gl_STATIC_READ = StaticRead
+   | x == gl_STATIC_COPY = StaticCopy
+   | x == gl_DYNAMIC_DRAW = DynamicDraw
+   | x == gl_DYNAMIC_READ = DynamicRead
+   | x == gl_DYNAMIC_COPY = DynamicCopy
    | otherwise = error ("unmarshalBufferUsage: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -145,15 +145,15 @@ data BufferAccess =
 
 marshalBufferAccess :: BufferAccess -> GLenum
 marshalBufferAccess x = case x of
-   ReadOnly -> 0x88b8
-   WriteOnly -> 0x88b9
-   ReadWrite -> 0x88ba
+   ReadOnly -> gl_READ_ONLY
+   WriteOnly -> gl_WRITE_ONLY
+   ReadWrite -> gl_READ_WRITE
 
 unmarshalBufferAccess :: GLenum -> BufferAccess
 unmarshalBufferAccess x
-   | x == 0x88b8 = ReadOnly
-   | x == 0x88b9 = WriteOnly
-   | x == 0x88ba = ReadWrite
+   | x == gl_READ_ONLY = ReadOnly
+   | x == gl_WRITE_ONLY = WriteOnly
+   | x == gl_READ_WRITE = ReadWrite
    | otherwise = error ("unmarshalBufferAccess: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -239,10 +239,10 @@ data GetBufferPName =
 
 marshalGetBufferPName :: GetBufferPName -> GLenum
 marshalGetBufferPName x = case x of
-   GetBufferSize -> 0x8764
-   GetBufferUsage -> 0x8765
-   GetBufferAccess -> 0x88bb
-   GetBufferMapped -> 0x88bc
+   GetBufferSize -> gl_BUFFER_SIZE
+   GetBufferUsage -> gl_BUFFER_USAGE
+   GetBufferAccess -> gl_BUFFER_ACCESS
+   GetBufferMapped -> gl_BUFFER_MAPPED
 
 getBufferParameter :: BufferTarget -> (GLenum -> a) -> GetBufferPName -> IO a
 getBufferParameter t f p = alloca $ \buf -> do
@@ -254,8 +254,7 @@ getBufferParameter t f p = alloca $ \buf -> do
 
 getBufferPointer :: BufferTarget -> IO (Ptr a)
 getBufferPointer t = alloca $ \buf -> do
-   -- only one pname: GL_BUFFER_MAP_POINTER
-   glGetBufferPointerv (marshalBufferTarget t) 0x88bd buf
+   glGetBufferPointerv (marshalBufferTarget t) gl_BUFFER_MAP_POINTER buf
    peek buf
 
 --------------------------------------------------------------------------------

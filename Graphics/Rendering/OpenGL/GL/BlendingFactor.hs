@@ -41,37 +41,37 @@ data BlendingFactor =
 
 marshalBlendingFactor :: BlendingFactor -> GLenum
 marshalBlendingFactor x = case x of
-   Zero -> 0x0
-   One -> 0x1
-   SrcColor -> 0x300
-   OneMinusSrcColor -> 0x301
-   DstColor -> 0x306
-   OneMinusDstColor -> 0x307
-   SrcAlpha -> 0x302
-   OneMinusSrcAlpha -> 0x303
-   DstAlpha -> 0x304
-   OneMinusDstAlpha -> 0x305
-   ConstantColor -> 0x8001
-   OneMinusConstantColor -> 0x8002
-   ConstantAlpha -> 0x8003
-   OneMinusConstantAlpha -> 0x8004
-   SrcAlphaSaturate -> 0x308
+   Zero -> gl_ZERO
+   One -> gl_ONE
+   SrcColor -> gl_SRC_COLOR
+   OneMinusSrcColor -> gl_ONE_MINUS_SRC_COLOR
+   DstColor -> gl_DST_COLOR
+   OneMinusDstColor -> gl_ONE_MINUS_DST_COLOR
+   SrcAlpha -> gl_SRC_ALPHA
+   OneMinusSrcAlpha -> gl_ONE_MINUS_SRC_ALPHA
+   DstAlpha -> gl_DST_ALPHA
+   OneMinusDstAlpha -> gl_ONE_MINUS_DST_ALPHA
+   ConstantColor -> gl_CONSTANT_COLOR
+   OneMinusConstantColor -> gl_ONE_MINUS_CONSTANT_COLOR
+   ConstantAlpha -> gl_CONSTANT_ALPHA
+   OneMinusConstantAlpha -> gl_ONE_MINUS_CONSTANT_ALPHA
+   SrcAlphaSaturate -> gl_SRC_ALPHA_SATURATE
 
 unmarshalBlendingFactor :: GLenum -> BlendingFactor
 unmarshalBlendingFactor x
-   | x == 0x0 = Zero
-   | x == 0x1 = One
-   | x == 0x300 = SrcColor
-   | x == 0x301 = OneMinusSrcColor
-   | x == 0x306 = DstColor
-   | x == 0x307 = OneMinusDstColor
-   | x == 0x302 = SrcAlpha
-   | x == 0x303 = OneMinusSrcAlpha
-   | x == 0x304 = DstAlpha
-   | x == 0x305 = OneMinusDstAlpha
-   | x == 0x8001 = ConstantColor
-   | x == 0x8002 = OneMinusConstantColor
-   | x == 0x8003 = ConstantAlpha
-   | x == 0x8004 = OneMinusConstantAlpha
-   | x == 0x308 = SrcAlphaSaturate
+   | x == gl_ZERO = Zero
+   | x == gl_ONE = One
+   | x == gl_SRC_COLOR = SrcColor
+   | x == gl_ONE_MINUS_SRC_COLOR = OneMinusSrcColor
+   | x == gl_DST_COLOR = DstColor
+   | x == gl_ONE_MINUS_DST_COLOR = OneMinusDstColor
+   | x == gl_SRC_ALPHA = SrcAlpha
+   | x == gl_ONE_MINUS_SRC_ALPHA = OneMinusSrcAlpha
+   | x == gl_DST_ALPHA = DstAlpha
+   | x == gl_ONE_MINUS_DST_ALPHA = OneMinusDstAlpha
+   | x == gl_CONSTANT_COLOR = ConstantColor
+   | x == gl_ONE_MINUS_CONSTANT_COLOR = OneMinusConstantColor
+   | x == gl_CONSTANT_ALPHA = ConstantAlpha
+   | x == gl_ONE_MINUS_CONSTANT_ALPHA = OneMinusConstantAlpha
+   | x == gl_SRC_ALPHA_SATURATE = SrcAlphaSaturate
    | otherwise = error ("unmarshalBlendingFactor: illegal value " ++ show x)

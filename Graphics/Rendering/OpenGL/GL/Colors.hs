@@ -53,7 +53,16 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glColorMaterial, glGetLightfv, glGetMaterialfv, glGetMaterialiv,
+   glLightModelfv, glLightModeli, glLightfv, glMaterialfv, glMaterialiv,
+   glShadeModel, gl_AMBIENT, gl_AMBIENT_AND_DIFFUSE, gl_COLOR_INDEXES,
+   gl_CONSTANT_ATTENUATION, gl_DIFFUSE, gl_EMISSION, gl_FLAT,
+   gl_LIGHT_MODEL_AMBIENT, gl_LIGHT_MODEL_COLOR_CONTROL,
+   gl_LIGHT_MODEL_LOCAL_VIEWER, gl_LIGHT_MODEL_TWO_SIDE, gl_LINEAR_ATTENUATION,
+   gl_POSITION, gl_QUADRATIC_ATTENUATION, gl_SEPARATE_SPECULAR_COLOR,
+   gl_SHININESS, gl_SINGLE_COLOR, gl_SMOOTH, gl_SPECULAR, gl_SPOT_CUTOFF,
+   gl_SPOT_DIRECTION, gl_SPOT_EXPONENT )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -86,13 +95,13 @@ data FrontFaceDirection =
 
 marshalFrontFaceDirection :: FrontFaceDirection -> GLenum
 marshalFrontFaceDirection x = case x of
-   CW -> 0x900
-   CCW -> 0x901
+   CW -> gl_CW
+   CCW -> gl_CCW
 
 unmarshalFrontFaceDirection :: GLenum -> FrontFaceDirection
 unmarshalFrontFaceDirection x
-   | x == 0x900 = CW
-   | x == 0x901 = CCW
+   | x == gl_CW = CW
+   | x == gl_CCW = CCW
    | otherwise = error ("unmarshalFrontFaceDirection: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -116,13 +125,13 @@ data MaterialParameter =
 
 marshalMaterialParameter :: MaterialParameter -> GLenum
 marshalMaterialParameter x = case x of
-   MaterialEmission -> 0x1600
-   MaterialShininess -> 0x1601
-   MaterialAmbientAndDiffuse -> 0x1602
-   MaterialColorIndexes -> 0x1603
-   MaterialAmbient -> 0x1200
-   MaterialDiffuse -> 0x1201
-   MaterialSpecular -> 0x1202
+   MaterialEmission -> gl_EMISSION
+   MaterialShininess -> gl_SHININESS
+   MaterialAmbientAndDiffuse -> gl_AMBIENT_AND_DIFFUSE
+   MaterialColorIndexes -> gl_COLOR_INDEXES
+   MaterialAmbient -> gl_AMBIENT
+   MaterialDiffuse -> gl_DIFFUSE
+   MaterialSpecular -> gl_SPECULAR
 
 --------------------------------------------------------------------------------
 
@@ -218,16 +227,16 @@ data LightParameter =
 
 marshalLightParameter :: LightParameter -> GLenum
 marshalLightParameter x = case x of
-   Ambient' -> 0x1200
-   Diffuse' -> 0x1201
-   Specular' -> 0x1202
-   Position -> 0x1203
-   SpotDirection -> 0x1204
-   SpotExponent -> 0x1205
-   SpotCutoff -> 0x1206
-   ConstantAttenuation -> 0x1207
-   LinearAttenuation -> 0x1208
-   QuadraticAttenuation -> 0x1209
+   Ambient' -> gl_AMBIENT
+   Diffuse' -> gl_DIFFUSE
+   Specular' -> gl_SPECULAR
+   Position -> gl_POSITION
+   SpotDirection -> gl_SPOT_DIRECTION
+   SpotExponent -> gl_SPOT_EXPONENT
+   SpotCutoff -> gl_SPOT_CUTOFF
+   ConstantAttenuation -> gl_CONSTANT_ATTENUATION
+   LinearAttenuation -> gl_LINEAR_ATTENUATION
+   QuadraticAttenuation -> gl_QUADRATIC_ATTENUATION
 
 --------------------------------------------------------------------------------
 
@@ -330,10 +339,10 @@ data LightModelParameter =
 
 marshalLightModelParameter :: LightModelParameter -> GLenum
 marshalLightModelParameter x = case x of
-   LightModelAmbient -> 0xb53
-   LightModelLocalViewer -> 0xb51
-   LightModelTwoSide -> 0xb52
-   LightModelColorControl -> 0x81f8
+   LightModelAmbient -> gl_LIGHT_MODEL_AMBIENT
+   LightModelLocalViewer -> gl_LIGHT_MODEL_LOCAL_VIEWER
+   LightModelTwoSide -> gl_LIGHT_MODEL_TWO_SIDE
+   LightModelColorControl -> gl_LIGHT_MODEL_COLOR_CONTROL
 
 --------------------------------------------------------------------------------
 
@@ -374,13 +383,13 @@ data LightModelColorControl =
 
 marshalLightModelColorControl :: LightModelColorControl -> GLenum
 marshalLightModelColorControl x = case x of
-   SingleColor -> 0x81f9
-   SeparateSpecularColor -> 0x81fa
+   SingleColor -> gl_SINGLE_COLOR
+   SeparateSpecularColor -> gl_SEPARATE_SPECULAR_COLOR
 
 unmarshalLightModelColorControl :: GLenum -> LightModelColorControl
 unmarshalLightModelColorControl x
-   | x == 0x81f9 = SingleColor
-   | x == 0x81fa = SeparateSpecularColor
+   | x == gl_SINGLE_COLOR = SingleColor
+   | x == gl_SEPARATE_SPECULAR_COLOR = SeparateSpecularColor
    | otherwise = error ("unmarshalLightModelColorControl: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -404,19 +413,19 @@ data ColorMaterialParameter =
 
 marshalColorMaterialParameter :: ColorMaterialParameter -> GLenum
 marshalColorMaterialParameter x = case x of
-   Ambient -> 0x1200
-   Diffuse -> 0x1201
-   Specular -> 0x1202
-   Emission -> 0x1600
-   AmbientAndDiffuse -> 0x1602
+   Ambient -> gl_AMBIENT
+   Diffuse -> gl_DIFFUSE
+   Specular -> gl_SPECULAR
+   Emission -> gl_EMISSION
+   AmbientAndDiffuse -> gl_AMBIENT_AND_DIFFUSE
 
 unmarshalColorMaterialParameter :: GLenum -> ColorMaterialParameter
 unmarshalColorMaterialParameter x
-   | x == 0x1200 = Ambient
-   | x == 0x1201 = Diffuse
-   | x == 0x1202 = Specular
-   | x == 0x1600 = Emission
-   | x == 0x1602 = AmbientAndDiffuse
+   | x == gl_AMBIENT = Ambient
+   | x == gl_DIFFUSE = Diffuse
+   | x == gl_SPECULAR = Specular
+   | x == gl_EMISSION = Emission
+   | x == gl_AMBIENT_AND_DIFFUSE = AmbientAndDiffuse
    | otherwise = error ("unmarshalColorMaterialParameter: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -441,13 +450,13 @@ data ShadingModel =
 
 marshalShadingModel :: ShadingModel -> GLenum
 marshalShadingModel x = case x of
-   Flat -> 0x1d00
-   Smooth -> 0x1d01
+   Flat -> gl_FLAT
+   Smooth -> gl_SMOOTH
 
 unmarshalShadingModel :: GLenum -> ShadingModel
 unmarshalShadingModel x
-   | x == 0x1d00 = Flat
-   | x == 0x1d01 = Smooth
+   | x == gl_FLAT = Flat
+   | x == gl_SMOOTH = Smooth
    | otherwise = error ("unmarshalShadingModel: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

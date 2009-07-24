@@ -18,6 +18,8 @@ module Graphics.Rendering.OpenGL.GL.PrimitiveMode (
 ) where
 
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_QUADS, gl_QUAD_STRIP, gl_POLYGON )
 
 --------------------------------------------------------------------------------
 
@@ -70,27 +72,27 @@ data PrimitiveMode =
 
 marshalPrimitiveMode :: PrimitiveMode -> GLenum
 marshalPrimitiveMode x = case x of
-   Points -> 0x0
-   Lines -> 0x1
-   LineLoop -> 0x2
-   LineStrip -> 0x3
-   Triangles -> 0x4
-   TriangleStrip -> 0x5
-   TriangleFan -> 0x6
-   Quads -> 0x7
-   QuadStrip -> 0x8
-   Polygon -> 0x9
+   Points -> gl_POINTS
+   Lines -> gl_LINES
+   LineLoop -> gl_LINE_LOOP
+   LineStrip -> gl_LINE_STRIP
+   Triangles -> gl_TRIANGLES
+   TriangleStrip -> gl_TRIANGLE_STRIP
+   TriangleFan -> gl_TRIANGLE_FAN
+   Quads -> gl_QUADS
+   QuadStrip -> gl_QUAD_STRIP
+   Polygon -> gl_POLYGON
 
 unmarshalPrimitiveMode :: GLenum -> PrimitiveMode
 unmarshalPrimitiveMode x
-   | x == 0x0 = Points
-   | x == 0x1 = Lines
-   | x == 0x2 = LineLoop
-   | x == 0x3 = LineStrip
-   | x == 0x4 = Triangles
-   | x == 0x5 = TriangleStrip
-   | x == 0x6 = TriangleFan
-   | x == 0x7 = Quads
-   | x == 0x8 = QuadStrip
-   | x == 0x9 = Polygon
+   | x == gl_POINTS = Points
+   | x == gl_LINES = Lines
+   | x == gl_LINE_LOOP = LineLoop
+   | x == gl_LINE_STRIP = LineStrip
+   | x == gl_TRIANGLES = Triangles
+   | x == gl_TRIANGLE_STRIP = TriangleStrip
+   | x == gl_TRIANGLE_FAN = TriangleFan
+   | x == gl_QUADS = Quads
+   | x == gl_QUAD_STRIP = QuadStrip
+   | x == gl_POLYGON = Polygon
    | otherwise = error ("unmarshalPrimitiveMode: illegal value " ++ show x)

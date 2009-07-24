@@ -18,7 +18,12 @@ module Graphics.Rendering.OpenGL.GL.Hints (
 
 import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_FOG_HINT, gl_GENERATE_MIPMAP_HINT, gl_PERSPECTIVE_CORRECTION_HINT,
+   gl_POINT_SMOOTH_HINT )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka (
+   gl_PACK_CMYK_HINT, gl_UNPACK_CMYK_HINT )
 
 --------------------------------------------------------------------------------
 
@@ -36,15 +41,15 @@ data HintTarget =
 
 marshalHintTarget :: HintTarget -> GLenum
 marshalHintTarget x = case x of
-   PerspectiveCorrection -> 0xc50
-   PointSmooth -> 0xc51
-   LineSmooth -> 0xc52
-   PolygonSmooth -> 0xc53
-   Fog -> 0xc54
-   GenerateMipmap -> 0x8192
-   TextureCompression -> 0x84ef
-   PackCMYK -> 0x800e
-   UnpackCMYK -> 0x800f
+   PerspectiveCorrection -> gl_PERSPECTIVE_CORRECTION_HINT
+   PointSmooth -> gl_POINT_SMOOTH_HINT
+   LineSmooth -> gl_LINE_SMOOTH_HINT
+   PolygonSmooth -> gl_POLYGON_SMOOTH_HINT
+   Fog -> gl_FOG_HINT
+   GenerateMipmap -> gl_GENERATE_MIPMAP_HINT
+   TextureCompression -> gl_TEXTURE_COMPRESSION_HINT
+   PackCMYK -> gl_PACK_CMYK_HINT
+   UnpackCMYK -> gl_UNPACK_CMYK_HINT
 
 hintTargetToGetPName :: HintTarget -> GetPName
 hintTargetToGetPName x = case x of
@@ -68,15 +73,15 @@ data HintMode =
 
 marshalHintMode :: HintMode -> GLenum
 marshalHintMode x = case x of
-   DontCare -> 0x1100
-   Fastest -> 0x1101
-   Nicest -> 0x1102
+   DontCare -> gl_DONT_CARE
+   Fastest -> gl_FASTEST
+   Nicest -> gl_NICEST
 
 unmarshalHintMode :: GLenum -> HintMode
 unmarshalHintMode x
-   | x == 0x1100 = DontCare
-   | x == 0x1101 = Fastest
-   | x == 0x1102 = Nicest
+   | x == gl_DONT_CARE = DontCare
+   | x == gl_FASTEST = Fastest
+   | x == gl_NICEST = Nicest
    | otherwise = error ("unmarshalHintMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

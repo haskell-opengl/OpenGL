@@ -28,7 +28,7 @@ import Graphics.Rendering.OpenGL.GL.EdgeFlag
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glBegin, glEnd, glEdgeFlag )
 import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
 
 --------------------------------------------------------------------------------

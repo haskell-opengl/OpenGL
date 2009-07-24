@@ -34,7 +34,9 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+ glCallList, glCallLists, glDeleteLists, glEndList, glGenLists, glIsList,
+ glListBase, glNewList, gl_COMPILE, gl_COMPILE_AND_EXECUTE )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -99,13 +101,13 @@ data ListMode =
 
 marshalListMode :: ListMode -> GLenum
 marshalListMode x = case x of
-   Compile -> 0x1300
-   CompileAndExecute -> 0x1301
+   Compile -> gl_COMPILE
+   CompileAndExecute -> gl_COMPILE_AND_EXECUTE
 
 unmarshalListMode :: GLenum -> ListMode
 unmarshalListMode x
-   | x == 0x1300 = Compile
-   | x == 0x1301 = CompileAndExecute
+   | x == gl_COMPILE = Compile
+   | x == gl_COMPILE_AND_EXECUTE = CompileAndExecute
    | otherwise = error ("unmarshalListMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

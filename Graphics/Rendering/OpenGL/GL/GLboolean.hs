@@ -17,11 +17,14 @@ module Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean
 ) where
 
+import Graphics.Rendering.OpenGL.Raw.Core31
+
 --------------------------------------------------------------------------------
 
 marshalGLboolean :: Num a => Bool -> a
-marshalGLboolean False = 0
-marshalGLboolean True  = 1
+marshalGLboolean x = fromIntegral $ case x of
+   False -> gl_FALSE
+   True -> gl_TRUE
 
 unmarshalGLboolean :: Num a => a -> Bool
-unmarshalGLboolean = (/= 0)
+unmarshalGLboolean = (/= fromIntegral gl_FALSE)
