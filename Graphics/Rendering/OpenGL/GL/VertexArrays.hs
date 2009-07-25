@@ -47,7 +47,23 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glArrayElement, glClientActiveTexture, glColorPointer, glDisableClientState,
+   glEdgeFlagPointer, glEnableClientState, glFogCoordPointer, glIndexPointer,
+   glInterleavedArrays, glNormalPointer, glSecondaryColorPointer,
+   glTexCoordPointer, glVertexPointer, gl_C3F_V3F, gl_C4F_N3F_V3F, gl_C4UB_V2F,
+   gl_C4UB_V3F, gl_COLOR_ARRAY, gl_COLOR_ARRAY_POINTER, gl_EDGE_FLAG_ARRAY,
+   gl_EDGE_FLAG_ARRAY_POINTER, gl_FEEDBACK_BUFFER_POINTER, gl_FOG_COORD_ARRAY,
+   gl_FOG_COORD_ARRAY_POINTER, gl_INDEX_ARRAY, gl_INDEX_ARRAY_POINTER,
+   gl_N3F_V3F, gl_NORMAL_ARRAY, gl_NORMAL_ARRAY_POINTER,
+   gl_SECONDARY_COLOR_ARRAY, gl_SECONDARY_COLOR_ARRAY_POINTER,
+   gl_SELECTION_BUFFER_POINTER, gl_T2F_C3F_V3F, gl_T2F_C4F_N3F_V3F,
+   gl_T2F_C4UB_V3F, gl_T2F_N3F_V3F, gl_T2F_V3F, gl_T4F_C4F_N3F_V4F, gl_T4F_V4F,
+   gl_TEXTURE_COORD_ARRAY, gl_TEXTURE_COORD_ARRAY_POINTER, gl_V2F, gl_V3F,
+   gl_VERTEX_ARRAY, gl_VERTEX_ARRAY_POINTER )
+import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette (
+   gl_MATRIX_INDEX_ARRAY, gl_MATRIX_INDEX_ARRAY_POINTER )
+import Graphics.Rendering.OpenGL.Raw.ARB.VertexBlend ( gl_WEIGHT_ARRAY_POINTER )
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray
 import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
@@ -81,15 +97,15 @@ data ClientArrayType =
 
 marshalClientArrayType :: ClientArrayType -> GLenum
 marshalClientArrayType x = case x of
-   VertexArray -> 0x8074
-   NormalArray -> 0x8075
-   ColorArray -> 0x8076
-   IndexArray -> 0x8077
-   TextureCoordArray -> 0x8078
-   EdgeFlagArray -> 0x8079
-   FogCoordArray -> 0x8457
-   SecondaryColorArray -> 0x845e
-   MatrixIndexArray -> 0x8844
+   VertexArray -> gl_VERTEX_ARRAY
+   NormalArray -> gl_NORMAL_ARRAY
+   ColorArray -> gl_COLOR_ARRAY
+   IndexArray -> gl_INDEX_ARRAY
+   TextureCoordArray -> gl_TEXTURE_COORD_ARRAY
+   EdgeFlagArray -> gl_EDGE_FLAG_ARRAY
+   FogCoordArray -> gl_FOG_COORD_ARRAY
+   SecondaryColorArray -> gl_SECONDARY_COLOR_ARRAY
+   MatrixIndexArray -> gl_MATRIX_INDEX_ARRAY
 
 -- Hmmm...
 clientArrayTypeToEnableCap :: ClientArrayType -> EnableCap
@@ -277,20 +293,20 @@ data InterleavedArrays =
 
 marshalInterleavedArrays :: InterleavedArrays -> GLenum
 marshalInterleavedArrays x = case x of
-   V2f -> 0x2a20
-   V3f -> 0x2a21
-   C4ubV2f -> 0x2a22
-   C4ubV3f -> 0x2a23
-   C3fV3f -> 0x2a24
-   N3fV3f -> 0x2a25
-   C4fN3fV3f -> 0x2a26
-   T2fV3f -> 0x2a27
-   T4fV4f -> 0x2a28
-   T2fC4ubV3f -> 0x2a29
-   T2fC3fV3f -> 0x2a2a
-   T2fN3fV3f -> 0x2a2b
-   T2fC4fN3fV3f -> 0x2a2c
-   T4fC4fN3fV4f -> 0x2a2d
+   V2f -> gl_V2F
+   V3f -> gl_V3F
+   C4ubV2f -> gl_C4UB_V2F
+   C4ubV3f -> gl_C4UB_V3F
+   C3fV3f -> gl_C3F_V3F
+   N3fV3f -> gl_N3F_V3F
+   C4fN3fV3f -> gl_C4F_N3F_V3F
+   T2fV3f -> gl_T2F_V3F
+   T4fV4f -> gl_T4F_V4F
+   T2fC4ubV3f -> gl_T2F_C4UB_V3F
+   T2fC3fV3f -> gl_T2F_C3F_V3F
+   T2fN3fV3f -> gl_T2F_N3F_V3F
+   T2fC4fN3fV3f -> gl_T2F_C4F_N3F_V3F
+   T4fC4fN3fV4f -> gl_T4F_C4F_N3F_V4F
 
 --------------------------------------------------------------------------------
 
@@ -425,18 +441,18 @@ data GetPointervPName =
 
 marshalGetPointervPName :: GetPointervPName -> GLenum
 marshalGetPointervPName x = case x of
-   VertexArrayPointer -> 0x808e
-   NormalArrayPointer -> 0x808f
-   ColorArrayPointer -> 0x8090
-   IndexArrayPointer -> 0x8091
-   TextureCoordArrayPointer -> 0x8092
-   EdgeFlagArrayPointer -> 0x8093
-   FogCoordArrayPointer -> 0x8456
-   SecondaryColorArrayPointer -> 0x845d
-   FeedbackBufferPointer -> 0xdf0
-   SelectionBufferPointer -> 0xdf3
-   WeightArrayPointer -> 0x86ac
-   MatrixIndexArrayPointer -> 0x8849
+   VertexArrayPointer -> gl_VERTEX_ARRAY_POINTER
+   NormalArrayPointer -> gl_NORMAL_ARRAY_POINTER
+   ColorArrayPointer -> gl_COLOR_ARRAY_POINTER
+   IndexArrayPointer -> gl_INDEX_ARRAY_POINTER
+   TextureCoordArrayPointer -> gl_TEXTURE_COORD_ARRAY_POINTER
+   EdgeFlagArrayPointer -> gl_EDGE_FLAG_ARRAY_POINTER
+   FogCoordArrayPointer -> gl_FOG_COORD_ARRAY_POINTER
+   SecondaryColorArrayPointer -> gl_SECONDARY_COLOR_ARRAY_POINTER
+   FeedbackBufferPointer -> gl_FEEDBACK_BUFFER_POINTER
+   SelectionBufferPointer -> gl_SELECTION_BUFFER_POINTER
+   WeightArrayPointer -> gl_WEIGHT_ARRAY_POINTER
+   MatrixIndexArrayPointer -> gl_MATRIX_INDEX_ARRAY_POINTER
 
 --------------------------------------------------------------------------------
 

@@ -87,12 +87,12 @@ class (Eq s, Ord s, Show s, ObjectName s) => Shader s where
 instance Shader VertexShader where
    makeShader = VertexShader
    shaderID = vertexShaderID
-   shaderType = const 0x8B31
+   shaderType = const gl_VERTEX_SHADER
 
 instance Shader FragmentShader where
    makeShader = FragmentShader
    shaderID = fragmentShaderID
-   shaderType = const 0x8B30
+   shaderType = const gl_FRAGMENT_SHADER
 
 --------------------------------------------------------------------------------
 
@@ -188,11 +188,11 @@ data GetShaderPName =
 
 marshalGetShaderPName :: GetShaderPName -> GLenum
 marshalGetShaderPName x = case x of
-   ShaderDeleteStatus -> 0x8B80
-   CompileStatus -> 0x8B81
-   ShaderInfoLogLength -> 0x8B84
-   ShaderSourceLength -> 0x8B88
-   ShaderType -> 0x8B4F
+   ShaderDeleteStatus -> gl_DELETE_STATUS
+   CompileStatus -> gl_COMPILE_STATUS
+   ShaderInfoLogLength -> gl_INFO_LOG_LENGTH
+   ShaderSourceLength -> gl_SHADER_SOURCE_LENGTH
+   ShaderType -> gl_SHADER_TYPE
 
 shaderVar :: Shader s => (GLint -> a) -> GetShaderPName -> s -> GettableStateVar a
 shaderVar f p shader =
@@ -319,15 +319,15 @@ data GetProgramPName =
 
 marshalGetProgramPName :: GetProgramPName -> GLenum
 marshalGetProgramPName x = case x of
-   ProgramDeleteStatus -> 0x8B80
-   LinkStatus -> 0x8B82
-   ValidateStatus -> 0x8B83
-   ProgramInfoLogLength -> 0x8B84
-   AttachedShaders -> 0x8B85
-   ActiveAttributes -> 0x8B89
-   ActiveAttributeMaxLength -> 0x8B8A
-   ActiveUniforms -> 0x8B86
-   ActiveUniformMaxLength -> 0x8B87
+   ProgramDeleteStatus -> gl_DELETE_STATUS
+   LinkStatus -> gl_LINK_STATUS
+   ValidateStatus -> gl_VALIDATE_STATUS
+   ProgramInfoLogLength -> gl_INFO_LOG_LENGTH
+   AttachedShaders -> gl_ATTACHED_SHADERS
+   ActiveAttributes -> gl_ACTIVE_ATTRIBUTES
+   ActiveAttributeMaxLength -> gl_ACTIVE_ATTRIBUTE_MAX_LENGTH
+   ActiveUniforms -> gl_ACTIVE_UNIFORMS
+   ActiveUniformMaxLength -> gl_ACTIVE_UNIFORM_MAX_LENGTH
 
 programVar :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
 programVar f p program =
@@ -412,56 +412,56 @@ data VariableType =
 
 unmarshalVariableType :: GLenum -> VariableType
 unmarshalVariableType x
-   | x == 0x1406 = Float'
-   | x == 0x8B50 = FloatVec2
-   | x == 0x8B51 = FloatVec3
-   | x == 0x8B52 = FloatVec4
-   | x == 0x1404 = Int'
-   | x == 0x8B53 = IntVec2
-   | x == 0x8B54 = IntVec3
-   | x == 0x8B55 = IntVec4
-   | x == 0x1405 = UnsignedInt'
-   | x == 0x8DC6 = UnsignedIntVec2
-   | x == 0x8DC7 = UnsignedIntVec3
-   | x == 0x8DC8 = UnsignedIntVec4
-   | x == 0x8B56 = Bool
-   | x == 0x8B57 = BoolVec2
-   | x == 0x8B58 = BoolVec3
-   | x == 0x8B59 = BoolVec4
-   | x == 0x8B5A = FloatMat2
-   | x == 0x8B5B = FloatMat3
-   | x == 0x8B5C = FloatMat4
-   | x == 0x8B65 = FloatMat2x3
-   | x == 0x8B66 = FloatMat2x4
-   | x == 0x8B67 = FloatMat3x2
-   | x == 0x8B68 = FloatMat3x4
-   | x == 0x8B69 = FloatMat4x2
-   | x == 0x8B6A = FloatMat4x3
-   | x == 0x8B5D = Sampler1D
-   | x == 0x8B5E = Sampler2D
-   | x == 0x8B5F = Sampler3D
-   | x == 0x8B60 = SamplerCube
-   | x == 0x8B61 = Sampler1DShadow
-   | x == 0x8B62 = Sampler2DShadow
-   | x == 0x8DC0 = Sampler1DArray
-   | x == 0x8DC1 = Sampler2DArray
-   | x == 0x8DC3 = Sampler1DArrayShadow
-   | x == 0x8DC4 = Sampler2DArrayShadow
-   | x == 0x8DC5 = SamplerCubeShadow
-   | x == 0x8B63 = Sampler2DRect
-   | x == 0x8B64 = Sampler2DRectShadow
-   | x == 0x8DC9 = IntSampler1D
-   | x == 0x8DCA = IntSampler2D
-   | x == 0x8DCB = IntSampler3D
-   | x == 0x8DCC = IntSamplerCube
-   | x == 0x8DCE = IntSampler1DArray
-   | x == 0x8DCF = IntSampler2DArray
-   | x == 0x8DD1 = UnsignedIntSampler1D
-   | x == 0x8DD2 = UnsignedIntSampler2D
-   | x == 0x8DD3 = UnsignedIntSampler3D
-   | x == 0x8DD4 = UnsignedIntSamplerCube
-   | x == 0x8DD6 = UnsignedIntSampler1DArray
-   | x == 0x8DD7 = UnsignedIntSampler2DArray
+   | x == gl_FLOAT = Float'
+   | x == gl_FLOAT_VEC2 = FloatVec2
+   | x == gl_FLOAT_VEC3 = FloatVec3
+   | x == gl_FLOAT_VEC4 = FloatVec4
+   | x == gl_INT = Int'
+   | x == gl_INT_VEC2 = IntVec2
+   | x == gl_INT_VEC3 = IntVec3
+   | x == gl_INT_VEC4 = IntVec4
+   | x == gl_UNSIGNED_INT = UnsignedInt'
+   | x == gl_UNSIGNED_INT_VEC2 = UnsignedIntVec2
+   | x == gl_UNSIGNED_INT_VEC3 = UnsignedIntVec3
+   | x == gl_UNSIGNED_INT_VEC4 = UnsignedIntVec4
+   | x == gl_BOOL = Bool
+   | x == gl_BOOL_VEC2 = BoolVec2
+   | x == gl_BOOL_VEC3 = BoolVec3
+   | x == gl_BOOL_VEC4 = BoolVec4
+   | x == gl_FLOAT_MAT2 = FloatMat2
+   | x == gl_FLOAT_MAT3 = FloatMat3
+   | x == gl_FLOAT_MAT4 = FloatMat4
+   | x == gl_FLOAT_MAT2x3 = FloatMat2x3
+   | x == gl_FLOAT_MAT2x4 = FloatMat2x4
+   | x == gl_FLOAT_MAT3x2 = FloatMat3x2
+   | x == gl_FLOAT_MAT3x4 = FloatMat3x4
+   | x == gl_FLOAT_MAT4x2 = FloatMat4x2
+   | x == gl_FLOAT_MAT4x3 = FloatMat4x3
+   | x == gl_SAMPLER_1D = Sampler1D
+   | x == gl_SAMPLER_2D = Sampler2D
+   | x == gl_SAMPLER_3D = Sampler3D
+   | x == gl_SAMPLER_CUBE = SamplerCube
+   | x == gl_SAMPLER_1D_SHADOW = Sampler1DShadow
+   | x == gl_SAMPLER_2D_SHADOW = Sampler2DShadow
+   | x == gl_SAMPLER_1D_ARRAY = Sampler1DArray
+   | x == gl_SAMPLER_2D_ARRAY = Sampler2DArray
+   | x == gl_SAMPLER_1D_ARRAY_SHADOW = Sampler1DArrayShadow
+   | x == gl_SAMPLER_2D_ARRAY_SHADOW = Sampler2DArrayShadow
+   | x == gl_SAMPLER_CUBE_SHADOW = SamplerCubeShadow
+   | x == gl_SAMPLER_2D_RECT = Sampler2DRect
+   | x == gl_SAMPLER_2D_RECT_SHADOW = Sampler2DRectShadow
+   | x == gl_INT_SAMPLER_1D = IntSampler1D
+   | x == gl_INT_SAMPLER_2D = IntSampler2D
+   | x == gl_INT_SAMPLER_3D = IntSampler3D
+   | x == gl_INT_SAMPLER_CUBE = IntSamplerCube
+   | x == gl_INT_SAMPLER_1D_ARRAY = IntSampler1DArray
+   | x == gl_INT_SAMPLER_2D_ARRAY = IntSampler2DArray
+   | x == gl_UNSIGNED_INT_SAMPLER_1D = UnsignedIntSampler1D
+   | x == gl_UNSIGNED_INT_SAMPLER_2D = UnsignedIntSampler2D
+   | x == gl_UNSIGNED_INT_SAMPLER_3D = UnsignedIntSampler3D
+   | x == gl_UNSIGNED_INT_SAMPLER_CUBE = UnsignedIntSamplerCube
+   | x == gl_UNSIGNED_INT_SAMPLER_1D_ARRAY = UnsignedIntSampler1DArray
+   | x == gl_UNSIGNED_INT_SAMPLER_2D_ARRAY = UnsignedIntSampler2DArray
    | otherwise = error ("unmarshalVariableType: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

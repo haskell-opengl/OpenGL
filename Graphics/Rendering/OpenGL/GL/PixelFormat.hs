@@ -17,7 +17,13 @@ module Graphics.Rendering.OpenGL.GL.PixelFormat (
    PixelFormat(..), marshalPixelFormat, unmarshalPixelFormat
 ) where
 
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_COLOR_INDEX, gl_LUMINANCE, gl_LUMINANCE_ALPHA )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.EXT.Abgr ( gl_ABGR )
+import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka ( gl_CMYK, gl_CMYKA )
+import Graphics.Rendering.OpenGL.Raw.EXT.FourTwoTwoPixels (
+   gl_422, gl_422_AVERAGE, gl_422_REV, gl_422_REV_AVERAGE )
 
 --------------------------------------------------------------------------------
 
@@ -48,51 +54,53 @@ data PixelFormat =
 
 marshalPixelFormat :: PixelFormat -> GLenum
 marshalPixelFormat x = case x of
-   ColorIndex -> 0x1900
-   StencilIndex -> 0x1901
-   DepthComponent -> 0x1902
-   Red -> 0x1903
-   Green -> 0x1904
-   Blue -> 0x1905
-   Alpha -> 0x1906
-   RGB -> 0x1907
-   RGBA -> 0x1908
-   Luminance -> 0x1909
-   LuminanceAlpha -> 0x190a
-   ABGR -> 0x8000
-   BGR -> 0x80E0
-   BGRA -> 0x80E1
-   CMYK -> 0x800C
-   CMYKA -> 0x800D
-   FourTwoTwo -> 0x80CC
-   FourTwoTwoRev -> 0x80CD
-   FourTwoTwoAverage -> 0x80CE
-   FourTwoTwoRevAverage -> 0x80CF
+   ColorIndex -> gl_COLOR_INDEX
+   StencilIndex -> gl_STENCIL_INDEX
+   DepthComponent -> gl_DEPTH_COMPONENT
+   Red -> gl_RED
+   Green -> gl_GREEN
+   Blue -> gl_BLUE
+   Alpha -> gl_ALPHA
+   RGB -> gl_RGB
+   RGBA -> gl_RGBA
+   Luminance -> gl_LUMINANCE
+   LuminanceAlpha -> gl_LUMINANCE_ALPHA
+   ABGR -> gl_ABGR
+   BGR -> gl_BGR
+   BGRA -> gl_BGRA
+   CMYK -> gl_CMYK
+   CMYKA -> gl_CMYKA
+   FourTwoTwo -> gl_422
+   FourTwoTwoRev -> gl_422_REV
+   FourTwoTwoAverage -> gl_422_AVERAGE
+   FourTwoTwoRevAverage -> gl_422_REV_AVERAGE
+   -- TODO: Use YCBCR_422_APPLE from APPLE_ycbcr_422 extension
    YCBCR422 -> 0x85B9
-   DepthStencil -> 0x84f9
+   DepthStencil -> gl_DEPTH_STENCIL
 
 unmarshalPixelFormat :: GLenum -> PixelFormat
 unmarshalPixelFormat x
-   | x == 0x1900 = ColorIndex
-   | x == 0x1901 = StencilIndex
-   | x == 0x1902 = DepthComponent
-   | x == 0x1903 = Red
-   | x == 0x1904 = Green
-   | x == 0x1905 = Blue
-   | x == 0x1906 = Alpha
-   | x == 0x1907 = RGB
-   | x == 0x1908 = RGBA
-   | x == 0x1909 = Luminance
-   | x == 0x190a = LuminanceAlpha
-   | x == 0x8000 = ABGR
-   | x == 0x80E0 = BGR
-   | x == 0x80E1 = BGRA
-   | x == 0x800C = CMYK
-   | x == 0x800D = CMYKA
-   | x == 0x80CC = FourTwoTwo
-   | x == 0x80CD = FourTwoTwoRev
-   | x == 0x80CE = FourTwoTwoAverage
-   | x == 0x80CF = FourTwoTwoRevAverage
+   | x == gl_COLOR_INDEX = ColorIndex
+   | x == gl_STENCIL_INDEX = StencilIndex
+   | x == gl_DEPTH_COMPONENT = DepthComponent
+   | x == gl_RED = Red
+   | x == gl_GREEN = Green
+   | x == gl_BLUE = Blue
+   | x == gl_ALPHA = Alpha
+   | x == gl_RGB = RGB
+   | x == gl_RGBA = RGBA
+   | x == gl_LUMINANCE = Luminance
+   | x == gl_LUMINANCE_ALPHA = LuminanceAlpha
+   | x == gl_ABGR = ABGR
+   | x == gl_BGR = BGR
+   | x == gl_BGRA = BGRA
+   | x == gl_CMYK = CMYK
+   | x == gl_CMYKA = CMYKA
+   | x == gl_422 = FourTwoTwo
+   | x == gl_422_REV = FourTwoTwoRev
+   | x == gl_422_AVERAGE = FourTwoTwoAverage
+   | x == gl_422_REV_AVERAGE = FourTwoTwoRevAverage
+   -- TODO: Use YCBCR_422_APPLE from APPLE_ycbcr_422 extension
    | x == 0x85B9 = YCBCR422
-   | x == 0x84f9 = DepthStencil
+   | x == gl_DEPTH_STENCIL = DepthStencil
    | otherwise = error ("unmarshalPixelFormat: illegal value " ++ show x)

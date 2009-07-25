@@ -18,9 +18,17 @@ module Graphics.Rendering.OpenGL.GL.SavingState (
    ClientAttributeGroup(..), preservingClientAttrib
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glPopAttrib, glPopClientAttrib, glPushAttrib, glPushClientAttrib,
+   gl_ACCUM_BUFFER_BIT, gl_ALL_ATTRIB_BITS, gl_CLIENT_ALL_ATTRIB_BITS,
+   gl_CLIENT_PIXEL_STORE_BIT, gl_CLIENT_VERTEX_ARRAY_BIT,
+   gl_CURRENT_BIT, gl_ENABLE_BIT, gl_EVAL_BIT, gl_FOG_BIT,
+   gl_HINT_BIT, gl_LIGHTING_BIT, gl_LINE_BIT, gl_LIST_BIT,
+   gl_MULTISAMPLE_BIT, gl_PIXEL_MODE_BIT, gl_POINT_BIT,
+   gl_POLYGON_BIT, gl_POLYGON_STIPPLE_BIT, gl_SCISSOR_BIT,
+   gl_TEXTURE_BIT, gl_TRANSFORM_BIT, gl_VIEWPORT_BIT )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
@@ -51,28 +59,28 @@ data ServerAttributeGroup =
 
 marshalServerAttributeGroup :: ServerAttributeGroup -> GLbitfield
 marshalServerAttributeGroup x = case x of
-   CurrentAttributes -> 0x1
-   PointAttributes -> 0x2
-   LineAttributes -> 0x4
-   PolygonAttributes -> 0x8
-   PolygonStippleAttributes -> 0x10
-   PixelModeAttributes -> 0x20
-   LightingAttributes -> 0x40
-   FogAttributes -> 0x80
-   DepthBufferAttributes -> 0x100
-   AccumBufferAttributes -> 0x200
-   StencilBufferAttributes -> 0x400
-   ViewportAttributes -> 0x800
-   TransformAttributes -> 0x1000
-   EnableAttributes -> 0x2000
-   ColorBufferAttributes -> 0x4000
-   HintAttributes -> 0x8000
-   EvalAttributes -> 0x10000
-   ListAttributes -> 0x20000
-   TextureAttributes -> 0x40000
-   ScissorAttributes -> 0x80000
-   MultisampleAttributes -> 0x20000000
-   AllServerAttributes -> 0xffffffff
+   CurrentAttributes -> gl_CURRENT_BIT
+   PointAttributes -> gl_POINT_BIT
+   LineAttributes -> gl_LINE_BIT
+   PolygonAttributes -> gl_POLYGON_BIT
+   PolygonStippleAttributes -> gl_POLYGON_STIPPLE_BIT
+   PixelModeAttributes -> gl_PIXEL_MODE_BIT
+   LightingAttributes -> gl_LIGHTING_BIT
+   FogAttributes -> gl_FOG_BIT
+   DepthBufferAttributes -> gl_DEPTH_BUFFER_BIT
+   AccumBufferAttributes -> gl_ACCUM_BUFFER_BIT
+   StencilBufferAttributes -> gl_STENCIL_BUFFER_BIT
+   ViewportAttributes -> gl_VIEWPORT_BIT
+   TransformAttributes -> gl_TRANSFORM_BIT
+   EnableAttributes -> gl_ENABLE_BIT
+   ColorBufferAttributes -> gl_COLOR_BUFFER_BIT
+   HintAttributes -> gl_HINT_BIT
+   EvalAttributes -> gl_EVAL_BIT
+   ListAttributes -> gl_LIST_BIT
+   TextureAttributes -> gl_TEXTURE_BIT
+   ScissorAttributes -> gl_SCISSOR_BIT
+   MultisampleAttributes -> gl_MULTISAMPLE_BIT
+   AllServerAttributes -> gl_ALL_ATTRIB_BITS
 
 --------------------------------------------------------------------------------
 
@@ -92,9 +100,9 @@ data ClientAttributeGroup =
 
 marshalClientAttributeGroup :: ClientAttributeGroup -> GLbitfield
 marshalClientAttributeGroup x = case x of
-   PixelStoreAttributes -> 0x1
-   VertexArrayAttributes -> 0x2
-   AllClientAttributes -> 0xffffffff
+   PixelStoreAttributes -> gl_CLIENT_PIXEL_STORE_BIT
+   VertexArrayAttributes -> gl_CLIENT_VERTEX_ARRAY_BIT
+   AllClientAttributes -> gl_CLIENT_ALL_ATTRIB_BITS
 
 --------------------------------------------------------------------------------
 

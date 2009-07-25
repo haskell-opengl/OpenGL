@@ -17,7 +17,9 @@ module Graphics.Rendering.OpenGL.GL.PointParameter (
    PointParameter(..), pointParameterf, pointParameterfv
 ) where
 
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+ gl_POINT_DISTANCE_ATTENUATION, gl_POINT_SIZE_MAX, gl_POINT_SIZE_MIN )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -30,10 +32,10 @@ data PointParameter =
 
 marshalPointParameter :: PointParameter -> GLenum
 marshalPointParameter x = case x of
-   PointSizeMin -> 0x8126
-   PointSizeMax -> 0x8127
-   PointFadeThresholdSize -> 0x8128
-   PointDistanceAttenuation -> 0x8129
+   PointSizeMin -> gl_POINT_SIZE_MIN
+   PointSizeMax -> gl_POINT_SIZE_MAX
+   PointFadeThresholdSize -> gl_POINT_FADE_THRESHOLD_SIZE
+   PointDistanceAttenuation -> gl_POINT_DISTANCE_ATTENUATION
 
 --------------------------------------------------------------------------------
 

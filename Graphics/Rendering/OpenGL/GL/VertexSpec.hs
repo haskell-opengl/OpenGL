@@ -67,7 +67,41 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexAttributes
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glColor3b, glColor3bv, glColor3d, glColor3dv, glColor3f, glColor3fv,
+   glColor3i, glColor3iv, glColor3s, glColor3sv, glColor3ub, glColor3ubv,
+   glColor3ui, glColor3uiv, glColor3us, glColor3usv, glColor4b, glColor4bv,
+   glColor4d, glColor4dv, glColor4f, glColor4fv, glColor4i, glColor4iv,
+   glColor4s, glColor4sv, glColor4ub, glColor4ubv, glColor4ui, glColor4uiv,
+   glColor4us, glColor4usv, glFogCoordd, glFogCoorddv, glFogCoordf,
+   glFogCoordfv, glIndexd, glIndexdv, glIndexf, glIndexfv, glIndexi, glIndexiv,
+   glIndexs, glIndexsv, glIndexub, glIndexubv, glMultiTexCoord1d,
+   glMultiTexCoord1dv, glMultiTexCoord1f, glMultiTexCoord1fv, glMultiTexCoord1i,
+   glMultiTexCoord1iv, glMultiTexCoord1s, glMultiTexCoord1sv, glMultiTexCoord2d,
+   glMultiTexCoord2dv, glMultiTexCoord2f, glMultiTexCoord2fv, glMultiTexCoord2i,
+   glMultiTexCoord2iv, glMultiTexCoord2s, glMultiTexCoord2sv, glMultiTexCoord3d,
+   glMultiTexCoord3dv, glMultiTexCoord3f, glMultiTexCoord3fv, glMultiTexCoord3i,
+   glMultiTexCoord3iv, glMultiTexCoord3s, glMultiTexCoord3sv, glMultiTexCoord4d,
+   glMultiTexCoord4dv, glMultiTexCoord4f, glMultiTexCoord4fv, glMultiTexCoord4i,
+   glMultiTexCoord4iv, glMultiTexCoord4s, glMultiTexCoord4sv, glNormal3b,
+   glNormal3bv, glNormal3d, glNormal3dv, glNormal3f, glNormal3fv, glNormal3i,
+   glNormal3iv, glNormal3s, glNormal3sv, glSecondaryColor3b,
+   glSecondaryColor3bv, glSecondaryColor3d, glSecondaryColor3dv,
+   glSecondaryColor3f, glSecondaryColor3fv, glSecondaryColor3i,
+   glSecondaryColor3iv, glSecondaryColor3s, glSecondaryColor3sv,
+   glSecondaryColor3ub, glSecondaryColor3ubv, glSecondaryColor3ui,
+   glSecondaryColor3uiv, glSecondaryColor3us, glSecondaryColor3usv,
+   glTexCoord1d, glTexCoord1dv, glTexCoord1f, glTexCoord1fv, glTexCoord1i,
+   glTexCoord1iv, glTexCoord1s, glTexCoord1sv, glTexCoord2d, glTexCoord2dv,
+   glTexCoord2f, glTexCoord2fv, glTexCoord2i, glTexCoord2iv, glTexCoord2s,
+   glTexCoord2sv, glTexCoord3d, glTexCoord3dv, glTexCoord3f, glTexCoord3fv,
+   glTexCoord3i, glTexCoord3iv, glTexCoord3s, glTexCoord3sv, glTexCoord4d,
+   glTexCoord4dv, glTexCoord4f, glTexCoord4fv, glTexCoord4i, glTexCoord4iv,
+   glTexCoord4s, glTexCoord4sv, glVertex2d, glVertex2dv, glVertex2f,
+   glVertex2fv, glVertex2i, glVertex2iv, glVertex2s, glVertex2sv, glVertex3d,
+   glVertex3dv, glVertex3f, glVertex3fv, glVertex3i, glVertex3iv, glVertex3s,
+   glVertex3sv, glVertex4d, glVertex4dv, glVertex4f, glVertex4fv, glVertex4i,
+   glVertex4iv, glVertex4s, glVertex4sv )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------

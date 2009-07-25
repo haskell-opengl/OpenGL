@@ -29,7 +29,7 @@ import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glCopyPixels )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -56,9 +56,9 @@ data PixelCopyType =
 
 marshalPixelCopyType :: PixelCopyType -> GLenum
 marshalPixelCopyType x = case x of
-   CopyColor -> 0x1800
-   CopyDepth -> 0x1801
-   CopyStencil -> 0x1802
+   CopyColor -> gl_COLOR
+   CopyDepth -> gl_DEPTH
+   CopyStencil -> gl_STENCIL
 
 --------------------------------------------------------------------------------
 

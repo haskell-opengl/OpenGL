@@ -17,11 +17,10 @@ module Graphics.Rendering.OpenGL.GL.PixelData (
    PixelData(..), withPixelData
 ) where
 
-import Foreign.Ptr ( Ptr )
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.DataType
+import Graphics.Rendering.OpenGL.GL.PixelFormat
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.DataType ( DataType, marshalDataType )
-import Graphics.Rendering.OpenGL.GL.PixelFormat (
-   PixelFormat, marshalPixelFormat )
 
 --------------------------------------------------------------------------------
 

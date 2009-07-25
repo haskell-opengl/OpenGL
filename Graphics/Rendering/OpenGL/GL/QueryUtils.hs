@@ -30,14 +30,239 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetVertexAttribPointerPName(..), getVertexAttribPointer
 ) where
 
-import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( allocaArray )
-import Foreign.Ptr ( Ptr, nullPtr )
-import Foreign.Storable ( Storable(peek) )
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+ gl_ACCUM_ALPHA_BITS,
+ gl_ACCUM_BLUE_BITS,
+ gl_ACCUM_CLEAR_VALUE,
+ gl_ACCUM_GREEN_BITS,
+ gl_ACCUM_RED_BITS,
+ gl_ALIASED_POINT_SIZE_RANGE,
+ gl_ALPHA_BIAS,
+ gl_ALPHA_BITS,
+ gl_ALPHA_SCALE,
+ gl_ALPHA_TEST,
+ gl_ALPHA_TEST_FUNC,
+ gl_ALPHA_TEST_REF,
+ gl_ATTRIB_STACK_DEPTH,
+ gl_AUTO_NORMAL,
+ gl_AUX_BUFFERS,
+ gl_BLUE_BIAS,
+ gl_BLUE_BITS,
+ gl_BLUE_SCALE,
+ gl_CLIENT_ACTIVE_TEXTURE,
+ gl_CLIENT_ATTRIB_STACK_DEPTH,
+ gl_COLOR_ARRAY,
+ gl_COLOR_ARRAY_BUFFER_BINDING,
+ gl_COLOR_ARRAY_SIZE,
+ gl_COLOR_ARRAY_STRIDE,
+ gl_COLOR_ARRAY_TYPE,
+ gl_COLOR_MATERIAL,
+ gl_COLOR_MATERIAL_FACE,
+ gl_COLOR_MATERIAL_PARAMETER,
+ gl_COLOR_MATRIX,
+ gl_COLOR_MATRIX_STACK_DEPTH,
+ gl_COLOR_SUM,
+ gl_COLOR_TABLE,
+ gl_CONVOLUTION_1D,
+ gl_CONVOLUTION_2D,
+ gl_CURRENT_COLOR,
+ gl_CURRENT_FOG_COORD,
+ gl_CURRENT_INDEX,
+ gl_CURRENT_NORMAL,
+ gl_CURRENT_RASTER_COLOR,
+ gl_CURRENT_RASTER_DISTANCE,
+ gl_CURRENT_RASTER_INDEX,
+ gl_CURRENT_RASTER_POSITION,
+ gl_CURRENT_RASTER_POSITION_VALID,
+ gl_CURRENT_RASTER_SECONDARY_COLOR,
+ gl_CURRENT_RASTER_TEXTURE_COORDS,
+ gl_CURRENT_SECONDARY_COLOR,
+ gl_CURRENT_TEXTURE_COORDS,
+ gl_DEPTH_BIAS,
+ gl_DEPTH_BITS,
+ gl_DEPTH_SCALE,
+ gl_EDGE_FLAG,
+ gl_EDGE_FLAG_ARRAY,
+ gl_EDGE_FLAG_ARRAY_BUFFER_BINDING,
+ gl_EDGE_FLAG_ARRAY_STRIDE,
+ gl_FEEDBACK_BUFFER_SIZE,
+ gl_FEEDBACK_BUFFER_TYPE,
+ gl_FOG,
+ gl_FOG_COLOR,
+ gl_FOG_COORD_ARRAY,
+ gl_FOG_COORD_ARRAY_BUFFER_BINDING,
+ gl_FOG_COORD_ARRAY_STRIDE,
+ gl_FOG_COORD_ARRAY_TYPE,
+ gl_FOG_COORD_SRC,
+ gl_FOG_DENSITY,
+ gl_FOG_END,
+ gl_FOG_HINT,
+ gl_FOG_INDEX,
+ gl_FOG_MODE,
+ gl_FOG_START,
+ gl_GENERATE_MIPMAP_HINT,
+ gl_GREEN_BIAS,
+ gl_GREEN_BITS,
+ gl_GREEN_SCALE,
+ gl_HISTOGRAM,
+ gl_INDEX_ARRAY,
+ gl_INDEX_ARRAY_BUFFER_BINDING,
+ gl_INDEX_ARRAY_STRIDE,
+ gl_INDEX_ARRAY_TYPE,
+ gl_INDEX_BITS,
+ gl_INDEX_CLEAR_VALUE,
+ gl_INDEX_LOGIC_OP,
+ gl_INDEX_MODE,
+ gl_INDEX_OFFSET,
+ gl_INDEX_SHIFT,
+ gl_INDEX_WRITEMASK,
+ gl_LIGHT0,
+ gl_LIGHTING,
+ gl_LIGHT_MODEL_AMBIENT,
+ gl_LIGHT_MODEL_COLOR_CONTROL,
+ gl_LIGHT_MODEL_LOCAL_VIEWER,
+ gl_LIGHT_MODEL_TWO_SIDE,
+ gl_LINE_STIPPLE,
+ gl_LINE_STIPPLE_PATTERN,
+ gl_LINE_STIPPLE_REPEAT,
+ gl_LIST_BASE,
+ gl_LIST_INDEX,
+ gl_LIST_MODE,
+ gl_MAP1_COLOR_4,
+ gl_MAP1_GRID_DOMAIN,
+ gl_MAP1_GRID_SEGMENTS,
+ gl_MAP1_INDEX,
+ gl_MAP1_NORMAL,
+ gl_MAP1_TEXTURE_COORD_1,
+ gl_MAP1_TEXTURE_COORD_2,
+ gl_MAP1_TEXTURE_COORD_3,
+ gl_MAP1_TEXTURE_COORD_4,
+ gl_MAP1_VERTEX_3,
+ gl_MAP1_VERTEX_4,
+ gl_MAP2_COLOR_4,
+ gl_MAP2_GRID_DOMAIN,
+ gl_MAP2_GRID_SEGMENTS,
+ gl_MAP2_INDEX,
+ gl_MAP2_NORMAL,
+ gl_MAP2_TEXTURE_COORD_1,
+ gl_MAP2_TEXTURE_COORD_2,
+ gl_MAP2_TEXTURE_COORD_3,
+ gl_MAP2_TEXTURE_COORD_4,
+ gl_MAP2_VERTEX_3,
+ gl_MAP2_VERTEX_4,
+ gl_MAP_COLOR,
+ gl_MAP_STENCIL,
+ gl_MATRIX_MODE,
+ gl_MAX_ATTRIB_STACK_DEPTH,
+ gl_MAX_CLIENT_ATTRIB_STACK_DEPTH,
+ gl_MAX_COLOR_MATRIX_STACK_DEPTH,
+ gl_MAX_CONVOLUTION_HEIGHT,
+ gl_MAX_CONVOLUTION_WIDTH,
+ gl_MAX_EVAL_ORDER,
+ gl_MAX_LIGHTS,
+ gl_MAX_LIST_NESTING,
+ gl_MAX_MODELVIEW_STACK_DEPTH,
+ gl_MAX_NAME_STACK_DEPTH,
+ gl_MAX_PIXEL_MAP_TABLE,
+ gl_MAX_PROJECTION_STACK_DEPTH,
+ gl_MAX_TEXTURE_COORDS,
+ gl_MAX_TEXTURE_STACK_DEPTH,
+ gl_MAX_TEXTURE_UNITS,
+ gl_MINMAX,
+ gl_MODELVIEW,
+ gl_MODELVIEW_MATRIX,
+ gl_MODELVIEW_STACK_DEPTH,
+ gl_NAME_STACK_DEPTH,
+ gl_NORMALIZE,
+ gl_NORMAL_ARRAY,
+ gl_NORMAL_ARRAY_BUFFER_BINDING,
+ gl_NORMAL_ARRAY_STRIDE,
+ gl_NORMAL_ARRAY_TYPE,
+ gl_PERSPECTIVE_CORRECTION_HINT,
+ gl_PIXEL_MAP_A_TO_A_SIZE,
+ gl_PIXEL_MAP_B_TO_B_SIZE,
+ gl_PIXEL_MAP_G_TO_G_SIZE,
+ gl_PIXEL_MAP_I_TO_A_SIZE,
+ gl_PIXEL_MAP_I_TO_B_SIZE,
+ gl_PIXEL_MAP_I_TO_G_SIZE,
+ gl_PIXEL_MAP_I_TO_I_SIZE,
+ gl_PIXEL_MAP_I_TO_R_SIZE,
+ gl_PIXEL_MAP_R_TO_R_SIZE,
+ gl_PIXEL_MAP_S_TO_S_SIZE,
+ gl_POINT_DISTANCE_ATTENUATION,
+ gl_POINT_SIZE_MAX,
+ gl_POINT_SIZE_MIN,
+ gl_POINT_SMOOTH,
+ gl_POINT_SMOOTH_HINT,
+ gl_POLYGON_MODE,
+ gl_POLYGON_STIPPLE,
+ gl_POST_COLOR_MATRIX_ALPHA_BIAS,
+ gl_POST_COLOR_MATRIX_ALPHA_SCALE,
+ gl_POST_COLOR_MATRIX_BLUE_BIAS,
+ gl_POST_COLOR_MATRIX_BLUE_SCALE,
+ gl_POST_COLOR_MATRIX_COLOR_TABLE,
+ gl_POST_COLOR_MATRIX_GREEN_BIAS,
+ gl_POST_COLOR_MATRIX_GREEN_SCALE,
+ gl_POST_COLOR_MATRIX_RED_BIAS,
+ gl_POST_COLOR_MATRIX_RED_SCALE,
+ gl_POST_CONVOLUTION_ALPHA_BIAS,
+ gl_POST_CONVOLUTION_ALPHA_SCALE,
+ gl_POST_CONVOLUTION_BLUE_BIAS,
+ gl_POST_CONVOLUTION_BLUE_SCALE,
+ gl_POST_CONVOLUTION_COLOR_TABLE,
+ gl_POST_CONVOLUTION_GREEN_BIAS,
+ gl_POST_CONVOLUTION_GREEN_SCALE,
+ gl_POST_CONVOLUTION_RED_BIAS,
+ gl_POST_CONVOLUTION_RED_SCALE,
+ gl_PROJECTION_MATRIX,
+ gl_PROJECTION_STACK_DEPTH,
+ gl_RED_BIAS,
+ gl_RED_BITS,
+ gl_RED_SCALE,
+ gl_RENDER_MODE,
+ gl_RESCALE_NORMAL,
+ gl_RGBA_MODE,
+ gl_SECONDARY_COLOR_ARRAY,
+ gl_SECONDARY_COLOR_ARRAY_BUFFER_BINDING,
+ gl_SECONDARY_COLOR_ARRAY_SIZE,
+ gl_SECONDARY_COLOR_ARRAY_STRIDE,
+ gl_SECONDARY_COLOR_ARRAY_TYPE,
+ gl_SELECTION_BUFFER_SIZE,
+ gl_SEPARABLE_2D,
+ gl_SHADE_MODEL,
+ gl_STENCIL_BITS,
+ gl_TEXTURE_COORD_ARRAY,
+ gl_TEXTURE_COORD_ARRAY_BUFFER_BINDING,
+ gl_TEXTURE_COORD_ARRAY_SIZE,
+ gl_TEXTURE_COORD_ARRAY_STRIDE,
+ gl_TEXTURE_COORD_ARRAY_TYPE,
+ gl_TEXTURE_GEN_Q,
+ gl_TEXTURE_GEN_R,
+ gl_TEXTURE_GEN_S,
+ gl_TEXTURE_GEN_T,
+ gl_TEXTURE_MATRIX,
+ gl_TEXTURE_STACK_DEPTH,
+ gl_TRANSPOSE_COLOR_MATRIX,
+ gl_TRANSPOSE_MODELVIEW_MATRIX,
+ gl_TRANSPOSE_PROJECTION_MATRIX,
+ gl_TRANSPOSE_TEXTURE_MATRIX,
+ gl_VERTEX_ARRAY,
+ gl_VERTEX_ARRAY_BUFFER_BINDING,
+ gl_VERTEX_ARRAY_SIZE,
+ gl_VERTEX_ARRAY_STRIDE,
+ gl_VERTEX_ARRAY_TYPE,
+ gl_ZOOM_X,
+ gl_ZOOM_Y
+ )
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.NV
-import Graphics.Rendering.OpenGL.GL.PeekPoke ( peek1, peek2, peek3, peek4 )
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidEnum )
+import Graphics.Rendering.OpenGL.Raw.NV (
+   gl_PRIMITIVE_RESTART_INDEX_NV, gl_PRIMITIVE_RESTART_NV )
 
 --------------------------------------------------------------------------------
 
@@ -429,329 +654,329 @@ data GetPName =
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
-   GetCurrentColor -> Just 0xb00
-   GetCurrentIndex -> Just 0xb01
-   GetCurrentNormal -> Just 0xb02
-   GetCurrentTextureCoords -> Just 0xb03
-   GetCurrentRasterColor -> Just 0xb04
-   GetCurrentRasterSecondaryColor -> Just 0x845f
-   GetCurrentRasterIndex -> Just 0xb05
-   GetCurrentRasterTextureCoords -> Just 0xb06
-   GetCurrentRasterPosition -> Just 0xb07
-   GetCurrentRasterPositionValid -> Just 0xb08
-   GetCurrentRasterDistance -> Just 0xb09
+   GetCurrentColor -> Just gl_CURRENT_COLOR
+   GetCurrentIndex -> Just gl_CURRENT_INDEX
+   GetCurrentNormal -> Just gl_CURRENT_NORMAL
+   GetCurrentTextureCoords -> Just gl_CURRENT_TEXTURE_COORDS
+   GetCurrentRasterColor -> Just gl_CURRENT_RASTER_COLOR
+   GetCurrentRasterSecondaryColor -> Just gl_CURRENT_RASTER_SECONDARY_COLOR
+   GetCurrentRasterIndex -> Just gl_CURRENT_RASTER_INDEX
+   GetCurrentRasterTextureCoords -> Just gl_CURRENT_RASTER_TEXTURE_COORDS
+   GetCurrentRasterPosition -> Just gl_CURRENT_RASTER_POSITION
+   GetCurrentRasterPositionValid -> Just gl_CURRENT_RASTER_POSITION_VALID
+   GetCurrentRasterDistance -> Just gl_CURRENT_RASTER_DISTANCE
    GetCurrentMatrixIndex -> Just 0x8845
-   GetPointSmooth -> Just 0xb10
-   GetPointSize -> Just 0xb11
-   GetPointSizeRange -> Just 0xb12
-   GetPointSizeGranularity -> Just 0xb13
-   GetLineSmooth -> Just 0xb20
-   GetLineWidth -> Just 0xb21
-   GetLineWidthRange -> Just 0xb22
-   GetLineWidthGranularity -> Just 0xb23
-   GetLineStipple -> Just 0xb24
-   GetLineStipplePattern -> Just 0xb25
-   GetLineStippleRepeat -> Just 0xb26
-   GetSmoothPointSizeRange -> Just 0xb12
-   GetSmoothPointSizeGranularity -> Just 0xb13
-   GetSmoothLineWidthRange -> Just 0xb22
-   GetSmoothLineWidthGranularity -> Just 0xb23
-   GetAliasedPointSizeRange -> Just 0x846d
-   GetAliasedLineWidthRange -> Just 0x846e
-   GetListMode -> Just 0xb30
-   GetMaxListNesting -> Just 0xb31
-   GetListBase -> Just 0xb32
-   GetListIndex -> Just 0xb33
-   GetPolygonMode -> Just 0xb40
-   GetPolygonSmooth -> Just 0xb41
-   GetPolygonStipple -> Just 0xb42
-   GetEdgeFlag -> Just 0xb43
-   GetCullFace -> Just 0xb44
-   GetCullFaceMode -> Just 0xb45
-   GetFrontFace -> Just 0xb46
-   GetLighting -> Just 0xb50
-   GetLightModelLocalViewer -> Just 0xb51
-   GetLightModelTwoSide -> Just 0xb52
-   GetLightModelAmbient -> Just 0xb53
-   GetShadeModel -> Just 0xb54
-   GetColorMaterialFace -> Just 0xb55
-   GetColorMaterialParameter -> Just 0xb56
-   GetColorMaterial -> Just 0xb57
-   GetFog -> Just 0xb60
-   GetFogIndex -> Just 0xb61
-   GetFogDensity -> Just 0xb62
-   GetFogStart -> Just 0xb63
-   GetFogEnd -> Just 0xb64
-   GetFogMode -> Just 0xb65
-   GetFogColor -> Just 0xb66
-   GetFogCoordSrc -> Just 0x8450
-   GetCurrentFogCoord -> Just 0x8453
-   GetDepthRange -> Just 0xb70
-   GetDepthTest -> Just 0xb71
-   GetDepthWritemask -> Just 0xb72
-   GetDepthClearValue -> Just 0xb73
-   GetDepthFunc -> Just 0xb74
-   GetAccumClearValue -> Just 0xb80
-   GetStencilTest -> Just 0xb90
-   GetStencilClearValue -> Just 0xb91
-   GetStencilFunc -> Just 0xb92
-   GetStencilValueMask -> Just 0xb93
-   GetStencilFail -> Just 0xb94
-   GetStencilPassDepthFail -> Just 0xb95
-   GetStencilPassDepthPass -> Just 0xb96
-   GetStencilRef -> Just 0xb97
-   GetStencilWritemask -> Just 0xb98
-   GetMatrixMode -> Just 0xba0
-   GetNormalize -> Just 0xba1
-   GetViewport -> Just 0xba2
-   GetModelviewStackDepth -> Just 0xba3
-   GetProjectionStackDepth -> Just 0xba4
-   GetTextureStackDepth -> Just 0xba5
-   GetModelviewMatrix -> Just 0xba6
-   GetProjectionMatrix -> Just 0xba7
-   GetTextureMatrix -> Just 0xba8
-   GetAttribStackDepth -> Just 0xbb0
-   GetClientAttribStackDepth -> Just 0xbb1
-   GetAlphaTest -> Just 0xbc0
-   GetAlphaTestFunc -> Just 0xbc1
-   GetAlphaTestRef -> Just 0xbc2
-   GetDither -> Just 0xbd0
-   GetBlendDst -> Just 0xbe0
-   GetBlendSrc -> Just 0xbe1
-   GetBlend -> Just 0xbe2
-   GetLogicOpMode -> Just 0xbf0
-   GetIndexLogicOp -> Just 0xbf1
-   GetLogicOp -> Just 0xbf1
-   GetColorLogicOp -> Just 0xbf2
-   GetAuxBuffers -> Just 0xc00
-   GetDrawBuffer -> Just 0xc01
-   GetReadBuffer -> Just 0xc02
-   GetScissorBox -> Just 0xc10
-   GetScissorTest -> Just 0xc11
-   GetIndexClearValue -> Just 0xc20
-   GetIndexWritemask -> Just 0xc21
-   GetColorClearValue -> Just 0xc22
-   GetColorWritemask -> Just 0xc23
-   GetIndexMode -> Just 0xc30
-   GetRGBAMode -> Just 0xc31
-   GetDoublebuffer -> Just 0xc32
-   GetStereo -> Just 0xc33
-   GetRenderMode -> Just 0xc40
-   GetPerspectiveCorrectionHint -> Just 0xc50
-   GetPointSmoothHint -> Just 0xc51
-   GetLineSmoothHint -> Just 0xc52
-   GetPolygonSmoothHint -> Just 0xc53
-   GetFogHint -> Just 0xc54
-   GetGenerateMipmapHint -> Just 0x8192
-   GetTextureCompressionHint -> Just 0x84ef
-   GetTextureGenS -> Just 0xc60
-   GetTextureGenT -> Just 0xc61
-   GetTextureGenR -> Just 0xc62
-   GetTextureGenQ -> Just 0xc63
-   GetPixelMapIToISize -> Just 0xcb0
-   GetPixelMapSToSSize -> Just 0xcb1
-   GetPixelMapIToRSize -> Just 0xcb2
-   GetPixelMapIToGSize -> Just 0xcb3
-   GetPixelMapIToBSize -> Just 0xcb4
-   GetPixelMapIToASize -> Just 0xcb5
-   GetPixelMapRToRSize -> Just 0xcb6
-   GetPixelMapGToGSize -> Just 0xcb7
-   GetPixelMapBToBSize -> Just 0xcb8
-   GetPixelMapAToASize -> Just 0xcb9
-   GetUnpackSwapBytes -> Just 0xcf0
-   GetUnpackLSBFirst -> Just 0xcf1
-   GetUnpackRowLength -> Just 0xcf2
-   GetUnpackSkipRows -> Just 0xcf3
-   GetUnpackSkipPixels -> Just 0xcf4
-   GetUnpackAlignment -> Just 0xcf5
-   GetPackSwapBytes -> Just 0xd00
-   GetPackLSBFirst -> Just 0xd01
-   GetPackRowLength -> Just 0xd02
-   GetPackSkipRows -> Just 0xd03
-   GetPackSkipPixels -> Just 0xd04
-   GetPackAlignment -> Just 0xd05
-   GetMapColor -> Just 0xd10
-   GetMapStencil -> Just 0xd11
-   GetIndexShift -> Just 0xd12
-   GetIndexOffset -> Just 0xd13
-   GetRedScale -> Just 0xd14
-   GetRedBias -> Just 0xd15
-   GetZoomX -> Just 0xd16
-   GetZoomY -> Just 0xd17
-   GetGreenScale -> Just 0xd18
-   GetGreenBias -> Just 0xd19
-   GetBlueScale -> Just 0xd1a
-   GetBlueBias -> Just 0xd1b
-   GetAlphaScale -> Just 0xd1c
-   GetAlphaBias -> Just 0xd1d
-   GetDepthScale -> Just 0xd1e
-   GetDepthBias -> Just 0xd1f
-   GetMaxEvalOrder -> Just 0xd30
-   GetMaxLights -> Just 0xd31
-   GetMaxClipPlanes -> Just 0xd32
-   GetMaxTextureSize -> Just 0xd33
-   GetMaxPixelMapTable -> Just 0xd34
-   GetMaxAttribStackDepth -> Just 0xd35
-   GetMaxModelviewStackDepth -> Just 0xd36
-   GetMaxNameStackDepth -> Just 0xd37
-   GetMaxProjectionStackDepth -> Just 0xd38
-   GetMaxTextureStackDepth -> Just 0xd39
-   GetMaxViewportDims -> Just 0xd3a
-   GetMaxClientAttribStackDepth -> Just 0xd3b
-   GetSubpixelBits -> Just 0xd50
-   GetIndexBits -> Just 0xd51
-   GetRedBits -> Just 0xd52
-   GetGreenBits -> Just 0xd53
-   GetBlueBits -> Just 0xd54
-   GetAlphaBits -> Just 0xd55
-   GetDepthBits -> Just 0xd56
-   GetStencilBits -> Just 0xd57
-   GetAccumRedBits -> Just 0xd58
-   GetAccumGreenBits -> Just 0xd59
-   GetAccumBlueBits -> Just 0xd5a
-   GetAccumAlphaBits -> Just 0xd5b
-   GetNameStackDepth -> Just 0xd70
-   GetAutoNormal -> Just 0xd80
-   GetMap1Color4 -> Just 0xd90
-   GetMap1Index -> Just 0xd91
-   GetMap1Normal -> Just 0xd92
-   GetMap1TextureCoord1 -> Just 0xd93
-   GetMap1TextureCoord2 -> Just 0xd94
-   GetMap1TextureCoord3 -> Just 0xd95
-   GetMap1TextureCoord4 -> Just 0xd96
-   GetMap1Vertex3 -> Just 0xd97
-   GetMap1Vertex4 -> Just 0xd98
-   GetMap2Color4 -> Just 0xdb0
-   GetMap2Index -> Just 0xdb1
-   GetMap2Normal -> Just 0xdb2
-   GetMap2TextureCoord1 -> Just 0xdb3
-   GetMap2TextureCoord2 -> Just 0xdb4
-   GetMap2TextureCoord3 -> Just 0xdb5
-   GetMap2TextureCoord4 -> Just 0xdb6
-   GetMap2Vertex3 -> Just 0xdb7
-   GetMap2Vertex4 -> Just 0xdb8
-   GetMap1GridDomain -> Just 0xdd0
-   GetMap1GridSegments -> Just 0xdd1
-   GetMap2GridDomain -> Just 0xdd2
-   GetMap2GridSegments -> Just 0xdd3
-   GetTexture1D -> Just 0xde0
-   GetTexture2D -> Just 0xde1
-   GetFeedbackBufferSize -> Just 0xdf1
-   GetFeedbackBufferType -> Just 0xdf2
-   GetSelectionBufferSize -> Just 0xdf4
-   GetPolygonOffsetUnits -> Just 0x2a00
-   GetPolygonOffsetPoint -> Just 0x2a01
-   GetPolygonOffsetLine -> Just 0x2a02
-   GetPolygonOffsetFill -> Just 0x8037
-   GetPolygonOffsetFactor -> Just 0x8038
-   GetTextureBinding1D -> Just 0x8068
-   GetTextureBinding2D -> Just 0x8069
-   GetTextureBinding3D -> Just 0x806a
-   GetVertexArray -> Just 0x8074
-   GetNormalArray -> Just 0x8075
-   GetColorArray -> Just 0x8076
-   GetIndexArray -> Just 0x8077
-   GetTextureCoordArray -> Just 0x8078
-   GetEdgeFlagArray -> Just 0x8079
-   GetFogCoordArray -> Just 0x8457
-   GetSecondaryColorArray -> Just 0x845e
+   GetPointSmooth -> Just gl_POINT_SMOOTH
+   GetPointSize -> Just gl_POINT_SIZE
+   GetPointSizeRange -> Just gl_POINT_SIZE_RANGE
+   GetPointSizeGranularity -> Just gl_POINT_SIZE_GRANULARITY
+   GetLineSmooth -> Just gl_LINE_SMOOTH
+   GetLineWidth -> Just gl_LINE_WIDTH
+   GetLineWidthRange -> Just gl_SMOOTH_LINE_WIDTH_RANGE
+   GetLineWidthGranularity -> Just gl_SMOOTH_LINE_WIDTH_GRANULARITY
+   GetLineStipple -> Just gl_LINE_STIPPLE
+   GetLineStipplePattern -> Just gl_LINE_STIPPLE_PATTERN
+   GetLineStippleRepeat -> Just gl_LINE_STIPPLE_REPEAT
+   GetSmoothPointSizeRange -> Just gl_POINT_SIZE_RANGE
+   GetSmoothPointSizeGranularity -> Just gl_POINT_SIZE_GRANULARITY
+   GetSmoothLineWidthRange -> Just gl_SMOOTH_LINE_WIDTH_RANGE
+   GetSmoothLineWidthGranularity -> Just gl_SMOOTH_LINE_WIDTH_GRANULARITY
+   GetAliasedPointSizeRange -> Just gl_ALIASED_POINT_SIZE_RANGE
+   GetAliasedLineWidthRange -> Just gl_ALIASED_LINE_WIDTH_RANGE
+   GetListMode -> Just gl_LIST_MODE
+   GetMaxListNesting -> Just gl_MAX_LIST_NESTING
+   GetListBase -> Just gl_LIST_BASE
+   GetListIndex -> Just gl_LIST_INDEX
+   GetPolygonMode -> Just gl_POLYGON_MODE
+   GetPolygonSmooth -> Just gl_POLYGON_SMOOTH
+   GetPolygonStipple -> Just gl_POLYGON_STIPPLE
+   GetEdgeFlag -> Just gl_EDGE_FLAG
+   GetCullFace -> Just gl_CULL_FACE
+   GetCullFaceMode -> Just gl_CULL_FACE_MODE
+   GetFrontFace -> Just gl_FRONT_FACE
+   GetLighting -> Just gl_LIGHTING
+   GetLightModelLocalViewer -> Just gl_LIGHT_MODEL_LOCAL_VIEWER
+   GetLightModelTwoSide -> Just gl_LIGHT_MODEL_TWO_SIDE
+   GetLightModelAmbient -> Just gl_LIGHT_MODEL_AMBIENT
+   GetShadeModel -> Just gl_SHADE_MODEL
+   GetColorMaterialFace -> Just gl_COLOR_MATERIAL_FACE
+   GetColorMaterialParameter -> Just gl_COLOR_MATERIAL_PARAMETER
+   GetColorMaterial -> Just gl_COLOR_MATERIAL
+   GetFog -> Just gl_FOG
+   GetFogIndex -> Just gl_FOG_INDEX
+   GetFogDensity -> Just gl_FOG_DENSITY
+   GetFogStart -> Just gl_FOG_START
+   GetFogEnd -> Just gl_FOG_END
+   GetFogMode -> Just gl_FOG_MODE
+   GetFogColor -> Just gl_FOG_COLOR
+   GetFogCoordSrc -> Just gl_FOG_COORD_SRC
+   GetCurrentFogCoord -> Just gl_CURRENT_FOG_COORD
+   GetDepthRange -> Just gl_DEPTH_RANGE
+   GetDepthTest -> Just gl_DEPTH_TEST
+   GetDepthWritemask -> Just gl_DEPTH_WRITEMASK
+   GetDepthClearValue -> Just gl_DEPTH_CLEAR_VALUE
+   GetDepthFunc -> Just gl_DEPTH_FUNC
+   GetAccumClearValue -> Just gl_ACCUM_CLEAR_VALUE
+   GetStencilTest -> Just gl_STENCIL_TEST
+   GetStencilClearValue -> Just gl_STENCIL_CLEAR_VALUE
+   GetStencilFunc -> Just gl_STENCIL_FUNC
+   GetStencilValueMask -> Just gl_STENCIL_VALUE_MASK
+   GetStencilFail -> Just gl_STENCIL_FAIL
+   GetStencilPassDepthFail -> Just gl_STENCIL_PASS_DEPTH_FAIL
+   GetStencilPassDepthPass -> Just gl_STENCIL_PASS_DEPTH_PASS
+   GetStencilRef -> Just gl_STENCIL_REF
+   GetStencilWritemask -> Just gl_STENCIL_WRITEMASK
+   GetMatrixMode -> Just gl_MATRIX_MODE
+   GetNormalize -> Just gl_NORMALIZE
+   GetViewport -> Just gl_VIEWPORT
+   GetModelviewStackDepth -> Just gl_MODELVIEW_STACK_DEPTH
+   GetProjectionStackDepth -> Just gl_PROJECTION_STACK_DEPTH
+   GetTextureStackDepth -> Just gl_TEXTURE_STACK_DEPTH
+   GetModelviewMatrix -> Just gl_MODELVIEW_MATRIX
+   GetProjectionMatrix -> Just gl_PROJECTION_MATRIX
+   GetTextureMatrix -> Just gl_TEXTURE_MATRIX
+   GetAttribStackDepth -> Just gl_ATTRIB_STACK_DEPTH
+   GetClientAttribStackDepth -> Just gl_CLIENT_ATTRIB_STACK_DEPTH
+   GetAlphaTest -> Just gl_ALPHA_TEST
+   GetAlphaTestFunc -> Just gl_ALPHA_TEST_FUNC
+   GetAlphaTestRef -> Just gl_ALPHA_TEST_REF
+   GetDither -> Just gl_DITHER
+   GetBlendDst -> Just gl_BLEND_DST
+   GetBlendSrc -> Just gl_BLEND_SRC
+   GetBlend -> Just gl_BLEND
+   GetLogicOpMode -> Just gl_LOGIC_OP_MODE
+   GetIndexLogicOp -> Just gl_INDEX_LOGIC_OP
+   GetLogicOp -> Just gl_INDEX_LOGIC_OP
+   GetColorLogicOp -> Just gl_COLOR_LOGIC_OP
+   GetAuxBuffers -> Just gl_AUX_BUFFERS
+   GetDrawBuffer -> Just gl_DRAW_BUFFER
+   GetReadBuffer -> Just gl_READ_BUFFER
+   GetScissorBox -> Just gl_SCISSOR_BOX
+   GetScissorTest -> Just gl_SCISSOR_TEST
+   GetIndexClearValue -> Just gl_INDEX_CLEAR_VALUE
+   GetIndexWritemask -> Just gl_INDEX_WRITEMASK
+   GetColorClearValue -> Just gl_COLOR_CLEAR_VALUE
+   GetColorWritemask -> Just gl_COLOR_WRITEMASK
+   GetIndexMode -> Just gl_INDEX_MODE
+   GetRGBAMode -> Just gl_RGBA_MODE
+   GetDoublebuffer -> Just gl_DOUBLEBUFFER
+   GetStereo -> Just gl_STEREO
+   GetRenderMode -> Just gl_RENDER_MODE
+   GetPerspectiveCorrectionHint -> Just gl_PERSPECTIVE_CORRECTION_HINT
+   GetPointSmoothHint -> Just gl_POINT_SMOOTH_HINT
+   GetLineSmoothHint -> Just gl_LINE_SMOOTH_HINT
+   GetPolygonSmoothHint -> Just gl_POLYGON_SMOOTH_HINT
+   GetFogHint -> Just gl_FOG_HINT
+   GetGenerateMipmapHint -> Just gl_GENERATE_MIPMAP_HINT
+   GetTextureCompressionHint -> Just gl_TEXTURE_COMPRESSION_HINT
+   GetTextureGenS -> Just gl_TEXTURE_GEN_S
+   GetTextureGenT -> Just gl_TEXTURE_GEN_T
+   GetTextureGenR -> Just gl_TEXTURE_GEN_R
+   GetTextureGenQ -> Just gl_TEXTURE_GEN_Q
+   GetPixelMapIToISize -> Just gl_PIXEL_MAP_I_TO_I_SIZE
+   GetPixelMapSToSSize -> Just gl_PIXEL_MAP_S_TO_S_SIZE
+   GetPixelMapIToRSize -> Just gl_PIXEL_MAP_I_TO_R_SIZE
+   GetPixelMapIToGSize -> Just gl_PIXEL_MAP_I_TO_G_SIZE
+   GetPixelMapIToBSize -> Just gl_PIXEL_MAP_I_TO_B_SIZE
+   GetPixelMapIToASize -> Just gl_PIXEL_MAP_I_TO_A_SIZE
+   GetPixelMapRToRSize -> Just gl_PIXEL_MAP_R_TO_R_SIZE
+   GetPixelMapGToGSize -> Just gl_PIXEL_MAP_G_TO_G_SIZE
+   GetPixelMapBToBSize -> Just gl_PIXEL_MAP_B_TO_B_SIZE
+   GetPixelMapAToASize -> Just gl_PIXEL_MAP_A_TO_A_SIZE
+   GetUnpackSwapBytes -> Just gl_UNPACK_SWAP_BYTES
+   GetUnpackLSBFirst -> Just gl_UNPACK_LSB_FIRST
+   GetUnpackRowLength -> Just gl_UNPACK_ROW_LENGTH
+   GetUnpackSkipRows -> Just gl_UNPACK_SKIP_ROWS
+   GetUnpackSkipPixels -> Just gl_UNPACK_SKIP_PIXELS
+   GetUnpackAlignment -> Just gl_UNPACK_ALIGNMENT
+   GetPackSwapBytes -> Just gl_PACK_SWAP_BYTES
+   GetPackLSBFirst -> Just gl_PACK_LSB_FIRST
+   GetPackRowLength -> Just gl_PACK_ROW_LENGTH
+   GetPackSkipRows -> Just gl_PACK_SKIP_ROWS
+   GetPackSkipPixels -> Just gl_PACK_SKIP_PIXELS
+   GetPackAlignment -> Just gl_PACK_ALIGNMENT
+   GetMapColor -> Just gl_MAP_COLOR
+   GetMapStencil -> Just gl_MAP_STENCIL
+   GetIndexShift -> Just gl_INDEX_SHIFT
+   GetIndexOffset -> Just gl_INDEX_OFFSET
+   GetRedScale -> Just gl_RED_SCALE
+   GetRedBias -> Just gl_RED_BIAS
+   GetZoomX -> Just gl_ZOOM_X
+   GetZoomY -> Just gl_ZOOM_Y
+   GetGreenScale -> Just gl_GREEN_SCALE
+   GetGreenBias -> Just gl_GREEN_BIAS
+   GetBlueScale -> Just gl_BLUE_SCALE
+   GetBlueBias -> Just gl_BLUE_BIAS
+   GetAlphaScale -> Just gl_ALPHA_SCALE
+   GetAlphaBias -> Just gl_ALPHA_BIAS
+   GetDepthScale -> Just gl_DEPTH_SCALE
+   GetDepthBias -> Just gl_DEPTH_BIAS
+   GetMaxEvalOrder -> Just gl_MAX_EVAL_ORDER
+   GetMaxLights -> Just gl_MAX_LIGHTS
+   GetMaxClipPlanes -> Just gl_MAX_CLIP_DISTANCES
+   GetMaxTextureSize -> Just gl_MAX_TEXTURE_SIZE
+   GetMaxPixelMapTable -> Just gl_MAX_PIXEL_MAP_TABLE
+   GetMaxAttribStackDepth -> Just gl_MAX_ATTRIB_STACK_DEPTH
+   GetMaxModelviewStackDepth -> Just gl_MAX_MODELVIEW_STACK_DEPTH
+   GetMaxNameStackDepth -> Just gl_MAX_NAME_STACK_DEPTH
+   GetMaxProjectionStackDepth -> Just gl_MAX_PROJECTION_STACK_DEPTH
+   GetMaxTextureStackDepth -> Just gl_MAX_TEXTURE_STACK_DEPTH
+   GetMaxViewportDims -> Just gl_MAX_VIEWPORT_DIMS
+   GetMaxClientAttribStackDepth -> Just gl_MAX_CLIENT_ATTRIB_STACK_DEPTH
+   GetSubpixelBits -> Just gl_SUBPIXEL_BITS
+   GetIndexBits -> Just gl_INDEX_BITS
+   GetRedBits -> Just gl_RED_BITS
+   GetGreenBits -> Just gl_GREEN_BITS
+   GetBlueBits -> Just gl_BLUE_BITS
+   GetAlphaBits -> Just gl_ALPHA_BITS
+   GetDepthBits -> Just gl_DEPTH_BITS
+   GetStencilBits -> Just gl_STENCIL_BITS
+   GetAccumRedBits -> Just gl_ACCUM_RED_BITS
+   GetAccumGreenBits -> Just gl_ACCUM_GREEN_BITS
+   GetAccumBlueBits -> Just gl_ACCUM_BLUE_BITS
+   GetAccumAlphaBits -> Just gl_ACCUM_ALPHA_BITS
+   GetNameStackDepth -> Just gl_NAME_STACK_DEPTH
+   GetAutoNormal -> Just gl_AUTO_NORMAL
+   GetMap1Color4 -> Just gl_MAP1_COLOR_4
+   GetMap1Index -> Just gl_MAP1_INDEX
+   GetMap1Normal -> Just gl_MAP1_NORMAL
+   GetMap1TextureCoord1 -> Just gl_MAP1_TEXTURE_COORD_1
+   GetMap1TextureCoord2 -> Just gl_MAP1_TEXTURE_COORD_2
+   GetMap1TextureCoord3 -> Just gl_MAP1_TEXTURE_COORD_3
+   GetMap1TextureCoord4 -> Just gl_MAP1_TEXTURE_COORD_4
+   GetMap1Vertex3 -> Just gl_MAP1_VERTEX_3
+   GetMap1Vertex4 -> Just gl_MAP1_VERTEX_4
+   GetMap2Color4 -> Just gl_MAP2_COLOR_4
+   GetMap2Index -> Just gl_MAP2_INDEX
+   GetMap2Normal -> Just gl_MAP2_NORMAL
+   GetMap2TextureCoord1 -> Just gl_MAP2_TEXTURE_COORD_1
+   GetMap2TextureCoord2 -> Just gl_MAP2_TEXTURE_COORD_2
+   GetMap2TextureCoord3 -> Just gl_MAP2_TEXTURE_COORD_3
+   GetMap2TextureCoord4 -> Just gl_MAP2_TEXTURE_COORD_4
+   GetMap2Vertex3 -> Just gl_MAP2_VERTEX_3
+   GetMap2Vertex4 -> Just gl_MAP2_VERTEX_4
+   GetMap1GridDomain -> Just gl_MAP1_GRID_DOMAIN
+   GetMap1GridSegments -> Just gl_MAP1_GRID_SEGMENTS
+   GetMap2GridDomain -> Just gl_MAP2_GRID_DOMAIN
+   GetMap2GridSegments -> Just gl_MAP2_GRID_SEGMENTS
+   GetTexture1D -> Just gl_TEXTURE_1D
+   GetTexture2D -> Just gl_TEXTURE_2D
+   GetFeedbackBufferSize -> Just gl_FEEDBACK_BUFFER_SIZE
+   GetFeedbackBufferType -> Just gl_FEEDBACK_BUFFER_TYPE
+   GetSelectionBufferSize -> Just gl_SELECTION_BUFFER_SIZE
+   GetPolygonOffsetUnits -> Just gl_POLYGON_OFFSET_UNITS
+   GetPolygonOffsetPoint -> Just gl_POLYGON_OFFSET_POINT
+   GetPolygonOffsetLine -> Just gl_POLYGON_OFFSET_LINE
+   GetPolygonOffsetFill -> Just gl_POLYGON_OFFSET_FILL
+   GetPolygonOffsetFactor -> Just gl_POLYGON_OFFSET_FACTOR
+   GetTextureBinding1D -> Just gl_TEXTURE_BINDING_1D
+   GetTextureBinding2D -> Just gl_TEXTURE_BINDING_2D
+   GetTextureBinding3D -> Just gl_TEXTURE_BINDING_3D
+   GetVertexArray -> Just gl_VERTEX_ARRAY
+   GetNormalArray -> Just gl_NORMAL_ARRAY
+   GetColorArray -> Just gl_COLOR_ARRAY
+   GetIndexArray -> Just gl_INDEX_ARRAY
+   GetTextureCoordArray -> Just gl_TEXTURE_COORD_ARRAY
+   GetEdgeFlagArray -> Just gl_EDGE_FLAG_ARRAY
+   GetFogCoordArray -> Just gl_FOG_COORD_ARRAY
+   GetSecondaryColorArray -> Just gl_SECONDARY_COLOR_ARRAY
    GetMatrixIndexArray -> Just 0x8844
-   GetVertexArraySize -> Just 0x807a
-   GetVertexArrayType -> Just 0x807b
-   GetVertexArrayStride -> Just 0x807c
-   GetNormalArrayType -> Just 0x807e
-   GetNormalArrayStride -> Just 0x807f
-   GetColorArraySize -> Just 0x8081
-   GetColorArrayType -> Just 0x8082
-   GetColorArrayStride -> Just 0x8083
-   GetIndexArrayType -> Just 0x8085
-   GetIndexArrayStride -> Just 0x8086
-   GetTextureCoordArraySize -> Just 0x8088
-   GetTextureCoordArrayType -> Just 0x8089
-   GetTextureCoordArrayStride -> Just 0x808a
-   GetEdgeFlagArrayStride -> Just 0x808c
-   GetFogCoordArrayType -> Just 0x8454
-   GetFogCoordArrayStride -> Just 0x8455
-   GetSecondaryColorArraySize -> Just 0x845a
-   GetSecondaryColorArrayType -> Just 0x845b
-   GetSecondaryColorArrayStride -> Just 0x845c
+   GetVertexArraySize -> Just gl_VERTEX_ARRAY_SIZE
+   GetVertexArrayType -> Just gl_VERTEX_ARRAY_TYPE
+   GetVertexArrayStride -> Just gl_VERTEX_ARRAY_STRIDE
+   GetNormalArrayType -> Just gl_NORMAL_ARRAY_TYPE
+   GetNormalArrayStride -> Just gl_NORMAL_ARRAY_STRIDE
+   GetColorArraySize -> Just gl_COLOR_ARRAY_SIZE
+   GetColorArrayType -> Just gl_COLOR_ARRAY_TYPE
+   GetColorArrayStride -> Just gl_COLOR_ARRAY_STRIDE
+   GetIndexArrayType -> Just gl_INDEX_ARRAY_TYPE
+   GetIndexArrayStride -> Just gl_INDEX_ARRAY_STRIDE
+   GetTextureCoordArraySize -> Just gl_TEXTURE_COORD_ARRAY_SIZE
+   GetTextureCoordArrayType -> Just gl_TEXTURE_COORD_ARRAY_TYPE
+   GetTextureCoordArrayStride -> Just gl_TEXTURE_COORD_ARRAY_STRIDE
+   GetEdgeFlagArrayStride -> Just gl_EDGE_FLAG_ARRAY_STRIDE
+   GetFogCoordArrayType -> Just gl_FOG_COORD_ARRAY_TYPE
+   GetFogCoordArrayStride -> Just gl_FOG_COORD_ARRAY_STRIDE
+   GetSecondaryColorArraySize -> Just gl_SECONDARY_COLOR_ARRAY_SIZE
+   GetSecondaryColorArrayType -> Just gl_SECONDARY_COLOR_ARRAY_TYPE
+   GetSecondaryColorArrayStride -> Just gl_SECONDARY_COLOR_ARRAY_STRIDE
    GetMatrixIndexArraySize -> Just 0x8846
    GetMatrixIndexArrayType -> Just 0x8847
    GetMatrixIndexArrayStride -> Just 0x8848
    GetClipPlane i -> clipPlaneIndexToEnum i
    GetLight i -> lightIndexToEnum i
-   GetTransposeModelviewMatrix -> Just 0x84e3
-   GetTransposeProjectionMatrix -> Just 0x84e4
-   GetTransposeTextureMatrix -> Just 0x84e5
-   GetTransposeColorMatrix -> Just 0x84e6
-   GetLightModelColorControl -> Just 0x81f8
-   GetBlendColor -> Just 0x8005
-   GetBlendEquation -> Just 0x8009
-   GetBlendEquationAlpha -> Just 0x883d
-   GetColorTable -> Just 0x80d0
-   GetPostConvolutionColorTable -> Just 0x80d1
-   GetPostColorMatrixColorTable -> Just 0x80d2
-   GetConvolution1D -> Just 0x8010
-   GetConvolution2D -> Just 0x8011
-   GetSeparable2D -> Just 0x8012
-   GetMaxConvolutionWidth -> Just 0x801a
-   GetMaxConvolutionHeight -> Just 0x801b
-   GetPostConvolutionRedScale -> Just 0x801c
-   GetPostConvolutionGreenScale -> Just 0x801d
-   GetPostConvolutionBlueScale -> Just 0x801e
-   GetPostConvolutionAlphaScale -> Just 0x801f
-   GetPostConvolutionRedBias -> Just 0x8020
-   GetPostConvolutionGreenBias -> Just 0x8021
-   GetPostConvolutionBlueBias -> Just 0x8022
-   GetPostConvolutionAlphaBias -> Just 0x8023
-   GetHistogram -> Just 0x8024
-   GetMinmax -> Just 0x802e
-   GetColorSum -> Just 0x8458
-   GetCurrentSecondaryColor -> Just 0x8459
-   GetRescaleNormal -> Just 0x803a
+   GetTransposeModelviewMatrix -> Just gl_TRANSPOSE_MODELVIEW_MATRIX
+   GetTransposeProjectionMatrix -> Just gl_TRANSPOSE_PROJECTION_MATRIX
+   GetTransposeTextureMatrix -> Just gl_TRANSPOSE_TEXTURE_MATRIX
+   GetTransposeColorMatrix -> Just gl_TRANSPOSE_COLOR_MATRIX
+   GetLightModelColorControl -> Just gl_LIGHT_MODEL_COLOR_CONTROL
+   GetBlendColor -> Just gl_BLEND_COLOR
+   GetBlendEquation -> Just gl_BLEND_EQUATION_RGB
+   GetBlendEquationAlpha -> Just gl_BLEND_EQUATION_ALPHA
+   GetColorTable -> Just gl_COLOR_TABLE
+   GetPostConvolutionColorTable -> Just gl_POST_CONVOLUTION_COLOR_TABLE
+   GetPostColorMatrixColorTable -> Just gl_POST_COLOR_MATRIX_COLOR_TABLE
+   GetConvolution1D -> Just gl_CONVOLUTION_1D
+   GetConvolution2D -> Just gl_CONVOLUTION_2D
+   GetSeparable2D -> Just gl_SEPARABLE_2D
+   GetMaxConvolutionWidth -> Just gl_MAX_CONVOLUTION_WIDTH
+   GetMaxConvolutionHeight -> Just gl_MAX_CONVOLUTION_HEIGHT
+   GetPostConvolutionRedScale -> Just gl_POST_CONVOLUTION_RED_SCALE
+   GetPostConvolutionGreenScale -> Just gl_POST_CONVOLUTION_GREEN_SCALE
+   GetPostConvolutionBlueScale -> Just gl_POST_CONVOLUTION_BLUE_SCALE
+   GetPostConvolutionAlphaScale -> Just gl_POST_CONVOLUTION_ALPHA_SCALE
+   GetPostConvolutionRedBias -> Just gl_POST_CONVOLUTION_RED_BIAS
+   GetPostConvolutionGreenBias -> Just gl_POST_CONVOLUTION_GREEN_BIAS
+   GetPostConvolutionBlueBias -> Just gl_POST_CONVOLUTION_BLUE_BIAS
+   GetPostConvolutionAlphaBias -> Just gl_POST_CONVOLUTION_ALPHA_BIAS
+   GetHistogram -> Just gl_HISTOGRAM
+   GetMinmax -> Just gl_MINMAX
+   GetColorSum -> Just gl_COLOR_SUM
+   GetCurrentSecondaryColor -> Just gl_CURRENT_SECONDARY_COLOR
+   GetRescaleNormal -> Just gl_RESCALE_NORMAL
    GetSharedTexturePalette -> Just 0x81fb
-   GetTexture3DBinding -> Just 0x806a
-   GetPackSkipImages -> Just 0x806b
-   GetPackImageHeight -> Just 0x806c
-   GetUnpackSkipImages -> Just 0x806d
-   GetUnpackImageHeight -> Just 0x806e
-   GetTexture3D -> Just 0x806f
-   GetMax3DTextureSize -> Just 0x8073
-   GetMaxTextureLODBias -> Just 0x84fd
+   GetTexture3DBinding -> Just gl_TEXTURE_BINDING_3D
+   GetPackSkipImages -> Just gl_PACK_SKIP_IMAGES
+   GetPackImageHeight -> Just gl_PACK_IMAGE_HEIGHT
+   GetUnpackSkipImages -> Just gl_UNPACK_SKIP_IMAGES
+   GetUnpackImageHeight -> Just gl_UNPACK_IMAGE_HEIGHT
+   GetTexture3D -> Just gl_TEXTURE_3D
+   GetMax3DTextureSize -> Just gl_MAX_3D_TEXTURE_SIZE
+   GetMaxTextureLODBias -> Just gl_MAX_TEXTURE_LOD_BIAS
    GetMaxTextureMaxAnisotropy -> Just 0x84ff
-   GetMultisample -> Just 0x809d
-   GetSampleAlphaToCoverage -> Just 0x809e
-   GetSampleAlphaToOne -> Just 0x809f
-   GetSampleCoverage -> Just 0x80a0
-   GetSampleBuffers -> Just 0x80a8
-   GetSamples -> Just 0x80a9
-   GetSampleCoverageValue -> Just 0x80aa
-   GetSampleCoverageInvert -> Just 0x80ab
-   GetPointSizeMin -> Just 0x8126
-   GetPointSizeMax -> Just 0x8127
-   GetPointFadeThresholdSize -> Just 0x8128
-   GetPointDistanceAttenuation -> Just 0x8129
-   GetColorMatrix -> Just 0x80b1
-   GetColorMatrixStackDepth -> Just 0x80b2
-   GetMaxColorMatrixStackDepth -> Just 0x80b3
-   GetPostColorMatrixRedScale -> Just 0x80b4
-   GetPostColorMatrixGreenScale -> Just 0x80b5
-   GetPostColorMatrixBlueScale -> Just 0x80b6
-   GetPostColorMatrixAlphaScale -> Just 0x80b7
-   GetPostColorMatrixRedBias -> Just 0x80b8
-   GetPostColorMatrixGreenBias -> Just 0x80b9
-   GetPostColorMatrixBlueBias -> Just 0x80ba
-   GetPostColorMatrixAlphaBias -> Just 0x80bb
-   GetMaxElementsVertices -> Just 0x80e8
-   GetMaxElementsIndices -> Just 0x80e9
-   GetActiveTexture -> Just 0x84e0
-   GetClientActiveTexture -> Just 0x84e1
-   GetMaxTextureUnits -> Just 0x84e2
-   GetTextureCubeMap -> Just 0x8513
-   GetMaxCubeMapTextureSize -> Just 0x851c
-   GetMaxRectangleTextureSize -> Just 0x84F8
-   GetNumCompressedTextureFormats -> Just 0x86a2
-   GetCompressedTextureFormats -> Just 0x86a3
+   GetMultisample -> Just gl_MULTISAMPLE
+   GetSampleAlphaToCoverage -> Just gl_SAMPLE_ALPHA_TO_COVERAGE
+   GetSampleAlphaToOne -> Just gl_SAMPLE_ALPHA_TO_ONE
+   GetSampleCoverage -> Just gl_SAMPLE_COVERAGE
+   GetSampleBuffers -> Just gl_SAMPLE_BUFFERS
+   GetSamples -> Just gl_SAMPLES
+   GetSampleCoverageValue -> Just gl_SAMPLE_COVERAGE_VALUE
+   GetSampleCoverageInvert -> Just gl_SAMPLE_COVERAGE_INVERT
+   GetPointSizeMin -> Just gl_POINT_SIZE_MIN
+   GetPointSizeMax -> Just gl_POINT_SIZE_MAX
+   GetPointFadeThresholdSize -> Just gl_POINT_FADE_THRESHOLD_SIZE
+   GetPointDistanceAttenuation -> Just gl_POINT_DISTANCE_ATTENUATION
+   GetColorMatrix -> Just gl_COLOR_MATRIX
+   GetColorMatrixStackDepth -> Just gl_COLOR_MATRIX_STACK_DEPTH
+   GetMaxColorMatrixStackDepth -> Just gl_MAX_COLOR_MATRIX_STACK_DEPTH
+   GetPostColorMatrixRedScale -> Just gl_POST_COLOR_MATRIX_RED_SCALE
+   GetPostColorMatrixGreenScale -> Just gl_POST_COLOR_MATRIX_GREEN_SCALE
+   GetPostColorMatrixBlueScale -> Just gl_POST_COLOR_MATRIX_BLUE_SCALE
+   GetPostColorMatrixAlphaScale -> Just gl_POST_COLOR_MATRIX_ALPHA_SCALE
+   GetPostColorMatrixRedBias -> Just gl_POST_COLOR_MATRIX_RED_BIAS
+   GetPostColorMatrixGreenBias -> Just gl_POST_COLOR_MATRIX_GREEN_BIAS
+   GetPostColorMatrixBlueBias -> Just gl_POST_COLOR_MATRIX_BLUE_BIAS
+   GetPostColorMatrixAlphaBias -> Just gl_POST_COLOR_MATRIX_ALPHA_BIAS
+   GetMaxElementsVertices -> Just gl_MAX_ELEMENTS_VERTICES
+   GetMaxElementsIndices -> Just gl_MAX_ELEMENTS_INDICES
+   GetActiveTexture -> Just gl_ACTIVE_TEXTURE
+   GetClientActiveTexture -> Just gl_CLIENT_ACTIVE_TEXTURE
+   GetMaxTextureUnits -> Just gl_MAX_TEXTURE_UNITS
+   GetTextureCubeMap -> Just gl_TEXTURE_CUBE_MAP
+   GetMaxCubeMapTextureSize -> Just gl_MAX_CUBE_MAP_TEXTURE_SIZE
+   GetMaxRectangleTextureSize -> Just gl_MAX_RECTANGLE_TEXTURE_SIZE
+   GetNumCompressedTextureFormats -> Just gl_NUM_COMPRESSED_TEXTURE_FORMATS
+   GetCompressedTextureFormats -> Just gl_COMPRESSED_TEXTURE_FORMATS
    GetMaxVertexUnits -> Just 0x86a4
    GetActiveVertexUnits -> Just 0x86a5
    GetWeightSumUnity -> Just 0x86a6
@@ -766,10 +991,10 @@ marshalGetPName x = case x of
    GetMaxMatrixPaletteStackDepth -> Just 0x8841
    GetMaxPaletteMatrices -> Just 0x8842
    GetCurrentPaletteMatrix -> Just 0x8843
-   GetBlendDstRGB -> Just 0x80c8
-   GetBlendSrcRGB -> Just 0x80c9
-   GetBlendDstAlpha -> Just 0x80ca
-   GetBlendSrcAlpha -> Just 0x80cb
+   GetBlendDstRGB -> Just gl_BLEND_DST_RGB
+   GetBlendSrcRGB -> Just gl_BLEND_SRC_RGB
+   GetBlendDstAlpha -> Just gl_BLEND_DST_ALPHA
+   GetBlendSrcAlpha -> Just gl_BLEND_SRC_ALPHA
    GetPackCMYKHint -> Just 0x800e
    GetUnpackCMYKHint -> Just 0x800f
    GetArrayElementLockFirst -> Just 0x81a8
@@ -782,37 +1007,37 @@ marshalGetPName x = case x of
    GetPrimitiveRestartNV -> Just gl_PRIMITIVE_RESTART_NV
    GetPrimitiveRestartIndexNV -> Just gl_PRIMITIVE_RESTART_INDEX_NV
    GetActiveStencilFace -> Just 0x8911
-   GetArrayBufferBinding -> Just 0x8894
-   GetElementArrayBufferBinding -> Just 0x8895
-   GetVertexArrayBufferBinding -> Just 0x8896
-   GetNormalArrayBufferBinding -> Just 0x8897
-   GetColorArrayBufferBinding -> Just 0x8898
-   GetIndexArrayBufferBinding -> Just 0x8899
-   GetTextureCoordArrayBufferBinding -> Just 0x889a
-   GetEdgeFlagArrayBufferBinding -> Just 0x889b
-   GetSecondaryColorArrayBufferBinding -> Just 0x889c
-   GetFogCoordArrayBufferBinding -> Just 0x889d
-   GetTextureBindingCubeMap -> Just 0x8514
-   GetTextureBindingRectangle -> Just 0x84f6
+   GetArrayBufferBinding -> Just gl_ARRAY_BUFFER_BINDING
+   GetElementArrayBufferBinding -> Just gl_ELEMENT_ARRAY_BUFFER_BINDING
+   GetVertexArrayBufferBinding -> Just gl_VERTEX_ARRAY_BUFFER_BINDING
+   GetNormalArrayBufferBinding -> Just gl_NORMAL_ARRAY_BUFFER_BINDING
+   GetColorArrayBufferBinding -> Just gl_COLOR_ARRAY_BUFFER_BINDING
+   GetIndexArrayBufferBinding -> Just gl_INDEX_ARRAY_BUFFER_BINDING
+   GetTextureCoordArrayBufferBinding -> Just gl_TEXTURE_COORD_ARRAY_BUFFER_BINDING
+   GetEdgeFlagArrayBufferBinding -> Just gl_EDGE_FLAG_ARRAY_BUFFER_BINDING
+   GetSecondaryColorArrayBufferBinding -> Just gl_SECONDARY_COLOR_ARRAY_BUFFER_BINDING
+   GetFogCoordArrayBufferBinding -> Just gl_FOG_COORD_ARRAY_BUFFER_BINDING
+   GetTextureBindingCubeMap -> Just gl_TEXTURE_BINDING_CUBE_MAP
+   GetTextureBindingRectangle -> Just gl_TEXTURE_BINDING_RECTANGLE
    GetCurrentMatrix -> Just 0x8641
    GetCurrentMatrixStackDepth -> Just 0x8640
-   GetMaxCombinedTextureImageUnits -> Just 0x8b4d
-   GetMaxDrawBuffers -> Just 0x8824
-   GetMaxFragmentUniformComponents -> Just 0x8b49
-   GetMaxTextureCoords -> Just 0x8871
-   GetMaxTextureImageUnits -> Just 0x8872
-   GetMaxVaryingFloats -> Just 0x8b4b
-   GetMaxVertexAttribs -> Just 0x8869
-   GetMaxVertexTextureImageUnits -> Just 0x8b4c
-   GetMaxVertexUniformComponents -> Just 0x8b4a
-   GetCurrentProgram -> Just 0x8b8d
-   GetPixelPackBufferBinding -> Just 0x88ed
-   GetPixelUnpackBufferBinding -> Just 0x88EF
+   GetMaxCombinedTextureImageUnits -> Just gl_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+   GetMaxDrawBuffers -> Just gl_MAX_DRAW_BUFFERS
+   GetMaxFragmentUniformComponents -> Just gl_MAX_FRAGMENT_UNIFORM_COMPONENTS
+   GetMaxTextureCoords -> Just gl_MAX_TEXTURE_COORDS
+   GetMaxTextureImageUnits -> Just gl_MAX_TEXTURE_IMAGE_UNITS
+   GetMaxVaryingFloats -> Just gl_MAX_VARYING_COMPONENTS
+   GetMaxVertexAttribs -> Just gl_MAX_VERTEX_ATTRIBS
+   GetMaxVertexTextureImageUnits -> Just gl_MAX_VERTEX_TEXTURE_IMAGE_UNITS
+   GetMaxVertexUniformComponents -> Just gl_MAX_VERTEX_UNIFORM_COMPONENTS
+   GetCurrentProgram -> Just gl_CURRENT_PROGRAM
+   GetPixelPackBufferBinding -> Just gl_PIXEL_PACK_BUFFER_BINDING
+   GetPixelUnpackBufferBinding -> Just gl_PIXEL_UNPACK_BUFFER_BINDING
    GetDrawBufferN i -> drawBufferIndexToEnum i
    GetRGBASignedComponents -> Just 0x8C3C
-   GetCopyReadBuffer -> Just 0x8F36
-   GetCopyWriteBuffer -> Just 0x8F37
-   -- GetWeightArrayBufferBinding -> Just 0x889e
+   GetCopyReadBuffer -> Just gl_COPY_READ_BUFFER
+   GetCopyWriteBuffer -> Just gl_COPY_WRITE_BUFFER
+   -- GetWeightArrayBufferBinding -> Just gl_WEIGHT_ARRAY_BUFFER_BINDING
 
 --------------------------------------------------------------------------------
 
@@ -820,8 +1045,11 @@ marshalGetPName x = case x of
 
 clipPlaneIndexToEnum :: GLsizei -> Maybe GLenum
 clipPlaneIndexToEnum i
-   | 0 <= i && i <= 0xFFF = Just (0x3000 + fromIntegral i)
+   | 0 <= i && i <= maxClipPlaneIndex = Just (gl_CLIP_DISTANCE0 + fromIntegral i)
    | otherwise = Nothing
+
+maxClipPlaneIndex :: GLsizei
+maxClipPlaneIndex = 0xFFF
 
 --------------------------------------------------------------------------------
 
@@ -829,15 +1057,18 @@ clipPlaneIndexToEnum i
 
 lightIndexToEnum :: GLsizei -> Maybe GLenum
 lightIndexToEnum i
-   | 0 <= i && i <= 0xFFF = Just (0x4000 + fromIntegral i)
+   | 0 <= i && i <= maxLightIndex = Just (gl_LIGHT0 + fromIntegral i)
    | otherwise = Nothing
+
+maxLightIndex :: GLsizei
+maxLightIndex = 0xFFF
 
 --------------------------------------------------------------------------------
 
 -- 0x1700, 0x850a, and 0x8722 through 0x873f are reserved for modelview matrices
 
 modelviewIndexToEnum :: GLsizei -> Maybe GLenum
-modelviewIndexToEnum 0 = Just 0x1700
+modelviewIndexToEnum 0 = Just gl_MODELVIEW
 modelviewIndexToEnum 1 = Just 0x850a
 modelviewIndexToEnum i
    | 2 <= i && i <= 31 = Just (0x8720 + fromIntegral i)
@@ -845,7 +1076,7 @@ modelviewIndexToEnum i
 
 modelviewEnumToIndex :: GLenum -> Maybe GLsizei
 modelviewEnumToIndex x
-   | x == 0x1700 = Just 0
+   | x == gl_MODELVIEW = Just 0
    | x == 0x850a = Just 1
    | 0x8722 <= x && x <= 0x873f = Just (fromIntegral x - 0x8720)
    | otherwise = Nothing
@@ -856,8 +1087,11 @@ modelviewEnumToIndex x
 
 drawBufferIndexToEnum :: GLsizei -> Maybe GLenum
 drawBufferIndexToEnum i
-   | 0 <= i && i <= 15 = Just (0x8825 + fromIntegral i)
+   | 0 <= i && i <= maxDrawBufferIndex = Just (gl_DRAW_BUFFER0 + fromIntegral i)
    | otherwise = Nothing
+
+maxDrawBufferIndex :: GLsizei
+maxDrawBufferIndex = fromIntegral (gl_DRAW_BUFFER15 - gl_DRAW_BUFFER0)
 
 --------------------------------------------------------------------------------
 
@@ -978,14 +1212,14 @@ data GetVertexAttribPName =
 
 marshalGetVertexAttribPName :: GetVertexAttribPName -> GLenum
 marshalGetVertexAttribPName x = case x of
-   GetVertexAttribArrayEnabled -> 0x8622
-   GetVertexAttribArraySize -> 0x8623
-   GetVertexAttribArrayStride -> 0x8624
-   GetVertexAttribArrayType -> 0x8625
-   GetVertexAttribArrayNormalized -> 0x886A
-   GetCurrentVertexAttrib -> 0x8626
-   GetVertexAttribArrayBufferBinding -> 0x889F
-   GetVertexAttribArrayInteger -> 0x88FD
+   GetVertexAttribArrayEnabled -> gl_VERTEX_ATTRIB_ARRAY_ENABLED
+   GetVertexAttribArraySize -> gl_VERTEX_ATTRIB_ARRAY_SIZE
+   GetVertexAttribArrayStride -> gl_VERTEX_ATTRIB_ARRAY_STRIDE
+   GetVertexAttribArrayType -> gl_VERTEX_ATTRIB_ARRAY_TYPE
+   GetVertexAttribArrayNormalized -> gl_VERTEX_ATTRIB_ARRAY_NORMALIZED
+   GetCurrentVertexAttrib -> gl_CURRENT_VERTEX_ATTRIB
+   GetVertexAttribArrayBufferBinding -> gl_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING
+   GetVertexAttribArrayInteger -> gl_VERTEX_ATTRIB_ARRAY_INTEGER
 
 --------------------------------------------------------------------------------
 
@@ -1022,7 +1256,7 @@ data GetVertexAttribPointerPName =
 
 marshalGetVertexAttribPointerPName :: GetVertexAttribPointerPName -> GLenum
 marshalGetVertexAttribPointerPName x = case x of
-   VertexAttribArrayPointer -> 0x8645
+   VertexAttribArrayPointer -> gl_VERTEX_ATTRIB_ARRAY_POINTER
 
 --------------------------------------------------------------------------------
 

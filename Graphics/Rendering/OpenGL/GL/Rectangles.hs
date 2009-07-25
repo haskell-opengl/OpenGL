@@ -19,7 +19,8 @@ module Graphics.Rendering.OpenGL.GL.Rectangles (
 import Data.Tensor
 import Foreign.C.Types
 import Foreign.Ptr
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glRectd, glRectdv, glRectf, glRectfv, glRecti, glRectiv, glRects, glRectsv )
 
 --------------------------------------------------------------------------------
 

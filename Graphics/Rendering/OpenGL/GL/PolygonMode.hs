@@ -29,13 +29,13 @@ data PolygonMode =
 
 marshalPolygonMode :: PolygonMode -> GLenum
 marshalPolygonMode x = case x of
-   Point -> 0x1b00
-   Line -> 0x1b01
-   Fill -> 0x1b02
+   Point -> gl_POINT
+   Line -> gl_LINE
+   Fill -> gl_FILL
 
 unmarshalPolygonMode :: GLenum -> PolygonMode
 unmarshalPolygonMode x
-   | x == 0x1b00 = Point
-   | x == 0x1b01 = Line
-   | x == 0x1b02 = Fill
+   | x == gl_POINT = Point
+   | x == gl_LINE = Line
+   | x == gl_FILL = Fill
    | otherwise = error ("unmarshalPolygonMode: illegal value " ++ show x)

@@ -52,11 +52,11 @@ data StringName =
 
 marshalStringName :: StringName -> GLenum
 marshalStringName x = case x of
-   Vendor -> 0x1f00
-   Renderer -> 0x1f01
-   Version -> 0x1f02
-   Extensions -> 0x1f03
-   ShadingLanguageVersion -> 0x8b8c
+   Vendor -> gl_VENDOR
+   Renderer -> gl_RENDERER
+   Version -> gl_VERSION
+   Extensions -> gl_EXTENSIONS
+   ShadingLanguageVersion -> gl_SHADING_LANGUAGE_VERSION
 
 --------------------------------------------------------------------------------
 

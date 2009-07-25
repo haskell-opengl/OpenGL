@@ -20,7 +20,8 @@ module Graphics.Rendering.OpenGL.GL.RenderMode (
 import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glRenderMode, gl_FEEDBACK, gl_RENDER, gl_SELECT )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -33,15 +34,15 @@ data RenderMode =
 
 marshalRenderMode :: RenderMode -> GLenum
 marshalRenderMode x = case x of
-   Render -> 0x1c00
-   Feedback -> 0x1c01
-   Select -> 0x1c02
+   Render -> gl_RENDER
+   Feedback -> gl_FEEDBACK
+   Select -> gl_SELECT
 
 unmarshalRenderMode :: GLenum -> RenderMode
 unmarshalRenderMode x
-   | x == 0x1c00 = Render
-   | x == 0x1c01 = Feedback
-   | x == 0x1c02 = Select
+   | x == gl_RENDER = Render
+   | x == gl_FEEDBACK = Feedback
+   | x == gl_SELECT = Select
    | otherwise = error ("unmarshalRenderMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
