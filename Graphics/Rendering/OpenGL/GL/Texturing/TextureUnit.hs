@@ -28,7 +28,7 @@ newtype TextureUnit = TextureUnit GLuint
    deriving ( Eq, Ord, Show )
 
 marshalTextureUnit :: TextureUnit -> GLenum
-marshalTextureUnit (TextureUnit x) = 0x84c0 + fromIntegral x
+marshalTextureUnit (TextureUnit x) = gl_TEXTURE0 + fromIntegral x
 
 unmarshalTextureUnit :: GLenum -> TextureUnit
-unmarshalTextureUnit x = TextureUnit (fromIntegral (x - 0x84c0))
+unmarshalTextureUnit x = TextureUnit (fromIntegral (x - gl_TEXTURE0))

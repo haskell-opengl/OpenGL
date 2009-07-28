@@ -27,7 +27,8 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+ glAreTexturesResident, glPrioritizeTextures )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------

@@ -28,7 +28,14 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_DEPTH_TEXTURE_MODE, gl_GENERATE_MIPMAP, gl_TEXTURE_PRIORITY,
+   gl_TEXTURE_RESIDENT )
+import Graphics.Rendering.OpenGL.Raw.ARB.ShadowAmbient (
+   gl_TEXTURE_COMPARE_FAIL_VALUE )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.EXT.TextureFilterAnisotropic (
+   gl_TEXTURE_MAX_ANISOTROPY )
 
 --------------------------------------------------------------------------------
 
@@ -57,27 +64,27 @@ data TexParameter =
 
 marshalTexParameter :: TexParameter -> GLenum
 marshalTexParameter x = case x of
-   TextureMinFilter -> 0x2801
-   TextureMagFilter -> 0x2800
-   TextureWrapS -> 0x2802
-   TextureWrapT -> 0x2803
-   TextureWrapR -> 0x8072
-   TextureBorderColor -> 0x1004
-   TextureMinLOD -> 0x813A
-   TextureMaxLOD -> 0x813B
-   TextureBaseLevel -> 0x813C
-   TextureMaxLevel -> 0x813D
-   TexturePriority -> 0x8066
-   TextureMaxAnisotropy -> 0x84FE
+   TextureMinFilter -> gl_TEXTURE_MIN_FILTER
+   TextureMagFilter -> gl_TEXTURE_MAG_FILTER
+   TextureWrapS -> gl_TEXTURE_WRAP_S
+   TextureWrapT -> gl_TEXTURE_WRAP_T
+   TextureWrapR -> gl_TEXTURE_WRAP_R
+   TextureBorderColor -> gl_TEXTURE_BORDER_COLOR
+   TextureMinLOD -> gl_TEXTURE_MIN_LOD
+   TextureMaxLOD -> gl_TEXTURE_MAX_LOD
+   TextureBaseLevel -> gl_TEXTURE_BASE_LEVEL
+   TextureMaxLevel -> gl_TEXTURE_MAX_LEVEL
+   TexturePriority -> gl_TEXTURE_PRIORITY
+   TextureMaxAnisotropy -> gl_TEXTURE_MAX_ANISOTROPY
    TextureCompare -> 0x819A
    TextureCompareOperator -> 0x819B
-   TextureCompareFailValue -> 0x80BF
-   GenerateMipmap -> 0x8191
-   TextureCompareMode -> 0x884C
-   TextureCompareFunc -> 0x884D
-   DepthTextureMode -> 0x884B
-   TextureLODBias -> 0x8501
-   TextureResident -> 0x8067
+   TextureCompareFailValue -> gl_TEXTURE_COMPARE_FAIL_VALUE
+   GenerateMipmap -> gl_GENERATE_MIPMAP
+   TextureCompareMode -> gl_TEXTURE_COMPARE_MODE
+   TextureCompareFunc -> gl_TEXTURE_COMPARE_FUNC
+   DepthTextureMode -> gl_DEPTH_TEXTURE_MODE
+   TextureLODBias -> gl_TEXTURE_LOD_BIAS
+   TextureResident -> gl_TEXTURE_RESIDENT
 
 --------------------------------------------------------------------------------
 

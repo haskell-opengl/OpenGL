@@ -33,8 +33,20 @@ import Graphics.Rendering.OpenGL.GL.PerFragment
 import Graphics.Rendering.OpenGL.GL.Texturing.Parameters
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glGetTexEnvfv, glGetTexEnviv, glTexEnvf, glTexEnvfv, glTexEnvi, gl_ADD,
+   gl_ADD_SIGNED, gl_ALPHA_SCALE, gl_COMBINE, gl_COMBINE_ALPHA, gl_COMBINE_RGB,
+   gl_CONSTANT, gl_DECAL, gl_DOT3_RGB, gl_DOT3_RGBA, gl_INTERPOLATE,
+   gl_MODULATE, gl_OPERAND0_ALPHA, gl_OPERAND0_RGB, gl_OPERAND1_ALPHA,
+   gl_OPERAND1_RGB, gl_OPERAND2_ALPHA, gl_OPERAND2_RGB, gl_POINT_SPRITE,
+   gl_PREVIOUS, gl_PRIMARY_COLOR, gl_RGB_SCALE, gl_SRC0_ALPHA, gl_SRC0_RGB,
+   gl_SRC1_ALPHA, gl_SRC1_RGB, gl_SRC2_ALPHA, gl_SRC2_RGB, gl_SUBTRACT,
+   gl_TEXTURE_ENV, gl_TEXTURE_ENV_COLOR, gl_TEXTURE_ENV_MODE,
+   gl_TEXTURE_FILTER_CONTROL )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.NV.TextureEnvCombine4 (
+   gl_COMBINE4, gl_OPERAND3_ALPHA, gl_OPERAND3_RGB, gl_SOURCE3_ALPHA,
+   gl_SOURCE3_RGB )
 
 --------------------------------------------------------------------------------
 
@@ -45,9 +57,9 @@ data TextureEnvTarget =
 
 marshalTextureEnvTarget :: TextureEnvTarget -> GLenum
 marshalTextureEnvTarget x = case x of
-   TextureEnv -> 0x2300
-   TextureFilterControl -> 0x8500
-   PointSprite -> 0x8861
+   TextureEnv -> gl_TEXTURE_ENV
+   TextureFilterControl -> gl_TEXTURE_FILTER_CONTROL
+   PointSprite -> gl_POINT_SPRITE
 
 --------------------------------------------------------------------------------
 
@@ -78,29 +90,29 @@ data TextureEnvParameter =
 
 marshalTextureEnvParameter :: TextureEnvParameter -> GLenum
 marshalTextureEnvParameter x = case x of
-   TexEnvParamTextureEnvMode -> 0x2200
-   TexEnvParamTextureEnvColor -> 0x2201
-   TexEnvParamCombineRGB -> 0x8571
-   TexEnvParamCombineAlpha -> 0x8572
-   TexEnvParamSrc0RGB -> 0x8580
-   TexEnvParamSrc1RGB -> 0x8581
-   TexEnvParamSrc2RGB -> 0x8582
-   TexEnvParamSrc3RGB -> 0x8583
-   TexEnvParamSrc0Alpha -> 0x8588
-   TexEnvParamSrc1Alpha -> 0x8589
-   TexEnvParamSrc2Alpha -> 0x858a
-   TexEnvParamSrc3Alpha -> 0x858b
-   TexEnvParamOperand0RGB -> 0x8590
-   TexEnvParamOperand1RGB -> 0x8591
-   TexEnvParamOperand2RGB -> 0x8592
-   TexEnvParamOperand3RGB -> 0x8593
-   TexEnvParamOperand0Alpha -> 0x8598
-   TexEnvParamOperand1Alpha -> 0x8599
-   TexEnvParamOperand2Alpha -> 0x859a
-   TexEnvParamOperand3Alpha -> 0x859b
-   TexEnvParamRGBScale -> 0x8573
-   TexEnvParamAlphaScale -> 0xd1c
-   TexEnvParamLODBias -> 0x8501
+   TexEnvParamTextureEnvMode -> gl_TEXTURE_ENV_MODE
+   TexEnvParamTextureEnvColor -> gl_TEXTURE_ENV_COLOR
+   TexEnvParamCombineRGB -> gl_COMBINE_RGB
+   TexEnvParamCombineAlpha -> gl_COMBINE_ALPHA
+   TexEnvParamSrc0RGB -> gl_SRC0_RGB
+   TexEnvParamSrc1RGB -> gl_SRC1_RGB
+   TexEnvParamSrc2RGB -> gl_SRC2_RGB
+   TexEnvParamSrc3RGB -> gl_SOURCE3_RGB
+   TexEnvParamSrc0Alpha -> gl_SRC0_ALPHA
+   TexEnvParamSrc1Alpha -> gl_SRC1_ALPHA
+   TexEnvParamSrc2Alpha -> gl_SRC2_ALPHA
+   TexEnvParamSrc3Alpha -> gl_SOURCE3_ALPHA
+   TexEnvParamOperand0RGB -> gl_OPERAND0_RGB
+   TexEnvParamOperand1RGB -> gl_OPERAND1_RGB
+   TexEnvParamOperand2RGB -> gl_OPERAND2_RGB
+   TexEnvParamOperand3RGB -> gl_OPERAND3_RGB
+   TexEnvParamOperand0Alpha -> gl_OPERAND0_ALPHA
+   TexEnvParamOperand1Alpha -> gl_OPERAND1_ALPHA
+   TexEnvParamOperand2Alpha -> gl_OPERAND2_ALPHA
+   TexEnvParamOperand3Alpha -> gl_OPERAND3_ALPHA
+   TexEnvParamRGBScale -> gl_RGB_SCALE
+   TexEnvParamAlphaScale -> gl_ALPHA_SCALE
+   TexEnvParamLODBias -> gl_TEXTURE_LOD_BIAS
 
 --------------------------------------------------------------------------------
 
@@ -167,25 +179,26 @@ data TextureFunction =
    deriving ( Eq, Ord, Show )
 
 marshalTextureFunction :: TextureFunction -> GLint
-marshalTextureFunction x = case x of
-   Modulate -> 0x2100
-   Decal -> 0x2101
-   Blend -> 0xbe2
-   Replace -> 0x1e01
-   AddUnsigned -> 0x104
-   Combine -> 0x8570
-   Combine4 -> 0x8503
+marshalTextureFunction x = fromIntegral $ case x of
+   Modulate -> gl_MODULATE
+   Decal -> gl_DECAL
+   Blend -> gl_BLEND
+   Replace -> gl_REPLACE
+   AddUnsigned -> gl_ADD
+   Combine -> gl_COMBINE
+   Combine4 -> gl_COMBINE4
 
 unmarshalTextureFunction :: GLint -> TextureFunction
 unmarshalTextureFunction x
-   | x == 0x2100 = Modulate
-   | x == 0x2101 = Decal
-   | x == 0xbe2 = Blend
-   | x == 0x1e01 = Replace
-   | x == 0x104 = AddUnsigned
-   | x == 0x8570 = Combine
-   | x == 0x8503 = Combine4
+   | y == gl_MODULATE = Modulate
+   | y == gl_DECAL = Decal
+   | y == gl_BLEND = Blend
+   | y == gl_REPLACE = Replace
+   | y == gl_ADD = AddUnsigned
+   | y == gl_COMBINE = Combine
+   | y == gl_COMBINE4 = Combine4
    | otherwise = error ("unmarshalTextureFunction: illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 
@@ -207,27 +220,28 @@ data TextureCombineFunction =
    deriving ( Eq, Ord, Show )
 
 marshalTextureCombineFunction :: TextureCombineFunction -> GLint
-marshalTextureCombineFunction x = case x of
-   Replace' -> 0x1e01
-   Modulate' -> 0x2100
-   AddUnsigned' -> 0x104
-   AddSigned -> 0x8574
-   Interpolate -> 0x8575
-   Subtract -> 0x84e7
-   Dot3RGB -> 0x86ae
-   Dot3RGBA -> 0x86af
+marshalTextureCombineFunction x = fromIntegral $ case x of
+   Replace' -> gl_REPLACE
+   Modulate' -> gl_MODULATE
+   AddUnsigned' -> gl_ADD
+   AddSigned -> gl_ADD_SIGNED
+   Interpolate -> gl_INTERPOLATE
+   Subtract -> gl_SUBTRACT
+   Dot3RGB -> gl_DOT3_RGB
+   Dot3RGBA -> gl_DOT3_RGBA
 
 unmarshalTextureCombineFunction :: GLint -> TextureCombineFunction
 unmarshalTextureCombineFunction x
-   | x == 0x1e01 = Replace'
-   | x == 0x2100 = Modulate'
-   | x == 0x104 = AddUnsigned'
-   | x == 0x8574 = AddSigned
-   | x == 0x8575 = Interpolate
-   | x == 0x84e7 = Subtract
-   | x == 0x86ae = Dot3RGB
-   | x == 0x86af = Dot3RGBA
+   | y == gl_REPLACE = Replace'
+   | y == gl_MODULATE = Modulate'
+   | y == gl_ADD = AddUnsigned'
+   | y == gl_ADD_SIGNED = AddSigned
+   | y == gl_INTERPOLATE = Interpolate
+   | y == gl_SUBTRACT = Subtract
+   | y == gl_DOT3_RGB = Dot3RGB
+   | y == gl_DOT3_RGBA = Dot3RGBA
    | otherwise = error ("unmarshalTextureCombineFunction: illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 
@@ -294,20 +308,21 @@ data Src =
    deriving ( Eq, Ord, Show )
 
 marshalSrc :: Src -> GLint
-marshalSrc x = case x of
-   CurrentUnit -> 0x1702
-   Previous -> 0x8578
+marshalSrc x = fromIntegral $ case x of
+   CurrentUnit -> gl_TEXTURE
+   Previous -> gl_PREVIOUS
    Crossbar u -> fromIntegral (marshalTextureUnit u)
-   Constant -> 0x8576
-   PrimaryColor -> 0x8577
+   Constant -> gl_CONSTANT
+   PrimaryColor -> gl_PRIMARY_COLOR
 
 unmarshalSrc :: GLint -> Src
 unmarshalSrc x
-   | x == 0x1702 = CurrentUnit
-   | x == 0x8578 = Previous
-   | x == 0x8576 = Constant
-   | x == 0x8577 = PrimaryColor
+   | y == gl_TEXTURE = CurrentUnit
+   | y == gl_PREVIOUS = Previous
+   | y == gl_CONSTANT = Constant
+   | y == gl_PRIMARY_COLOR = PrimaryColor
    | otherwise = Crossbar (unmarshalTextureUnit (fromIntegral x))
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 

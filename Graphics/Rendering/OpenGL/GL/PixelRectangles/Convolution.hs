@@ -38,7 +38,17 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glConvolutionFilter1D, glConvolutionFilter2D, glConvolutionParameterfv,
+   glConvolutionParameteri, glCopyConvolutionFilter1D,
+   glCopyConvolutionFilter2D, glGetConvolutionFilter,
+   glGetConvolutionParameterfv, glGetConvolutionParameteriv,
+   glGetSeparableFilter, glSeparableFilter2D, gl_CONSTANT_BORDER,
+   gl_CONVOLUTION_1D, gl_CONVOLUTION_2D, gl_CONVOLUTION_BORDER_COLOR,
+   gl_CONVOLUTION_BORDER_MODE, gl_CONVOLUTION_FILTER_BIAS,
+   gl_CONVOLUTION_FILTER_SCALE, gl_CONVOLUTION_FORMAT, gl_CONVOLUTION_HEIGHT,
+   gl_CONVOLUTION_WIDTH, gl_MAX_CONVOLUTION_HEIGHT, gl_MAX_CONVOLUTION_WIDTH,
+   gl_REDUCE, gl_REPLICATE_BORDER, gl_SEPARABLE_2D )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -51,9 +61,9 @@ data ConvolutionTarget =
 
 marshalConvolutionTarget :: ConvolutionTarget -> GLenum
 marshalConvolutionTarget x = case x of
-   Convolution1D -> 0x8010
-   Convolution2D -> 0x8011
-   Separable2D -> 0x8012
+   Convolution1D -> gl_CONVOLUTION_1D
+   Convolution2D -> gl_CONVOLUTION_2D
+   Separable2D -> gl_SEPARABLE_2D
 
 convolutionTargetToEnableCap :: ConvolutionTarget -> EnableCap
 convolutionTargetToEnableCap x = case x of
@@ -154,15 +164,15 @@ data ConvolutionParameter =
 
 marshalConvolutionParameter :: ConvolutionParameter -> GLenum
 marshalConvolutionParameter x = case x of
-   ConvolutionBorderColor -> 0x8154
-   ConvolutionBorderMode -> 0x8013
-   ConvolutionFilterScale -> 0x8014
-   ConvolutionFilterBias -> 0x8015
-   ConvolutionFormat -> 0x8017
-   ConvolutionWidth -> 0x8018
-   ConvolutionHeight -> 0x8019
-   MaxConvolutionWidth -> 0x801a
-   MaxConvolutionHeight -> 0x801b
+   ConvolutionBorderColor -> gl_CONVOLUTION_BORDER_COLOR
+   ConvolutionBorderMode -> gl_CONVOLUTION_BORDER_MODE
+   ConvolutionFilterScale -> gl_CONVOLUTION_FILTER_SCALE
+   ConvolutionFilterBias -> gl_CONVOLUTION_FILTER_BIAS
+   ConvolutionFormat -> gl_CONVOLUTION_FORMAT
+   ConvolutionWidth -> gl_CONVOLUTION_WIDTH
+   ConvolutionHeight -> gl_CONVOLUTION_HEIGHT
+   MaxConvolutionWidth -> gl_MAX_CONVOLUTION_WIDTH
+   MaxConvolutionHeight -> gl_MAX_CONVOLUTION_HEIGHT
 
 --------------------------------------------------------------------------------
 
@@ -199,17 +209,18 @@ data ConvolutionBorderMode' =
    | ReplicateBorder'
 
 marshalConvolutionBorderMode' :: ConvolutionBorderMode' -> GLint
-marshalConvolutionBorderMode' x = case x of
-   Reduce' -> 0x8016
-   ConstantBorder' -> 0x8151
-   ReplicateBorder' -> 0x8153
+marshalConvolutionBorderMode' x = fromIntegral $ case x of
+   Reduce' -> gl_REDUCE
+   ConstantBorder' -> gl_CONSTANT_BORDER
+   ReplicateBorder' -> gl_REPLICATE_BORDER
 
 unmarshalConvolutionBorderMode' :: GLint -> ConvolutionBorderMode'
 unmarshalConvolutionBorderMode' x
-   | x == 0x8016 = Reduce'
-   | x == 0x8151 = ConstantBorder'
-   | x == 0x8153 = ReplicateBorder'
+   | y == gl_REDUCE = Reduce'
+   | y == gl_CONSTANT_BORDER = ConstantBorder'
+   | y == gl_REPLICATE_BORDER = ReplicateBorder'
    | otherwise = error ("unmarshalConvolutionBorderMode': illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 

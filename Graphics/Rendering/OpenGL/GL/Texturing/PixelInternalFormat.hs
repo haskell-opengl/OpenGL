@@ -18,6 +18,17 @@ module Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    marshalPixelInternalFormat', unmarshalPixelInternalFormat,
 ) where
 
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_ALPHA12, gl_ALPHA16, gl_ALPHA4, gl_ALPHA8, gl_COMPRESSED_ALPHA,
+   gl_COMPRESSED_INTENSITY, gl_COMPRESSED_LUMINANCE,
+   gl_COMPRESSED_LUMINANCE_ALPHA, gl_COMPRESSED_SLUMINANCE,
+   gl_COMPRESSED_SLUMINANCE_ALPHA, gl_INTENSITY, gl_INTENSITY12, gl_INTENSITY16,
+   gl_INTENSITY4, gl_INTENSITY8, gl_LUMINANCE, gl_LUMINANCE12,
+   gl_LUMINANCE12_ALPHA12, gl_LUMINANCE12_ALPHA4, gl_LUMINANCE16,
+   gl_LUMINANCE16_ALPHA16, gl_LUMINANCE4, gl_LUMINANCE4_ALPHA4,
+   gl_LUMINANCE6_ALPHA2, gl_LUMINANCE8, gl_LUMINANCE8_ALPHA8,
+   gl_LUMINANCE_ALPHA, gl_SLUMINANCE, gl_SLUMINANCE8, gl_SLUMINANCE8_ALPHA8,
+   gl_SLUMINANCE_ALPHA )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -90,71 +101,71 @@ data PixelInternalFormat =
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
-marshalPixelInternalFormat x = case x of
-   Alpha' -> 0x1906
-   DepthComponent' -> 0x1902
-   Luminance' -> 0x1909
-   LuminanceAlpha' -> 0x190a
-   RGB' -> 0x1907
-   RGBA' -> 0x1908
-   SRGB -> 0x8c40
-   SRGBAlpha -> 0x8c42
-   SLuminance -> 0x8c46
-   SLuminanceAlpha -> 0x8c44
-   Alpha4 -> 0x803b
-   Alpha8 -> 0x803c
-   Alpha12 -> 0x803d
-   Alpha16 -> 0x803e
-   DepthComponent16 -> 0x81a5
-   DepthComponent24 -> 0x81a6
-   DepthComponent32 -> 0x81a7
-   Luminance4 -> 0x803f
-   Luminance8 -> 0x8040
-   Luminance12 -> 0x8041
-   Luminance16 -> 0x8042
-   Luminance4Alpha4 -> 0x8043
-   Luminance6Alpha2 -> 0x8044
-   Luminance8Alpha8 -> 0x8045
-   Luminance12Alpha4 -> 0x8046
-   Luminance12Alpha12 -> 0x8047
-   Luminance16Alpha16 -> 0x8048
-   Intensity -> 0x8049
-   Intensity4 -> 0x804a
-   Intensity8 -> 0x804b
-   Intensity12 -> 0x804c
-   Intensity16 -> 0x804d
-   R3G3B2 -> 0x2a10
-   RGB4 -> 0x804f
-   RGB5 -> 0x8050
-   RGB8 -> 0x8051
-   RGB10 -> 0x8052
-   RGB12 -> 0x8053
-   RGB16 -> 0x8054
-   RGBA2 -> 0x8055
-   RGBA4 -> 0x8056
-   RGB5A1 -> 0x8057
-   RGBA8 -> 0x8058
-   RGB10A2 -> 0x8059
-   RGBA12 -> 0x805a
-   RGBA16 -> 0x805b
-   SRGB8 -> 0x8c41
-   SRGB8Alpha8 -> 0x8c43
-   SLuminance8 -> 0x8c47
-   SLuminance8Alpha8 -> 0x8c45
-   CompressedAlpha -> 0x84e9
-   CompressedLuminance -> 0x84ea
-   CompressedLuminanceAlpha -> 0x84eb
-   CompressedIntensity -> 0x84ec
-   CompressedRGB -> 0x84ed
-   CompressedRGBA -> 0x84ee
-   CompressedSRGB -> 0x8c48
-   CompressedSRGBAlpha -> 0x8c49
-   CompressedSLuminance -> 0x8c4a
-   CompressedSLuminanceAlpha -> 0x8c4b
-   DepthComponent32f -> 0x8CAC
-   Depth32fStencil8 -> 0x8CAD
-   RGB9E5 -> 0x8C3D
-   R11fG11fB10f -> 0x8C3A
+marshalPixelInternalFormat x = fromIntegral $ case x of
+   Alpha' -> gl_ALPHA
+   DepthComponent' -> gl_DEPTH_COMPONENT
+   Luminance' -> gl_LUMINANCE
+   LuminanceAlpha' -> gl_LUMINANCE_ALPHA
+   RGB' -> gl_RGB
+   RGBA' -> gl_RGBA
+   SRGB -> gl_SRGB
+   SRGBAlpha -> gl_SRGB_ALPHA
+   SLuminance -> gl_SLUMINANCE
+   SLuminanceAlpha -> gl_SLUMINANCE_ALPHA
+   Alpha4 -> gl_ALPHA4
+   Alpha8 -> gl_ALPHA8
+   Alpha12 -> gl_ALPHA12
+   Alpha16 -> gl_ALPHA16
+   DepthComponent16 -> gl_DEPTH_COMPONENT16
+   DepthComponent24 -> gl_DEPTH_COMPONENT24
+   DepthComponent32 -> gl_DEPTH_COMPONENT32
+   Luminance4 -> gl_LUMINANCE4
+   Luminance8 -> gl_LUMINANCE8
+   Luminance12 -> gl_LUMINANCE12
+   Luminance16 -> gl_LUMINANCE16
+   Luminance4Alpha4 -> gl_LUMINANCE4_ALPHA4
+   Luminance6Alpha2 -> gl_LUMINANCE6_ALPHA2
+   Luminance8Alpha8 -> gl_LUMINANCE8_ALPHA8
+   Luminance12Alpha4 -> gl_LUMINANCE12_ALPHA4
+   Luminance12Alpha12 -> gl_LUMINANCE12_ALPHA12
+   Luminance16Alpha16 -> gl_LUMINANCE16_ALPHA16
+   Intensity -> gl_INTENSITY
+   Intensity4 -> gl_INTENSITY4
+   Intensity8 -> gl_INTENSITY8
+   Intensity12 -> gl_INTENSITY12
+   Intensity16 -> gl_INTENSITY16
+   R3G3B2 -> gl_R3_G3_B2
+   RGB4 -> gl_RGB4
+   RGB5 -> gl_RGB5
+   RGB8 -> gl_RGB8
+   RGB10 -> gl_RGB10
+   RGB12 -> gl_RGB12
+   RGB16 -> gl_RGB16
+   RGBA2 -> gl_RGBA2
+   RGBA4 -> gl_RGBA4
+   RGB5A1 -> gl_RGB5_A1
+   RGBA8 -> gl_RGBA8
+   RGB10A2 -> gl_RGB10_A2
+   RGBA12 -> gl_RGBA12
+   RGBA16 -> gl_RGBA16
+   SRGB8 -> gl_SRGB8
+   SRGB8Alpha8 -> gl_SRGB8_ALPHA8
+   SLuminance8 -> gl_SLUMINANCE8
+   SLuminance8Alpha8 -> gl_SLUMINANCE8_ALPHA8
+   CompressedAlpha -> gl_COMPRESSED_ALPHA
+   CompressedLuminance -> gl_COMPRESSED_LUMINANCE
+   CompressedLuminanceAlpha -> gl_COMPRESSED_LUMINANCE_ALPHA
+   CompressedIntensity -> gl_COMPRESSED_INTENSITY
+   CompressedRGB -> gl_COMPRESSED_RGB
+   CompressedRGBA -> gl_COMPRESSED_RGBA
+   CompressedSRGB -> gl_COMPRESSED_SRGB
+   CompressedSRGBAlpha -> gl_COMPRESSED_SRGB_ALPHA
+   CompressedSLuminance -> gl_COMPRESSED_SLUMINANCE
+   CompressedSLuminanceAlpha -> gl_COMPRESSED_SLUMINANCE_ALPHA
+   DepthComponent32f -> gl_DEPTH_COMPONENT32F
+   Depth32fStencil8 -> gl_DEPTH32F_STENCIL8
+   RGB9E5 -> gl_RGB9_E5
+   R11fG11fB10f -> gl_R11F_G11F_B10F
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -162,75 +173,76 @@ marshalPixelInternalFormat' = fromIntegral . marshalPixelInternalFormat
 
 unmarshalPixelInternalFormat :: GLint -> PixelInternalFormat
 unmarshalPixelInternalFormat x
-   | x == 0x1906 = Alpha'
-   | x == 0x1902 = DepthComponent'
-   | x == 0x1909 = Luminance'
-   | x == 0x190a = LuminanceAlpha'
-   | x == 0x1907 = RGB'
-   | x == 0x1908 = RGBA'
-   | x == 0x8c40 = SRGB
-   | x == 0x8c42 = SRGBAlpha
-   | x == 0x8c46 = SLuminance
-   | x == 0x8c44 = SLuminanceAlpha
-   | x == 0x803b = Alpha4
-   | x == 0x803c = Alpha8
-   | x == 0x803d = Alpha12
-   | x == 0x803e = Alpha16
-   | x == 0x81a5 = DepthComponent16
-   | x == 0x81a6 = DepthComponent24
-   | x == 0x81a7 = DepthComponent32
-   | x == 0x803f = Luminance4
-   | x == 0x8040 = Luminance8
-   | x == 0x8041 = Luminance12
-   | x == 0x8042 = Luminance16
-   | x == 0x8043 = Luminance4Alpha4
-   | x == 0x8044 = Luminance6Alpha2
-   | x == 0x8045 = Luminance8Alpha8
-   | x == 0x8046 = Luminance12Alpha4
-   | x == 0x8047 = Luminance12Alpha12
-   | x == 0x8048 = Luminance16Alpha16
-   | x == 0x8049 = Intensity
-   | x == 0x804a = Intensity4
-   | x == 0x804b = Intensity8
-   | x == 0x804c = Intensity12
-   | x == 0x804d = Intensity16
-   | x == 0x2a10 = R3G3B2
-   | x == 0x804f = RGB4
-   | x == 0x8050 = RGB5
-   | x == 0x8051 = RGB8
-   | x == 0x8052 = RGB10
-   | x == 0x8053 = RGB12
-   | x == 0x8054 = RGB16
-   | x == 0x8055 = RGBA2
-   | x == 0x8056 = RGBA4
-   | x == 0x8057 = RGB5A1
-   | x == 0x8058 = RGBA8
-   | x == 0x8059 = RGB10A2
-   | x == 0x805a = RGBA12
-   | x == 0x805b = RGBA16
-   | x == 0x8c41 = SRGB8
-   | x == 0x8c43 = SRGB8Alpha8
-   | x == 0x8c47 = SLuminance8
-   | x == 0x8c45 = SLuminance8Alpha8
-   | x == 0x84e9 = CompressedAlpha
-   | x == 0x84ea = CompressedLuminance
-   | x == 0x84eb = CompressedLuminanceAlpha
-   | x == 0x84ec = CompressedIntensity
-   | x == 0x84ed = CompressedRGB
-   | x == 0x84ee = CompressedRGBA
-   | x == 0x8c48 = CompressedSRGB
-   | x == 0x8c49 = CompressedSRGBAlpha
-   | x == 0x8c4a = CompressedSLuminance
-   | x == 0x8c4b = CompressedSLuminanceAlpha
-   | x == 0x8CAC = DepthComponent32f
-   | x == 0x8CAD = Depth32fStencil8
-   | x == 0x8C3D = RGB9E5
+   | y == gl_ALPHA = Alpha'
+   | y == gl_DEPTH_COMPONENT = DepthComponent'
+   | y == gl_LUMINANCE = Luminance'
+   | y == gl_LUMINANCE_ALPHA = LuminanceAlpha'
+   | y == gl_RGB = RGB'
+   | y == gl_RGBA = RGBA'
+   | y == gl_SRGB = SRGB
+   | y == gl_SRGB_ALPHA = SRGBAlpha
+   | y == gl_SLUMINANCE = SLuminance
+   | y == gl_SLUMINANCE_ALPHA = SLuminanceAlpha
+   | y == gl_ALPHA4 = Alpha4
+   | y == gl_ALPHA8 = Alpha8
+   | y == gl_ALPHA12 = Alpha12
+   | y == gl_ALPHA16 = Alpha16
+   | y == gl_DEPTH_COMPONENT16 = DepthComponent16
+   | y == gl_DEPTH_COMPONENT24 = DepthComponent24
+   | y == gl_DEPTH_COMPONENT32 = DepthComponent32
+   | y == gl_LUMINANCE4 = Luminance4
+   | y == gl_LUMINANCE8 = Luminance8
+   | y == gl_LUMINANCE12 = Luminance12
+   | y == gl_LUMINANCE16 = Luminance16
+   | y == gl_LUMINANCE4_ALPHA4 = Luminance4Alpha4
+   | y == gl_LUMINANCE6_ALPHA2 = Luminance6Alpha2
+   | y == gl_LUMINANCE8_ALPHA8 = Luminance8Alpha8
+   | y == gl_LUMINANCE12_ALPHA4 = Luminance12Alpha4
+   | y == gl_LUMINANCE12_ALPHA12 = Luminance12Alpha12
+   | y == gl_LUMINANCE16_ALPHA16 = Luminance16Alpha16
+   | y == gl_INTENSITY = Intensity
+   | y == gl_INTENSITY4 = Intensity4
+   | y == gl_INTENSITY8 = Intensity8
+   | y == gl_INTENSITY12 = Intensity12
+   | y == gl_INTENSITY16 = Intensity16
+   | y == gl_R3_G3_B2 = R3G3B2
+   | y == gl_RGB4 = RGB4
+   | y == gl_RGB5 = RGB5
+   | y == gl_RGB8 = RGB8
+   | y == gl_RGB10 = RGB10
+   | y == gl_RGB12 = RGB12
+   | y == gl_RGB16 = RGB16
+   | y == gl_RGBA2 = RGBA2
+   | y == gl_RGBA4 = RGBA4
+   | y == gl_RGB5_A1 = RGB5A1
+   | y == gl_RGBA8 = RGBA8
+   | y == gl_RGB10_A2 = RGB10A2
+   | y == gl_RGBA12 = RGBA12
+   | y == gl_RGBA16 = RGBA16
+   | y == gl_SRGB8 = SRGB8
+   | y == gl_SRGB8_ALPHA8 = SRGB8Alpha8
+   | y == gl_SLUMINANCE8 = SLuminance8
+   | y == gl_SLUMINANCE8_ALPHA8 = SLuminance8Alpha8
+   | y == gl_COMPRESSED_ALPHA = CompressedAlpha
+   | y == gl_COMPRESSED_LUMINANCE = CompressedLuminance
+   | y == gl_COMPRESSED_LUMINANCE_ALPHA = CompressedLuminanceAlpha
+   | y == gl_COMPRESSED_INTENSITY = CompressedIntensity
+   | y == gl_COMPRESSED_RGB = CompressedRGB
+   | y == gl_COMPRESSED_RGBA = CompressedRGBA
+   | y == gl_COMPRESSED_SRGB = CompressedSRGB
+   | y == gl_COMPRESSED_SRGB_ALPHA = CompressedSRGBAlpha
+   | y == gl_COMPRESSED_SLUMINANCE = CompressedSLuminance
+   | y == gl_COMPRESSED_SLUMINANCE_ALPHA = CompressedSLuminanceAlpha
+   | y == gl_DEPTH_COMPONENT32F = DepthComponent32f
+   | y == gl_DEPTH32F_STENCIL8 = Depth32fStencil8
+   | y == gl_RGB9_E5 = RGB9E5
    -- legacy values
-   | x == 1 = Luminance'
-   | x == 2 = LuminanceAlpha'
-   | x == 3 = RGB'
-   | x == 4 = RGBA'
+   | y == 1 = Luminance'
+   | y == 2 = LuminanceAlpha'
+   | y == 3 = RGB'
+   | y == 4 = RGBA'
    | otherwise = error ("unmarshalPixelInternalFormat: illegal value " ++ show x)
+   where y = fromIntegral x
 
 -- Note: The following formats are still missing, it's a bit unclear how to
 -- handle these nicely. From the EXT_texture_sRGB spec:

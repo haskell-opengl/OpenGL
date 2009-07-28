@@ -34,8 +34,20 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glColorSubTable, glColorTable, glColorTableParameterfv, glCopyColorSubTable,
+   glCopyColorTable, glGetColorTable, glGetColorTableParameterfv,
+   glGetColorTableParameteriv, gl_COLOR_TABLE, gl_COLOR_TABLE_ALPHA_SIZE,
+   gl_COLOR_TABLE_BIAS, gl_COLOR_TABLE_BLUE_SIZE, gl_COLOR_TABLE_FORMAT,
+   gl_COLOR_TABLE_GREEN_SIZE, gl_COLOR_TABLE_INTENSITY_SIZE,
+   gl_COLOR_TABLE_LUMINANCE_SIZE, gl_COLOR_TABLE_RED_SIZE, gl_COLOR_TABLE_SCALE,
+   gl_COLOR_TABLE_WIDTH, gl_POST_COLOR_MATRIX_COLOR_TABLE,
+   gl_POST_CONVOLUTION_COLOR_TABLE, gl_PROXY_COLOR_TABLE,
+   gl_PROXY_POST_COLOR_MATRIX_COLOR_TABLE,
+   gl_PROXY_POST_CONVOLUTION_COLOR_TABLE )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.EXT.SharedTexturePalette (
+   gl_SHARED_TEXTURE_PALETTE )
 
 --------------------------------------------------------------------------------
 
@@ -81,15 +93,16 @@ data ColorTable =
 
 marshalColorTable :: ColorTable -> GLenum
 marshalColorTable x = case x of
-   ColorTable -> 0x80d0
-   PostConvolutionColorTable -> 0x80d1
-   PostColorMatrixColorTable -> 0x80d2
-   Texture1DColorTable -> 0xde0
-   Texture2DColorTable -> 0xde1
-   Texture3DColorTable -> 0x806f
-   TextureCubeMapColorTable -> 0x8513
+   ColorTable -> gl_COLOR_TABLE
+   PostConvolutionColorTable -> gl_POST_CONVOLUTION_COLOR_TABLE
+   PostColorMatrixColorTable -> gl_POST_COLOR_MATRIX_COLOR_TABLE
+   Texture1DColorTable -> gl_TEXTURE_1D
+   Texture2DColorTable -> gl_TEXTURE_2D
+   Texture3DColorTable -> gl_TEXTURE_3D
+   TextureCubeMapColorTable -> gl_TEXTURE_CUBE_MAP
+   -- TODO: Use TEXTURE_COLOR_TABLE_SGI from SGI_texture_color_table extension
    TextureColorTable -> 0x80bc
-   SharedTexturePalette -> 0x81fb
+   SharedTexturePalette -> gl_SHARED_TEXTURE_PALETTE
 
 --------------------------------------------------------------------------------
 
@@ -103,13 +116,14 @@ data Proxy =
 marshalProxyColorTable :: Proxy -> ColorTable -> Maybe GLenum
 marshalProxyColorTable NoProxy x = Just (marshalColorTable x)
 marshalProxyColorTable Proxy   x = case x of
-   ColorTable -> Just 0x80d3
-   PostConvolutionColorTable -> Just 0x80d4
-   PostColorMatrixColorTable -> Just 0x80d5
-   Texture1DColorTable -> Just 0x8063
-   Texture2DColorTable -> Just 0x8064
-   Texture3DColorTable -> Just 0x8070
-   TextureCubeMapColorTable -> Just 0x851b
+   ColorTable -> Just gl_PROXY_COLOR_TABLE
+   PostConvolutionColorTable -> Just gl_PROXY_POST_CONVOLUTION_COLOR_TABLE
+   PostColorMatrixColorTable -> Just gl_PROXY_POST_COLOR_MATRIX_COLOR_TABLE
+   Texture1DColorTable -> Just gl_PROXY_TEXTURE_1D
+   Texture2DColorTable -> Just gl_PROXY_TEXTURE_2D
+   Texture3DColorTable -> Just gl_PROXY_TEXTURE_3D
+   TextureCubeMapColorTable -> Just gl_PROXY_TEXTURE_CUBE_MAP
+   -- TODO: Use PROXY_TEXTURE_COLOR_TABLE_SGI from SGI_texture_color_table extension
    TextureColorTable -> Just 0x80bd
    SharedTexturePalette -> Nothing
 
@@ -163,16 +177,16 @@ data ColorTablePName =
 
 marshalColorTablePName :: ColorTablePName -> GLenum
 marshalColorTablePName x = case x of
-   ColorTableScale -> 0x80d6
-   ColorTableBias -> 0x80d7
-   ColorTableFormat -> 0x80d8
-   ColorTableWidth -> 0x80d9
-   ColorTableRedSize -> 0x80da
-   ColorTableGreenSize -> 0x80db
-   ColorTableBlueSize -> 0x80dc
-   ColorTableAlphaSize -> 0x80dd
-   ColorTableLuminanceSize -> 0x80de
-   ColorTableIntensitySize -> 0x80df
+   ColorTableScale -> gl_COLOR_TABLE_SCALE
+   ColorTableBias -> gl_COLOR_TABLE_BIAS
+   ColorTableFormat -> gl_COLOR_TABLE_FORMAT
+   ColorTableWidth -> gl_COLOR_TABLE_WIDTH
+   ColorTableRedSize -> gl_COLOR_TABLE_RED_SIZE
+   ColorTableGreenSize -> gl_COLOR_TABLE_GREEN_SIZE
+   ColorTableBlueSize -> gl_COLOR_TABLE_BLUE_SIZE
+   ColorTableAlphaSize -> gl_COLOR_TABLE_ALPHA_SIZE
+   ColorTableLuminanceSize -> gl_COLOR_TABLE_LUMINANCE_SIZE
+   ColorTableIntensitySize -> gl_COLOR_TABLE_INTENSITY_SIZE
 
 --------------------------------------------------------------------------------
 

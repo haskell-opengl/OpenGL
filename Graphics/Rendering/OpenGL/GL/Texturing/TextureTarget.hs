@@ -18,8 +18,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    CubeMapTarget(..), marshalCubeMapTarget
 ) where
 
+import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GL.PixelRectangles ( Proxy(..) )
 
 --------------------------------------------------------------------------------
 
@@ -33,20 +33,20 @@ data TextureTarget =
 
 marshalTextureTarget :: TextureTarget -> GLenum
 marshalTextureTarget x = case x of
-   Texture1D -> 0xde0
-   Texture2D -> 0xde1
-   Texture3D -> 0x806f
-   TextureCubeMap -> 0x8513
-   TextureRectangle -> 0x84f5
+   Texture1D -> gl_TEXTURE_1D
+   Texture2D -> gl_TEXTURE_2D
+   Texture3D -> gl_TEXTURE_3D
+   TextureCubeMap -> gl_TEXTURE_CUBE_MAP
+   TextureRectangle -> gl_TEXTURE_RECTANGLE
 
 marshalProxyTextureTarget :: Proxy -> TextureTarget -> GLenum
 marshalProxyTextureTarget NoProxy x = marshalTextureTarget x
 marshalProxyTextureTarget Proxy   x = case x of
-   Texture1D -> 0x8063
-   Texture2D -> 0x8064
-   Texture3D -> 0x8070
-   TextureCubeMap -> 0x851b
-   TextureRectangle -> 0x84f7
+   Texture1D -> gl_PROXY_TEXTURE_1D
+   Texture2D -> gl_PROXY_TEXTURE_2D
+   Texture3D -> gl_PROXY_TEXTURE_3D
+   TextureCubeMap -> gl_PROXY_TEXTURE_CUBE_MAP
+   TextureRectangle -> gl_PROXY_TEXTURE_RECTANGLE
 
 --------------------------------------------------------------------------------
 
@@ -61,9 +61,9 @@ data CubeMapTarget =
 
 marshalCubeMapTarget :: CubeMapTarget -> GLenum
 marshalCubeMapTarget x = case x of
-   TextureCubeMapPositiveX -> 0x8515
-   TextureCubeMapNegativeX -> 0x8516
-   TextureCubeMapPositiveY -> 0x8517
-   TextureCubeMapNegativeY -> 0x8518
-   TextureCubeMapPositiveZ -> 0x8519
-   TextureCubeMapNegativeZ -> 0x851a
+   TextureCubeMapPositiveX -> gl_TEXTURE_CUBE_MAP_POSITIVE_X
+   TextureCubeMapNegativeX -> gl_TEXTURE_CUBE_MAP_NEGATIVE_X
+   TextureCubeMapPositiveY -> gl_TEXTURE_CUBE_MAP_POSITIVE_Y
+   TextureCubeMapNegativeY -> gl_TEXTURE_CUBE_MAP_NEGATIVE_Y
+   TextureCubeMapPositiveZ -> gl_TEXTURE_CUBE_MAP_POSITIVE_Z
+   TextureCubeMapNegativeZ -> gl_TEXTURE_CUBE_MAP_NEGATIVE_Z

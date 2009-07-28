@@ -34,7 +34,10 @@ import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( gl_CLAMP )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.EXT.TextureMirrorClamp (
+   gl_MIRROR_CLAMP, gl_MIRROR_CLAMP_TO_BORDER, gl_MIRROR_CLAMP_TO_EDGE )
 
 --------------------------------------------------------------------------------
 
@@ -56,26 +59,27 @@ minToMag (magFilter, Nothing) = magFilter
 minToMag minFilter = error ("minToMag: illegal value " ++ show minFilter)
 
 marshalMinificationFilter :: MinificationFilter -> GLint
-marshalMinificationFilter x = case x of
-   (Nearest, Nothing     ) -> 0x2600
-   (Linear', Nothing     ) -> 0x2601
-   (Nearest, Just Nearest) -> 0x2700
-   (Linear', Just Nearest) -> 0x2701
-   (Nearest, Just Linear') -> 0x2702
-   (Linear', Just Linear') -> 0x2703
+marshalMinificationFilter x = fromIntegral $ case x of
+   (Nearest, Nothing     ) -> gl_NEAREST
+   (Linear', Nothing     ) -> gl_LINEAR
+   (Nearest, Just Nearest) -> gl_NEAREST_MIPMAP_NEAREST
+   (Linear', Just Nearest) -> gl_LINEAR_MIPMAP_NEAREST
+   (Nearest, Just Linear') -> gl_NEAREST_MIPMAP_LINEAR
+   (Linear', Just Linear') -> gl_LINEAR_MIPMAP_LINEAR
 
 marshalMagnificationFilter :: MagnificationFilter -> GLint
 marshalMagnificationFilter = marshalMinificationFilter . magToMin
 
 unmarshalMinificationFilter :: GLint -> MinificationFilter
 unmarshalMinificationFilter x
-   | x ==  0x2600 = (Nearest, Nothing     )
-   | x ==  0x2601 = (Linear', Nothing     )
-   | x ==  0x2700 = (Nearest, Just Nearest)
-   | x ==  0x2701 = (Linear', Just Nearest)
-   | x ==  0x2702 = (Nearest, Just Linear')
-   | x ==  0x2703 = (Linear', Just Linear')
+   | y ==  gl_NEAREST = (Nearest, Nothing)
+   | y ==  gl_LINEAR = (Linear', Nothing)
+   | y ==  gl_NEAREST_MIPMAP_NEAREST = (Nearest, Just Nearest)
+   | y ==  gl_LINEAR_MIPMAP_NEAREST = (Linear', Just Nearest)
+   | y ==  gl_NEAREST_MIPMAP_LINEAR = (Nearest, Just Linear')
+   | y ==  gl_LINEAR_MIPMAP_LINEAR = (Linear', Just Linear')
    | otherwise = error ("unmarshalMinificationFilter: illegal value " ++ show x)
+   where y = fromIntegral x
 
 unmarshalMagnificationFilter :: GLint -> MagnificationFilter
 unmarshalMagnificationFilter = minToMag . unmarshalMinificationFilter
@@ -103,27 +107,28 @@ data Clamping =
    deriving ( Eq, Ord, Show )
 
 marshalTextureWrapMode :: (Repetition, Clamping) -> GLint
-marshalTextureWrapMode x = case x of
-   (Repeated, Clamp) -> 0x2900
-   (Repeated, Repeat) -> 0x2901
-   (Repeated, ClampToEdge) -> 0x812f
-   (Repeated, ClampToBorder) -> 0x812d
-   (Mirrored, Clamp) -> 0x8742
-   (Mirrored, Repeat) -> 0x8370
-   (Mirrored, ClampToEdge) -> 0x8743
-   (Mirrored, ClampToBorder) -> 0x8912
+marshalTextureWrapMode x = fromIntegral $ case x of
+   (Repeated, Clamp) -> gl_CLAMP
+   (Repeated, Repeat) -> gl_REPEAT
+   (Repeated, ClampToEdge) -> gl_CLAMP_TO_EDGE
+   (Repeated, ClampToBorder) -> gl_CLAMP_TO_BORDER
+   (Mirrored, Clamp) -> gl_MIRROR_CLAMP
+   (Mirrored, Repeat) -> gl_MIRRORED_REPEAT
+   (Mirrored, ClampToEdge) -> gl_MIRROR_CLAMP_TO_EDGE
+   (Mirrored, ClampToBorder) -> gl_MIRROR_CLAMP_TO_BORDER
 
 unmarshalTextureWrapMode :: GLint -> (Repetition, Clamping)
 unmarshalTextureWrapMode x
-   | x == 0x2900 = (Repeated, Clamp)
-   | x == 0x2901 = (Repeated, Repeat)
-   | x == 0x812f = (Repeated, ClampToEdge)
-   | x == 0x812d = (Repeated, ClampToBorder)
-   | x == 0x8742 = (Mirrored, Clamp)
-   | x == 0x8370 = (Mirrored, Repeat)
-   | x == 0x8743 = (Mirrored, ClampToEdge)
-   | x == 0x8912 = (Mirrored, ClampToBorder)
+   | y == gl_CLAMP = (Repeated, Clamp)
+   | y == gl_REPEAT = (Repeated, Repeat)
+   | y == gl_CLAMP_TO_EDGE = (Repeated, ClampToEdge)
+   | y == gl_CLAMP_TO_BORDER = (Repeated, ClampToBorder)
+   | y == gl_MIRROR_CLAMP = (Mirrored, Clamp)
+   | y == gl_MIRRORED_REPEAT = (Mirrored, Repeat)
+   | y == gl_MIRROR_CLAMP_TO_EDGE = (Mirrored, ClampToEdge)
+   | y == gl_MIRROR_CLAMP_TO_BORDER = (Mirrored, ClampToBorder)
    | otherwise = error ("unmarshalTextureWrapMode: illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 
@@ -197,15 +202,16 @@ depthTextureMode =
 --------------------------------------------------------------------------------
 
 marshalTextureCompareMode :: Capability -> GLint
-marshalTextureCompareMode x = case x of
-   Disabled -> 0x0     -- i.e. None
-   Enabled -> 0x884e   -- i.e. CompareRToTexture
+marshalTextureCompareMode x = fromIntegral $ case x of
+   Disabled -> gl_NONE
+   Enabled -> gl_COMPARE_REF_TO_TEXTURE
 
 unmarshalTextureCompareMode :: GLint -> Capability
 unmarshalTextureCompareMode x
-   | x == 0x0 = Disabled
-   | x == 0x884e = Enabled
+   | y == gl_NONE = Disabled
+   | y == gl_COMPARE_REF_TO_TEXTURE = Enabled
    | otherwise = error ("unmarshalTextureCompareMode: illegal value " ++ show x)
+   where y = fromIntegral x
 
 --------------------------------------------------------------------------------
 

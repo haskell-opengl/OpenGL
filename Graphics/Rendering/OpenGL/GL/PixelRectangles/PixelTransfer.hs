@@ -23,7 +23,19 @@ import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glPixelTransferf, glPixelTransferi, gl_ALPHA_BIAS, gl_ALPHA_SCALE,
+   gl_BLUE_BIAS, gl_BLUE_SCALE, gl_DEPTH_BIAS, gl_DEPTH_SCALE, gl_GREEN_BIAS,
+   gl_GREEN_SCALE, gl_INDEX_OFFSET, gl_INDEX_SHIFT, gl_MAP_COLOR,
+   gl_MAP_STENCIL, gl_POST_COLOR_MATRIX_ALPHA_BIAS,
+   gl_POST_COLOR_MATRIX_ALPHA_SCALE, gl_POST_COLOR_MATRIX_BLUE_BIAS,
+   gl_POST_COLOR_MATRIX_BLUE_SCALE, gl_POST_COLOR_MATRIX_GREEN_BIAS,
+   gl_POST_COLOR_MATRIX_GREEN_SCALE, gl_POST_COLOR_MATRIX_RED_BIAS,
+   gl_POST_COLOR_MATRIX_RED_SCALE, gl_POST_CONVOLUTION_ALPHA_BIAS,
+   gl_POST_CONVOLUTION_ALPHA_SCALE, gl_POST_CONVOLUTION_BLUE_BIAS,
+   gl_POST_CONVOLUTION_BLUE_SCALE, gl_POST_CONVOLUTION_GREEN_BIAS,
+   gl_POST_CONVOLUTION_GREEN_SCALE, gl_POST_CONVOLUTION_RED_BIAS,
+   gl_POST_CONVOLUTION_RED_SCALE, gl_RED_BIAS, gl_RED_SCALE )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -62,36 +74,36 @@ data PixelTransfer =
 
 marshalPixelTransfer :: PixelTransfer -> GLenum
 marshalPixelTransfer x = case x of
-   MapColor -> 0xd10
-   MapStencil -> 0xd11
-   IndexShift -> 0xd12
-   IndexOffset -> 0xd13
-   RedScale -> 0xd14
-   RedBias -> 0xd15
-   GreenScale -> 0xd18
-   GreenBias -> 0xd19
-   BlueScale -> 0xd1a
-   BlueBias -> 0xd1b
-   AlphaScale -> 0xd1c
-   AlphaBias -> 0xd1d
-   DepthScale -> 0xd1e
-   DepthBias -> 0xd1f
-   PostConvolutionRedScale -> 0x801c
-   PostConvolutionGreenScale -> 0x801d
-   PostConvolutionBlueScale -> 0x801e
-   PostConvolutionAlphaScale -> 0x801f
-   PostConvolutionRedBias -> 0x8020
-   PostConvolutionGreenBias -> 0x8021
-   PostConvolutionBlueBias -> 0x8022
-   PostConvolutionAlphaBias -> 0x8023
-   PostColorMatrixRedScale -> 0x80b4
-   PostColorMatrixGreenScale -> 0x80b5
-   PostColorMatrixBlueScale -> 0x80b6
-   PostColorMatrixAlphaScale -> 0x80b7
-   PostColorMatrixRedBias -> 0x80b8
-   PostColorMatrixGreenBias -> 0x80b9
-   PostColorMatrixBlueBias -> 0x80ba
-   PostColorMatrixAlphaBias -> 0x80bb
+   MapColor -> gl_MAP_COLOR
+   MapStencil -> gl_MAP_STENCIL
+   IndexShift -> gl_INDEX_SHIFT
+   IndexOffset -> gl_INDEX_OFFSET
+   RedScale -> gl_RED_SCALE
+   RedBias -> gl_RED_BIAS
+   GreenScale -> gl_GREEN_SCALE
+   GreenBias -> gl_GREEN_BIAS
+   BlueScale -> gl_BLUE_SCALE
+   BlueBias -> gl_BLUE_BIAS
+   AlphaScale -> gl_ALPHA_SCALE
+   AlphaBias -> gl_ALPHA_BIAS
+   DepthScale -> gl_DEPTH_SCALE
+   DepthBias -> gl_DEPTH_BIAS
+   PostConvolutionRedScale -> gl_POST_CONVOLUTION_RED_SCALE
+   PostConvolutionGreenScale -> gl_POST_CONVOLUTION_GREEN_SCALE
+   PostConvolutionBlueScale -> gl_POST_CONVOLUTION_BLUE_SCALE
+   PostConvolutionAlphaScale -> gl_POST_CONVOLUTION_ALPHA_SCALE
+   PostConvolutionRedBias -> gl_POST_CONVOLUTION_RED_BIAS
+   PostConvolutionGreenBias -> gl_POST_CONVOLUTION_GREEN_BIAS
+   PostConvolutionBlueBias -> gl_POST_CONVOLUTION_BLUE_BIAS
+   PostConvolutionAlphaBias -> gl_POST_CONVOLUTION_ALPHA_BIAS
+   PostColorMatrixRedScale -> gl_POST_COLOR_MATRIX_RED_SCALE
+   PostColorMatrixGreenScale -> gl_POST_COLOR_MATRIX_GREEN_SCALE
+   PostColorMatrixBlueScale -> gl_POST_COLOR_MATRIX_BLUE_SCALE
+   PostColorMatrixAlphaScale -> gl_POST_COLOR_MATRIX_ALPHA_SCALE
+   PostColorMatrixRedBias -> gl_POST_COLOR_MATRIX_RED_BIAS
+   PostColorMatrixGreenBias -> gl_POST_COLOR_MATRIX_GREEN_BIAS
+   PostColorMatrixBlueBias -> gl_POST_COLOR_MATRIX_BLUE_BIAS
+   PostColorMatrixAlphaBias -> gl_POST_COLOR_MATRIX_ALPHA_BIAS
 
 --------------------------------------------------------------------------------
 

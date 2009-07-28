@@ -26,7 +26,9 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glGetMinmax, glGetMinmaxParameteriv, glMinmax, glResetMinmax, gl_MINMAX,
+   gl_MINMAX_FORMAT, gl_MINMAX_SINK )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -36,7 +38,7 @@ data MinmaxTarget =
 
 marshalMinmaxTarget :: MinmaxTarget -> GLenum
 marshalMinmaxTarget x = case x of
-   Minmax -> 0x802e
+   Minmax -> gl_MINMAX
 
 --------------------------------------------------------------------------------
 
@@ -76,8 +78,8 @@ data GetMinmaxParameterPName =
 
 marshalGetMinmaxParameterPName :: GetMinmaxParameterPName -> GLenum
 marshalGetMinmaxParameterPName x = case x of
-   MinmaxFormat -> 0x802f
-   MinmaxSink -> 0x8030
+   MinmaxFormat -> gl_MINMAX_FORMAT
+   MinmaxSink -> gl_MINMAX_SINK
 
 --------------------------------------------------------------------------------
 

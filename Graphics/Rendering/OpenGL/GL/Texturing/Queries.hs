@@ -29,7 +29,11 @@ import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   gl_TEXTURE_INTENSITY_SIZE, gl_TEXTURE_LUMINANCE_SIZE, gl_DEPTH_BITS )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.EXT.PalettedTexture (
+   gl_TEXTURE_INDEX_SIZE )
 
 --------------------------------------------------------------------------------
 
@@ -53,22 +57,22 @@ data TexLevelParameter =
 
 marshalTexLevelParameter :: TexLevelParameter -> GLenum
 marshalTexLevelParameter x = case x of
-   TextureInternalFormat -> 0x1003
-   TextureWidth -> 0x1000
-   TextureHeight -> 0x1001
-   TextureDepth -> 0x8071
-   TextureBorder -> 0x1005
-   TextureRedSize -> 0x805C
-   TextureGreenSize -> 0x805D
-   TextureBlueSize -> 0x805E
-   TextureAlphaSize -> 0x805F
-   TextureIntensitySize -> 0x8061
-   TextureLuminanceSize -> 0x8060
-   TextureIndexSize -> 0x80ED
-   DepthBits -> 0x0D56
-   TextureCompressedImageSize -> 0x86A0
-   TextureCompressed -> 0x86A1
-   TextureSharedSize -> 0x8C3F
+   TextureInternalFormat -> gl_TEXTURE_INTERNAL_FORMAT
+   TextureWidth -> gl_TEXTURE_WIDTH
+   TextureHeight -> gl_TEXTURE_HEIGHT
+   TextureDepth -> gl_TEXTURE_DEPTH
+   TextureBorder -> gl_TEXTURE_BORDER
+   TextureRedSize -> gl_TEXTURE_RED_SIZE
+   TextureGreenSize -> gl_TEXTURE_GREEN_SIZE
+   TextureBlueSize -> gl_TEXTURE_BLUE_SIZE
+   TextureAlphaSize -> gl_TEXTURE_ALPHA_SIZE
+   TextureIntensitySize -> gl_TEXTURE_INTENSITY_SIZE
+   TextureLuminanceSize -> gl_TEXTURE_LUMINANCE_SIZE
+   TextureIndexSize -> gl_TEXTURE_INDEX_SIZE
+   DepthBits -> gl_DEPTH_BITS
+   TextureCompressedImageSize -> gl_TEXTURE_COMPRESSED_IMAGE_SIZE
+   TextureCompressed -> gl_TEXTURE_COMPRESSED
+   TextureSharedSize -> gl_TEXTURE_SHARED_SIZE
 
 --------------------------------------------------------------------------------
 

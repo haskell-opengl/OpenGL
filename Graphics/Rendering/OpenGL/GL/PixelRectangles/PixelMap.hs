@@ -27,7 +27,12 @@ import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glGetPixelMapfv, glGetPixelMapuiv, glGetPixelMapusv, glPixelMapfv,
+   glPixelMapuiv, glPixelMapusv, gl_PIXEL_MAP_A_TO_A, gl_PIXEL_MAP_B_TO_B,
+   gl_PIXEL_MAP_G_TO_G, gl_PIXEL_MAP_I_TO_A, gl_PIXEL_MAP_I_TO_B,
+   gl_PIXEL_MAP_I_TO_G, gl_PIXEL_MAP_I_TO_I, gl_PIXEL_MAP_I_TO_R,
+   gl_PIXEL_MAP_R_TO_R, gl_PIXEL_MAP_S_TO_S )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -46,16 +51,16 @@ data PixelMapTarget =
 
 marshalPixelMapTarget :: PixelMapTarget -> GLenum
 marshalPixelMapTarget x = case x of
-   IToI -> 0xc70
-   SToS -> 0xc71
-   IToR -> 0xc72
-   IToG -> 0xc73
-   IToB -> 0xc74
-   IToA -> 0xc75
-   RToR -> 0xc76
-   GToG -> 0xc77
-   BToB -> 0xc78
-   AToA -> 0xc79
+   IToI -> gl_PIXEL_MAP_I_TO_I
+   SToS -> gl_PIXEL_MAP_S_TO_S
+   IToR -> gl_PIXEL_MAP_I_TO_R
+   IToG -> gl_PIXEL_MAP_I_TO_G
+   IToB -> gl_PIXEL_MAP_I_TO_B
+   IToA -> gl_PIXEL_MAP_I_TO_A
+   RToR -> gl_PIXEL_MAP_R_TO_R
+   GToG -> gl_PIXEL_MAP_G_TO_G
+   BToB -> gl_PIXEL_MAP_B_TO_B
+   AToA -> gl_PIXEL_MAP_A_TO_A
 
 pixelMapTargetToGetPName :: PixelMapTarget -> GetPName
 pixelMapTargetToGetPName x = case x of

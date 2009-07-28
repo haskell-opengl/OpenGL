@@ -30,7 +30,12 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
+   glGetHistogram, glGetHistogramParameteriv, glHistogram, glResetHistogram,
+   gl_HISTOGRAM, gl_HISTOGRAM_ALPHA_SIZE, gl_HISTOGRAM_BLUE_SIZE,
+   gl_HISTOGRAM_FORMAT, gl_HISTOGRAM_GREEN_SIZE, gl_HISTOGRAM_LUMINANCE_SIZE,
+   gl_HISTOGRAM_RED_SIZE, gl_HISTOGRAM_SINK, gl_HISTOGRAM_WIDTH,
+   gl_PROXY_HISTOGRAM )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -41,8 +46,8 @@ data HistogramTarget =
 
 marshalHistogramTarget :: HistogramTarget -> GLenum
 marshalHistogramTarget x = case x of
-   Histogram -> 0x8024
-   ProxyHistogram -> 0x8025
+   Histogram -> gl_HISTOGRAM
+   ProxyHistogram -> gl_PROXY_HISTOGRAM
 
 proxyToHistogramTarget :: Proxy -> HistogramTarget
 proxyToHistogramTarget x = case x of
@@ -109,14 +114,14 @@ data GetHistogramParameterPName =
 
 marshalGetHistogramParameterPName :: GetHistogramParameterPName -> GLenum
 marshalGetHistogramParameterPName x = case x of
-   HistogramWidth -> 0x8026
-   HistogramFormat -> 0x8027
-   HistogramRedSize -> 0x8028
-   HistogramGreenSize -> 0x8029
-   HistogramBlueSize -> 0x802a
-   HistogramAlphaSize -> 0x802b
-   HistogramLuminanceSize -> 0x802c
-   HistogramSink -> 0x802d
+   HistogramWidth -> gl_HISTOGRAM_WIDTH
+   HistogramFormat -> gl_HISTOGRAM_FORMAT
+   HistogramRedSize -> gl_HISTOGRAM_RED_SIZE
+   HistogramGreenSize -> gl_HISTOGRAM_GREEN_SIZE
+   HistogramBlueSize -> gl_HISTOGRAM_BLUE_SIZE
+   HistogramAlphaSize -> gl_HISTOGRAM_ALPHA_SIZE
+   HistogramLuminanceSize -> gl_HISTOGRAM_LUMINANCE_SIZE
+   HistogramSink -> gl_HISTOGRAM_SINK
 
 --------------------------------------------------------------------------------
 
