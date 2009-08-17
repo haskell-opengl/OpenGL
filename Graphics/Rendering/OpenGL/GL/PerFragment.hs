@@ -93,7 +93,7 @@ sampleCoverage :: StateVar (Maybe (GLclampf, Bool))
 sampleCoverage =
    makeStateVarMaybe
       (return CapSampleCoverage)
-      (liftM2 (,) (getFloat1 id GetSampleCoverageValue)
+      (liftM2 (,) (getClampf1 id GetSampleCoverageValue)
                   (getBoolean1 unmarshalGLboolean GetSampleCoverageInvert))
       (\(value, invert) -> glSampleCoverage value (marshalGLboolean invert))
 
@@ -103,7 +103,7 @@ depthBounds :: StateVar (Maybe (GLclampd, GLclampd))
 depthBounds =
    makeStateVarMaybe
       (return CapDepthBoundsTest)
-      (getDouble2 (,) GetDepthBounds)
+      (getClampd2 (,) GetDepthBounds)
       (uncurry glDepthBounds)
 
 --------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ alphaFunc =
    makeStateVarMaybe
       (return CapAlphaTest)
       (liftM2 (,) (getEnum1 unmarshalComparisonFunction GetAlphaTestFunc)
-                  (getFloat1 id GetAlphaTestRef))
+                  (getClampf1 id GetAlphaTestRef))
       (uncurry (glAlphaFunc . marshalComparisonFunction))
 
 --------------------------------------------------------------------------------
@@ -389,7 +389,7 @@ blendFunc =
 blendColor :: StateVar (Color4 GLclampf)
 blendColor =
    makeStateVar
-      (getFloat4 Color4 GetBlendColor)
+      (getClampf4 Color4 GetBlendColor)
       (\(Color4 r g b a) -> glBlendColor r g b a)
 
 --------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 name: OpenGL
-version: 2.3.0.0
+version: 2.4.0.0
 license: BSD3
 license-file: LICENSE
 maintainer: Sven Panne <sven.panne@aedion.de>
@@ -8,7 +8,7 @@ homepage: http://www.haskell.org/HOpenGL/
 category: Graphics
 synopsis: A binding for the OpenGL graphics system
 description:
-   A Haskell binding for the OpenGL graphics system (GL, version 2.1) and its
+   A Haskell binding for the OpenGL graphics system (GL, version 3.2) and its
    accompanying utility library (GLU, version 1.3).
    .
    OpenGL is the industry's most widely used and supported 2D and 3D graphics
@@ -104,4 +104,4 @@ other-modules:
    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 ghc-options: -Wall
 build-depends:
-   base >= 3 && < 5, OpenGLRaw >= 1.0.1.0, GLURaw, StateVar, ObjectName, Tensor
+   base >= 3 && < 5, OpenGLRaw >= 1.1.0.0, GLURaw >= 1.1.0.0, StateVar, ObjectName, Tensor

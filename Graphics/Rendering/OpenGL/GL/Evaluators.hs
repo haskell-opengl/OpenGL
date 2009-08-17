@@ -69,7 +69,7 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 type Order = GLint
 
 maxOrder :: GettableStateVar Order
-maxOrder = makeGettableStateVar (getSizei1 id GetMaxEvalOrder)
+maxOrder = makeGettableStateVar (getInteger1 id GetMaxEvalOrder)
 
 --------------------------------------------------------------------------------
 

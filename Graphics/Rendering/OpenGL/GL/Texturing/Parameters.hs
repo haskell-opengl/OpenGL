@@ -226,7 +226,7 @@ textureCompareMode =
 --------------------------------------------------------------------------------
 
 textureCompareFailValue :: TextureTarget -> StateVar GLclampf
-textureCompareFailValue = texParamf id id TextureCompareFailValue
+textureCompareFailValue = texParamf realToFrac realToFrac TextureCompareFailValue
 
 --------------------------------------------------------------------------------
 

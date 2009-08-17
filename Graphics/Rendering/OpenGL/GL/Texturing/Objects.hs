@@ -55,7 +55,7 @@ instance ObjectName TextureObject where
 textureBinding :: TextureTarget -> StateVar (Maybe TextureObject)
 textureBinding t =
    makeStateVar
-      (do o <- getEnum1 TextureObject (textureTargetToGetPName t)
+      (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToGetPName t)
           return $ if o == defaultTextureObject then Nothing else Just o)
       (glBindTexture (marshalTextureTarget t) . textureID . (maybe defaultTextureObject id))
 
@@ -95,7 +95,7 @@ areTexturesResident texObjs = do
 type TexturePriority = GLclampf
 
 texturePriority :: TextureTarget -> StateVar TexturePriority
-texturePriority = texParamf id id TexturePriority
+texturePriority = texParamf realToFrac realToFrac TexturePriority
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()
 prioritizeTextures tps =

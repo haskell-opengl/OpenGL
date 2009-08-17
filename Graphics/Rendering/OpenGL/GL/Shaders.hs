@@ -42,7 +42,6 @@ import Data.ObjectName
 import Data.StateVar
 import Data.Tensor
 import Foreign.C.String
-import Foreign.C.Types
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
@@ -135,7 +134,7 @@ setShaderSource shader srcs = do
    withMany withGLStringLen srcs $ \charBufsAndLengths -> do
       let (charBufs, lengths) = unzip charBufsAndLengths
       withArray charBufs $ \charBufsBuf ->
-         withArray lengths $ \lengthsBuf ->
+         withArray (map fromIntegral lengths) $ \lengthsBuf ->
             glShaderSource (shaderID shader) len charBufsBuf lengthsBuf
 
 getShaderSource :: Shader s => s -> IO [String]
@@ -521,8 +520,7 @@ class Storable a => UniformComponent a where
    uniform3v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
    uniform4v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
 
--- GLint instance
-instance UniformComponent CInt where
+instance UniformComponent GLint where
    uniform1 (UniformLocation ul) = glUniform1i ul
    uniform2 (UniformLocation ul) = glUniform2i ul
    uniform3 (UniformLocation ul) = glUniform3i ul
@@ -535,8 +533,7 @@ instance UniformComponent CInt where
    uniform3v (UniformLocation ul) = glUniform3iv ul
    uniform4v (UniformLocation ul) = glUniform4iv ul
 
--- GLuint instance
-instance UniformComponent CUInt where
+instance UniformComponent GLuint where
    uniform1 (UniformLocation ul) = glUniform1ui ul
    uniform2 (UniformLocation ul) = glUniform2ui ul
    uniform3 (UniformLocation ul) = glUniform3ui ul
@@ -549,8 +546,7 @@ instance UniformComponent CUInt where
    uniform3v (UniformLocation ul) = glUniform3uiv ul
    uniform4v (UniformLocation ul) = glUniform4uiv ul
 
--- GLfloat instance
-instance UniformComponent CFloat where
+instance UniformComponent GLfloat where
    uniform1 (UniformLocation ul) = glUniform1f ul
    uniform2 (UniformLocation ul) = glUniform2f ul
    uniform3 (UniformLocation ul) = glUniform3f ul
@@ -562,6 +558,19 @@ instance UniformComponent CFloat where
    uniform2v (UniformLocation ul) = glUniform2fv ul
    uniform3v (UniformLocation ul) = glUniform3fv ul
    uniform4v (UniformLocation ul) = glUniform4fv ul
+
+instance UniformComponent GLclampf where
+   uniform1 (UniformLocation ul) x = glUniform1f ul (realToFrac x)
+   uniform2 (UniformLocation ul) x y = glUniform2f ul (realToFrac x) (realToFrac y)
+   uniform3 (UniformLocation ul) x y z = glUniform3f ul (realToFrac x) (realToFrac y) (realToFrac z)
+   uniform4 (UniformLocation ul) x y z w = glUniform4f ul (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
+
+   getUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
+
+   uniform1v (UniformLocation ul) n = glUniform1fv ul n . castPtr
+   uniform2v (UniformLocation ul) n = glUniform2fv ul n . castPtr
+   uniform3v (UniformLocation ul) n = glUniform3fv ul n . castPtr
+   uniform4v (UniformLocation ul) n = glUniform4fv ul n . castPtr
 
 --------------------------------------------------------------------------------
 

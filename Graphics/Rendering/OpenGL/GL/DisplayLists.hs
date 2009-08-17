@@ -130,7 +130,7 @@ defineNewList mode action = do
 listIndex :: GettableStateVar (Maybe DisplayList)
 listIndex =
    makeGettableStateVar
-      (do l <- getEnum1 DisplayList GetListIndex
+      (do l <- getEnum1 (DisplayList . fromIntegral) GetListIndex
           return $ if l == noDisplayList then Nothing else Just l)
 
 noDisplayList :: DisplayList
@@ -153,4 +153,7 @@ callLists n = glCallLists n . marshalDataType
 --------------------------------------------------------------------------------
 
 listBase :: StateVar DisplayList
-listBase = makeStateVar (getEnum1 DisplayList GetListBase) (\(DisplayList dl) -> glListBase dl)
+listBase =
+   makeStateVar
+      (getEnum1 (DisplayList . fromIntegral) GetListBase)
+       (\(DisplayList dl) -> glListBase dl)

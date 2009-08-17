@@ -17,10 +17,10 @@ module Graphics.Rendering.OpenGL.GL.Rectangles (
 ) where
 
 import Data.Tensor
-import Foreign.C.Types
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
    glRectd, glRectdv, glRectf, glRectfv, glRecti, glRectiv, glRects, glRectsv )
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
@@ -48,22 +48,18 @@ class Rect a where
    rect  :: Vertex2 a -> Vertex2 a -> IO ()
    rectv :: Ptr     a -> Ptr     a -> IO ()
 
--- GLshort instance
-instance Rect CShort where
+instance Rect GLshort where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRects x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectsv ptr1 ptr2
 
--- GLint instance
-instance Rect CInt where
+instance Rect GLint where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRecti x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectiv ptr1 ptr2
 
--- GLfloat instance
-instance Rect CFloat where
+instance Rect GLfloat where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRectf x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectfv ptr1 ptr2
 
--- GLdouble instance
-instance Rect CDouble where
+instance Rect GLdouble where
    rect (Vertex2 x1 y1) (Vertex2 x2 y2) = glRectd x1 y1 x2 y2
    rectv ptr1 ptr2 = glRectdv ptr1 ptr2

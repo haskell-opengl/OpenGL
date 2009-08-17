@@ -23,7 +23,6 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
 
 import Data.StateVar
 import Data.Tensor
-import Foreign.C.Types
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.GLboolean
@@ -57,8 +56,7 @@ class RasterPosComponent a where
    rasterPos3v :: Ptr a -> IO ()
    rasterPos4v :: Ptr a -> IO ()
 
--- GLshort instance
-instance RasterPosComponent CShort where
+instance RasterPosComponent GLshort where
    rasterPos2 = glRasterPos2s
    rasterPos3 = glRasterPos3s
    rasterPos4 = glRasterPos4s
@@ -67,8 +65,7 @@ instance RasterPosComponent CShort where
    rasterPos3v = glRasterPos3sv
    rasterPos4v = glRasterPos4sv
 
--- GLint instance
-instance RasterPosComponent CInt where
+instance RasterPosComponent GLint where
    rasterPos2 = glRasterPos2i
    rasterPos3 = glRasterPos3i
    rasterPos4 = glRasterPos4i
@@ -77,8 +74,7 @@ instance RasterPosComponent CInt where
    rasterPos3v = glRasterPos3iv
    rasterPos4v = glRasterPos4iv
 
--- GLfloat instance
-instance RasterPosComponent CFloat where
+instance RasterPosComponent GLfloat where
    rasterPos2 = glRasterPos2f
    rasterPos3 = glRasterPos3f
    rasterPos4 = glRasterPos4f
@@ -87,8 +83,7 @@ instance RasterPosComponent CFloat where
    rasterPos3v = glRasterPos3fv
    rasterPos4v = glRasterPos4fv
 
--- GLdouble instance
-instance RasterPosComponent CDouble where
+instance RasterPosComponent GLdouble where
    rasterPos2 = glRasterPos2d
    rasterPos3 = glRasterPos3d
    rasterPos4 = glRasterPos4d
@@ -124,32 +119,28 @@ class WindowPosComponent a where
    windowPos2v :: Ptr a -> IO ()
    windowPos3v :: Ptr a -> IO ()
 
--- GLshort instance
-instance WindowPosComponent CShort where
+instance WindowPosComponent GLshort where
    windowPos2 = glWindowPos2s
    windowPos3 = glWindowPos3s
 
    windowPos2v = glWindowPos2sv
    windowPos3v = glWindowPos3sv
 
--- GLint instance
-instance WindowPosComponent CInt where
+instance WindowPosComponent GLint where
    windowPos2 = glWindowPos2i
    windowPos3 = glWindowPos3i
 
    windowPos2v = glWindowPos2iv
    windowPos3v = glWindowPos3iv
 
--- GLfloat instance
-instance WindowPosComponent CFloat where
+instance WindowPosComponent GLfloat where
    windowPos2 = glWindowPos2f
    windowPos3 = glWindowPos3f
 
    windowPos2v = glWindowPos2fv
    windowPos3v = glWindowPos3fv
 
--- GLdouble instance
-instance WindowPosComponent CDouble where
+instance WindowPosComponent GLdouble where
    windowPos2 = glWindowPos2d
    windowPos3 = glWindowPos3d
 

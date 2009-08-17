@@ -36,7 +36,6 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
 
 import Data.StateVar
 import Data.Tensor
-import Foreign.C.Types
 import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
@@ -79,7 +78,7 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 -- mappings such as (1, 0) are acceptable.
 
 depthRange :: StateVar (GLclampd, GLclampd)
-depthRange = makeStateVar (getDouble2 (,) GetDepthRange) (uncurry glDepthRange)
+depthRange = makeStateVar (getClampd2 (,) GetDepthRange) (uncurry glDepthRange)
 
 --------------------------------------------------------------------------------
 
@@ -116,7 +115,7 @@ viewport = makeStateVar (getInteger4 makeVp GetViewport)
 -- | The implementation-dependent maximum viewport width and height.
 
 maxViewportDims :: GettableStateVar Size
-maxViewportDims = makeGettableStateVar (getInteger2 Size GetMaxViewportDims)
+maxViewportDims = makeGettableStateVar (getSizei2 Size GetMaxViewportDims)
 
 --------------------------------------------------------------------------------
 
@@ -200,8 +199,7 @@ class Storable c => MatrixComponent c where
    translate :: Vector3 c -> IO ()
    scale :: c -> c -> c -> IO ()
 
--- GLfloat instance
-instance MatrixComponent CFloat where
+instance MatrixComponent GLfloat where
    getMatrix = getFloatv
    loadMatrix = glLoadMatrixf
    loadTransposeMatrix = glLoadTransposeMatrixf
@@ -211,8 +209,7 @@ instance MatrixComponent CFloat where
    translate (Vector3 x y z) = glTranslatef x y z
    scale = glScalef
 
--- GLfloat instance
-instance MatrixComponent CDouble where
+instance MatrixComponent GLdouble where
    getMatrix = getDoublev
    loadMatrix = glLoadMatrixd
    loadTransposeMatrix = glLoadTransposeMatrixd

@@ -17,7 +17,6 @@ module Graphics.Rendering.OpenGL.GL.Domain (
    Domain(..)
 ) where
 
-import Foreign.C.Types
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.QueryUtils
@@ -45,8 +44,7 @@ class Storable d => Domain d where
 
 --------------------------------------------------------------------------------
 
--- GLfloat instance
-instance Domain CFloat where
+instance Domain GLfloat where
    glMap1      = glMap1f
    glMap2      = glMap2f
    glGetMapv   = glGetMapfv
@@ -59,8 +57,7 @@ instance Domain CFloat where
    get2        = getFloat2
    get4        = getFloat4
 
--- GLdouble instance
-instance Domain CDouble where
+instance Domain GLdouble where
    glMap1      = glMap1d
    glMap2      = glMap2d
    glGetMapv   = glGetMapdv

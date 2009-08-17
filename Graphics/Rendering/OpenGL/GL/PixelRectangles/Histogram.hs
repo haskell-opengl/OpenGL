@@ -137,4 +137,4 @@ histogramRGBASizes proxy =
 histogramLuminanceSize :: Proxy -> GettableStateVar GLsizei
 histogramLuminanceSize proxy =
    makeGettableStateVar $
-      getHistogramParameteri id proxy HistogramLuminanceSize
+      getHistogramParameteri fromIntegral proxy HistogramLuminanceSize

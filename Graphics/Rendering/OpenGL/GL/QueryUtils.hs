@@ -20,9 +20,11 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4, getIntegerv,
    getEnum1,
-   getSizei1,
+   getSizei1, getSizei2,
    getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
+   getClampf1, getClampf4,
    getDouble1, getDouble2, getDouble4, getDoublev,
+   getClampd1, getClampd2,
    maybeNullPtr,
    AttribLocation(..), GetVertexAttribPName(..),
    getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
@@ -1008,10 +1010,21 @@ getIntegerv = maybe (const recordInvalidEnum) glGetIntegerv . marshalGetPName
 --------------------------------------------------------------------------------
 
 getEnum1 :: (GLenum -> a) -> GetPName -> IO a
-getEnum1 f = getInteger1 (f . fromIntegral)
+getEnum1 f n = alloca $ \buf -> do
+   getIntegerv n buf
+   peek1 f (castPtr buf)
+
+--------------------------------------------------------------------------------
 
 getSizei1 :: (GLsizei -> a) -> GetPName -> IO a
-getSizei1 f = getInteger1 (f . fromIntegral)
+getSizei1 f n = alloca $ \buf -> do
+   getIntegerv n buf
+   peek1 f (castPtr buf)
+
+getSizei2 :: (GLsizei -> GLsizei -> a) -> GetPName -> IO a
+getSizei2 f n = allocaArray 2 $ \buf -> do
+   getIntegerv n buf
+   peek2 f (castPtr buf)
 
 --------------------------------------------------------------------------------
 
@@ -1041,6 +1054,19 @@ getFloatv = maybe (const recordInvalidEnum) glGetFloatv . marshalGetPName
 
 --------------------------------------------------------------------------------
 
+getClampf1 :: (GLclampf -> a) -> GetPName -> IO a
+getClampf1 f n = alloca $ \buf -> do
+   getFloatv n buf
+   peek1 f (castPtr buf)
+
+getClampf4 ::
+   (GLclampf -> GLclampf -> GLclampf -> GLclampf -> a) -> GetPName -> IO a
+getClampf4 f n = allocaArray 4 $ \buf -> do
+   getFloatv n buf
+   peek4 f (castPtr buf)
+
+--------------------------------------------------------------------------------
+
 getDouble1 :: (GLdouble -> a) -> GetPName -> IO a
 getDouble1 f n = alloca $ \buf -> do
    getDoublev n buf
@@ -1059,6 +1085,18 @@ getDouble4 f n = allocaArray 4 $ \buf -> do
 
 getDoublev :: GetPName -> Ptr GLdouble -> IO ()
 getDoublev = maybe (const recordInvalidEnum) glGetDoublev . marshalGetPName
+
+--------------------------------------------------------------------------------
+
+getClampd1 :: (GLclampd -> a) -> GetPName -> IO a
+getClampd1 f n = alloca $ \buf -> do
+   getDoublev n buf
+   peek1 f (castPtr buf)
+
+getClampd2 :: (GLclampd -> GLclampd -> a) -> GetPName -> IO a
+getClampd2 f n = allocaArray 2 $ \buf -> do
+   getDoublev n buf
+   peek2 f (castPtr buf)
 
 --------------------------------------------------------------------------------
 

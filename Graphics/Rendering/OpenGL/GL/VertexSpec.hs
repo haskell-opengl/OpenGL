@@ -58,7 +58,6 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
 
 import Data.StateVar
 import Data.Tensor
-import Foreign.C.Types
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
@@ -117,8 +116,7 @@ class VertexComponent a where
    vertex3v :: Ptr a -> IO ()
    vertex4v :: Ptr a -> IO ()
 
--- GLshort instance
-instance VertexComponent CShort where
+instance VertexComponent GLshort where
    vertex2 = glVertex2s
    vertex3 = glVertex3s
    vertex4 = glVertex4s
@@ -127,8 +125,7 @@ instance VertexComponent CShort where
    vertex3v = glVertex3sv
    vertex4v = glVertex4sv
 
--- GLint instance
-instance VertexComponent CInt where
+instance VertexComponent GLint where
    vertex2 = glVertex2i
    vertex3 = glVertex3i
    vertex4 = glVertex4i
@@ -137,8 +134,7 @@ instance VertexComponent CInt where
    vertex3v = glVertex3iv
    vertex4v = glVertex4iv
 
--- GLfloat instance
-instance VertexComponent CFloat where
+instance VertexComponent GLfloat where
    vertex2 = glVertex2f
    vertex3 = glVertex3f
    vertex4 = glVertex4f
@@ -147,8 +143,7 @@ instance VertexComponent CFloat where
    vertex3v = glVertex3fv
    vertex4v = glVertex4fv
 
--- GLdouble instance
-instance VertexComponent CDouble where
+instance VertexComponent GLdouble where
    vertex2 = glVertex2d
    vertex3 = glVertex3d
    vertex4 = glVertex4d
@@ -236,8 +231,7 @@ class TexCoordComponent a where
    multiTexCoord3v :: GLenum -> Ptr a -> IO ()
    multiTexCoord4v :: GLenum -> Ptr a -> IO ()
 
--- GLshort instance
-instance TexCoordComponent CShort where
+instance TexCoordComponent GLshort where
    texCoord1 = glTexCoord1s
    texCoord2 = glTexCoord2s
    texCoord3 = glTexCoord3s
@@ -258,8 +252,7 @@ instance TexCoordComponent CShort where
    multiTexCoord3v = glMultiTexCoord3sv
    multiTexCoord4v = glMultiTexCoord4sv
 
--- GLint instance
-instance TexCoordComponent CInt where
+instance TexCoordComponent GLint where
    texCoord1 = glTexCoord1i
    texCoord2 = glTexCoord2i
    texCoord3 = glTexCoord3i
@@ -280,8 +273,7 @@ instance TexCoordComponent CInt where
    multiTexCoord3v = glMultiTexCoord3iv
    multiTexCoord4v = glMultiTexCoord4iv
 
--- GLfloat instance
-instance TexCoordComponent CFloat where
+instance TexCoordComponent GLfloat where
    texCoord1 = glTexCoord1f
    texCoord2 = glTexCoord2f
    texCoord3 = glTexCoord3f
@@ -302,8 +294,7 @@ instance TexCoordComponent CFloat where
    multiTexCoord3v = glMultiTexCoord3fv
    multiTexCoord4v = glMultiTexCoord4fv
 
--- GLdouble instance
-instance TexCoordComponent CDouble where
+instance TexCoordComponent GLdouble where
    texCoord1 = glTexCoord1d
    texCoord2 = glTexCoord2d
    texCoord3 = glTexCoord3d
@@ -383,28 +374,23 @@ class NormalComponent a where
    normal3 :: a -> a -> a -> IO ()
    normal3v :: Ptr a -> IO ()
 
--- GLbyte instance
-instance NormalComponent CSChar where
+instance NormalComponent GLbyte where
    normal3 = glNormal3b
    normal3v = glNormal3bv
 
--- GLshort instance
-instance NormalComponent CShort where
+instance NormalComponent GLshort where
    normal3 = glNormal3s
    normal3v = glNormal3sv
 
--- GLint instance
-instance NormalComponent CInt where
+instance NormalComponent GLint where
    normal3 = glNormal3i
    normal3v = glNormal3iv
 
--- GLfloat instance
-instance NormalComponent CFloat where
+instance NormalComponent GLfloat where
    normal3 = glNormal3f
    normal3v = glNormal3fv
 
--- GLdouble instance
-instance NormalComponent CDouble where
+instance NormalComponent GLdouble where
    normal3 = glNormal3d
    normal3v = glNormal3dv
 
@@ -450,13 +436,11 @@ class FogCoordComponent a where
    fogCoord1 :: a -> IO ()
    fogCoord1v :: Ptr a -> IO ()
 
--- GLfloat instance
-instance FogCoordComponent CFloat where
+instance FogCoordComponent GLfloat where
    fogCoord1 = glFogCoordf
    fogCoord1v = glFogCoordfv
 
--- GLdouble instance
-instance FogCoordComponent CDouble where
+instance FogCoordComponent GLdouble where
    fogCoord1 = glFogCoordd
    fogCoord1v = glFogCoorddv
 
@@ -515,8 +499,7 @@ class ColorComponent a where
    secondaryColor3  :: a -> a -> a -> IO ()
    secondaryColor3v :: Ptr a -> IO ()
 
--- GLbyte instance
-instance ColorComponent CSChar where
+instance ColorComponent GLbyte where
    color3 = glColor3b
    color4 = glColor4b
 
@@ -526,8 +509,7 @@ instance ColorComponent CSChar where
    secondaryColor3 = glSecondaryColor3b
    secondaryColor3v = glSecondaryColor3bv
 
--- GLshort instance
-instance ColorComponent CShort where
+instance ColorComponent GLshort where
    color3 = glColor3s
    color4 = glColor4s
 
@@ -537,8 +519,7 @@ instance ColorComponent CShort where
    secondaryColor3 = glSecondaryColor3s
    secondaryColor3v = glSecondaryColor3sv
 
--- GLint instance
-instance ColorComponent CInt where
+instance ColorComponent GLint where
    color3 = glColor3i
    color4 = glColor4i
 
@@ -548,8 +529,7 @@ instance ColorComponent CInt where
    secondaryColor3 = glSecondaryColor3i
    secondaryColor3v = glSecondaryColor3iv
 
--- GLfloat instance
-instance ColorComponent CFloat where
+instance ColorComponent GLfloat where
    color3 = glColor3f
    color4 = glColor4f
 
@@ -559,8 +539,17 @@ instance ColorComponent CFloat where
    secondaryColor3 = glSecondaryColor3f
    secondaryColor3v = glSecondaryColor3fv
 
--- GLdouble instance
-instance ColorComponent CDouble where
+instance ColorComponent GLclampf where
+   color3 r g b = glColor3f (realToFrac r) (realToFrac g) (realToFrac b)
+   color4 r g b a = glColor4f (realToFrac r) (realToFrac g) (realToFrac b) (realToFrac a)
+
+   color3v = glColor3fv . castPtr
+   color4v = glColor4fv . castPtr
+
+   secondaryColor3 r g b = glSecondaryColor3f (realToFrac r) (realToFrac g) (realToFrac b)
+   secondaryColor3v = glSecondaryColor3fv . castPtr
+
+instance ColorComponent GLdouble where
    color3 = glColor3d
    color4 = glColor4d
 
@@ -570,8 +559,17 @@ instance ColorComponent CDouble where
    secondaryColor3 = glSecondaryColor3d
    secondaryColor3v = glSecondaryColor3dv
 
--- GLubyte instance
-instance ColorComponent CUChar where
+instance ColorComponent GLclampd where
+   color3 r g b = glColor3d (realToFrac r) (realToFrac g) (realToFrac b)
+   color4 r g b a = glColor4d (realToFrac r) (realToFrac g) (realToFrac b) (realToFrac a)
+
+   color3v = glColor3dv . castPtr
+   color4v = glColor4dv . castPtr
+
+   secondaryColor3 r g b = glSecondaryColor3d (realToFrac r) (realToFrac g) (realToFrac b)
+   secondaryColor3v = glSecondaryColor3dv . castPtr
+
+instance ColorComponent GLubyte where
    color3 = glColor3ub
    color4 = glColor4ub
 
@@ -581,8 +579,7 @@ instance ColorComponent CUChar where
    secondaryColor3 = glSecondaryColor3ub
    secondaryColor3v = glSecondaryColor3ubv
 
--- GLushort instance
-instance ColorComponent CUShort where
+instance ColorComponent GLushort where
    color3 = glColor3us
    color4 = glColor4us
 
@@ -592,8 +589,7 @@ instance ColorComponent CUShort where
    secondaryColor3 = glSecondaryColor3us
    secondaryColor3v = glSecondaryColor3usv
 
--- GLuint instance
-instance ColorComponent CUInt where
+instance ColorComponent GLuint where
    color3 = glColor3ui
    color4 = glColor4ui
 
@@ -647,28 +643,23 @@ class IndexComponent a where
    index1 :: a -> IO ()
    index1v :: Ptr a -> IO ()
 
--- GLshort instance
-instance IndexComponent CShort where
+instance IndexComponent GLshort where
    index1 = glIndexs
    index1v = glIndexsv
 
--- GLint instance
-instance IndexComponent CInt where
+instance IndexComponent GLint where
    index1 = glIndexi
    index1v = glIndexiv
 
--- GLfloat instance
-instance IndexComponent CFloat where
+instance IndexComponent GLfloat where
    index1 = glIndexf
    index1v = glIndexfv
 
--- GLdouble instance
-instance IndexComponent CDouble where
+instance IndexComponent GLdouble where
    index1 = glIndexd
    index1v = glIndexdv
 
--- GLubyte instance
-instance IndexComponent CUChar where
+instance IndexComponent GLubyte where
    index1 = glIndexub
    index1v = glIndexubv
 
@@ -784,21 +775,18 @@ class (Storable a, Num a) => VertexAttribComponent a where
    vertexAttrib2Iv location = peek2M $ vertexAttrib2I location
    vertexAttrib3Iv location = peek3M $ vertexAttrib3I location
 
--- GLbyte instance
-instance VertexAttribComponent CSChar where
+instance VertexAttribComponent GLbyte where
    vertexAttrib4v (AttribLocation al) = glVertexAttrib4bv al
    vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nbv al
    vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4bv al
 
--- GLubyte instance
-instance VertexAttribComponent CUChar where
+instance VertexAttribComponent GLubyte where
    vertexAttrib4N (AttribLocation al) = glVertexAttrib4Nub al
    vertexAttrib4v (AttribLocation al) = glVertexAttrib4ubv al
    vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nubv al
    vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4ubv al
 
--- GLshort instance
-instance VertexAttribComponent CShort where
+instance VertexAttribComponent GLshort where
    vertexAttrib1 (AttribLocation al) = glVertexAttrib1s al
    vertexAttrib2 (AttribLocation al) = glVertexAttrib2s al
    vertexAttrib3 (AttribLocation al) = glVertexAttrib3s al
@@ -813,14 +801,12 @@ instance VertexAttribComponent CShort where
 
    vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4sv al
 
--- GLushort instance
-instance VertexAttribComponent CUShort where
+instance VertexAttribComponent GLushort where
    vertexAttrib4v (AttribLocation al) = glVertexAttrib4usv al
    vertexAttrib4Nv (AttribLocation al) = glVertexAttrib4Nusv al
    vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4usv al
 
--- GLint instance
-instance VertexAttribComponent CInt where
+instance VertexAttribComponent GLint where
    vertexAttrib1I (AttribLocation al) = glVertexAttribI1i al
    vertexAttrib2I (AttribLocation al) = glVertexAttribI2i al
    vertexAttrib3I (AttribLocation al) = glVertexAttribI3i al
@@ -835,8 +821,7 @@ instance VertexAttribComponent CInt where
    vertexAttrib3Iv (AttribLocation al) = glVertexAttribI3iv al
    vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4iv al
 
--- GLuint instance
-instance VertexAttribComponent CUInt where
+instance VertexAttribComponent GLuint where
    vertexAttrib1I (AttribLocation al) = glVertexAttribI1ui al
    vertexAttrib2I (AttribLocation al) = glVertexAttribI2ui al
    vertexAttrib3I (AttribLocation al) = glVertexAttribI3ui al
@@ -851,8 +836,7 @@ instance VertexAttribComponent CUInt where
    vertexAttrib3Iv (AttribLocation al) = glVertexAttribI3uiv al
    vertexAttrib4Iv (AttribLocation al) = glVertexAttribI4uiv al
 
--- GLfloat instance
-instance VertexAttribComponent CFloat where
+instance VertexAttribComponent GLfloat where
    vertexAttrib1 (AttribLocation al) = glVertexAttrib1f al
    vertexAttrib2 (AttribLocation al) = glVertexAttrib2f al
    vertexAttrib3 (AttribLocation al) = glVertexAttrib3f al
@@ -867,6 +851,21 @@ instance VertexAttribComponent CFloat where
 
    vertexAttrib4Iv = vertexAttrib4IvRealFrac
 
+instance VertexAttribComponent GLclampf where
+   vertexAttrib1 (AttribLocation al) x = glVertexAttrib1f al (realToFrac x)
+   vertexAttrib2 (AttribLocation al) x y = glVertexAttrib2f al (realToFrac x) (realToFrac y)
+   vertexAttrib3 (AttribLocation al) x y z = glVertexAttrib3f al (realToFrac x) (realToFrac y) (realToFrac z)
+   vertexAttrib4 (AttribLocation al) x y z w = glVertexAttrib4f al (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
+
+   vertexAttrib1v (AttribLocation al) = glVertexAttrib1fv al . castPtr
+   vertexAttrib2v (AttribLocation al) = glVertexAttrib2fv al . castPtr
+   vertexAttrib3v (AttribLocation al) = glVertexAttrib3fv al . castPtr
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4fv al . castPtr
+
+   vertexAttrib4Nv = vertexAttrib4v
+
+   vertexAttrib4Iv = vertexAttrib4IvRealFrac
+
 vertexAttrib4IvRealFrac :: (Storable a, RealFrac a) => AttribLocation -> Ptr a -> IO ()
 vertexAttrib4IvRealFrac location = peek4M $ \x y z w ->
    vertexAttrib4I location (toGLint x) (toGLint y) (toGLint z) (toGLint w)
@@ -876,8 +875,7 @@ toGLint :: RealFrac a => a -> GLint
 toGLint = truncate . (fromIntegral (maxBound :: GLint) *). clamp
    where clamp = max (-1.0) . min 1.0
 
--- GLdouble instance
-instance VertexAttribComponent CDouble where
+instance VertexAttribComponent GLdouble where
    vertexAttrib1 (AttribLocation al) = glVertexAttrib1d al
    vertexAttrib2 (AttribLocation al) = glVertexAttrib2d al
    vertexAttrib3 (AttribLocation al) = glVertexAttrib3d al
@@ -887,6 +885,21 @@ instance VertexAttribComponent CDouble where
    vertexAttrib2v (AttribLocation al) = glVertexAttrib2dv al
    vertexAttrib3v (AttribLocation al) = glVertexAttrib3dv al
    vertexAttrib4v (AttribLocation al) = glVertexAttrib4dv al
+
+   vertexAttrib4Nv = vertexAttrib4v
+
+   vertexAttrib4Iv = vertexAttrib4IvRealFrac
+
+instance VertexAttribComponent GLclampd where
+   vertexAttrib1 (AttribLocation al) x = glVertexAttrib1d al (realToFrac x)
+   vertexAttrib2 (AttribLocation al) x y = glVertexAttrib2d al (realToFrac x) (realToFrac y)
+   vertexAttrib3 (AttribLocation al) x y z = glVertexAttrib3d al (realToFrac x) (realToFrac y) (realToFrac z)
+   vertexAttrib4 (AttribLocation al) x y z w = glVertexAttrib4d al (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
+
+   vertexAttrib1v (AttribLocation al) = glVertexAttrib1dv al . castPtr
+   vertexAttrib2v (AttribLocation al) = glVertexAttrib2dv al . castPtr
+   vertexAttrib3v (AttribLocation al) = glVertexAttrib3dv al . castPtr
+   vertexAttrib4v (AttribLocation al) = glVertexAttrib4dv al . castPtr
 
    vertexAttrib4Nv = vertexAttrib4v
 

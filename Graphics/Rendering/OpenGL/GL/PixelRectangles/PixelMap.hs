@@ -20,7 +20,6 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap (
 
 import Data.List
 import Data.StateVar
-import Foreign.C.Types
 import Foreign.ForeignPtr
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -86,18 +85,15 @@ class Storable c => PixelMapComponent c where
    getPixelMapv :: GLenum -> Ptr c -> IO ()
    pixelMapv :: GLenum -> GLsizei -> Ptr c -> IO ()
 
--- GLushort instance
-instance PixelMapComponent CUShort where
+instance PixelMapComponent GLushort where
    getPixelMapv = glGetPixelMapusv
    pixelMapv = glPixelMapusv
 
--- GLuint instance
-instance PixelMapComponent CUInt where
+instance PixelMapComponent GLuint where
    getPixelMapv = glGetPixelMapuiv
    pixelMapv = glPixelMapuiv
 
--- GLfloat instance
-instance PixelMapComponent CFloat where
+instance PixelMapComponent GLfloat where
    getPixelMapv = glGetPixelMapfv
    pixelMapv = glPixelMapfv
 

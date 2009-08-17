@@ -252,7 +252,7 @@ data ClearBuffer =
    deriving ( Eq, Ord, Show )
 
 marshalClearBuffer :: ClearBuffer -> GLbitfield
-marshalClearBuffer x = case x of
+marshalClearBuffer x = fromIntegral $ case x of
    ColorBuffer -> gl_COLOR_BUFFER_BIT
    AccumBuffer -> gl_ACCUM_BUFFER_BIT
    StencilBuffer -> gl_STENCIL_BUFFER_BIT
@@ -287,7 +287,7 @@ clear = glClear . sum . map marshalClearBuffer
 -- [0, 1]. Initially, all values are 0.
 
 clearColor :: StateVar (Color4 GLclampf)
-clearColor = makeStateVar (getFloat4 Color4 GetColorClearValue)
+clearColor = makeStateVar (getClampf4 Color4 GetColorClearValue)
                           (\(Color4 r g b a) -> glClearColor r g b a)
 
 --------------------------------------------------------------------------------
@@ -309,7 +309,7 @@ clearIndex = makeStateVar (getFloat1 Index1 GetIndexClearValue)
 -- is 1.
 
 clearDepth :: StateVar GLclampd
-clearDepth = makeStateVar (getDouble1 id GetDepthClearValue) glClearDepth
+clearDepth = makeStateVar (getClampd1 id GetDepthClearValue) glClearDepth
 
 --------------------------------------------------------------------------------
 

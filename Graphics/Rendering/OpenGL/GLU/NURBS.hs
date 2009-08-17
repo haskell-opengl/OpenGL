@@ -277,7 +277,7 @@ loadSamplingMatrices nurbsObj =
       (\(mv, proj, (Position x y, Size w h)) -> do
           withMatrixColumnMajor mv $ \mvBuf ->
              withMatrixColumnMajor proj $ \projBuf ->
-                withArray [x, y, w, h] $ \viewportBuf ->
+                withArray [x, y, fromIntegral w, fromIntegral h] $ \viewportBuf ->
                   gluLoadSamplingMatrices nurbsObj mvBuf projBuf viewportBuf
           setAutoLoadMatrix nurbsObj False)
 
