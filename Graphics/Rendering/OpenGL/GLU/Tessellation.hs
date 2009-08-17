@@ -163,10 +163,10 @@ withComplexPolygon complexPolygon f =
 -- summing up to 1.0.
 
 data WeightedProperties v
-   = WeightedProperties (GLclampf, v)
-                        (GLclampf, v)
-                        (GLclampf, v)
-                        (GLclampf, v)
+   = WeightedProperties (GLfloat, v)
+                        (GLfloat, v)
+                        (GLfloat, v)
+                        (GLfloat, v)
    deriving ( Eq, Ord )
 
 -- | A function combining given vertex properties into a property for a newly
@@ -457,7 +457,7 @@ checkForError tessObj = withErrorCallback tessObj recordErrorCode
 type CombineCallback v =
       Ptr GLdouble
    -> Ptr (Ptr (AnnotatedVertex v))
-   -> Ptr GLclampf
+   -> Ptr GLfloat
    -> Ptr (Ptr (AnnotatedVertex v))
    -> IO ()
 
