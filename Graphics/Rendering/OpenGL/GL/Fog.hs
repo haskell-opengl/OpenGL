@@ -131,9 +131,11 @@ fogfv param ptr = glFogfv (marshalFogParameter param) (castPtr ptr)
 
 --------------------------------------------------------------------------------
 
-fogColor :: StateVar (Color4 GLfloat)
+fogColor :: StateVar (Color4 GLclampf)
 fogColor =
-   makeStateVar (getFloat4 Color4 GetFogColor) (\c -> with c $ fogfv FogColor)
+   makeStateVar
+      (getClampf4 Color4 GetFogColor)
+      (\c -> with c $ (fogfv FogColor . castPtr))
 
 --------------------------------------------------------------------------------
 
