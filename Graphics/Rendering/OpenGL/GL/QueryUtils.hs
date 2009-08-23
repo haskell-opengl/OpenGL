@@ -126,7 +126,7 @@ import Graphics.Rendering.OpenGL.Raw.ARB.VertexBlend (
    gl_MODELVIEW1, gl_MODELVIEW2, gl_MODELVIEW31, gl_VERTEX_BLEND,
    gl_WEIGHT_ARRAY, gl_WEIGHT_ARRAY_SIZE, gl_WEIGHT_ARRAY_STRIDE,
    gl_WEIGHT_ARRAY_TYPE, gl_WEIGHT_SUM_UNITY )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.Core32
 import Graphics.Rendering.OpenGL.Raw.EXT ( gl_RGBA_SIGNED_COMPONENTS )
 import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka ( gl_PACK_CMYK_HINT, gl_UNPACK_CMYK_HINT )
 import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray ( gl_ARRAY_ELEMENT_LOCK_FIRST, gl_ARRAY_ELEMENT_LOCK_COUNT )
@@ -525,6 +525,7 @@ data GetPName =
    | GetCopyReadBuffer
    | GetCopyWriteBuffer
    -- GetWeightArrayBufferBinding
+   | GetContextProfileMask
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
@@ -912,6 +913,7 @@ marshalGetPName x = case x of
    GetCopyReadBuffer -> Just gl_COPY_READ_BUFFER
    GetCopyWriteBuffer -> Just gl_COPY_WRITE_BUFFER
    -- GetWeightArrayBufferBinding -> Just gl_WEIGHT_ARRAY_BUFFER_BINDING
+   GetContextProfileMask -> Just gl_CONTEXT_PROFILE_MASK
 
 --------------------------------------------------------------------------------
 

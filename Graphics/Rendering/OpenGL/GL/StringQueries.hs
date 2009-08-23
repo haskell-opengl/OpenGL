@@ -8,61 +8,65 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to parts of section 6.1.11 (Pointer and String
--- Queries) of the OpenGL 2.1 specs.
+-- This module corresponds to parts of section 6.1.5 (String Queries) of the
+-- OpenGL 3.2 specs.
 --
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.StringQueries (
-   vendor, renderer, glVersion, glExtensions, shadingLanguageVersion, majorMinor
+   vendor, renderer, glVersion, glExtensions, shadingLanguageVersion,
+   majorMinor, contextProfile
 ) where
 
+import Data.Bits
 import Data.Char
 import Data.StateVar
 import Foreign.C.String
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.Core32
 
 --------------------------------------------------------------------------------
 
 vendor :: GettableStateVar String
-vendor = makeGettableStateVar (getString Vendor)
+vendor = makeGettableStateVar (getString gl_VENDOR)
 
 renderer :: GettableStateVar String
-renderer = makeGettableStateVar (getString Renderer)
+renderer = makeGettableStateVar (getString gl_RENDERER)
 
 glVersion :: GettableStateVar String
-glVersion = makeGettableStateVar (getString Version)
+glVersion = makeGettableStateVar (getString gl_VERSION)
 
 glExtensions :: GettableStateVar [String]
-glExtensions = makeGettableStateVar (fmap words $ getString Extensions)
+glExtensions = makeGettableStateVar (fmap words $ getString gl_EXTENSIONS)
 
 shadingLanguageVersion :: GettableStateVar String
-shadingLanguageVersion = makeGettableStateVar (getString ShadingLanguageVersion)
+shadingLanguageVersion = makeGettableStateVar (getString gl_SHADING_LANGUAGE_VERSION)
 
 --------------------------------------------------------------------------------
 
-data StringName =
-     Vendor
-   | Renderer
-   | Version
-   | Extensions
-   | ShadingLanguageVersion
+data ContextProfile'
+   = CoreProfile'
+   | CompatibilityProfile'
+   deriving ( Eq, Ord, Show )
 
-marshalStringName :: StringName -> GLenum
-marshalStringName x = case x of
-   Vendor -> gl_VENDOR
-   Renderer -> gl_RENDERER
-   Version -> gl_VERSION
-   Extensions -> gl_EXTENSIONS
-   ShadingLanguageVersion -> gl_SHADING_LANGUAGE_VERSION
+marshalContextProfile' :: ContextProfile' -> GLenum
+marshalContextProfile' x = case x of
+   CoreProfile' -> gl_CONTEXT_CORE_PROFILE_BIT
+   CompatibilityProfile' -> gl_CONTEXT_COMPATIBILITY_PROFILE_BIT
+
+contextProfile :: GettableStateVar [ContextProfile']
+contextProfile = makeGettableStateVar (getEnum1 i2cps GetContextProfileMask)
+
+i2cps :: GLenum -> [ContextProfile']
+i2cps bitfield =
+   [ c | c <- [ CoreProfile', CompatibilityProfile' ]
+       , (bitfield .&. marshalContextProfile' c) /= 0 ]
 
 --------------------------------------------------------------------------------
 
-getString :: StringName -> IO String
-getString n = glGetString (marshalStringName n) >>=
-              maybeNullPtr (return "") (peekCString . castPtr)
+getString :: GLenum -> IO String
+getString n = glGetString n >>= maybeNullPtr (return "") (peekCString . castPtr)
 
 --------------------------------------------------------------------------------
 
