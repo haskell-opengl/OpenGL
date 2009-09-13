@@ -1072,4 +1072,4 @@ instance VertexAttribComponent a => VertexAttrib (Index1 a) where
 
 maxTextureUnit :: GettableStateVar TextureUnit
 maxTextureUnit =
-   makeGettableStateVar (getEnum1 unmarshalTextureUnit GetMaxTextureUnits)
+   makeGettableStateVar (getEnum1 (TextureUnit . fromIntegral) GetMaxTextureUnits)
