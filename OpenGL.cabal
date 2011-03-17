@@ -18,7 +18,9 @@ description:
    please see <http://www.opengl.org/>
    and <http://www.opengl.org/registry/>.
 build-type: Simple
-exposed-modules:
+cabal-version: >= 1.6
+library
+  exposed-modules:
    Graphics.Rendering.OpenGL.GL.Antialiasing,
    Graphics.Rendering.OpenGL.GL.BeginEnd,
    Graphics.Rendering.OpenGL.GL.Bitmaps,
@@ -73,7 +75,7 @@ exposed-modules:
    Graphics.Rendering.OpenGL.GL.VertexArrays,
    Graphics.Rendering.OpenGL.GL.VertexSpec,
    Graphics.Rendering.OpenGL
-other-modules:
+  other-modules:
    Graphics.Rendering.OpenGL.GL.BlendingFactor,
    Graphics.Rendering.OpenGL.GL.BufferMode,
    Graphics.Rendering.OpenGL.GL.Capability,
@@ -102,8 +104,8 @@ other-modules:
    Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit,
    Graphics.Rendering.OpenGL.GL.VertexAttributes,
    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-ghc-options: -Wall
-build-depends:
+  ghc-options: -Wall
+  build-depends:
    base >= 3 && < 5, OpenGLRaw >= 1.1.0.0, GLURaw >= 1.1.0.0, StateVar, ObjectName, Tensor
 
 source-repository head
