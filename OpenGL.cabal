@@ -4,7 +4,7 @@ license: BSD3
 license-file: LICENSE
 maintainer: Sven Panne <sven.panne@aedion.de>
 bug-reports: mailto:hopengl@haskell.org
-homepage: http://www.haskell.org/HOpenGL/
+homepage: http://www.haskell.org/haskellwiki/Opengl
 category: Graphics
 synopsis: A binding for the OpenGL graphics system
 description:
@@ -105,3 +105,7 @@ other-modules:
 ghc-options: -Wall
 build-depends:
    base >= 3 && < 5, OpenGLRaw >= 1.1.0.0, GLURaw >= 1.1.0.0, StateVar, ObjectName, Tensor
+
+source-repository head
+  type:     darcs
+  location: http://code.haskell.org/OpenGL/OpenGL/
