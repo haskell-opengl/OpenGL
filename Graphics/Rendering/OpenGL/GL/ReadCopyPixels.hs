@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.ReadCopyPixels
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -24,9 +24,7 @@ module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
 import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.CoordTrans
-import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PixelData
-import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glCopyPixels )

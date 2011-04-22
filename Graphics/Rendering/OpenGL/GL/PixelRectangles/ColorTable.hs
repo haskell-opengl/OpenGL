@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -30,7 +30,6 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
@@ -203,7 +202,7 @@ colorTableScaleBias p s =
    where ct = colorTableStageToColorTable s
 
 getColorTableParameterC4f ::
-   ColorTable -> ColorTablePName -> IO (Color4 GLfloat) 
+   ColorTable -> ColorTablePName -> IO (Color4 GLfloat)
 getColorTableParameterC4f ct p =
    alloca $ \buf -> do
       glGetColorTableParameterfv
@@ -215,7 +214,7 @@ getColorTableParameterC4f ct p =
 colorTableParameterC4f ::
    ColorTable -> ColorTablePName -> Color4 GLfloat -> IO ()
 colorTableParameterC4f ct p c =
-   with c $ \ptr -> 
+   with c $ \ptr ->
       glColorTableParameterfv (marshalColorTable ct) (marshalColorTablePName p) (castPtr ptr)
 
 --------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GLU.NURBS
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -45,7 +45,6 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
-import Graphics.Rendering.OpenGL.GL.BeginEnd
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 
