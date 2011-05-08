@@ -6,7 +6,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -59,7 +59,7 @@ unmarshalErrorCategory c
    | isInvalidEnum c      = InvalidEnum
    | isInvalidValue c     = InvalidValue
    | isInvalidOperation c = InvalidOperation
-   | isInvalidFramebufferOperation c = InvalidFramebufferOperation 
+   | isInvalidFramebufferOperation c = InvalidFramebufferOperation
    | isOutOfMemory c      = OutOfMemory
    | isStackOverflow c    = StackOverflow
    | isStackUnderflow c   = StackUnderflow
@@ -148,7 +148,7 @@ getErrors = do
 
 recordErrorCode :: GLenum -> IO ()
 recordErrorCode e = do
-   getErrorCodesAux (\es -> (if null es then [e] else [], False))
+   _ <- getErrorCodesAux (\es -> (if null es then [e] else [], False))
    return ()
 
 recordInvalidEnum :: IO ()
