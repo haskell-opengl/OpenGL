@@ -50,6 +50,7 @@ library
    Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization,
    Graphics.Rendering.OpenGL.GL.Points,
    Graphics.Rendering.OpenGL.GL.Polygons,
+   Graphics.Rendering.OpenGL.GL.QueryObjects,
    Graphics.Rendering.OpenGL.GL.RasterPos,
    Graphics.Rendering.OpenGL.GL.ReadCopyPixels,
    Graphics.Rendering.OpenGL.GL.Rectangles,

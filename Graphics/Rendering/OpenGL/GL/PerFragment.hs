@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.PerFragment
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -33,12 +33,6 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    -- * Depth Buffer Test
    depthFunc,
 
-   -- * Occlusion Queries
-   QueryObject(QueryObject), QueryTarget(..), withQuery,
-   beginQuery, endQuery,
-   queryCounterBits, currentQuery,
-   queryResult, queryResultAvailable,
-
    -- * Blending
    blend, BlendEquation(..), blendEquation, blendEquationSeparate,
    BlendingFactor(..), blendFuncSeparate, blendFunc, blendColor,
@@ -47,22 +41,21 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    dither,
 
    -- * Logical Operation
-   LogicOp(..), logicOp
+   LogicOp(..), logicOp,
+
+   -- * for backward compatibility reasons
+   module Graphics.Rendering.OpenGL.GL.QueryObjects
 ) where
 
 import Control.Monad
-import Data.ObjectName
 import Data.StateVar
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
 import Graphics.Rendering.OpenGL.GL.BlendingFactor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction
 import Graphics.Rendering.OpenGL.GL.CoordTrans
-import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryObjects
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
@@ -210,104 +203,6 @@ depthFunc =
       (return CapDepthTest)
       (getEnum1 unmarshalComparisonFunction GetDepthFunc)
       (glDepthFunc . marshalComparisonFunction)
-
---------------------------------------------------------------------------------
-
-newtype QueryObject = QueryObject { queryID :: GLuint }
-   deriving ( Eq, Ord, Show )
-
---------------------------------------------------------------------------------
-
-instance ObjectName QueryObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-        glGenQueries (fromIntegral n) buf
-        fmap (map QueryObject) $ peekArray n buf
-
-   deleteObjectNames queryObjects =
-      withArrayLen (map queryID queryObjects) $
-         glDeleteQueries . fromIntegral
-
-   isObjectName = fmap unmarshalGLboolean . glIsQuery . queryID
-
---------------------------------------------------------------------------------
-
-data QueryTarget =
-     SamplesPassed
-   deriving ( Eq, Ord, Show )
-
-marshalQueryTarget :: QueryTarget -> GLenum
-marshalQueryTarget x = case x of
-   SamplesPassed -> gl_SAMPLES_PASSED
-
---------------------------------------------------------------------------------
-
-beginQuery :: QueryTarget -> QueryObject -> IO ()
-beginQuery t = glBeginQuery (marshalQueryTarget t) . queryID
-
-endQuery :: QueryTarget -> IO ()
-endQuery = glEndQuery . marshalQueryTarget
-
--- | Convenience function for an exception-safe combination of 'beginQuery' and
--- 'endQuery'.
-withQuery :: QueryTarget -> QueryObject -> IO a -> IO a
-withQuery t q = bracket_ (beginQuery t q) (endQuery t)
-
---------------------------------------------------------------------------------
-
-data GetQueryPName =
-     QueryCounterBits
-   | CurrentQuery
-
-marshalGetQueryPName :: GetQueryPName -> GLenum
-marshalGetQueryPName x = case x of
-   QueryCounterBits -> gl_QUERY_COUNTER_BITS
-   CurrentQuery -> gl_CURRENT_QUERY
-
---------------------------------------------------------------------------------
-
-queryCounterBits :: QueryTarget -> GettableStateVar GLsizei
-queryCounterBits = getQueryi fromIntegral QueryCounterBits
-
-currentQuery :: QueryTarget -> GettableStateVar (Maybe QueryObject)
-currentQuery =
-   getQueryi
-      (\q -> if q == 0 then Nothing else Just (QueryObject (fromIntegral q)))
-      CurrentQuery
-
-getQueryi :: (GLint -> a) -> GetQueryPName -> QueryTarget -> GettableStateVar a
-getQueryi f p t =
-   makeGettableStateVar $
-      alloca $ \buf -> do
-         glGetQueryiv (marshalQueryTarget t) (marshalGetQueryPName p) buf
-         peek1 f buf
-
---------------------------------------------------------------------------------
-
-data GetQueryObjectPName =
-     QueryResult
-   | QueryResultAvailable
-
-marshalGetQueryObjectPName :: GetQueryObjectPName -> GLenum
-marshalGetQueryObjectPName x = case x of
-   QueryResult -> gl_QUERY_RESULT
-   QueryResultAvailable -> gl_QUERY_RESULT_AVAILABLE
-
---------------------------------------------------------------------------------
-
-queryResult :: QueryObject -> GettableStateVar GLuint
-queryResult = getQueryObjectui id QueryResult
-
-queryResultAvailable :: QueryObject -> GettableStateVar Bool
-queryResultAvailable = getQueryObjectui unmarshalGLboolean QueryResultAvailable
-
-getQueryObjectui ::
-   (GLuint -> a) -> GetQueryObjectPName -> QueryObject -> GettableStateVar a
-getQueryObjectui f p q =
-   makeGettableStateVar $
-      alloca $ \buf -> do
-         glGetQueryObjectuiv (queryID q) (marshalGetQueryObjectPName p) buf
-         peek1 f buf
 
 --------------------------------------------------------------------------------
 

@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -50,6 +50,8 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.DisplayLists,
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Graphics.Rendering.OpenGL.GL.Hints,
+-- is exported through PerFragment for backwards compatibility reasons
+--   module Graphics.Rendering.OpenGL.GL.QueryObjects,
 
    -- * State and State Requests
    module Data.StateVar,
@@ -93,6 +95,8 @@ import Graphics.Rendering.OpenGL.GL.Feedback
 import Graphics.Rendering.OpenGL.GL.DisplayLists
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
+-- is exported through PerFragment for backwards compatibility reasons
+--import Graphics.Rendering.OpenGL.GL.QueryObjects
 
 import Data.StateVar
 import Data.Tensor
