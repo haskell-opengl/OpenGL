@@ -33,7 +33,15 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    bufferAccess, bufferMapped,
 
    BufferRangeAccessBit(..), Offset, Length,
-   mapBufferRange, flushMappedBufferRange
+   mapBufferRange, flushMappedBufferRange,
+
+   -- * Indexed Buffer manipulation
+   BufferIndex,
+   RangeStartIndex, RangeSize,
+   BufferRange,
+   IndexedBufferTarget(..),
+   bindBufferBase, bindBufferRange,
+   indexedBufferStart, indexedBufferSize
 ) where
 
 import Data.ObjectName
@@ -82,6 +90,7 @@ data BufferTarget =
    | ElementArrayBuffer
    | PixelPackBuffer
    | PixelUnpackBuffer
+   | TranformFeedbackBuffer
    deriving ( Eq, Ord, Show )
 
 marshalBufferTarget :: BufferTarget -> GLenum
@@ -92,6 +101,7 @@ marshalBufferTarget x = case x of
    ElementArrayBuffer -> gl_ELEMENT_ARRAY_BUFFER
    PixelPackBuffer -> gl_PIXEL_PACK_BUFFER
    PixelUnpackBuffer -> gl_PIXEL_UNPACK_BUFFER
+   TranformFeedbackBuffer -> gl_TRANSFORM_FEEDBACK_BUFFER
 
 bufferTargetToGetPName :: BufferTarget -> GetPName
 bufferTargetToGetPName x = case x of
@@ -101,6 +111,7 @@ bufferTargetToGetPName x = case x of
    CopyWriteBuffer -> GetCopyWriteBuffer
    PixelPackBuffer -> GetPixelPackBufferBinding
    PixelUnpackBuffer -> GetPixelUnpackBufferBinding
+   TranformFeedbackBuffer -> GetTransformFeedbackBufferBinding
 
 --------------------------------------------------------------------------------
 
@@ -337,3 +348,69 @@ mapBufferRange t o l b = fmap (maybeNullPtr Nothing Just) $ mapBufferRange_ t o 
 
 flushMappedBufferRange :: BufferTarget -> Offset -> Length -> IO()
 flushMappedBufferRange t = glFlushMappedBufferRange (marshalBufferTarget t)
+
+
+--------------------------------------------------------------------------------
+type BufferIndex = GLuint
+
+type RangeStartIndex = GLintptr
+type RangeSize = GLsizeiptr
+type BufferRange = (BufferObject, RangeStartIndex, RangeSize)
+
+data IndexedBufferTarget =
+     IndexedTransformFeedBackbuffer
+--marshaling
+marshalIndexedBufferTarget :: IndexedBufferTarget -> GetIndexedPName
+marshalIndexedBufferTarget x = case x of
+   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBuffer
+
+marshalIndexedBufferStart :: IndexedBufferTarget -> GetIndexedPName
+marshalIndexedBufferStart x = case x of
+   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBufferStart
+
+marshalIndexedBufferSize :: IndexedBufferTarget -> GetIndexedPName
+marshalIndexedBufferSize x = case x of
+   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBufferSize
+
+getIndexed :: Num a => GetIndexedPName -> BufferIndex -> GettableStateVar a
+getIndexed e i = makeGettableStateVar $ getInteger1i fromIntegral e i
+
+--buffer
+bindBufferBase :: IndexedBufferTarget -> BufferIndex -> StateVar (Maybe BufferObject)
+bindBufferBase t i = makeStateVar (getIndexedBufferBinding t i) (setIndexedBufferBase t i)
+
+setIndexedBufferBase :: IndexedBufferTarget -> BufferIndex -> Maybe BufferObject -> IO ()
+setIndexedBufferBase t i =
+   glBindBufferBase (marshalGetIndexedPName . marshalIndexedBufferTarget $ t) i
+      . bufferID . maybe noBufferObject id
+
+getIndexedBufferBinding :: IndexedBufferTarget -> BufferIndex -> IO (Maybe BufferObject)
+getIndexedBufferBinding t i = do
+   buf <- getInteger1i (BufferObject . fromIntegral) (marshalIndexedBufferTarget t) i
+   return $ if buf == noBufferObject then Nothing else Just buf
+
+bindBufferRange :: IndexedBufferTarget -> BufferIndex -> StateVar (Maybe BufferRange)
+bindBufferRange t i = makeStateVar (getIndexedBufferRange t i) (setIndexedBufferRange t i)
+
+setIndexedBufferRange :: IndexedBufferTarget -> BufferIndex -> Maybe BufferRange -> IO ()
+setIndexedBufferRange t i (Just (buf, start, range)) =
+   glBindBufferRange (marshalGetIndexedPName . marshalIndexedBufferTarget $ t)
+      i (bufferID buf) start range
+setIndexedBufferRange t i Nothing = setIndexedBufferBase t i Nothing
+
+getIndexedBufferRange :: IndexedBufferTarget -> BufferIndex -> IO(Maybe BufferRange)
+getIndexedBufferRange t i = do
+  buf <- getInteger1i (BufferObject . fromIntegral) (marshalIndexedBufferTarget t) i
+  if buf == noBufferObject
+     then return Nothing
+     else do
+        start <- get $ indexedBufferStart t i
+        size <- get $ indexedBufferSize t i
+        return $ Just (buf, start, size)
+
+
+indexedBufferStart :: IndexedBufferTarget -> BufferIndex -> GettableStateVar RangeStartIndex
+indexedBufferStart = getIndexed . marshalIndexedBufferStart
+
+indexedBufferSize :: IndexedBufferTarget -> BufferIndex -> GettableStateVar RangeSize
+indexedBufferSize = getIndexed . marshalIndexedBufferSize

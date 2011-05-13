@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.QueryUtils
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -15,10 +15,12 @@
 
 module Graphics.Rendering.OpenGL.GL.QueryUtils (
    GetPName(..),
+   GetIndexedPName(..), marshalGetIndexedPName,
    clipPlaneIndexToEnum, lightIndexToEnum,
    modelviewIndexToEnum, modelviewEnumToIndex,
    getBoolean1, getBoolean4,
    getInteger1, getInteger2, getInteger4, getIntegerv,
+   getInteger1i, getIntegeriv,
    getEnum1,
    getSizei1, getSizei2,
    getFloat1, getFloat2, getFloat3, getFloat4, getFloatv,
@@ -28,7 +30,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    maybeNullPtr,
    AttribLocation(..), GetVertexAttribPName(..),
    getVertexAttribInteger1, getVertexAttribEnum1, getVertexAttribBoolean1,
-   getVertexAttribFloat4, getVertexAttribIInteger4, getVertexAttribIuInteger4, 
+   getVertexAttribFloat4, getVertexAttribIInteger4, getVertexAttribIuInteger4,
    GetVertexAttribPointerPName(..), getVertexAttribPointer
 ) where
 
@@ -526,6 +528,7 @@ data GetPName =
    | GetCopyWriteBuffer
    -- GetWeightArrayBufferBinding
    | GetContextProfileMask
+   | GetTransformFeedbackBufferBinding
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
@@ -914,6 +917,20 @@ marshalGetPName x = case x of
    GetCopyWriteBuffer -> Just gl_COPY_WRITE_BUFFER
    -- GetWeightArrayBufferBinding -> Just gl_WEIGHT_ARRAY_BUFFER_BINDING
    GetContextProfileMask -> Just gl_CONTEXT_PROFILE_MASK
+   GetTransformFeedbackBufferBinding -> Just gl_TRANSFORM_FEEDBACK_BUFFER_BINDING
+
+--------------------------------------------------------------------------------
+
+data GetIndexedPName =
+     GetTransformFeedbackBuffer
+   | GetTransformFeedbackBufferStart
+   | GetTransformFeedbackBufferSize
+
+marshalGetIndexedPName :: GetIndexedPName -> GLenum
+marshalGetIndexedPName x = case x of
+   GetTransformFeedbackBuffer -> gl_TRANSFORM_FEEDBACK_BUFFER
+   GetTransformFeedbackBufferSize -> gl_TRANSFORM_FEEDBACK_BUFFER_SIZE
+   GetTransformFeedbackBufferStart -> gl_TRANSFORM_FEEDBACK_BUFFER_START
 
 --------------------------------------------------------------------------------
 
@@ -1006,8 +1023,19 @@ getInteger4 f n = allocaArray 4 $ \buf -> do
    getIntegerv n buf
    peek4 f buf
 
+
 getIntegerv :: GetPName -> Ptr GLint -> IO ()
 getIntegerv = maybe (const recordInvalidEnum) glGetIntegerv . marshalGetPName
+
+--------------------------------------------------------------------------------
+
+getInteger1i :: (GLint -> a) -> GetIndexedPName -> GLuint -> IO a
+getInteger1i f n i = alloca $ \buf -> do
+   getIntegeriv n i buf
+   peek1 f buf
+
+getIntegeriv :: GetIndexedPName -> GLuint -> Ptr GLint -> IO ()
+getIntegeriv p = glGetIntegeri_v (marshalGetIndexedPName p)
 
 --------------------------------------------------------------------------------
 
