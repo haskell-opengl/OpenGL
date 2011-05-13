@@ -65,6 +65,7 @@ library
    Graphics.Rendering.OpenGL.GL.Texturing.Parameters,
    Graphics.Rendering.OpenGL.GL.Texturing.Queries,
    Graphics.Rendering.OpenGL.GL.Texturing.Specification,
+   Graphics.Rendering.OpenGL.GL.TransformFeedback
    Graphics.Rendering.OpenGL.GLU.Errors,
    Graphics.Rendering.OpenGL.GLU,
    Graphics.Rendering.OpenGL.GLU.Initialization,

@@ -56,11 +56,13 @@ instance ObjectName QueryObject where
 
 data QueryTarget =
      SamplesPassed
+   | TransformFeedbackPrimitivesWritten
    deriving ( Eq, Ord, Show )
 
 marshalQueryTarget :: QueryTarget -> GLenum
 marshalQueryTarget x = case x of
    SamplesPassed -> gl_SAMPLES_PASSED
+   TransformFeedbackPrimitivesWritten -> gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN
 
 --------------------------------------------------------------------------------
 

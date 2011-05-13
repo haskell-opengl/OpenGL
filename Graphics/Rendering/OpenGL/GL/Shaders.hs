@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -21,6 +21,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    -- * Program Objects
    Program, programDeleteStatus, attachedShaders, linkProgram, linkStatus,
    programInfoLog, validateProgram, validateStatus, currentProgram,
+   transformFeedbackBufferMode,
 
    -- * Vertex attributes
    attribLocation, VariableType(..), activeAttribs,
@@ -50,6 +51,7 @@ import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.TransformFeedback
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.Core31
 
@@ -303,6 +305,10 @@ numActiveUniforms = programVar fromIntegral ActiveUniforms
 activeUniformMaxLength :: Program -> GettableStateVar GLsizei
 activeUniformMaxLength = programVar fromIntegral ActiveUniformMaxLength
 
+transformFeedbackBufferMode :: Program -> GettableStateVar TransformFeedbackBufferMode
+transformFeedbackBufferMode = programVar (unmarshalTransformFeedbackBufferMode . fromIntegral)
+   TransformFeedbackBufferMode
+
 --------------------------------------------------------------------------------
 
 data GetProgramPName =
@@ -315,6 +321,7 @@ data GetProgramPName =
    | ActiveAttributeMaxLength
    | ActiveUniforms
    | ActiveUniformMaxLength
+   | TransformFeedbackBufferMode
 
 marshalGetProgramPName :: GetProgramPName -> GLenum
 marshalGetProgramPName x = case x of
@@ -327,6 +334,7 @@ marshalGetProgramPName x = case x of
    ActiveAttributeMaxLength -> gl_ACTIVE_ATTRIBUTE_MAX_LENGTH
    ActiveUniforms -> gl_ACTIVE_UNIFORMS
    ActiveUniformMaxLength -> gl_ACTIVE_UNIFORM_MAX_LENGTH
+   TransformFeedbackBufferMode -> gl_TRANSFORM_FEEDBACK_BUFFER_MODE
 
 programVar :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
 programVar f p program =
