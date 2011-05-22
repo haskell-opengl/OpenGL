@@ -21,7 +21,11 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    -- * Program Objects
    Program, programDeleteStatus, attachedShaders, linkProgram, linkStatus,
    programInfoLog, validateProgram, validateStatus, currentProgram,
-   transformFeedbackBufferMode,
+
+   -- * Transform feedback
+   transformFeedbackBufferMode, getTransformFeedbackVaryings,
+   setTransformFeedbackVaryings, getTransformFeedbackVarying,
+   getTransformFeedbackVaryingMaxLength,
 
    -- * Vertex attributes
    attribLocation, VariableType(..), activeAttribs,
@@ -49,6 +53,7 @@ import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
@@ -305,10 +310,6 @@ numActiveUniforms = programVar fromIntegral ActiveUniforms
 activeUniformMaxLength :: Program -> GettableStateVar GLsizei
 activeUniformMaxLength = programVar fromIntegral ActiveUniformMaxLength
 
-transformFeedbackBufferMode :: Program -> GettableStateVar TransformFeedbackBufferMode
-transformFeedbackBufferMode = programVar (unmarshalTransformFeedbackBufferMode . fromIntegral)
-   TransformFeedbackBufferMode
-
 --------------------------------------------------------------------------------
 
 data GetProgramPName =
@@ -322,6 +323,8 @@ data GetProgramPName =
    | ActiveUniforms
    | ActiveUniformMaxLength
    | TransformFeedbackBufferMode
+   | TransformFeedbackVaryings
+   | TransformFeedbackVaryingMaxLength
 
 marshalGetProgramPName :: GetProgramPName -> GLenum
 marshalGetProgramPName x = case x of
@@ -335,6 +338,8 @@ marshalGetProgramPName x = case x of
    ActiveUniforms -> gl_ACTIVE_UNIFORMS
    ActiveUniformMaxLength -> gl_ACTIVE_UNIFORM_MAX_LENGTH
    TransformFeedbackBufferMode -> gl_TRANSFORM_FEEDBACK_BUFFER_MODE
+   TransformFeedbackVaryings -> gl_TRANSFORM_FEEDBACK_VARYINGS
+   TransformFeedbackVaryingMaxLength -> gl_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH
 
 programVar :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
 programVar f p program =
@@ -363,6 +368,61 @@ bindAttribLocation (Program program) (AttribLocation location) name =
 
 --------------------------------------------------------------------------------
 
+type VaryingIndex = GLuint
+type MaxLength = GLsizei
+
+--------------------------------------------------------------------------------
+
+-- | Set all the transform feedbacks varyings for this program
+-- it overwrites any previous call to this function
+setTransformFeedbackVaryings :: Program -> [String]
+   -> TransformFeedbackBufferMode -> IO ()
+setTransformFeedbackVaryings (Program program) sts tfbm = do
+   ptSts <- sequence $ map (\x -> withGLString x return) sts
+   stsPtrs <- newArray ptSts
+   glTransformFeedbackVaryings program (fromIntegral . length $ sts)  stsPtrs
+      (marshalTransformFeedbackBufferMode tfbm)
+
+-- | Get the currently used transformFeedbackBufferMode
+transformFeedbackBufferMode
+   :: Program -> GettableStateVar TransformFeedbackBufferMode
+transformFeedbackBufferMode = programVar
+   (unmarshalTransformFeedbackBufferMode . fromIntegral)
+   TransformFeedbackBufferMode
+
+-- | The number of varyings that are currently recorded when in
+-- transform feedback mode
+getTransformFeedbackVaryings :: Program -> GettableStateVar GLuint
+getTransformFeedbackVaryings
+    = programVar fromIntegral TransformFeedbackVaryings
+
+-- | The maximum length of a varying's name for transform feedback mode
+getTransformFeedbackVaryingMaxLength :: Program -> GettableStateVar GLuint
+getTransformFeedbackVaryingMaxLength
+   = programVar fromIntegral TransformFeedbackVaryingMaxLength
+
+-- | Get the name, datatype and size of a single transform feedback
+-- varying.
+getTransformFeedbackVarying :: Program
+   -> VaryingIndex -- ^ the index in a previous array of names of
+                   -- setTransformFeedbackVaryings
+   -> MaxLength -- ^ the maximum length of the returned string
+   -> IO (String, DataType, GLsizei) -- ^ The name of the varying, it's type
+                                     -- and size
+getTransformFeedbackVarying (Program program) vi ml = do
+   alloca $ \nlength -> do
+      alloca $ \size -> do
+          alloca $ \dtype -> do
+             allocaArray (fromIntegral ml) $ \name -> do
+                glGetTransformFeedbackVarying program vi ml nlength size
+                   dtype name
+                l <- peek nlength
+                s <- peek size
+                d <- peek dtype
+                n <- peekGLstringLen (name, l)
+                return (n,unmarshalDataType d, s)
+
+--------------------------------------------------------------------------------
 -- Table 2.9 of the OpenGL 3.1 spec: OpenGL Shading Language type tokens
 data VariableType =
      Float'
