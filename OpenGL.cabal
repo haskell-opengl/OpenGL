@@ -35,6 +35,7 @@ library
    Graphics.Rendering.OpenGL.GL.FlushFinish,
    Graphics.Rendering.OpenGL.GL.Fog,
    Graphics.Rendering.OpenGL.GL.Framebuffer,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects
    Graphics.Rendering.OpenGL.GL.Hints,
    Graphics.Rendering.OpenGL.GL,
    Graphics.Rendering.OpenGL.GL.LineSegments,

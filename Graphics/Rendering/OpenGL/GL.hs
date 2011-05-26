@@ -29,6 +29,7 @@ module Graphics.Rendering.OpenGL.GL (
 
    -- * Rasterization
    module Graphics.Rendering.OpenGL.GL.Antialiasing,
+   module Graphics.Rendering.OpenGL.GL.FramebufferObjects,
    module Graphics.Rendering.OpenGL.GL.Points,
    module Graphics.Rendering.OpenGL.GL.LineSegments,
    module Graphics.Rendering.OpenGL.GL.Polygons,
@@ -77,6 +78,7 @@ import Graphics.Rendering.OpenGL.GL.Colors
 import Graphics.Rendering.OpenGL.GL.Shaders
 
 import Graphics.Rendering.OpenGL.GL.Antialiasing
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects
 import Graphics.Rendering.OpenGL.GL.Points
 import Graphics.Rendering.OpenGL.GL.LineSegments
 import Graphics.Rendering.OpenGL.GL.Polygons

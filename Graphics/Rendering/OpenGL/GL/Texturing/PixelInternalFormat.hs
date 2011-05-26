@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -98,6 +98,10 @@ data PixelInternalFormat =
    | Depth32fStencil8
    | RGB9E5
    | R11fG11fB10f
+   | StencilIndex1
+   | StencilIndex4
+   | StencilIndex8
+   | StencilIndex16
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
@@ -166,6 +170,10 @@ marshalPixelInternalFormat x = fromIntegral $ case x of
    Depth32fStencil8 -> gl_DEPTH32F_STENCIL8
    RGB9E5 -> gl_RGB9_E5
    R11fG11fB10f -> gl_R11F_G11F_B10F
+   StencilIndex1 -> gl_STENCIL_INDEX1
+   StencilIndex4 -> gl_STENCIL_INDEX4
+   StencilIndex8 -> gl_STENCIL_INDEX8
+   StencilIndex16 -> gl_STENCIL_INDEX16
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -236,6 +244,10 @@ unmarshalPixelInternalFormat x
    | y == gl_DEPTH_COMPONENT32F = DepthComponent32f
    | y == gl_DEPTH32F_STENCIL8 = Depth32fStencil8
    | y == gl_RGB9_E5 = RGB9E5
+   | y == gl_STENCIL_INDEX1 = StencilIndex1
+   | y == gl_STENCIL_INDEX4 = StencilIndex4
+   | y == gl_STENCIL_INDEX8 = StencilIndex8
+   | y == gl_STENCIL_INDEX16 = StencilIndex16
    -- legacy values
    | y == 1 = Luminance'
    | y == 2 = LuminanceAlpha'

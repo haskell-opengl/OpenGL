@@ -528,11 +528,17 @@ data GetPName =
    | GetCopyWriteBuffer
    -- GetWeightArrayBufferBinding
    | GetContextProfileMask
-    -- transform feedback stuff
+   -- transform feedback stuff
    | GetTransformFeedbackBufferBinding
    | GetMaxTransformFeedbackSeparateAttribs
    | GetMaxTransformFeedbackSeparateComponents
    | GetMaxTransformFeedbackInterleavedComponents
+   -- FramebufferObject
+   | GetDrawFramebufferBinding
+   | GetReadFramebufferBinding
+   | GetFramebufferBinding
+   -- RenderbufferObject
+   | GetRenderbufferBinding
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
@@ -926,7 +932,12 @@ marshalGetPName x = case x of
    GetMaxTransformFeedbackSeparateAttribs -> Just gl_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS
    GetMaxTransformFeedbackSeparateComponents -> Just gl_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS
    GetMaxTransformFeedbackInterleavedComponents -> Just gl_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS
-
+   -- FramebufferObject
+   GetDrawFramebufferBinding -> Just gl_DRAW_FRAMEBUFFER_BINDING
+   GetReadFramebufferBinding -> Just gl_READ_FRAMEBUFFER_BINDING
+   GetFramebufferBinding -> Just gl_FRAMEBUFFER_BINDING
+   -- RenderbufferObject
+   GetRenderbufferBinding -> Just gl_RENDERBUFFER_BINDING
 
 --------------------------------------------------------------------------------
 
