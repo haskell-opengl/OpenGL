@@ -39,7 +39,10 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Texturing.Objects
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.GL.Texturing.Specification
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 
 -----------------------------------------------------------------------------
 
@@ -179,3 +182,26 @@ framebufferRenderbuffer fbt fba rbt (RenderbufferObject rboi) =
    glFramebufferRenderbuffer (marshalFramebufferTarget fbt)
       (marshalFramebufferAttachment fba) (marshalRenderbufferTarget rbt) rboi
 
+framebufferTexture1D :: FramebufferTarget -> FramebufferAttachment
+   -> TextureObject -> Level -> IO ()
+framebufferTexture1D fbt fba (TextureObject t) l  = glFramebufferTexture1D
+   (marshalFramebufferTarget fbt) (marshalFramebufferAttachment fba)
+      (marshalTextureTarget Texture1D) t l
+
+framebufferTexture2D :: FramebufferTarget -> FramebufferAttachment
+   -> Maybe CubeMapTarget-> TextureObject -> Level -> IO ()
+framebufferTexture2D fbt fba mcmt (TextureObject t) l = glFramebufferTexture2D
+   (marshalFramebufferTarget fbt) (marshalFramebufferAttachment fba)
+      (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mcmt) t l
+
+framebufferTexture3D :: FramebufferTarget -> FramebufferAttachment
+   -> TextureObject -> Level -> GLint -> IO ()
+framebufferTexture3D fbt fba (TextureObject t) le la = glFramebufferTexture3D
+   (marshalFramebufferTarget fbt) (marshalFramebufferAttachment fba)
+      (marshalTextureTarget Texture1D) t le la
+
+framebufferTextureLayer :: FramebufferTarget -> FramebufferAttachment
+   -> TextureObject -> Level -> GLint -> IO()
+framebufferTextureLayer fbt fba (TextureObject t) le la =
+   glFramebufferTextureLayer (marshalFramebufferTarget fbt)
+      (marshalFramebufferAttachment fba) t le la
