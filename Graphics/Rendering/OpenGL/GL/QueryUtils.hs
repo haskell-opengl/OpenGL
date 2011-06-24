@@ -303,6 +303,7 @@ data GetPName =
    | GetMaxEvalOrder
    | GetMaxLights
    | GetMaxClipPlanes
+   | GetMaxClipDistances
    | GetMaxTextureSize
    | GetMaxPixelMapTable
    | GetMaxAttribStackDepth
@@ -393,6 +394,7 @@ data GetPName =
    | GetMatrixIndexArrayType
    | GetMatrixIndexArrayStride
    | GetClipPlane GLsizei
+   | GetClipDistance GLsizei
    | GetLight GLsizei
    | GetTransposeModelviewMatrix
    | GetTransposeProjectionMatrix
@@ -515,6 +517,7 @@ data GetPName =
    | GetMaxFragmentUniformComponents
    | GetMaxTextureCoords
    | GetMaxTextureImageUnits
+   | GetMaxVaryingComponents
    | GetMaxVaryingFloats
    | GetMaxVertexAttribs
    | GetMaxVertexTextureImageUnits
@@ -702,6 +705,7 @@ marshalGetPName x = case x of
    GetMaxEvalOrder -> Just gl_MAX_EVAL_ORDER
    GetMaxLights -> Just gl_MAX_LIGHTS
    GetMaxClipPlanes -> Just gl_MAX_CLIP_DISTANCES
+   GetMaxClipDistances -> Just gl_MAX_CLIP_DISTANCES
    GetMaxTextureSize -> Just gl_MAX_TEXTURE_SIZE
    GetMaxPixelMapTable -> Just gl_MAX_PIXEL_MAP_TABLE
    GetMaxAttribStackDepth -> Just gl_MAX_ATTRIB_STACK_DEPTH
@@ -792,6 +796,7 @@ marshalGetPName x = case x of
    GetMatrixIndexArrayType -> Just gl_MATRIX_INDEX_ARRAY_TYPE
    GetMatrixIndexArrayStride -> Just gl_MATRIX_INDEX_ARRAY_STRIDE
    GetClipPlane i -> clipPlaneIndexToEnum i
+   GetClipDistance i -> clipPlaneIndexToEnum i
    GetLight i -> lightIndexToEnum i
    GetTransposeModelviewMatrix -> Just gl_TRANSPOSE_MODELVIEW_MATRIX
    GetTransposeProjectionMatrix -> Just gl_TRANSPOSE_PROJECTION_MATRIX
@@ -914,6 +919,7 @@ marshalGetPName x = case x of
    GetMaxFragmentUniformComponents -> Just gl_MAX_FRAGMENT_UNIFORM_COMPONENTS
    GetMaxTextureCoords -> Just gl_MAX_TEXTURE_COORDS
    GetMaxTextureImageUnits -> Just gl_MAX_TEXTURE_IMAGE_UNITS
+   GetMaxVaryingComponents -> Just gl_MAX_VARYING_COMPONENTS
    GetMaxVaryingFloats -> Just gl_MAX_VARYING_COMPONENTS
    GetMaxVertexAttribs -> Just gl_MAX_VERTEX_ATTRIBS
    GetMaxVertexTextureImageUnits -> Just gl_MAX_VERTEX_TEXTURE_IMAGE_UNITS
