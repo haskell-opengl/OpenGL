@@ -21,6 +21,7 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects (
 
 
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
+    hiding (getFBAParameteriv)
 -- import FramebufferObjects, hiding the constructor for FramebufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
    hiding ( FramebufferObject, marshalFramebufferTarget )
@@ -29,6 +30,6 @@ import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries
 -- import RenderbufferObjects, hiding the constructor for RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
-   hiding ( RenderbufferObject, marshalRenderbufferTarget )
+   hiding ( RenderbufferObject, marshalRenderbufferTarget, getRBParameteriv )
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
    (RenderbufferObject)

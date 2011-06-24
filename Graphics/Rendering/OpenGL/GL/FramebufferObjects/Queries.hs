@@ -13,23 +13,23 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
-   GetFramebufferAttachmentPName(..),
-
+   AttachmentObjectType(..), getFBAPName,
    attachmentObjectType,
 
-   GetRenderbufferPName(..),
+   renderbufferWidth, renderbufferHeight,
+   renderbufferInternalFormat
 ) where
--- TODO add a datatype and type class for querying red,blue, etc. size of
--- Objects (Framebuffer, Renderbuffer, Texture)
+
 import Data.StateVar
-import Foreign.Marshal
 import Graphics.Rendering.OpenGL.Raw.Core31
+
+import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
 
-import Graphics.Rendering.OpenGL.GL.PeekPoke
 
 -----------------------------------------------------------------------------
 
@@ -39,37 +39,22 @@ data GetFramebufferAttachmentPName =
    | AttachmentTextureLevel
    | AttachmentTextureCubeMapFace
    | AttachmentTextureLayer
-   | AttachmentRedSize
-   | AttachmentGreenSize
-   | AttachmentBlueSize
-   | AttachmentAlphaSize
-   | AttachmentDepthSize
-   | AttachmentStencilSize
    | AttachmentComponentType
    | AttachmentColorEncoding
 
-marshalGetFBAPname :: GetFramebufferAttachmentPName -> GLenum
-marshalGetFBAPname x = case x of
+marshalGetFBAPName :: GetFramebufferAttachmentPName -> GLenum
+marshalGetFBAPName x = case x of
    AttachmentObjectType -> gl_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE
    AttachmentObjectName -> gl_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME
    AttachmentTextureLevel -> gl_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL
    AttachmentTextureCubeMapFace -> gl_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE
    AttachmentTextureLayer -> gl_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER
-   AttachmentRedSize -> gl_FRAMEBUFFER_ATTACHMENT_RED_SIZE
-   AttachmentGreenSize -> gl_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
-   AttachmentBlueSize -> gl_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
-   AttachmentAlphaSize -> gl_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
-   AttachmentDepthSize -> gl_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
-   AttachmentStencilSize -> gl_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
    AttachmentComponentType -> gl_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE
    AttachmentColorEncoding -> gl_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING
 
-getFBAParameteriv :: FramebufferAttachment fba => FramebufferTarget -> fba
+getFBAPName :: FramebufferAttachment fba => FramebufferTarget -> fba
     -> (GLint -> a) -> GetFramebufferAttachmentPName -> IO a
-getFBAParameteriv fbt fba f p = alloca $ \buf -> do
-   glGetFramebufferAttachmentParameteriv (marshalFramebufferTarget fbt)
-      (marshalAttachment fba) (marshalGetFBAPname p) buf
-   peek1 f buf
+getFBAPName fbt fba f p = getFBAParameteriv fbt fba f (marshalGetFBAPName p)
 
 -----------------------------------------------------------------------------
 
@@ -88,25 +73,44 @@ unmarshalAttachmentObjectType x
 
 attachmentObjectType :: FramebufferAttachment fba => FramebufferTarget -> fba
    -> GettableStateVar (Maybe AttachmentObjectType)
-attachmentObjectType fbt fba = makeGettableStateVar $ getFBAParameteriv fbt fba
+attachmentObjectType fbt fba = makeGettableStateVar $ getFBAPName fbt fba
    (unmarshalAttachmentObjectType . fromIntegral) AttachmentObjectType
 
 -----------------------------------------------------------------------------
 
+
 data GetRenderbufferPName =
      RenderbufferWidth
-   | RenderbufferHeigth
+   | RenderbufferHeight
    | RenderbufferInternalFormat
-   | RenderbufferRedSize
    | RenderbufferSamples
 
 marshalGetRBPname :: GetRenderbufferPName -> GLenum
-marshalGetRBPname = undefined
+marshalGetRBPname x = case x of
+    RenderbufferWidth -> gl_RENDERBUFFER_WIDTH
+    RenderbufferHeight -> gl_RENDERBUFFER_HEIGHT
+    RenderbufferInternalFormat -> gl_RENDERBUFFER_INTERNAL_FORMAT
+    RenderbufferSamples -> gl_RENDERBUFFER_SAMPLES
 
-getRBParameteriv :: RenderbufferTarget -> (GLint -> a)
-   -> GetRenderbufferPName -> IO a
-getRBParameteriv rbt f p = alloca $ \buf -> do
-   glGetRenderbufferParameteriv (marshalRenderbufferTarget rbt)
-      (marshalGetRBPname p) buf
-   peek1 f buf
+getRBPName :: RenderbufferTarget -> (GLint -> a) ->
+   GetRenderbufferPName -> IO a
+getRBPName rbt f = getRBParameteriv rbt f . marshalGetRBPname
 
+-----------------------------------------------------------------------------
+
+renderbufferWidth :: RenderbufferTarget -> GettableStateVar GLsizei
+renderbufferWidth rbt = makeGettableStateVar $
+   getRBPName rbt fromIntegral RenderbufferWidth
+
+renderbufferHeight :: RenderbufferTarget -> GettableStateVar GLsizei
+renderbufferHeight rbt = makeGettableStateVar $
+   getRBPName rbt fromIntegral RenderbufferHeight
+
+renderbufferInternalFormat :: RenderbufferTarget
+   -> GettableStateVar PixelInternalFormat
+renderbufferInternalFormat rbt = makeGettableStateVar $
+   getRBPName rbt unmarshalPixelInternalFormat RenderbufferInternalFormat
+
+renderbufferSamples :: RenderbufferTarget -> GettableStateVar Samples
+renderbufferSamples rbt = makeGettableStateVar $
+   getRBPName rbt (Samples . fromIntegral) RenderbufferSamples
