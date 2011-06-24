@@ -76,4 +76,5 @@ unmarshalCubeMapTarget x
    | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_Y = TextureCubeMapNegativeY
    | x == gl_TEXTURE_CUBE_MAP_POSITIVE_Z = TextureCubeMapPositiveZ
    | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_Z = TextureCubeMapNegativeZ
+   | otherwise = error $ "unmarshalCubeMapTarget: unknown enum " ++ show x
 

@@ -17,14 +17,13 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
    attachmentObjectType,
 
    renderbufferWidth, renderbufferHeight,
-   renderbufferInternalFormat
+   renderbufferInternalFormat, renderbufferSamples
 ) where
 
 import Data.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
