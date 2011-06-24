@@ -40,6 +40,7 @@ library
    Graphics.Rendering.OpenGL.GL,
    Graphics.Rendering.OpenGL.GL.LineSegments,
    Graphics.Rendering.OpenGL.GL.PerFragment,
+   Graphics.Rendering.OpenGL.GL.PixellikeObject,
    Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable,
    Graphics.Rendering.OpenGL.GL.PixelRectangles.Convolution,
    Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram,

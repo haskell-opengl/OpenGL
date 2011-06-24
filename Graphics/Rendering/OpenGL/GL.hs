@@ -51,6 +51,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.DisplayLists,
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Graphics.Rendering.OpenGL.GL.Hints,
+   module Graphics.Rendering.OpenGL.GL.PixellikeObject,
    module Graphics.Rendering.OpenGL.GL.TransformFeedback,
 -- is exported through PerFragment for backwards compatibility reasons
 --   module Graphics.Rendering.OpenGL.GL.QueryObjects,
@@ -98,6 +99,7 @@ import Graphics.Rendering.OpenGL.GL.Feedback
 import Graphics.Rendering.OpenGL.GL.DisplayLists
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
+import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
 -- is exported through PerFragment for backwards compatibility reasons
 --import Graphics.Rendering.OpenGL.GL.QueryObjects

@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Queries
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -24,6 +24,7 @@ import Data.StateVar
 import Foreign.Marshal.Alloc
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
@@ -160,3 +161,20 @@ getTexLevelParameteri f proxy t level p =
    alloca $ \buf -> do
       glGetTexLevelParameteriv (either (marshalProxyTextureTarget proxy) (\c -> if proxy == Proxy then marshalProxyTextureTarget Proxy TextureCubeMap else marshalCubeMapTarget c) t) level (marshalTexLevelParameter p) buf
       peek1 f buf
+
+--------------------------------------------------------------------------------
+
+data TextureTargetFull = TextureTargetFull (Either TextureTarget CubeMapTarget) Level
+instance PixellikeObjectTarget TextureTargetFull where
+   marshalPixellikeOT _ x = case x of
+      RedSize -> gl_TEXTURE_RED_SIZE
+      BlueSize -> gl_TEXTURE_BLUE_SIZE
+      GreenSize -> gl_TEXTURE_GREEN_SIZE
+      AlphaSize -> gl_TEXTURE_ALPHA_SIZE
+      DepthSize -> gl_TEXTURE_DEPTH_SIZE
+      StencilSize -> gl_TEXTURE_STENCIL_SIZE
+   getterFuncPOT (TextureTargetFull t level) p =
+      alloca $ \buf -> do
+      glGetTexLevelParameteriv (marshalTarget t) level p buf
+      peek1 id buf
+        where marshalTarget = either marshalTextureTarget marshalCubeMapTarget
