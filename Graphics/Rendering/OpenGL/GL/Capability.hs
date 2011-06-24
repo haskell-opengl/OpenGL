@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Capability
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -150,6 +150,7 @@ data EnableCap =
    | CapPointSprite
    | CapStencilTestTwoSide
    | CapRasterPositionUnclipped
+   | CapRasterizerDiscard
    | CapTextureColorTable
    | CapVertexProgramPointSize
    | CapVertexProgramTwoSide
@@ -242,6 +243,7 @@ marshalEnableCap x = case x of
    CapStencilTestTwoSide -> Just gl_STENCIL_TEST_TWO_SIDE
    -- TODO: use RASTER_POSITION_UNCLIPPED_IBM from IBM_rasterpos_clip extension
    CapRasterPositionUnclipped -> Just 0x19262
+   CapRasterizerDiscard -> Just gl_RASTERIZER_DISCARD
    -- TODO: use TEXTURE_COLOR_TABLE_SGI from SGI_texture_color_table extension
    CapTextureColorTable -> Just 0x80bc
    CapVertexProgramPointSize -> Just gl_VERTEX_PROGRAM_POINT_SIZE
