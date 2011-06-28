@@ -27,6 +27,10 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    setTransformFeedbackVaryings, getTransformFeedbackVarying,
    getTransformFeedbackVaryingMaxLength,
 
+   -- * FragmentData
+   bindFragDataLocation,
+   getFragDataLocation,
+
    -- * Vertex attributes
    attribLocation, VariableType(..), activeAttribs,
 
@@ -54,6 +58,7 @@ import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.DataType
+import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
@@ -423,6 +428,32 @@ getTransformFeedbackVarying (Program program) vi ml = do
                 return (n,unmarshalDataType d, s)
 
 --------------------------------------------------------------------------------
+
+-- | 'bindFragDataLocation' binds a varying variable, specified by program and name, to a
+-- drawbuffer. The effects only take place after succesfull linking of the program.
+-- invalid arguments and conditions are
+-- - an index larger than maxDrawBufferIndex
+-- - names starting with 'gl_'
+-- linking failure will ocure when
+-- - one of the arguments was invalid
+-- - more than one varying varuable name is bound to the same index
+-- It's not an error to specify unused variables, those will be ingored.
+bindFragDataLocation :: Program -> String -> SettableStateVar DrawBufferIndex
+bindFragDataLocation (Program program) varName = makeSettableStateVar $ \ind ->
+   withGLString varName $ glBindFragDataLocation program ind
+
+-- | query the binding of a given variable, specified by program and name. The program has to be
+-- linked. The result is Nothing if an error occures or the name is not a name of a varying
+-- variable. If the program hasn't been linked an 'InvalidOperation' error is generated.
+getFragDataLocation :: Program -> String -> IO (Maybe DrawBufferIndex)
+getFragDataLocation (Program program) varName = do
+   r <- withGLString varName $ glGetFragDataLocation program
+   if r < 0
+    then return Nothing
+    else return . Just $ fromIntegral r
+
+--------------------------------------------------------------------------------
+
 -- Table 2.9 of the OpenGL 3.1 spec: OpenGL Shading Language type tokens
 data VariableType =
      Float'
