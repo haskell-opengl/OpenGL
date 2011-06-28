@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Framebuffer
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
    rgbaBits, stencilBits, depthBits, accumBits, rgbaSignedComponents,
 
    -- * Selecting a Buffer for Writing
-   BufferMode(..), drawBuffer, drawBuffers, maxDrawBuffers,
+   DrawBufferIndex, BufferMode(..), drawBuffer, drawBuffers, drawBufferi, maxDrawBuffers,
 
    -- * Fine Control of Buffer Updates
    indexMask, colorMask, stencilMask, stencilMaskSeparate, depthMask,
@@ -103,7 +103,7 @@ rgbaSignedComponents =
 
 -- | When colors are written to the framebuffer, they are written into the color
 -- buffers specified by 'drawBuffer'.
--- 
+--
 -- If more than one color buffer is selected for drawing, then blending or
 -- logical operations are computed and applied independently for each color
 -- buffer and can produce different results in each buffer.
@@ -123,6 +123,8 @@ drawBuffer =
       (maybe recordInvalidValue glDrawBuffer . marshalBufferMode)
 
 --------------------------------------------------------------------------------
+
+type DrawBufferIndex = GLuint
 
 -- | 'drawBuffers' defines the draw buffers to which all fragment colors are
 -- written. The draw buffers being defined correspond in order to the respective
@@ -160,6 +162,14 @@ setDrawBuffers modes = do
       then withArray (map fromJust ms) $
               glDrawBuffers (genericLength ms)
       else recordInvalidValue
+
+-- | 'drawBufferi' is a fast query function. For indices in the range 0..maxDrawBuffers it's results
+-- are the same as selection the index from the list returned by drawBuffers. Though this function
+-- only uses one gl-function call instead of maxDrawBuffers + 1.
+drawBufferi :: DrawBufferIndex -> GettableStateVar BufferMode
+drawBufferi ind = makeGettableStateVar
+    (getEnum1 unmarshalBufferMode . GetDrawBufferN $ fromIntegral ind)
+
 
 --------------------------------------------------------------------------------
 

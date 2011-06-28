@@ -16,7 +16,9 @@
 
 module Graphics.Rendering.OpenGL.GL.Capability (
    Capability(..), marshalCapability, unmarshalCapability,
-   EnableCap(..), makeCapability, makeStateVarMaybe
+   EnableCap(..), makeCapability, makeStateVarMaybe,
+
+   IndexedEnableCap(..), makeIndexedCapability,
 ) where
 
 import Data.StateVar
@@ -289,3 +291,30 @@ setStateVarMaybe :: IO EnableCap -> (a -> IO ()) -> Maybe a -> IO ()
 setStateVarMaybe getCap act val = do
    capability <- fmap makeCapability getCap
    maybe (capability $= Disabled) (\x -> act x >> capability $= Enabled) val
+
+--------------------------------------------------------------------------------
+
+data IndexedEnableCap =
+   BlendI
+
+marshalIndexedEnableCap :: IndexedEnableCap -> Maybe GLenum
+marshalIndexedEnableCap x = case x of
+   BlendI -> Just gl_BLEND
+
+makeIndexedCapability ::(a -> GLuint) -> IndexedEnableCap ->  a
+   -> StateVar Capability
+makeIndexedCapability f cap val = makeStateVar
+   (isIndexedEnabled (f val) cap)
+   (\state -> enableIndexed (f val) cap state)
+
+isIndexedEnabled :: GLuint -> IndexedEnableCap -> IO Capability
+isIndexedEnabled i =
+   maybe (do recordInvalidEnum; return Disabled)
+         (\cap -> fmap unmarshalCapability $ glIsEnabledi cap i) .
+   marshalIndexedEnableCap
+
+enableIndexed :: GLuint -> IndexedEnableCap -> Capability -> IO ()
+enableIndexed i cap state =
+   maybe recordInvalidEnum (f state) (marshalIndexedEnableCap cap)
+      where f Enabled  = \c -> glEnablei c i
+            f Disabled = \c -> glDisablei c i

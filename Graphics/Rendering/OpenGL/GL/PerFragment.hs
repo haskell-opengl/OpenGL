@@ -34,7 +34,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    depthFunc,
 
    -- * Blending
-   blend, BlendEquation(..), blendEquation, blendEquationSeparate,
+   blend, blendBuffer, BlendEquation(..), blendEquation, blendEquationSeparate,
    BlendingFactor(..), blendFuncSeparate, blendFunc, blendColor,
 
    -- * Dithering
@@ -54,6 +54,7 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Face
+import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryObjects
 import Graphics.Rendering.OpenGL.GL.QueryUtils
@@ -208,6 +209,11 @@ depthFunc =
 
 blend :: StateVar Capability
 blend = makeCapability CapBlend
+
+-- | enable or disable blending based on the buffer bound to the /i/'th drawBuffer
+-- that is the buffer fmap (!! i) (get drawBuffers)
+blendBuffer :: DrawBufferIndex -> StateVar Capability
+blendBuffer = makeIndexedCapability id BlendI
 
 --------------------------------------------------------------------------------
 
