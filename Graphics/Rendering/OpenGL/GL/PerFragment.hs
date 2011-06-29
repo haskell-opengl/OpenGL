@@ -213,7 +213,7 @@ blend = makeCapability CapBlend
 -- | enable or disable blending based on the buffer bound to the /i/'th drawBuffer
 -- that is the buffer fmap (!! i) (get drawBuffers)
 blendBuffer :: DrawBufferIndex -> StateVar Capability
-blendBuffer = makeIndexedCapability id BlendI
+blendBuffer = makeIndexedCapability ((fromIntegral gl_DRAW_BUFFER0) +) BlendI
 
 --------------------------------------------------------------------------------
 
