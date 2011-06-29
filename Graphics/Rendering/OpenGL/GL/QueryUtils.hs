@@ -19,6 +19,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    clipPlaneIndexToEnum, lightIndexToEnum,
    modelviewIndexToEnum, modelviewEnumToIndex,
    getBoolean1, getBoolean4,
+   getBoolean4i, getBooleanvi,
    getInteger1, getInteger2, getInteger4, getIntegerv,
    getInteger1i, getIntegeriv,
    getEnum1,
@@ -1024,6 +1025,15 @@ getBoolean4 :: (GLboolean -> GLboolean -> GLboolean -> GLboolean -> a)
 getBoolean4 f n = allocaArray 4 $ \buf -> do
    getBooleanv n buf
    peek4 f buf
+
+getBoolean4i :: GLuint -> (GLboolean -> GLboolean -> GLboolean -> GLboolean -> a)
+            -> GetPName -> IO a
+getBoolean4i i f n = allocaArray 4 $ \buf -> do
+   getBooleanvi i n buf
+   peek4 f buf
+
+getBooleanvi :: GLuint -> GetPName -> Ptr GLboolean -> IO ()
+getBooleanvi i = makeGetter (\e -> glGetBooleani_v e i)
 
 getBooleanv :: GetPName -> Ptr GLboolean -> IO ()
 getBooleanv = makeGetter glGetBooleanv
