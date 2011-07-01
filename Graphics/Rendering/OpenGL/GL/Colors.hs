@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Colors
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -36,7 +36,11 @@ module Graphics.Rendering.OpenGL.GL.Colors (
    ColorMaterialParameter(..), colorMaterial,
 
    -- * Flatshading
-   ShadingModel(..), shadeModel
+   ShadingModel(..), shadeModel,
+
+   -- * Color clamping
+   ClampTarget(..), ClampMode(..),
+   clampColor,
 ) where
 
 import Control.Monad
@@ -62,7 +66,8 @@ import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
    gl_LIGHT_MODEL_LOCAL_VIEWER, gl_LIGHT_MODEL_TWO_SIDE, gl_LINEAR_ATTENUATION,
    gl_POSITION, gl_QUADRATIC_ATTENUATION, gl_SEPARATE_SPECULAR_COLOR,
    gl_SHININESS, gl_SINGLE_COLOR, gl_SMOOTH, gl_SPECULAR, gl_SPOT_CUTOFF,
-   gl_SPOT_DIRECTION, gl_SPOT_EXPONENT )
+   gl_SPOT_DIRECTION, gl_SPOT_EXPONENT,
+   gl_CLAMP_FRAGMENT_COLOR, gl_CLAMP_VERTEX_COLOR )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -466,3 +471,50 @@ shadeModel =
    makeStateVar
       (getEnum1 unmarshalShadingModel GetShadeModel)
       (glShadeModel . marshalShadingModel)
+
+--------------------------------------------------------------------------------
+
+data ClampTarget =
+     ClampVertexColor
+   | ClampFragmentColor
+   | ClampReadColor
+
+marshalClampTarget :: ClampTarget -> GLenum
+marshalClampTarget x = case x of
+   ClampVertexColor -> gl_CLAMP_VERTEX_COLOR
+   ClampFragmentColor -> gl_CLAMP_FRAGMENT_COLOR
+   ClampReadColor -> gl_CLAMP_READ_COLOR
+
+marshalClampTargetToPName :: ClampTarget -> GetPName
+marshalClampTargetToPName x = case x of
+   ClampFragmentColor -> GetFragmentColorClamp
+   ClampVertexColor -> GetVertexColorClamp
+   ClampReadColor -> GetReadColorClamp
+
+
+--------------------------------------------------------------------------------
+
+data ClampMode =
+     ClampOn
+   | FixedOnly
+   | ClampOff
+
+marshalClampMode :: ClampMode -> GLenum
+marshalClampMode x = case x of
+   ClampOn -> gl_TRUE
+   FixedOnly -> gl_FIXED_ONLY
+   ClampOff -> gl_FALSE
+
+unmarshalClampMode :: GLenum -> ClampMode
+unmarshalClampMode x
+   | x == gl_TRUE = ClampOn
+   | x == gl_FIXED_ONLY = FixedOnly
+   | x == gl_FALSE = ClampOff
+   | otherwise = error $ "unmarshalClampMode: unknown enum value " ++ show x
+
+--------------------------------------------------------------------------------
+
+clampColor :: ClampTarget -> StateVar ClampMode
+clampColor ct = makeStateVar (getClampColor ct) (setClampColor ct)
+   where setClampColor t = glClampColor (marshalClampTarget t) . marshalClampMode
+         getClampColor = getEnum1 unmarshalClampMode . marshalClampTargetToPName

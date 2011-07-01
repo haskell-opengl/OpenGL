@@ -47,6 +47,7 @@ import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
    gl_ALPHA_BIAS, gl_ALPHA_BITS, gl_ALPHA_SCALE, gl_ALPHA_TEST,
    gl_ALPHA_TEST_FUNC, gl_ALPHA_TEST_REF, gl_ATTRIB_STACK_DEPTH, gl_AUTO_NORMAL,
    gl_AUX_BUFFERS, gl_BLUE_BIAS, gl_BLUE_BITS, gl_BLUE_SCALE,
+   gl_CLAMP_FRAGMENT_COLOR, gl_CLAMP_VERTEX_COLOR,
    gl_CLIENT_ACTIVE_TEXTURE, gl_CLIENT_ATTRIB_STACK_DEPTH, gl_COLOR_ARRAY,
    gl_COLOR_ARRAY_BUFFER_BINDING, gl_COLOR_ARRAY_SIZE, gl_COLOR_ARRAY_STRIDE,
    gl_COLOR_ARRAY_TYPE, gl_COLOR_MATERIAL, gl_COLOR_MATERIAL_FACE,
@@ -543,6 +544,10 @@ data GetPName =
    | GetFramebufferBinding
    -- RenderbufferObject
    | GetRenderbufferBinding
+   -- Color clamping
+   | GetVertexColorClamp
+   | GetFragmentColorClamp
+   | GetReadColorClamp
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
@@ -945,6 +950,10 @@ marshalGetPName x = case x of
    GetFramebufferBinding -> Just gl_FRAMEBUFFER_BINDING
    -- RenderbufferObject
    GetRenderbufferBinding -> Just gl_RENDERBUFFER_BINDING
+   -- Color clamping
+   GetVertexColorClamp -> Just gl_CLAMP_VERTEX_COLOR
+   GetFragmentColorClamp -> Just gl_CLAMP_FRAGMENT_COLOR
+   GetReadColorClamp -> Just gl_CLAMP_READ_COLOR
 
 --------------------------------------------------------------------------------
 
