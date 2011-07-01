@@ -230,7 +230,7 @@ colorMaski x = makeStateVar
                                        (unmarshalCapability b)
                                        (unmarshalCapability a))
                                       GetColorWritemask)
-      (\(Color4 r g b a) -> glColorMaski (x + (fromIntegral gl_DRAW_BUFFER0)) (marshalCapability r)
+      (\(Color4 r g b a) -> glColorMaski (x) (marshalCapability r)
                                         (marshalCapability g)
                                         (marshalCapability b)
                                         (marshalCapability a))
