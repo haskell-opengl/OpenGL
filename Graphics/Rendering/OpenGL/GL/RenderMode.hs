@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.RenderMode
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -50,7 +50,7 @@ unmarshalRenderMode x
 withRenderMode :: RenderMode -> IO a -> IO (a, GLint)
 withRenderMode newMode action = do
    oldMode <- get renderMode
-   setRenderMode newMode
+   _ <- setRenderMode newMode
    action `finallyRet` setRenderMode oldMode
 
 setRenderMode :: RenderMode -> IO GLint

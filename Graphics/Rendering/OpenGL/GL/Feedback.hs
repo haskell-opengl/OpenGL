@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Feedback
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -25,7 +25,6 @@ import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.IOState
 import Graphics.Rendering.OpenGL.GL.RenderMode
-import Graphics.Rendering.OpenGL.GL.Selection
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
    glFeedbackBuffer, glPassThrough, gl_2D, gl_3D, gl_3D_COLOR,
