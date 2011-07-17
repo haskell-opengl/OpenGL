@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Mipmapping
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -34,7 +34,7 @@ scaleImage (Size widthIn  heightIn)  pdIn (Size widthOut heightOut) pdOut =
    withPixelData pdIn $ \fIn dIn pIn ->
       withPixelData pdOut $ \fOut dOut pOut ->
          if fIn == fOut
-            then do gluScaleImage
+            then do _ <- gluScaleImage
                       fIn widthIn heightIn dIn pIn widthOut heightOut dOut pOut
                     return ()   -- TODO: Should we use the return value?
             else recordInvalidValue
@@ -46,7 +46,7 @@ scaleImage (Size widthIn  heightIn)  pdIn (Size widthOut heightOut) pdOut =
 build1DMipmaps ::
    TextureTarget -> PixelInternalFormat -> GLsizei -> PixelData a -> IO ()
 build1DMipmaps target internalFormat height pd = do
-   withPixelData pd $
+   _ <- withPixelData pd $
       gluBuild1DMipmaps
          (marshalTextureTarget target)
          (marshalPixelInternalFormat internalFormat)
@@ -58,7 +58,7 @@ build1DMipmaps target internalFormat height pd = do
 build2DMipmaps :: TextureTarget -> PixelInternalFormat -> GLsizei -> GLsizei
                -> PixelData a -> IO ()
 build2DMipmaps target internalFormat width height pd = do
-   withPixelData pd $
+   _ <- withPixelData pd $
       gluBuild2DMipmaps
          (marshalTextureTarget target)
          (marshalPixelInternalFormat internalFormat)

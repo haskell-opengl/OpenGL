@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Evaluators
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -56,7 +56,6 @@ import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.Domain
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PolygonMode
-import Graphics.Rendering.OpenGL.GL.Polygons
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
@@ -181,7 +180,7 @@ instance Map1 GLmap1 where
       withForeignPtr fp $ act descriptor
 
 --------------------------------------------------------------------------------
- 
+
 map1 :: (Map1 m, ControlPoint c, Domain d) => StateVar (Maybe (m c d))
 map1 = makeMap1StateVar enableCap1 getMap1 setMap1
 
