@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.DisplayLists
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -32,7 +32,6 @@ import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
  glCallList, glCallLists, glDeleteLists, glEndList, glGenLists, glIsList,
@@ -122,7 +121,7 @@ defineNewList mode action = do
       then do recordOutOfMemory
               return noDisplayList
       else do let lst = head lists
-              defineList lst mode action
+              _ <- defineList lst mode action
               return lst
 
 --------------------------------------------------------------------------------
