@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.VertexArrays
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -32,11 +32,17 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    primitiveRestartIndex, primitiveRestartIndexNV,
 
    -- * Generic Vertex Attribute Arrays
-   vertexAttribPointer, vertexAttribArray
+   vertexAttribPointer, vertexAttribArray,
+
+   -- * VertexArrayObjects
+   VertexArrayObject,
+   bindVertexArrayObject
 ) where
 
 import Data.StateVar
+import Data.ObjectName
 import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Capability
@@ -500,3 +506,31 @@ getVertexAttribArray location =
 setVertexAttribArray :: Capability -> AttribLocation -> IO ()
 setVertexAttribArray Disabled (AttribLocation location) = glDisableVertexAttribArray location
 setVertexAttribArray Enabled (AttribLocation location) = glEnableVertexAttribArray location
+
+--------------------------------------------------------------------------------
+
+newtype VertexArrayObject = VertexArrayObject { vertexArrayID :: GLuint }
+   deriving( Eq, Ord, Show )
+
+instance ObjectName VertexArrayObject where
+   genObjectNames n = allocaArray n $ \buf -> do
+      glGenVertexArrays (fromIntegral n) buf
+      fmap (map VertexArrayObject) $ peekArray n buf
+   deleteObjectNames bufferObjects =
+      withArrayLen (map vertexArrayID bufferObjects) $
+         glDeleteBuffers . fromIntegral
+   isObjectName =  fmap unmarshalGLboolean . glIsVertexArray . vertexArrayID
+
+bindVertexArrayObject :: StateVar (Maybe VertexArrayObject)
+bindVertexArrayObject = makeStateVar getVAO bindVAO
+
+getVAO :: IO (Maybe VertexArrayObject)
+getVAO = do
+   vao <- getInteger1 (VertexArrayObject . fromIntegral) GetVertexArrayBinding
+   return $ if vao == noVAO then Nothing else Just vao
+
+bindVAO :: Maybe VertexArrayObject -> IO ()
+bindVAO = glBindVertexArray . vertexArrayID . maybe noVAO id
+
+noVAO :: VertexArrayObject
+noVAO = VertexArrayObject 0

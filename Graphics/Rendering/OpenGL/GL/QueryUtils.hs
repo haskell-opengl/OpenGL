@@ -548,6 +548,8 @@ data GetPName =
    | GetVertexColorClamp
    | GetFragmentColorClamp
    | GetReadColorClamp
+   -- VertexArrayObject
+   | GetVertexArrayBinding
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
@@ -954,6 +956,8 @@ marshalGetPName x = case x of
    GetVertexColorClamp -> Just gl_CLAMP_VERTEX_COLOR
    GetFragmentColorClamp -> Just gl_CLAMP_FRAGMENT_COLOR
    GetReadColorClamp -> Just gl_CLAMP_READ_COLOR
+   -- VertexArrayObject
+   GetVertexArrayBinding -> Just gl_VERTEX_ARRAY_BINDING
 
 --------------------------------------------------------------------------------
 
