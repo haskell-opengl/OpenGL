@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Application
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -19,18 +19,10 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Application (
 
 import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
-import Graphics.Rendering.OpenGL.GL.Texturing.Specification
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 
 --------------------------------------------------------------------------------
 
 -- ToDo: cube maps
-texture :: TextureTarget -> StateVar Capability
+texture :: TextureTarget t => t -> StateVar Capability
 texture = makeCapability . textureTargetToEnableCap
-
-textureTargetToEnableCap :: TextureTarget -> EnableCap
-textureTargetToEnableCap x = case x of
-    Texture1D -> CapTexture1D
-    Texture2D -> CapTexture2D
-    Texture3D -> CapTexture3D
-    TextureCubeMap -> CapTextureCubeMap
-    TextureRectangle -> CapTextureRectangle

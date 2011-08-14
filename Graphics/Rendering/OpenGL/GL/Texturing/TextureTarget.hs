@@ -21,7 +21,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    CubeMapTarget(..), marshalCubeMapTarget, unmarshalCubeMapTarget,
 ) where
 
-
+import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
@@ -50,7 +50,8 @@ class TextureTarget tt where
    marshalProxyTextureTargetBind Proxy   t = marshalTextureTargetProxy t
 
    -- | The GetPName to query it's maximum size
-   textureTargetToMaxQuery :: tt -> GetPName
+   textureTargetToMaxQuery  :: tt -> GetPName
+   textureTargetToEnableCap :: tt -> EnableCap
 
 data TextureTarget1D
    = Texture1D
@@ -63,6 +64,8 @@ instance TextureTarget TextureTarget1D where
       Texture1D -> gl_PROXY_TEXTURE_1D
    textureTargetToMaxQuery t = case t of
       Texture1D -> GetMaxTextureSize
+   textureTargetToEnableCap t = case t of
+      Texture1D -> CapTexture1D
 
 data TextureTarget2D
    = Texture2D
@@ -87,6 +90,11 @@ instance TextureTarget TextureTarget2D where
       Texture2D        -> GetMaxTextureSize
       TextureCubeMap _ -> GetMaxCubeMapTextureSize
       TextureRectangle -> GetMaxRectangleTextureSize
+   textureTargetToEnableCap t = case t of
+      Texture2D        -> CapTexture2D
+      TextureCubeMap _ -> CapTextureCubeMap
+      TextureRectangle -> CapTextureRectangle
+
 
 data TextureTarget3D
    = Texture3D
@@ -99,7 +107,8 @@ instance TextureTarget TextureTarget3D where
       Texture3D -> gl_PROXY_TEXTURE_3D
    textureTargetToMaxQuery t = case t of
       Texture3D -> GetMax3DTextureSize
-
+   textureTargetToEnableCap t = case t of
+      Texture3D -> CapTexture3D
 
 --------------------------------------------------------------------------------
 
