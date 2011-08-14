@@ -14,7 +14,10 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget,
+   TextureTarget(..),
+   TextureTarget1D(..),
+   TextureTarget2D(..),
+   TextureTarget3D(..),
    CubeMapTarget(..), marshalCubeMapTarget, unmarshalCubeMapTarget,
 ) where
 
@@ -23,30 +26,59 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
-data TextureTarget =
-     Texture1D
-   | Texture2D
-   | Texture3D
-   | TextureCubeMap
+class TextureTarget tt where
+   marshalTextureTarget          :: tt -> GLenum
+   marshalTextureTargetBind      :: tt -> GLenum
+   marshalTextureTargetBind = marshalTextureTarget
+
+   marshalTextureTargetProxy     :: tt -> GLenum
+
+   marshalProxyTextureTarget :: Proxy -> tt -> GLenum
+   marshalProxyTextureTarget NoProxy t = marshalTextureTarget t
+   marshalProxyTextureTarget Proxy   t = marshalTextureTargetProxy t
+
+   marshalProxyTextureTargetBind :: Proxy -> tt -> GLenum
+   marshalProxyTextureTargetBind NoProxy t = marshalTextureTargetBind t
+   marshalProxyTextureTargetBind Proxy   t = marshalTextureTargetProxy t
+
+data TextureTarget1D
+   = Texture1D
+   deriving ( Eq, Ord, Show )
+
+instance TextureTarget TextureTarget1D where
+   marshalTextureTarget t = case t of
+      Texture1D -> gl_TEXTURE_1D
+   marshalTextureTargetProxy t = case t of
+      Texture1D -> gl_PROXY_TEXTURE_1D
+
+data TextureTarget2D
+   = Texture2D
+   | TextureCubeMap CubeMapTarget
    | TextureRectangle
    deriving ( Eq, Ord, Show )
 
-marshalTextureTarget :: TextureTarget -> GLenum
-marshalTextureTarget x = case x of
-   Texture1D -> gl_TEXTURE_1D
-   Texture2D -> gl_TEXTURE_2D
-   Texture3D -> gl_TEXTURE_3D
-   TextureCubeMap -> gl_TEXTURE_CUBE_MAP
-   TextureRectangle -> gl_TEXTURE_RECTANGLE
+instance TextureTarget TextureTarget2D where
+   marshalTextureTarget t = case t of
+      Texture2D        -> gl_TEXTURE_2D
+      TextureRectangle -> gl_TEXTURE_RECTANGLE
+      TextureCubeMap c -> marshalCubeMapTarget c
+   marshalTextureTargetBind t = case t of
+      TextureCubeMap _ -> gl_TEXTURE_CUBE_MAP
+      _                -> marshalTextureTarget t
+   marshalTextureTargetProxy t = case t of
+      Texture2D        -> gl_PROXY_TEXTURE_2D
+      TextureRectangle -> gl_PROXY_TEXTURE_RECTANGLE
+      TextureCubeMap _ -> gl_PROXY_TEXTURE_CUBE_MAP
 
-marshalProxyTextureTarget :: Proxy -> TextureTarget -> GLenum
-marshalProxyTextureTarget NoProxy x = marshalTextureTarget x
-marshalProxyTextureTarget Proxy   x = case x of
-   Texture1D -> gl_PROXY_TEXTURE_1D
-   Texture2D -> gl_PROXY_TEXTURE_2D
-   Texture3D -> gl_PROXY_TEXTURE_3D
-   TextureCubeMap -> gl_PROXY_TEXTURE_CUBE_MAP
-   TextureRectangle -> gl_PROXY_TEXTURE_RECTANGLE
+data TextureTarget3D
+   = Texture3D
+   deriving ( Eq, Ord, Show )
+
+instance TextureTarget TextureTarget3D where
+   marshalTextureTarget t = case t of
+      Texture3D -> gl_TEXTURE_3D
+   marshalTextureTargetProxy t = case t of
+      Texture3D -> gl_PROXY_TEXTURE_3D
 
 --------------------------------------------------------------------------------
 
