@@ -21,25 +21,36 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    CubeMapTarget(..), marshalCubeMapTarget, unmarshalCubeMapTarget,
 ) where
 
+
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
 class TextureTarget tt where
+   -- | the marshal function for texture targets when updating, querying etc.
    marshalTextureTarget          :: tt -> GLenum
+   -- | the marshal function for texture targets when binding, this is different for some
+   -- targets, e.g. TextureCubeMap
    marshalTextureTargetBind      :: tt -> GLenum
    marshalTextureTargetBind = marshalTextureTarget
 
+   -- | the marshal function for texture targets to there proxy targets
    marshalTextureTargetProxy     :: tt -> GLenum
 
+   -- | marshal a Proxy and Texture Target to their normal enum
    marshalProxyTextureTarget :: Proxy -> tt -> GLenum
    marshalProxyTextureTarget NoProxy t = marshalTextureTarget t
    marshalProxyTextureTarget Proxy   t = marshalTextureTargetProxy t
 
+   -- | marshal a Proxy and Texture Target to their Bind enum
    marshalProxyTextureTargetBind :: Proxy -> tt -> GLenum
    marshalProxyTextureTargetBind NoProxy t = marshalTextureTargetBind t
    marshalProxyTextureTargetBind Proxy   t = marshalTextureTargetProxy t
+
+   -- | The GetPName to query it's maximum size
+   textureTargetToMaxQuery :: tt -> GetPName
 
 data TextureTarget1D
    = Texture1D
@@ -50,6 +61,8 @@ instance TextureTarget TextureTarget1D where
       Texture1D -> gl_TEXTURE_1D
    marshalTextureTargetProxy t = case t of
       Texture1D -> gl_PROXY_TEXTURE_1D
+   textureTargetToMaxQuery t = case t of
+      Texture1D -> GetMaxTextureSize
 
 data TextureTarget2D
    = Texture2D
@@ -70,6 +83,11 @@ instance TextureTarget TextureTarget2D where
       TextureRectangle -> gl_PROXY_TEXTURE_RECTANGLE
       TextureCubeMap _ -> gl_PROXY_TEXTURE_CUBE_MAP
 
+   textureTargetToMaxQuery t = case t of
+      Texture2D        -> GetMaxTextureSize
+      TextureCubeMap _ -> GetMaxCubeMapTextureSize
+      TextureRectangle -> GetMaxRectangleTextureSize
+
 data TextureTarget3D
    = Texture3D
    deriving ( Eq, Ord, Show )
@@ -79,6 +97,9 @@ instance TextureTarget TextureTarget3D where
       Texture3D -> gl_TEXTURE_3D
    marshalTextureTargetProxy t = case t of
       Texture3D -> gl_PROXY_TEXTURE_3D
+   textureTargetToMaxQuery t = case t of
+      Texture3D -> GetMax3DTextureSize
+
 
 --------------------------------------------------------------------------------
 
@@ -109,4 +130,3 @@ unmarshalCubeMapTarget x
    | x == gl_TEXTURE_CUBE_MAP_POSITIVE_Z = TextureCubeMapPositiveZ
    | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_Z = TextureCubeMapNegativeZ
    | otherwise = error $ "unmarshalCubeMapTarget: unknown enum " ++ show x
-
