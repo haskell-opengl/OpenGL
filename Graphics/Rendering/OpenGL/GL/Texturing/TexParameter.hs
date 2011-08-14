@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -88,19 +88,20 @@ marshalTexParameter x = case x of
 
 --------------------------------------------------------------------------------
 
-texParameter :: (GLenum -> GLenum -> b -> IO ())
+texParameter :: TextureTarget t
+             => (GLenum -> GLenum -> b -> IO ())
              -> (a -> (b -> IO ()) -> IO ())
-             -> TextureTarget -> TexParameter -> a -> IO ()
+             -> t -> TexParameter -> a -> IO ()
 texParameter glTexParameter marshalAct t p x =
    marshalAct x $
       glTexParameter (marshalTextureTarget t) (marshalTexParameter p)
 
 --------------------------------------------------------------------------------
 
-getTexParameter :: Storable b
+getTexParameter :: (Storable b, TextureTarget t)
                 => (GLenum -> GLenum -> Ptr b -> IO ())
                 -> (b -> a)
-                -> TextureTarget -> TexParameter -> IO a
+                -> t -> TexParameter -> IO a
 getTexParameter glGetTexParameter unmarshal t p =
    alloca $ \buf -> do
      glGetTexParameter (marshalTextureTarget t) (marshalTexParameter p) buf
@@ -111,21 +112,21 @@ getTexParameter glGetTexParameter unmarshal t p =
 m2a :: (a -> b) -> a -> (b -> IO ()) -> IO ()
 m2a marshal x act = act (marshal x)
 
-texParami ::
-   (GLint -> a) -> (a -> GLint) -> TexParameter -> TextureTarget -> StateVar a
+texParami :: TextureTarget t =>
+   (GLint -> a) -> (a -> GLint) -> TexParameter -> t -> StateVar a
 texParami unmarshal marshal p t =
    makeStateVar
       (getTexParameter glGetTexParameteriv unmarshal     t p)
       (texParameter    glTexParameteri     (m2a marshal) t p)
 
-texParamf ::
-   (GLfloat -> a) -> (a -> GLfloat) -> TexParameter -> TextureTarget -> StateVar a
+texParamf :: TextureTarget t =>
+   (GLfloat -> a) -> (a -> GLfloat) -> TexParameter -> t -> StateVar a
 texParamf unmarshal marshal p t =
    makeStateVar
       (getTexParameter glGetTexParameterfv unmarshal     t p)
       (texParameter    glTexParameterf     (m2a marshal) t p)
 
-texParamC4f :: TexParameter -> TextureTarget -> StateVar (Color4 GLfloat)
+texParamC4f :: TextureTarget t => TexParameter -> t -> StateVar (Color4 GLfloat)
 texParamC4f p t =
    makeStateVar
       (getTexParameter glGetTexParameterC4f id   t p)
@@ -137,22 +138,24 @@ glTexParameterC4f target pname ptr = glTexParameterfv target pname (castPtr ptr)
 glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 glGetTexParameterC4f target pname ptr = glGetTexParameterfv target pname (castPtr ptr)
 
-getTexParameteri :: (GLint -> a) -> TextureTarget -> TexParameter -> IO a
+getTexParameteri :: TextureTarget t => (GLint -> a) -> t -> TexParameter -> IO a
 getTexParameteri = getTexParameter glGetTexParameteriv
 
 --------------------------------------------------------------------------------
 
-combineTexParams :: (TextureTarget -> StateVar a)
-                 -> (TextureTarget -> StateVar b)
-                 -> (TextureTarget -> StateVar (a,b))
+combineTexParams :: TextureTarget t
+                 => (t -> StateVar a)
+                 -> (t -> StateVar b)
+                 -> (t -> StateVar (a,b))
 combineTexParams v w t =
    makeStateVar
       (liftM2 (,) (get (v t)) (get (w t)))
       (\(x,y) -> do v t $= x; w t $= y)
 
-combineTexParamsMaybe :: (TextureTarget -> StateVar Capability)
-                      -> (TextureTarget -> StateVar a)
-                      -> (TextureTarget -> StateVar (Maybe a))
+combineTexParamsMaybe :: TextureTarget t
+                      => (t -> StateVar Capability)
+                      -> (t -> StateVar a)
+                      -> (t -> StateVar (Maybe a))
 combineTexParamsMaybe enab val t =
    makeStateVar
       (do tcm <- get (enab t)
