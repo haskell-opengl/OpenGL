@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Objects
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -52,27 +52,19 @@ instance ObjectName TextureObject where
 
 --------------------------------------------------------------------------------
 
-textureBinding :: TextureTarget -> StateVar (Maybe TextureObject)
+textureBinding :: TextureTarget t => t -> StateVar (Maybe TextureObject)
 textureBinding t =
    makeStateVar
-      (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToGetPName t)
+      (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToBinding t)
           return $ if o == defaultTextureObject then Nothing else Just o)
-      (glBindTexture (marshalTextureTarget t) . textureID . (maybe defaultTextureObject id))
+      (glBindTexture (marshalTextureTargetBind t) . textureID . (maybe defaultTextureObject id))
 
 defaultTextureObject :: TextureObject
 defaultTextureObject = TextureObject 0
 
-textureTargetToGetPName :: TextureTarget -> GetPName
-textureTargetToGetPName x = case x of
-    Texture1D -> GetTextureBinding1D
-    Texture2D -> GetTextureBinding2D
-    Texture3D -> GetTextureBinding3D
-    TextureCubeMap -> GetTextureBindingCubeMap
-    TextureRectangle -> GetTextureBindingRectangle
-
 --------------------------------------------------------------------------------
 
-textureResident :: TextureTarget -> GettableStateVar Bool
+textureResident :: TextureTarget t => t -> GettableStateVar Bool
 textureResident t =
    makeGettableStateVar $
       getTexParameteri unmarshalGLboolean t TextureResident
@@ -94,7 +86,7 @@ areTexturesResident texObjs = do
 
 type TexturePriority = GLclampf
 
-texturePriority :: TextureTarget -> StateVar TexturePriority
+texturePriority :: TextureTarget t => t -> StateVar TexturePriority
 texturePriority = texParamf realToFrac realToFrac TexturePriority
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()

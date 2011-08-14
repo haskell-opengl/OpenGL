@@ -52,6 +52,7 @@ class TextureTarget tt where
    -- | The GetPName to query it's maximum size
    textureTargetToMaxQuery  :: tt -> GetPName
    textureTargetToEnableCap :: tt -> EnableCap
+   textureTargetToBinding   :: tt -> GetPName
 
 data TextureTarget1D
    = Texture1D
@@ -66,6 +67,8 @@ instance TextureTarget TextureTarget1D where
       Texture1D -> GetMaxTextureSize
    textureTargetToEnableCap t = case t of
       Texture1D -> CapTexture1D
+   textureTargetToBinding t = case t of
+      Texture1D -> GetTextureBinding1D
 
 data TextureTarget2D
    = Texture2D
@@ -94,6 +97,10 @@ instance TextureTarget TextureTarget2D where
       Texture2D        -> CapTexture2D
       TextureCubeMap _ -> CapTextureCubeMap
       TextureRectangle -> CapTextureRectangle
+   textureTargetToBinding t = case t of
+      Texture2D        -> GetTextureBinding2D
+      TextureCubeMap _ -> GetTextureBindingCubeMap
+      TextureRectangle -> GetTextureBindingRectangle
 
 
 data TextureTarget3D
@@ -109,6 +116,8 @@ instance TextureTarget TextureTarget3D where
       Texture3D -> GetMax3DTextureSize
    textureTargetToEnableCap t = case t of
       Texture3D -> CapTexture3D
+   textureTargetToBinding t = case t of
+      Texture3D -> GetTextureBinding3D
 
 --------------------------------------------------------------------------------
 
