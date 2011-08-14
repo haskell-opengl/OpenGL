@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Specification
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -16,7 +16,8 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    -- * Texture-related Data Types
-   TextureTarget(..), CubeMapTarget(..), Level, Border,
+   TextureTarget(), CubeMapTarget(..), TextureTarget1D(..), TextureTarget2D(..), TextureTarget3D(..),
+   Level, Border,
    TexturePosition1D(..), TexturePosition2D(..), TexturePosition3D(..),
    TextureSize1D(..), TextureSize2D(..), TextureSize3D(..),
 
@@ -77,94 +78,92 @@ data TextureSize3D = TextureSize3D !GLsizei !GLsizei !GLsizei
 
 --------------------------------------------------------------------------------
 
-texImage1D :: Proxy -> Level -> PixelInternalFormat -> TextureSize1D -> Border -> PixelData a -> IO ()
-texImage1D proxy level int (TextureSize1D w) border pd =
+texImage1D :: TextureTarget1D -> Proxy -> Level -> PixelInternalFormat -> TextureSize1D -> Border -> PixelData a -> IO ()
+texImage1D target proxy level int (TextureSize1D w) border pd =
    withPixelData pd $
       glTexImage1D
-         (marshalProxyTextureTarget proxy Texture1D)
+         (marshalProxyTextureTarget proxy target)
          level (marshalPixelInternalFormat int) w border
 
 --------------------------------------------------------------------------------
 
-texImage2D :: Maybe CubeMapTarget -> Proxy -> Level -> PixelInternalFormat -> TextureSize2D -> Border -> PixelData a -> IO ()
-texImage2D mbCubeMap proxy level int (TextureSize2D w h) border pd =
+texImage2D :: TextureTarget2D -> Proxy -> Level -> PixelInternalFormat -> TextureSize2D -> Border -> PixelData a -> IO ()
+texImage2D target proxy level int (TextureSize2D w h) border pd =
    withPixelData pd $
       glTexImage2D
-         (maybe (marshalProxyTextureTarget proxy Texture2D)
-                (\c -> if proxy == Proxy then marshalProxyTextureTarget Proxy TextureCubeMap else marshalCubeMapTarget c)
-                mbCubeMap)
+         (marshalProxyTextureTarget proxy target)
          level (marshalPixelInternalFormat int) w h border
 
 --------------------------------------------------------------------------------
 
-texImage3D :: Proxy -> Level -> PixelInternalFormat -> TextureSize3D -> Border -> PixelData a -> IO ()
-texImage3D proxy level int (TextureSize3D w h d) border pd =
+texImage3D :: TextureTarget3D -> Proxy -> Level -> PixelInternalFormat -> TextureSize3D -> Border -> PixelData a -> IO ()
+texImage3D target proxy level int (TextureSize3D w h d) border pd =
    withPixelData pd $
       glTexImage3D
-         (marshalProxyTextureTarget proxy Texture3D)
+         (marshalProxyTextureTarget proxy target)
          level (marshalPixelInternalFormat int) w h d border
 
 --------------------------------------------------------------------------------
 
-getTexImage :: Either TextureTarget CubeMapTarget -> Level -> PixelData a -> IO ()
-getTexImage t level pd =
+getTexImage :: TextureTarget t =>  t -> Level -> PixelData a -> IO ()
+getTexImage target level pd =
    withPixelData pd $
-      glGetTexImage (either marshalTextureTarget marshalCubeMapTarget t) level
+      glGetTexImage (marshalTextureTarget target) level
 
 --------------------------------------------------------------------------------
 
-copyTexImage1D :: Level -> PixelInternalFormat -> Position -> TextureSize1D -> Border -> IO ()
-copyTexImage1D level int (Position x y) (TextureSize1D w) border =
+copyTexImage1D :: TextureTarget1D -> Level -> PixelInternalFormat -> Position -> TextureSize1D -> Border -> IO ()
+copyTexImage1D target level int (Position x y) (TextureSize1D w) border =
    glCopyTexImage1D
-      (marshalTextureTarget Texture1D) level
+      (marshalTextureTarget target) level
       (marshalPixelInternalFormat' int) x y w border
 
 --------------------------------------------------------------------------------
 
-copyTexImage2D :: Maybe CubeMapTarget -> Level -> PixelInternalFormat -> Position -> TextureSize2D -> Border -> IO ()
-copyTexImage2D mbCubeMap level int (Position x y) (TextureSize2D w h) border =
+copyTexImage2D :: TextureTarget2D -> Level -> PixelInternalFormat -> Position -> TextureSize2D -> Border -> IO ()
+copyTexImage2D target level int (Position x y) (TextureSize2D w h) border =
    glCopyTexImage2D
-      (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level
+      (marshalTextureTarget target) level
       (marshalPixelInternalFormat' int) x y w h border
 
 --------------------------------------------------------------------------------
 
-texSubImage1D :: Level -> TexturePosition1D -> TextureSize1D -> PixelData a -> IO ()
-texSubImage1D level (TexturePosition1D xOff) (TextureSize1D w) pd =
+texSubImage1D :: TextureTarget1D -> Level -> TexturePosition1D -> TextureSize1D -> PixelData a -> IO ()
+texSubImage1D target level (TexturePosition1D xOff) (TextureSize1D w) pd =
    withPixelData pd $
-      glTexSubImage1D (marshalTextureTarget Texture1D) level xOff w
+      glTexSubImage1D (marshalTextureTarget target) level xOff w
 
 --------------------------------------------------------------------------------
 
-texSubImage2D :: Maybe CubeMapTarget -> Level -> TexturePosition2D -> TextureSize2D -> PixelData a -> IO ()
-texSubImage2D mbCubeMap level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd =
+texSubImage2D :: TextureTarget2D -> Level -> TexturePosition2D -> TextureSize2D -> PixelData a -> IO ()
+texSubImage2D target level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd =
    withPixelData pd $
-      glTexSubImage2D (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level xOff yOff w h
+      glTexSubImage2D (marshalTextureTarget target) level xOff yOff w h
 
 --------------------------------------------------------------------------------
 
-texSubImage3D :: Level -> TexturePosition3D -> TextureSize3D -> PixelData a -> IO ()
-texSubImage3D level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) pd =
+texSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> TextureSize3D -> PixelData a -> IO ()
+texSubImage3D target level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) pd =
    withPixelData pd $
-      glTexSubImage3D (marshalTextureTarget Texture3D) level xOff yOff zOff w h d
+      glTexSubImage3D (marshalTextureTarget target) level xOff yOff zOff w h d
 
 --------------------------------------------------------------------------------
 
-copyTexSubImage1D :: Level -> TexturePosition1D -> Position -> TextureSize1D -> IO ()
-copyTexSubImage1D level (TexturePosition1D xOff) (Position x y) (TextureSize1D w) =
-   glCopyTexSubImage1D (marshalTextureTarget Texture1D) level xOff x y w
+copyTexSubImage1D :: TextureTarget1D -> Level -> TexturePosition1D -> Position -> TextureSize1D -> IO ()
+copyTexSubImage1D target level (TexturePosition1D xOff) (Position x y) (TextureSize1D w) =
+   glCopyTexSubImage1D (marshalTextureTarget target) level xOff x y w
 
 --------------------------------------------------------------------------------
 
-copyTexSubImage2D :: Maybe CubeMapTarget -> Level -> TexturePosition2D -> Position -> TextureSize2D -> IO ()
-copyTexSubImage2D mbCubeMap level (TexturePosition2D xOff yOff) (Position x y) (TextureSize2D w h) =
-   glCopyTexSubImage2D (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level xOff yOff x y w h
+copyTexSubImage2D :: TextureTarget2D -> Level -> TexturePosition2D -> Position -> TextureSize2D -> IO ()
+copyTexSubImage2D target level (TexturePosition2D xOff yOff) (Position x y) (TextureSize2D w h) =
+   glCopyTexSubImage2D (marshalTextureTarget target) level xOff yOff x y w h
 
 --------------------------------------------------------------------------------
 
-copyTexSubImage3D :: Level -> TexturePosition3D -> Position -> TextureSize2D -> IO ()
-copyTexSubImage3D level (TexturePosition3D xOff yOff zOff) (Position x y) (TextureSize2D w h) =
-   glCopyTexSubImage3D (marshalTextureTarget Texture3D) level xOff yOff zOff x y w h
+copyTexSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> Position -> TextureSize2D -> IO ()
+copyTexSubImage3D target level (TexturePosition3D xOff yOff zOff) (Position x y) (TextureSize2D w h) =
+   glCopyTexSubImage3D (marshalTextureTarget target) level xOff yOff zOff x y w h
 
 --------------------------------------------------------------------------------
 
@@ -193,66 +192,56 @@ withCompressedPixelData
 
 --------------------------------------------------------------------------------
 
-compressedTexImage1D :: Proxy -> Level -> TextureSize1D -> Border -> CompressedPixelData a -> IO ()
-compressedTexImage1D proxy level (TextureSize1D w) border cpd =
+compressedTexImage1D :: TextureTarget1D -> Proxy -> Level -> TextureSize1D -> Border -> CompressedPixelData a -> IO ()
+compressedTexImage1D target proxy level (TextureSize1D w) border cpd =
    withCompressedPixelData cpd $ \fmt ->
       glCompressedTexImage1D
-         (marshalProxyTextureTarget proxy Texture1D) level fmt w border
+         (marshalProxyTextureTarget proxy target) level fmt w border
 
 --------------------------------------------------------------------------------
 
-compressedTexImage2D :: Maybe CubeMapTarget -> Proxy -> Level -> TextureSize2D -> Border -> CompressedPixelData a -> IO ()
-compressedTexImage2D mbCubeMap proxy level (TextureSize2D w h) border cpd =
+compressedTexImage2D :: TextureTarget2D -> Proxy -> Level -> TextureSize2D -> Border -> CompressedPixelData a -> IO ()
+compressedTexImage2D target proxy level (TextureSize2D w h) border cpd =
    withCompressedPixelData cpd $ \fmt ->
       glCompressedTexImage2D
-         (maybe (marshalProxyTextureTarget proxy Texture2D)
-                (\c -> if proxy == Proxy then marshalProxyTextureTarget Proxy TextureCubeMap else marshalCubeMapTarget c)
-                mbCubeMap)
+         (marshalProxyTextureTarget proxy target)
          level fmt w h border
 
 --------------------------------------------------------------------------------
 
-compressedTexImage3D :: Proxy -> Level -> TextureSize3D -> Border -> CompressedPixelData a -> IO ()
-compressedTexImage3D proxy level (TextureSize3D w h d) border cpd =
+compressedTexImage3D :: TextureTarget3D -> Proxy -> Level -> TextureSize3D -> Border -> CompressedPixelData a -> IO ()
+compressedTexImage3D target proxy level (TextureSize3D w h d) border cpd =
    withCompressedPixelData cpd $ \fmt ->
       glCompressedTexImage3D
-         (marshalProxyTextureTarget proxy Texture3D) level fmt w h d border
+         (marshalProxyTextureTarget proxy target) level fmt w h d border
 
 --------------------------------------------------------------------------------
 
-getCompressedTexImage :: Either TextureTarget CubeMapTarget -> Level -> Ptr a -> IO ()
-getCompressedTexImage = glGetCompressedTexImage . either marshalTextureTarget marshalCubeMapTarget
+getCompressedTexImage :: TextureTarget t => t -> Level -> Ptr a -> IO ()
+getCompressedTexImage = glGetCompressedTexImage . marshalTextureTarget
 
 --------------------------------------------------------------------------------
 
-compressedTexSubImage1D :: Level -> TexturePosition1D -> TextureSize1D -> CompressedPixelData a -> IO ()
-compressedTexSubImage1D level (TexturePosition1D xOff) (TextureSize1D w) cpd =
+compressedTexSubImage1D :: TextureTarget1D -> Level -> TexturePosition1D -> TextureSize1D -> CompressedPixelData a -> IO ()
+compressedTexSubImage1D target level (TexturePosition1D xOff) (TextureSize1D w) cpd =
    withCompressedPixelData cpd $
-      glCompressedTexSubImage1D (marshalTextureTarget Texture1D) level xOff w
+      glCompressedTexSubImage1D (marshalTextureTarget target) level xOff w
 
 --------------------------------------------------------------------------------
 
-compressedTexSubImage2D :: Maybe CubeMapTarget -> Level -> TexturePosition2D -> TextureSize2D -> CompressedPixelData a -> IO ()
-compressedTexSubImage2D mbCubeMap level (TexturePosition2D xOff yOff) (TextureSize2D w h) cpd =
+compressedTexSubImage2D :: TextureTarget2D -> Level -> TexturePosition2D -> TextureSize2D -> CompressedPixelData a -> IO ()
+compressedTexSubImage2D target level (TexturePosition2D xOff yOff) (TextureSize2D w h) cpd =
    withCompressedPixelData cpd $
-      glCompressedTexSubImage2D (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mbCubeMap) level xOff yOff w h
+      glCompressedTexSubImage2D (marshalTextureTarget target) level xOff yOff w h
 
 --------------------------------------------------------------------------------
 
-compressedTexSubImage3D :: Level -> TexturePosition3D -> TextureSize3D -> CompressedPixelData a -> IO ()
-compressedTexSubImage3D level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) cpd =
+compressedTexSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> TextureSize3D -> CompressedPixelData a -> IO ()
+compressedTexSubImage3D target level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) cpd =
    withCompressedPixelData cpd $
-      glCompressedTexSubImage3D (marshalTextureTarget Texture3D) level xOff yOff zOff w h d
+      glCompressedTexSubImage3D (marshalTextureTarget target) level xOff yOff zOff w h d
 
 --------------------------------------------------------------------------------
 
-maxTextureSize :: TextureTarget -> GettableStateVar GLsizei
+maxTextureSize :: TextureTarget t => t -> GettableStateVar GLsizei
 maxTextureSize = makeGettableStateVar . getInteger1 fromIntegral . textureTargetToMaxQuery
-
-textureTargetToMaxQuery :: TextureTarget -> GetPName
-textureTargetToMaxQuery x = case x of
-   Texture1D -> GetMaxTextureSize
-   Texture2D -> GetMaxTextureSize
-   Texture3D -> GetMax3DTextureSize
-   TextureCubeMap -> GetMaxCubeMapTextureSize
-   TextureRectangle -> GetMaxRectangleTextureSize
