@@ -112,23 +112,23 @@ framebufferRenderbuffer fbt fba rbt (RenderbufferObject rboi) =
       mfba (marshalRenderbufferTarget rbt) rboi) $ marshalFramebufferObjectAttachment fba
 
 framebufferTexture1D :: FramebufferTarget -> FramebufferObjectAttachment
-   -> TextureObject -> Level -> IO ()
-framebufferTexture1D fbt fba (TextureObject t) l  =  maybe recordInvalidValue
+   -> TextureTarget1D -> TextureObject -> Level -> IO ()
+framebufferTexture1D fbt fba tt (TextureObject t) l  =  maybe recordInvalidValue
    (\mfba -> glFramebufferTexture1D (marshalFramebufferTarget fbt) mfba
-      (marshalTextureTarget Texture1D) t l) $ marshalFramebufferObjectAttachment fba
+      (marshalTextureTarget tt) t l) $ marshalFramebufferObjectAttachment fba
 
 framebufferTexture2D :: FramebufferTarget -> FramebufferObjectAttachment
-   -> Maybe CubeMapTarget-> TextureObject -> Level -> IO ()
-framebufferTexture2D fbt fba mcmt (TextureObject t) l = maybe recordInvalidValue
+   -> TextureTarget2D -> TextureObject -> Level -> IO ()
+framebufferTexture2D fbt fba tt (TextureObject t) l = maybe recordInvalidValue
    (\mfba -> glFramebufferTexture2D (marshalFramebufferTarget fbt) mfba
-      (maybe (marshalTextureTarget Texture2D) marshalCubeMapTarget mcmt) t l)
+      (marshalTextureTarget tt) t l)
          $ marshalFramebufferObjectAttachment fba
 
 framebufferTexture3D :: FramebufferTarget -> FramebufferObjectAttachment
-   -> TextureObject -> Level -> GLint -> IO ()
-framebufferTexture3D fbt fba (TextureObject t) le la = maybe recordInvalidValue
+   -> TextureTarget3D -> TextureObject -> Level -> GLint -> IO ()
+framebufferTexture3D fbt fba tt (TextureObject t) le la = maybe recordInvalidValue
    (\mfba -> glFramebufferTexture3D (marshalFramebufferTarget fbt) mfba
-      (marshalTextureTarget Texture1D) t le la) $ marshalFramebufferObjectAttachment fba
+      (marshalTextureTarget tt) t le la) $ marshalFramebufferObjectAttachment fba
 
 framebufferTextureLayer :: FramebufferTarget -> FramebufferObjectAttachment
    -> TextureObject -> Level -> GLint -> IO()
