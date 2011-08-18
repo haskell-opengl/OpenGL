@@ -550,6 +550,9 @@ data GetPName =
    | GetReadColorClamp
    -- VertexArrayObject
    | GetVertexArrayBinding
+   -- Texture
+   | GetTextureBinding1DArray
+   | GetTextureBinding2DArray
 
 marshalGetPName :: GetPName -> Maybe GLenum
 marshalGetPName x = case x of
@@ -958,6 +961,9 @@ marshalGetPName x = case x of
    GetReadColorClamp -> Just gl_CLAMP_READ_COLOR
    -- VertexArrayObject
    GetVertexArrayBinding -> Just gl_VERTEX_ARRAY_BINDING
+   -- Texture
+   GetTextureBinding1DArray -> Just gl_TEXTURE_BINDING_1D_ARRAY
+   GetTextureBinding2DArray -> Just gl_TEXTURE_BINDING_2D_ARRAY
 
 --------------------------------------------------------------------------------
 

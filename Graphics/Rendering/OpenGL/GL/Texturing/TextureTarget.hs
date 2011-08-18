@@ -74,50 +74,62 @@ data TextureTarget2D
    = Texture2D
    | TextureCubeMap CubeMapTarget
    | TextureRectangle
+   | Texture1DArray
    deriving ( Eq, Ord, Show )
 
 instance TextureTarget TextureTarget2D where
    marshalTextureTarget t = case t of
-      Texture2D        -> gl_TEXTURE_2D
-      TextureRectangle -> gl_TEXTURE_RECTANGLE
-      TextureCubeMap c -> marshalCubeMapTarget c
+      Texture2D         -> gl_TEXTURE_2D
+      TextureRectangle  -> gl_TEXTURE_RECTANGLE
+      TextureCubeMap c  -> marshalCubeMapTarget c
+      Texture1DArray    -> gl_TEXTURE_1D_ARRAY
    marshalTextureTargetBind t = case t of
-      TextureCubeMap _ -> gl_TEXTURE_CUBE_MAP
-      _                -> marshalTextureTarget t
+      TextureCubeMap _  -> gl_TEXTURE_CUBE_MAP
+      _                 -> marshalTextureTarget t
    marshalTextureTargetProxy t = case t of
-      Texture2D        -> gl_PROXY_TEXTURE_2D
-      TextureRectangle -> gl_PROXY_TEXTURE_RECTANGLE
-      TextureCubeMap _ -> gl_PROXY_TEXTURE_CUBE_MAP
+      Texture2D         -> gl_PROXY_TEXTURE_2D
+      TextureRectangle  -> gl_PROXY_TEXTURE_RECTANGLE
+      TextureCubeMap _  -> gl_PROXY_TEXTURE_CUBE_MAP
+      Texture1DArray    -> gl_PROXY_TEXTURE_1D_ARRAY
 
    textureTargetToMaxQuery t = case t of
-      Texture2D        -> GetMaxTextureSize
-      TextureCubeMap _ -> GetMaxCubeMapTextureSize
-      TextureRectangle -> GetMaxRectangleTextureSize
+      Texture2D         -> GetMaxTextureSize
+      TextureCubeMap _  -> GetMaxCubeMapTextureSize
+      TextureRectangle  -> GetMaxRectangleTextureSize
+      Texture1DArray    -> GetMaxTextureSize -- TODO: is this correct?
    textureTargetToEnableCap t = case t of
-      Texture2D        -> CapTexture2D
-      TextureCubeMap _ -> CapTextureCubeMap
-      TextureRectangle -> CapTextureRectangle
+      Texture2D         -> CapTexture2D
+      TextureCubeMap _  -> CapTextureCubeMap
+      TextureRectangle  -> CapTextureRectangle
+      Texture1DArray    -> error "No enablecap for Texture1DArray" -- TODO: is this correct?
    textureTargetToBinding t = case t of
-      Texture2D        -> GetTextureBinding2D
-      TextureCubeMap _ -> GetTextureBindingCubeMap
-      TextureRectangle -> GetTextureBindingRectangle
+      Texture2D         -> GetTextureBinding2D
+      TextureCubeMap _  -> GetTextureBindingCubeMap
+      TextureRectangle  -> GetTextureBindingRectangle
+      Texture1DArray    -> GetTextureBinding1DArray
 
 
 data TextureTarget3D
    = Texture3D
+   | Texture2DArray
    deriving ( Eq, Ord, Show )
 
 instance TextureTarget TextureTarget3D where
    marshalTextureTarget t = case t of
-      Texture3D -> gl_TEXTURE_3D
+      Texture3D         -> gl_TEXTURE_3D
+      Texture2DArray    -> gl_TEXTURE_2D_ARRAY
    marshalTextureTargetProxy t = case t of
-      Texture3D -> gl_PROXY_TEXTURE_3D
+      Texture3D         -> gl_PROXY_TEXTURE_3D
+      Texture2DArray    -> gl_PROXY_TEXTURE_2D_ARRAY
    textureTargetToMaxQuery t = case t of
-      Texture3D -> GetMax3DTextureSize
+      Texture3D         -> GetMax3DTextureSize
+      Texture2DArray    -> GetMaxTextureSize -- TODO: is this correct?
    textureTargetToEnableCap t = case t of
-      Texture3D -> CapTexture3D
+      Texture3D         -> CapTexture3D
+      Texture2DArray    -> error "No enablecap for Texture2DArray" -- TODO: is this correct?
    textureTargetToBinding t = case t of
-      Texture3D -> GetTextureBinding3D
+      Texture3D         -> GetTextureBinding3D
+      Texture2DArray    -> GetTextureBinding2DArray
 
 --------------------------------------------------------------------------------
 
