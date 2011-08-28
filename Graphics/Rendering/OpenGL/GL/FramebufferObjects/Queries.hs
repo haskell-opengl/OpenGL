@@ -17,7 +17,10 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
    attachmentObjectType,
 
    renderbufferWidth, renderbufferHeight,
-   renderbufferInternalFormat, renderbufferSamples
+   renderbufferInternalFormat, renderbufferSamples,
+
+   renderbufferRedSize, renderbufferBlueSize, renderbufferGreenSize,
+   renderbufferAlphaSize, renderbufferDepthSize, renderbufferStencilSize,
 ) where
 
 import Data.StateVar
@@ -83,6 +86,12 @@ data GetRenderbufferPName =
    | RenderbufferHeight
    | RenderbufferInternalFormat
    | RenderbufferSamples
+   | RenderbufferRedSize
+   | RenderbufferBlueSize
+   | RenderbufferGreenSize
+   | RenderbufferAlphaSize
+   | RenderbufferDepthSize
+   | RenderbufferStencilSize
 
 marshalGetRBPname :: GetRenderbufferPName -> GLenum
 marshalGetRBPname x = case x of
@@ -90,6 +99,12 @@ marshalGetRBPname x = case x of
     RenderbufferHeight -> gl_RENDERBUFFER_HEIGHT
     RenderbufferInternalFormat -> gl_RENDERBUFFER_INTERNAL_FORMAT
     RenderbufferSamples -> gl_RENDERBUFFER_SAMPLES
+    RenderbufferRedSize -> gl_RENDERBUFFER_RED_SIZE
+    RenderbufferBlueSize -> gl_RENDERBUFFER_BLUE_SIZE
+    RenderbufferGreenSize -> gl_RENDERBUFFER_GREEN_SIZE
+    RenderbufferAlphaSize -> gl_RENDERBUFFER_ALPHA_SIZE
+    RenderbufferDepthSize -> gl_RENDERBUFFER_DEPTH_SIZE
+    RenderbufferStencilSize -> gl_RENDERBUFFER_STENCIL_SIZE
 
 getRBPName :: RenderbufferTarget -> (GLint -> a) ->
    GetRenderbufferPName -> IO a
@@ -113,3 +128,27 @@ renderbufferInternalFormat rbt = makeGettableStateVar $
 renderbufferSamples :: RenderbufferTarget -> GettableStateVar Samples
 renderbufferSamples rbt = makeGettableStateVar $
    getRBPName rbt (Samples . fromIntegral) RenderbufferSamples
+
+renderbufferRedSize :: RenderbufferTarget -> GettableStateVar GLint
+renderbufferRedSize rbt = makeGettableStateVar $
+   getRBPName rbt id RenderbufferRedSize
+
+renderbufferGreenSize :: RenderbufferTarget -> GettableStateVar GLint
+renderbufferGreenSize rbt = makeGettableStateVar $
+   getRBPName rbt id RenderbufferGreenSize
+
+renderbufferBlueSize :: RenderbufferTarget -> GettableStateVar GLint
+renderbufferBlueSize rbt = makeGettableStateVar $
+   getRBPName rbt id RenderbufferBlueSize
+
+renderbufferAlphaSize :: RenderbufferTarget -> GettableStateVar GLint
+renderbufferAlphaSize rbt = makeGettableStateVar $
+   getRBPName rbt id RenderbufferAlphaSize
+
+renderbufferDepthSize :: RenderbufferTarget -> GettableStateVar GLint
+renderbufferDepthSize rbt = makeGettableStateVar $
+   getRBPName rbt id RenderbufferDepthSize
+
+renderbufferStencilSize :: RenderbufferTarget -> GettableStateVar GLint
+renderbufferStencilSize rbt = makeGettableStateVar $
+   getRBPName rbt id RenderbufferStencilSize
