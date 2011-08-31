@@ -24,7 +24,7 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments (
    framebufferRenderbuffer, framebufferTexture1D, framebufferTexture2D,
    framebufferTexture3D, framebufferTextureLayer,
 
-   FramebufferTargetAttachment(..), getFBAParameteriv,
+   getFBAParameteriv,
 ) where
 
 import Data.Maybe (fromMaybe)
@@ -37,7 +37,6 @@ import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
 
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.Texturing.Objects
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
@@ -146,17 +145,3 @@ getFBAParameteriv fbt fba f p = alloca $ \buf -> do
       mfba p buf
    peek1 f buf
       where mfba = fromMaybe (error $ "invalid value" ++ show fba) (marshalAttachment fba)
-
-data FramebufferTargetAttachment =
-    FramebufferTargetAttachment FramebufferTarget FramebufferObjectAttachment
-
-instance PixellikeObjectTarget FramebufferTargetAttachment where
-   marshalPixellikeOT _ x = case x of
-      RedSize -> gl_FRAMEBUFFER_ATTACHMENT_RED_SIZE
-      BlueSize -> gl_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
-      GreenSize -> gl_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
-      AlphaSize -> gl_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
-      DepthSize -> gl_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
-      StencilSize -> gl_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
-   getterFuncPOT (FramebufferTargetAttachment fbt fba) =
-      getFBAParameteriv fbt fba id
