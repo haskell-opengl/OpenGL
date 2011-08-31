@@ -77,6 +77,7 @@ library
    Graphics.Rendering.OpenGL.GLU.Quadrics,
    Graphics.Rendering.OpenGL.GLU.Tessellation,
    Graphics.Rendering.OpenGL.GL.VertexArrays,
+   Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
    Graphics.Rendering.OpenGL.GL.VertexSpec,
    Graphics.Rendering.OpenGL
   other-modules:

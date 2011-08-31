@@ -32,7 +32,6 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 
@@ -106,13 +105,3 @@ getRBParameteriv rbt f p = alloca $ \buf -> do
    glGetRenderbufferParameteriv (marshalRenderbufferTarget rbt)
       p buf
    peek1 f buf
-
-instance PixellikeObjectTarget RenderbufferTarget where
-   marshalPixellikeOT _ x = case x of
-      RedSize -> gl_RENDERBUFFER_RED_SIZE
-      BlueSize -> gl_RENDERBUFFER_BLUE_SIZE
-      GreenSize -> gl_RENDERBUFFER_GREEN_SIZE
-      AlphaSize -> gl_RENDERBUFFER_ALPHA_SIZE
-      DepthSize -> gl_RENDERBUFFER_DEPTH_SIZE
-      StencilSize -> gl_RENDERBUFFER_STENCIL_SIZE
-   getterFuncPOT t = getRBParameteriv t id

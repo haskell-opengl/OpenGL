@@ -24,7 +24,6 @@ import Data.StateVar
 import Foreign.Marshal.Alloc
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
@@ -161,20 +160,3 @@ getTexLevelParameteri f proxy t level p =
    alloca $ \buf -> do
       glGetTexLevelParameteriv (marshalProxyTextureTarget proxy t) level (marshalTexLevelParameter p) buf
       peek1 f buf
-
---------------------------------------------------------------------------------
-
-data TextureTargetFull t = TextureTargetFull t Level
-
-instance TextureTarget t => PixellikeObjectTarget (TextureTargetFull t) where
-   marshalPixellikeOT _ x = case x of
-      RedSize -> gl_TEXTURE_RED_SIZE
-      BlueSize -> gl_TEXTURE_BLUE_SIZE
-      GreenSize -> gl_TEXTURE_GREEN_SIZE
-      AlphaSize -> gl_TEXTURE_ALPHA_SIZE
-      DepthSize -> gl_TEXTURE_DEPTH_SIZE
-      StencilSize -> gl_TEXTURE_STENCIL_SIZE
-   getterFuncPOT (TextureTargetFull t level) p =
-      alloca $ \buf -> do
-      glGetTexLevelParameteriv (marshalTextureTarget t) level p buf
-      peek1 id buf

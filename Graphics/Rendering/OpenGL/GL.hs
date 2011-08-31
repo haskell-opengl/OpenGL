@@ -19,6 +19,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.BeginEnd,
    module Graphics.Rendering.OpenGL.GL.VertexSpec,
    module Graphics.Rendering.OpenGL.GL.VertexArrays,
+   module Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
    module Graphics.Rendering.OpenGL.GL.BufferObjects,
    module Graphics.Rendering.OpenGL.GL.Rectangles,
    module Graphics.Rendering.OpenGL.GL.CoordTrans,
@@ -70,6 +71,7 @@ import Graphics.Rendering.OpenGL.Raw.Core31 (
 import Graphics.Rendering.OpenGL.GL.BeginEnd
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.VertexArrays
+import Graphics.Rendering.OpenGL.GL.VertexArrayObjects
 import Graphics.Rendering.OpenGL.GL.BufferObjects
 import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.CoordTrans
