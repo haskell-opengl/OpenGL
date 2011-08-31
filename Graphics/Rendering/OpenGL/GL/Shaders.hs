@@ -43,6 +43,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 import Control.Monad
 import Control.Monad.Fix
 import Data.List
+import Data.Maybe (fromMaybe)
 import Data.ObjectName
 import Data.StateVar
 import Data.Tensor
@@ -266,7 +267,7 @@ currentProgram =
    makeStateVar
       (do p <- getCurrentProgram
           return $ if p == noProgram then Nothing else Just p)
-      ((\(Program p) -> glUseProgram p) . maybe noProgram id)
+      ((\(Program p) -> glUseProgram p) . fromMaybe noProgram)
 
 getCurrentProgram :: IO Program
 getCurrentProgram = fmap Program $ getInteger1 fromIntegral GetCurrentProgram
@@ -378,7 +379,7 @@ type MaxLength = GLsizei
 setTransformFeedbackVaryings :: Program -> [String]
    -> TransformFeedbackBufferMode -> IO ()
 setTransformFeedbackVaryings (Program program) sts tfbm = do
-   ptSts <- sequence $ map (\x -> withGLString x return) sts
+   ptSts <- mapM (\x -> withGLString x return) sts
    stsPtrs <- newArray ptSts
    glTransformFeedbackVaryings program (fromIntegral . length $ sts)  stsPtrs
       (marshalTransformFeedbackBufferMode tfbm)
@@ -545,7 +546,7 @@ activeVars numVars maxLength getter p@(Program program) =
          alloca $ \nameLengthBuf ->
             alloca $ \sizeBuf ->
                alloca $ \typeBuf ->
-                  flip mapM [0 .. numActiveVars - 1] $ \i -> do
+                  forM [0 .. numActiveVars - 1] $ \i -> do
                     getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
                     l <- peek nameLengthBuf
                     s <- peek sizeBuf

@@ -18,6 +18,8 @@ module Graphics.Rendering.OpenGL.GL.IOState (
    IOState(..), getIOState, peekIOState, evalIOState, nTimes
 ) where
 
+import Control.Monad(replicateM)
+
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf,peek) )
 
@@ -53,4 +55,4 @@ evalIOState :: IOState s a -> Ptr s -> IO a
 evalIOState m s = do (a, _) <- runIOState m s ; return a
 
 nTimes :: Integral a => a -> IOState b c -> IOState b [c]
-nTimes n = sequence . replicate (fromIntegral n)
+nTimes n = replicateM (fromIntegral n)
