@@ -47,6 +47,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
 import Data.ObjectName
 import Data.List(foldl1')
 import Data.Bits((.|.))
+import Data.Maybe
 
 import Data.StateVar
 import Foreign.Marshal.Alloc
@@ -191,7 +192,7 @@ noBufferObject = BufferObject 0
 
 setBindBuffer :: BufferTarget -> Maybe BufferObject -> IO ()
 setBindBuffer t =
-   glBindBuffer (marshalBufferTarget t) . bufferID . maybe noBufferObject id
+   glBindBuffer (marshalBufferTarget t) . bufferID . fromMaybe noBufferObject
 
 clientArrayTypeToGetPName :: ClientArrayType -> GetPName
 clientArrayTypeToGetPName x = case x of
@@ -333,7 +334,7 @@ marshalBufferRangeAccessBit x = case x of
     UnsychronizedBit -> gl_MAP_FLUSH_EXPLICIT_BIT
 
 marshalToBitfield :: [BufferRangeAccessBit] -> GLenum
-marshalToBitfield b = foldl1' (.|.)  $ map (marshalBufferRangeAccessBit) b
+marshalToBitfield b = foldl1' (.|.)  $ map marshalBufferRangeAccessBit b
 
 --------------------------------------------------------------------------------
 
@@ -382,7 +383,7 @@ bindBufferBase t i = makeStateVar (getIndexedBufferBinding t i) (setIndexedBuffe
 setIndexedBufferBase :: IndexedBufferTarget -> BufferIndex -> Maybe BufferObject -> IO ()
 setIndexedBufferBase t i =
    glBindBufferBase (marshalGetIndexedPName . marshalIndexedBufferTarget $ t) i
-      . bufferID . maybe noBufferObject id
+      . bufferID . fromMaybe noBufferObject
 
 getIndexedBufferBinding :: IndexedBufferTarget -> BufferIndex -> IO (Maybe BufferObject)
 getIndexedBufferBinding t i = do

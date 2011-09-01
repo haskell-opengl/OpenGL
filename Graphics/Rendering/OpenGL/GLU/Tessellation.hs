@@ -35,9 +35,9 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
    Primitive(..), SimplePolygon(..), tessellate
 ) where
 
-import Control.Monad ( foldM, unless )
+import Control.Monad ( foldM_, unless )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
-import Data.Maybe ( fromJust )
+import Data.Maybe ( fromJust, fromMaybe )
 import Data.Tensor
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
@@ -145,7 +145,7 @@ sizeOfComplexPolygon (ComplexPolygon complexContours) =
 pokeComplexPolygon ::
    Storable v => Ptr (ComplexPolygon v) -> ComplexPolygon v -> IO ()
 pokeComplexPolygon ptr (ComplexPolygon complexContours) =
-   foldM pokeAndAdvance (castPtr ptr) complexContours >> return ()
+   foldM_ pokeAndAdvance (castPtr ptr) complexContours >> return ()
    where pokeAndAdvance p complexContour = do
             pokeComplexContour p complexContour
             return $ p `plusPtr` sizeOfComplexContour complexContour
@@ -468,7 +468,7 @@ withCombineCallback tessObj combiner action =
       bracket (makeTessCombineCallback (combineProperties vertexPool combiner))
               freeHaskellFunPtr $ \callbackPtr -> do
          gluTessCallback tessObj glu_TESS_COMBINE callbackPtr
-         action 
+         action
 
 -- NOTE: SGI's tesselator has a bug, sometimes passing NULL for the last two
 -- vertices instead of valid vertex data, so we have to work around this. We
@@ -480,7 +480,7 @@ combineProperties pool combiner newVertexPtr propertyPtrs weights result = do
    [v0, v1, v2, v3] <- mapM (getProperty propertyPtrs) [0..3]
    [w0, w1, w2, w3] <- peekArray 4 weights
    let defaultProperty = fromJust v0
-       f = maybe defaultProperty id
+       f = fromMaybe defaultProperty
        wp = WeightedProperties (w0, f v0) (w1, f v1) (w2, f v2) (w3, f v3)
        av = AnnotatedVertex newVertex (combiner newVertex wp)
    poke result =<< pooledNew pool av
