@@ -744,6 +744,19 @@ instance UniformComponent a => Uniform (Index1 a) where
    uniform = makeUniformVar $ \location (Index1 i) -> uniform1 location i
    uniformv location count = uniform1v location count . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
+-- nasty instance declaration as TextureUnit is not of the form Storable (b a) as requiered for
+-- getUniform
+instance Uniform TextureUnit where
+    uniform loc@(UniformLocation ul)  = makeStateVar getter setter
+        where setter (TextureUnit tu) = uniform1 loc tu
+              getter = do
+                 program <- getCurrentProgram
+                 allocaBytes (sizeOf (undefined :: GLuint))  $ \buf -> do
+                 glGetUniformuiv (programID program) ul buf
+                 tuID <- peek buf
+                 return $ TextureUnit tuID
+    uniformv location count = uniform1v location count . (castPtr :: Ptr TextureUnit -> Ptr GLuint)
+
 --------------------------------------------------------------------------------
 
 -- | Contains the number of hardware units that can be used to access texture
