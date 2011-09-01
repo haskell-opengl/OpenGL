@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Variables
 -- Copyright   :
 -- License     :  BSD3
@@ -8,7 +8,8 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- This internal module contains the functions and datatypes used by the
+-- Uniform and Attribs modules.
 --
 -----------------------------------------------------------------------------
 

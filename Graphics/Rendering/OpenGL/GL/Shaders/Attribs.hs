@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Attribs
 -- Copyright   :
 -- License     :  BSD3
@@ -8,8 +8,8 @@
 -- Stability   :
 -- Portability :
 --
--- |
---
+-- This module contains functions related to shader attributes, this corresponds
+-- to section 2.20.3 of the OpenGL 3.1 spec (Shader Variables).
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Attribs (
@@ -17,21 +17,13 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Attribs (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.GLstring
-import Graphics.Rendering.OpenGL.GL.Shaders.Shaders
 
 
 import Data.StateVar
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
-import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.TransformFeedback
 import Graphics.Rendering.OpenGL.Raw.Core31
 
-import Graphics.Rendering.OpenGL.GL.Shaders.Limits
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
-import Graphics.Rendering.OpenGL.GL.Shaders.Uniform
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables
 
 --------------------------------------------------------------------------------

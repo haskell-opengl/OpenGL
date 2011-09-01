@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Uniform
 -- Copyright   :
 -- License     :  BSD3
@@ -8,8 +8,8 @@
 -- Stability   :
 -- Portability :
 --
--- |
---
+-- This module contains functions related to shader uniforms, this corresponds
+-- to section 2.20.3 of the OpenGL 3.1 spec (Shader Variables).
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (

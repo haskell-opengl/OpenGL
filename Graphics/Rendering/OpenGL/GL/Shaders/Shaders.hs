@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Shaders
 -- Copyright   :
 -- License     :  BSD3
@@ -8,7 +8,8 @@
 -- Stability   :
 -- Portability :
 --
--- |
+-- This module correspons with section 2.20.1 (Shader Objects) of the OpenGL
+-- 3.1 spec.
 --
 -----------------------------------------------------------------------------
 
