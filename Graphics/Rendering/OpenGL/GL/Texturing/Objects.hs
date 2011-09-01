@@ -20,6 +20,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
 ) where
 
 import Data.List
+import Data.Maybe (fromMaybe)
 import Data.ObjectName
 import Data.StateVar
 import Foreign.Marshal.Array
@@ -57,7 +58,7 @@ textureBinding t =
    makeStateVar
       (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToBinding t)
           return $ if o == defaultTextureObject then Nothing else Just o)
-      (glBindTexture (marshalTextureTargetBind t) . textureID . (maybe defaultTextureObject id))
+      (glBindTexture (marshalTextureTarget t) . textureID . (fromMaybe defaultTextureObject))
 
 defaultTextureObject :: TextureObject
 defaultTextureObject = TextureObject 0
