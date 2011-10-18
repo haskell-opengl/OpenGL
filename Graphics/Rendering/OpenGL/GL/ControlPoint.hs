@@ -156,7 +156,7 @@ marshalMapTarget x = case x of
    Map1TextureCoord3 -> gl_MAP1_TEXTURE_COORD_3
    Map1TextureCoord4 -> gl_MAP1_TEXTURE_COORD_4
    Map1Vertex3 -> gl_MAP1_VERTEX_3
-   Map1Vertex4 -> gl_MAP1_VERTEX_3
+   Map1Vertex4 -> gl_MAP1_VERTEX_4
    Map2Color4 -> gl_MAP2_COLOR_4
    Map2Index -> gl_MAP2_INDEX
    Map2Normal -> gl_MAP2_NORMAL
