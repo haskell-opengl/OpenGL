@@ -2,8 +2,8 @@ name: OpenGL
 version: 2.4.0.2
 license: BSD3
 license-file: LICENSE
-maintainer: Sven Panne <sven.panne@aedion.de>
-bug-reports: mailto:hopengl@haskell.org
+maintainer: Jason Dagit <dagitj@gmail.com>, Sven Panne <sven.panne@aedion.de>
+bug-reports: https://github.com/haskell-opengl/OpenGL/issues
 homepage: http://www.haskell.org/haskellwiki/Opengl
 category: Graphics
 synopsis: A binding for the OpenGL graphics system
@@ -118,5 +118,5 @@ library
    base >= 3 && < 5, OpenGLRaw >= 1.1.0.0, GLURaw >= 1.1.0.0, StateVar, ObjectName, Tensor
 
 source-repository head
-  type:     darcs
-  location: http://code.haskell.org/OpenGL/OpenGL/
+  type:     git
+  location: https://github.com/haskell-opengl/OpenGL
