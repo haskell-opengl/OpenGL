@@ -26,5 +26,5 @@ marshalGLboolean x = fromIntegral $ case x of
    False -> gl_FALSE
    True -> gl_TRUE
 
-unmarshalGLboolean :: Num a => a -> Bool
+unmarshalGLboolean :: (Eq a, Num a) => a -> Bool
 unmarshalGLboolean = (/= fromIntegral gl_FALSE)
