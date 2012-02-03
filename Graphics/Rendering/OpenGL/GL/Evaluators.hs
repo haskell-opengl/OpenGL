@@ -1,3 +1,4 @@
+{-# LANGUAGE DatatypeContexts #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Evaluators
