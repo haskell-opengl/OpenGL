@@ -23,5 +23,5 @@ marshalGLboolean :: Num a => Bool -> a
 marshalGLboolean False = 0
 marshalGLboolean True  = 1
 
-unmarshalGLboolean :: Num a => a -> Bool
+unmarshalGLboolean :: (Eq a, Num a) => a -> Bool
 unmarshalGLboolean = (/= 0)
