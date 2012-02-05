@@ -41,9 +41,9 @@ import Control.Exception ( bracket, bracket_, finally )
 {-# INLINE unsafeBracket_ #-}
 unsafeBracket_ :: IO a -> IO b -> IO c -> IO c
 unsafeBracket_ before after thing = do
-   before
+   _ <- before
    r <- thing
-   after
+   _ <- after
    return r
 
 {-# INLINE finallyRet #-}

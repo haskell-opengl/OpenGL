@@ -148,7 +148,8 @@ getErrors = do
 
 recordErrorCode :: GLenum -> IO ()
 recordErrorCode e = do
-   getErrorCodesAux (\es -> (if null es then [e] else [], False))
+   -- We don't need the return value because this calls setRecordedErrors
+   _ <- getErrorCodesAux (\es -> (if null es then [e] else [], False))
    return ()
 
 recordInvalidEnum :: IO ()
