@@ -1,5 +1,5 @@
 name: OpenGL
-version: 2.4.0.2
+version: 2.5.0.0
 license: BSD3
 license-file: LICENSE
 maintainer: Jason Dagit <dagitj@gmail.com>, Sven Panne <sven.panne@aedion.de>
@@ -106,7 +106,7 @@ library
    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
   ghc-options: -Wall
   build-depends:
-   base >= 3 && < 5, OpenGLRaw >= 1.1.0.0, GLURaw >= 1.1.0.0, StateVar, ObjectName, Tensor
+   base >= 3 && < 5, OpenGLRaw >= 1.1.0.0, GLURaw >= 1.1.0.0, StateVar == 1.0.*, ObjectName == 1.0.*, Tensor == 1.0.*
 
 source-repository head
   type:     git
