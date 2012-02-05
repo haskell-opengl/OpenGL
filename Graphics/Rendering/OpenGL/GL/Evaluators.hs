@@ -72,7 +72,7 @@ maxOrder = makeGettableStateVar (getInteger1 id GetMaxEvalOrder)
 
 --------------------------------------------------------------------------------
 
-data Domain d => MapDescriptor d =
+data MapDescriptor d =
    MapDescriptor (d, d) Stride Order NumComponents
    deriving ( Eq, Ord, Show )
 
