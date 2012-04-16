@@ -1,3 +1,4 @@
+{-# LANGUAGE KindSignatures #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Evaluators
@@ -72,7 +73,7 @@ maxOrder = makeGettableStateVar (getInteger1 id GetMaxEvalOrder)
 
 --------------------------------------------------------------------------------
 
-data Domain d => MapDescriptor d =
+data MapDescriptor d =
    MapDescriptor (d, d) Stride Order NumComponents
    deriving ( Eq, Ord, Show )
 
@@ -166,7 +167,7 @@ class Map1 m where
 
 --------------------------------------------------------------------------------
 
-data (ControlPoint c, Domain d) => GLmap1 c d =
+data GLmap1 (c :: * -> *) d =
    GLmap1 (MapDescriptor d) (ForeignPtr d)
    deriving ( Eq, Ord, Show )
 
@@ -266,7 +267,7 @@ class Map2 m where
 
 --------------------------------------------------------------------------------
 
-data (ControlPoint c, Domain d) => GLmap2 c d =
+data GLmap2 (c :: * -> *) d =
    GLmap2 (MapDescriptor d)  (MapDescriptor d) (ForeignPtr d)
    deriving ( Eq, Ord, Show )
 
