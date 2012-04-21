@@ -225,11 +225,11 @@ colorMask =
 -- | 'colorMaski' is a version of 'colorMask' that only applies to the specified drawbuffer
 colorMaski :: DrawBufferIndex -> StateVar (Color4 Capability)
 colorMaski x = makeStateVar
-      (getBoolean4i x (\r g b a -> Color4 (unmarshalCapability r)
+      (getBoolean4i (\r g b a -> Color4 (unmarshalCapability r)
                                        (unmarshalCapability g)
                                        (unmarshalCapability b)
                                        (unmarshalCapability a))
-                                      GetColorWritemask)
+                    GetColorWritemask x)
       (\(Color4 r g b a) -> glColorMaski (x) (marshalCapability r)
                                         (marshalCapability g)
                                         (marshalCapability b)

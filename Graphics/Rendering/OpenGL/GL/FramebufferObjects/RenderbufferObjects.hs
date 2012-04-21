@@ -60,7 +60,7 @@ marshalRenderbufferTarget :: RenderbufferTarget -> GLenum
 marshalRenderbufferTarget x = case x of
     Renderbuffer -> gl_RENDERBUFFER
 
-marshalRenderbufferTargetBinding :: RenderbufferTarget -> GetPName
+marshalRenderbufferTargetBinding :: RenderbufferTarget -> PName1I
 marshalRenderbufferTargetBinding x = case x of
     Renderbuffer -> GetRenderbufferBinding
 -----------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.RasterPos
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable

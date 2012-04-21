@@ -364,7 +364,7 @@ lightModelLocalViewer :: StateVar Capability
 lightModelLocalViewer =
    makeLightModelCapVar GetLightModelLocalViewer LightModelLocalViewer
 
-makeLightModelCapVar :: GetPName -> LightModelParameter -> StateVar Capability
+makeLightModelCapVar :: PName1I -> LightModelParameter -> StateVar Capability
 makeLightModelCapVar pname lightModelParameter =
    makeStateVar
       (getBoolean1 unmarshalCapability pname)
@@ -485,7 +485,7 @@ marshalClampTarget x = case x of
    ClampFragmentColor -> gl_CLAMP_FRAGMENT_COLOR
    ClampReadColor -> gl_CLAMP_READ_COLOR
 
-marshalClampTargetToPName :: ClampTarget -> GetPName
+marshalClampTargetToPName :: ClampTarget -> PName1I
 marshalClampTargetToPName x = case x of
    ClampFragmentColor -> GetFragmentColorClamp
    ClampVertexColor -> GetVertexColorClamp

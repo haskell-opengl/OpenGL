@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Clipping
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -17,12 +17,10 @@ module Graphics.Rendering.OpenGL.GL.Clipping (
 ) where
 
 import Data.StateVar
-import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.CoordTrans
-import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glClipPlane )
@@ -39,9 +37,10 @@ clipPlane :: ClipPlaneName -> StateVar (Maybe (Plane GLdouble))
 clipPlane (ClipPlaneName i) =
    makeStateVarMaybe
       (return (CapClipPlane i))
-      (alloca $ \buf -> do
-          getDoublev (GetClipPlane i) (castPtr buf)
-          peek1 id (buf :: Ptr (Plane GLdouble)))
+--      (alloca $ \buf -> do
+--          getDoublev (GetClipPlane i) (castPtr buf)
+--          peek1 id (buf :: Ptr (Plane GLdouble)))
+      (getDouble4 Plane (GetClipPlane i))
       (\plane -> maybe recordInvalidEnum (with plane . glClipPlane_)
                        (clipPlaneIndexToEnum i))
 
