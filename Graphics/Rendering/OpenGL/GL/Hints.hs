@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Hints
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -51,7 +51,7 @@ marshalHintTarget x = case x of
    PackCMYK -> gl_PACK_CMYK_HINT
    UnpackCMYK -> gl_UNPACK_CMYK_HINT
 
-hintTargetToGetPName :: HintTarget -> GetPName
+hintTargetToGetPName :: HintTarget -> PName1I
 hintTargetToGetPName x = case x of
    PerspectiveCorrection -> GetPerspectiveCorrectionHint
    PointSmooth -> GetPointSmoothHint

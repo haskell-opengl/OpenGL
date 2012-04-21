@@ -75,5 +75,5 @@ maxVertexAttribs = getLimit GetMaxVertexAttribs
 maxVaryingFloats :: GettableStateVar GLsizei
 maxVaryingFloats = getLimit GetMaxVaryingFloats
 
-getLimit :: GetPName -> GettableStateVar GLsizei
+getLimit :: PName1I -> GettableStateVar GLsizei
 getLimit = makeGettableStateVar . getSizei1 id

@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -105,13 +105,13 @@ skipImages Unpack = pixelStorei GetUnpackSkipImages UnpackSkipImages
 
 --------------------------------------------------------------------------------
 
-pixelStoreb :: GetPName -> PixelStore -> StateVar Bool
+pixelStoreb :: PName1I -> PixelStore -> StateVar Bool
 pixelStoreb pn ps =
    makeStateVar
       (getBoolean1 unmarshalGLboolean pn)
       (glPixelStorei (marshalPixelStore ps) . marshalGLboolean)
 
-pixelStorei :: GetPName -> PixelStore -> StateVar GLint
+pixelStorei :: PName1I -> PixelStore -> StateVar GLint
 pixelStorei pn ps =
    makeStateVar
       (getInteger1 id pn)

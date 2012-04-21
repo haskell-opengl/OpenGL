@@ -60,7 +60,7 @@ marshalFramebufferTarget xs = case xs of
    ReadFramebuffer -> gl_READ_FRAMEBUFFER
    Framebuffer -> gl_FRAMEBUFFER
 
-marshalFramebufferTargetBinding :: FramebufferTarget -> GetPName
+marshalFramebufferTargetBinding :: FramebufferTarget -> PName1I
 marshalFramebufferTargetBinding x = case x of
    DrawFramebuffer -> GetDrawFramebufferBinding
    ReadFramebuffer -> GetReadFramebufferBinding

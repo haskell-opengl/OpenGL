@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Domain
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -39,8 +39,8 @@ class Storable d => Domain d where
    evalCoord2v :: Ptr d -> IO ()
    glMapGrid1  :: GLint -> d -> d -> IO ()
    glMapGrid2  :: GLint -> d -> d -> GLint -> d -> d -> IO ()
-   get2        :: (d -> d -> a) -> GetPName -> IO a
-   get4        :: (d -> d -> d -> d -> a) -> GetPName -> IO a
+   get2        :: GetPName2F p => (d -> d -> a) -> p -> IO a
+   get4        :: GetPName4F p => (d -> d -> d -> d -> a) -> p -> IO a
 
 --------------------------------------------------------------------------------
 

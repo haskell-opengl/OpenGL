@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Objects
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -63,7 +63,7 @@ textureBinding t =
 defaultTextureObject :: TextureObject
 defaultTextureObject = TextureObject 0
 
-textureTargetToGetPName :: TextureTarget -> GetPName
+textureTargetToGetPName :: TextureTarget -> PName1I
 textureTargetToGetPName x = case x of
     Texture1D -> GetTextureBinding1D
     Texture2D -> GetTextureBinding2D

@@ -1,5 +1,5 @@
 name: OpenGL
-version: 2.5.0.0
+version: 2.5.0.1
 license: BSD3
 license-file: LICENSE
 maintainer: Jason Dagit <dagitj@gmail.com>, Sven Panne <sven.panne@aedion.de>
@@ -107,6 +107,8 @@ library
    Graphics.Rendering.OpenGL.GL.PolygonMode,
    Graphics.Rendering.OpenGL.GL.PrimitiveMode,
    Graphics.Rendering.OpenGL.GL.QueryUtils,
+   Graphics.Rendering.OpenGL.GL.QueryUtils.PName,
+   Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib,
    Graphics.Rendering.OpenGL.GL.RenderMode,
    Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
    Graphics.Rendering.OpenGL.GL.Shaders.Limits,
