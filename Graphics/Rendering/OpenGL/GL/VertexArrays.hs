@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.VertexArrays
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -32,7 +32,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    primitiveRestartIndex, primitiveRestartIndexNV,
 
    -- * Generic Vertex Attribute Arrays
-   vertexAttribPointer, vertexAttribArray
+   vertexAttribPointer, vertexAttribArray,
 ) where
 
 import Data.StateVar

@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.DataType
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -14,7 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.DataType (
-   DataType(..), marshalDataType, unmarshalDataType
+   DataType(..), marshalDataType, unmarshalDataType,
+   DataTypeType(..), marshalDataTypeType, unmarshalDataTypeType
 ) where
 
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
@@ -130,3 +131,30 @@ unmarshalDataType x
    | x == gl_3_BYTES = ThreeBytes
    | x == gl_4_BYTES = FourBytes
    | otherwise = error ("unmarshalDataType: illegal value " ++ show x)
+
+data DataTypeType
+   = TNone
+   | TSignedNormalized
+   | TUnsignedNormalized
+   | TFloat
+   | TInt
+   | TUnsignedInt
+
+marshalDataTypeType :: DataTypeType -> GLenum
+marshalDataTypeType x = case x of
+   TNone -> gl_NONE
+   TSignedNormalized -> gl_SIGNED_NORMALIZED
+   TUnsignedNormalized -> gl_UNSIGNED_NORMALIZED
+   TFloat -> gl_FLOAT
+   TInt -> gl_INT
+   TUnsignedInt -> gl_UNSIGNED_INT
+
+unmarshalDataTypeType :: GLenum -> DataTypeType
+unmarshalDataTypeType x
+   | x == gl_NONE = TNone
+   | x == gl_SIGNED_NORMALIZED = TSignedNormalized
+   | x == gl_UNSIGNED_NORMALIZED = TUnsignedNormalized
+   | x == gl_FLOAT = TFloat
+   | x == gl_INT = TInt
+   | x == gl_UNSIGNED_INT = TUnsignedInt
+   | otherwise = error $ "unmarshalDataTypeType: illegal value " ++ show x

@@ -1,5 +1,5 @@
 name: OpenGL
-version: 2.5.0.0
+version: 2.5.0.1
 license: BSD3
 license-file: LICENSE
 maintainer: Jason Dagit <dagitj@gmail.com>, Sven Panne <sven.panne@aedion.de>
@@ -35,10 +35,12 @@ library
    Graphics.Rendering.OpenGL.GL.FlushFinish,
    Graphics.Rendering.OpenGL.GL.Fog,
    Graphics.Rendering.OpenGL.GL.Framebuffer,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects
    Graphics.Rendering.OpenGL.GL.Hints,
    Graphics.Rendering.OpenGL.GL,
    Graphics.Rendering.OpenGL.GL.LineSegments,
    Graphics.Rendering.OpenGL.GL.PerFragment,
+   Graphics.Rendering.OpenGL.GL.PixellikeObject,
    Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable,
    Graphics.Rendering.OpenGL.GL.PixelRectangles.Convolution,
    Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram,
@@ -50,6 +52,7 @@ library
    Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization,
    Graphics.Rendering.OpenGL.GL.Points,
    Graphics.Rendering.OpenGL.GL.Polygons,
+   Graphics.Rendering.OpenGL.GL.QueryObjects,
    Graphics.Rendering.OpenGL.GL.RasterPos,
    Graphics.Rendering.OpenGL.GL.ReadCopyPixels,
    Graphics.Rendering.OpenGL.GL.Rectangles,
@@ -64,6 +67,7 @@ library
    Graphics.Rendering.OpenGL.GL.Texturing.Parameters,
    Graphics.Rendering.OpenGL.GL.Texturing.Queries,
    Graphics.Rendering.OpenGL.GL.Texturing.Specification,
+   Graphics.Rendering.OpenGL.GL.TransformFeedback
    Graphics.Rendering.OpenGL.GLU.Errors,
    Graphics.Rendering.OpenGL.GLU,
    Graphics.Rendering.OpenGL.GLU.Initialization,
@@ -73,6 +77,7 @@ library
    Graphics.Rendering.OpenGL.GLU.Quadrics,
    Graphics.Rendering.OpenGL.GLU.Tessellation,
    Graphics.Rendering.OpenGL.GL.VertexArrays,
+   Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
    Graphics.Rendering.OpenGL.GL.VertexSpec,
    Graphics.Rendering.OpenGL
   other-modules:
@@ -86,7 +91,12 @@ library
    Graphics.Rendering.OpenGL.GL.EdgeFlag,
    Graphics.Rendering.OpenGL.GL.Exception,
    Graphics.Rendering.OpenGL.GL.Face,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects,
    Graphics.Rendering.OpenGL.GL.GLboolean,
+   Graphics.Rendering.OpenGL.GL.GLstring,
    Graphics.Rendering.OpenGL.GL.IOState,
    Graphics.Rendering.OpenGL.GL.PeekPoke,
    Graphics.Rendering.OpenGL.GL.PixelData,
@@ -97,7 +107,15 @@ library
    Graphics.Rendering.OpenGL.GL.PolygonMode,
    Graphics.Rendering.OpenGL.GL.PrimitiveMode,
    Graphics.Rendering.OpenGL.GL.QueryUtils,
+   Graphics.Rendering.OpenGL.GL.QueryUtils.PName,
+   Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib,
    Graphics.Rendering.OpenGL.GL.RenderMode,
+   Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
+   Graphics.Rendering.OpenGL.GL.Shaders.Limits,
+   Graphics.Rendering.OpenGL.GL.Shaders.Program,
+   Graphics.Rendering.OpenGL.GL.Shaders.Shaders,
+   Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
+   Graphics.Rendering.OpenGL.GL.Shaders.Variables,
    Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat,
    Graphics.Rendering.OpenGL.GL.Texturing.TexParameter,
    Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget,

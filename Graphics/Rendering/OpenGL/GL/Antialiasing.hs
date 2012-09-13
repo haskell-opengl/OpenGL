@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Antialiasing
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -36,5 +36,5 @@ multisample = makeCapability CapMultisample
 subpixelBits :: GettableStateVar GLsizei
 subpixelBits = antialiasingInfo GetSubpixelBits
 
-antialiasingInfo :: GetPName -> GettableStateVar GLsizei
+antialiasingInfo :: GetPName1I p => p -> GettableStateVar GLsizei
 antialiasingInfo = makeGettableStateVar . getSizei1 id

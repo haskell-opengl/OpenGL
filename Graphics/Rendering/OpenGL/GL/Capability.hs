@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Capability
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -16,7 +16,9 @@
 
 module Graphics.Rendering.OpenGL.GL.Capability (
    Capability(..), marshalCapability, unmarshalCapability,
-   EnableCap(..), makeCapability, makeStateVarMaybe
+   EnableCap(..), makeCapability, makeStateVarMaybe,
+
+   IndexedEnableCap(..), makeIndexedCapability,
 ) where
 
 import Data.StateVar
@@ -150,6 +152,7 @@ data EnableCap =
    | CapPointSprite
    | CapStencilTestTwoSide
    | CapRasterPositionUnclipped
+   | CapRasterizerDiscard
    | CapTextureColorTable
    | CapVertexProgramPointSize
    | CapVertexProgramTwoSide
@@ -242,6 +245,7 @@ marshalEnableCap x = case x of
    CapStencilTestTwoSide -> Just gl_STENCIL_TEST_TWO_SIDE
    -- TODO: use RASTER_POSITION_UNCLIPPED_IBM from IBM_rasterpos_clip extension
    CapRasterPositionUnclipped -> Just 0x19262
+   CapRasterizerDiscard -> Just gl_RASTERIZER_DISCARD
    -- TODO: use TEXTURE_COLOR_TABLE_SGI from SGI_texture_color_table extension
    CapTextureColorTable -> Just 0x80bc
    CapVertexProgramPointSize -> Just gl_VERTEX_PROGRAM_POINT_SIZE
@@ -287,3 +291,30 @@ setStateVarMaybe :: IO EnableCap -> (a -> IO ()) -> Maybe a -> IO ()
 setStateVarMaybe getCap act val = do
    capability <- fmap makeCapability getCap
    maybe (capability $= Disabled) (\x -> act x >> capability $= Enabled) val
+
+--------------------------------------------------------------------------------
+
+data IndexedEnableCap =
+   BlendI
+
+marshalIndexedEnableCap :: IndexedEnableCap -> Maybe GLenum
+marshalIndexedEnableCap x = case x of
+   BlendI -> Just gl_BLEND
+
+makeIndexedCapability ::(a -> GLuint) -> IndexedEnableCap ->  a
+   -> StateVar Capability
+makeIndexedCapability f cap val = makeStateVar
+   (isIndexedEnabled (f val) cap)
+   (\state -> enableIndexed (f val) cap state)
+
+isIndexedEnabled :: GLuint -> IndexedEnableCap -> IO Capability
+isIndexedEnabled i =
+   maybe (do recordInvalidEnum; return Disabled)
+         (\cap -> fmap unmarshalCapability $ glIsEnabledi cap i) .
+   marshalIndexedEnableCap
+
+enableIndexed :: GLuint -> IndexedEnableCap -> Capability -> IO ()
+enableIndexed i cap state =
+   maybe recordInvalidEnum (f state) (marshalIndexedEnableCap cap)
+      where f Enabled  = \c -> glEnablei c i
+            f Disabled = \c -> glDisablei c i

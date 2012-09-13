@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Objects
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -20,6 +20,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
 ) where
 
 import Data.List
+import Data.Maybe (fromMaybe)
 import Data.ObjectName
 import Data.StateVar
 import Foreign.Marshal.Array
@@ -57,12 +58,12 @@ textureBinding t =
    makeStateVar
       (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToGetPName t)
           return $ if o == defaultTextureObject then Nothing else Just o)
-      (glBindTexture (marshalTextureTarget t) . textureID . (maybe defaultTextureObject id))
+      (glBindTexture (marshalTextureTarget t) . textureID . (fromMaybe defaultTextureObject))
 
 defaultTextureObject :: TextureObject
 defaultTextureObject = TextureObject 0
 
-textureTargetToGetPName :: TextureTarget -> GetPName
+textureTargetToGetPName :: TextureTarget -> PName1I
 textureTargetToGetPName x = case x of
     Texture1D -> GetTextureBinding1D
     Texture2D -> GetTextureBinding2D
