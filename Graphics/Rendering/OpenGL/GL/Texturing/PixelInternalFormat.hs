@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -39,6 +39,10 @@ data PixelInternalFormat =
    | Luminance'
    | LuminanceAlpha'
    | Intensity
+   | R8
+   | R16
+   | RG8
+   | RG16
    | RGB'
    | RGBA'
    | SRGB
@@ -82,22 +86,64 @@ data PixelInternalFormat =
    | RGBA16
    | SRGB8
    | SRGB8Alpha8
+   | R16F
+   | RG16F
+   | RGB16F
+   | RGBA16F
+   | R32F
+   | RG32F
+   | RGB32F
+   | RGBA32F
+   | R8I
+   | R8UI
+   | R16I
+   | R16UI
+   | R32I
+   | R32UI
+   | RG8I
+   | RG8UI
+   | RG16I
+   | RG16UI
+   | RG32I
+   | RG32UI
+   | RGB8I
+   | RGB8UI
+   | RGB16I
+   | RGB16UI
+   | RGB32I
+   | RGB32UI
+   | RGBA8I
+   | RGBA8UI
+   | RGBA16I
+   | RGBA16UI
+   | RGBA32I
+   | RGBA32UI
    | SLuminance8
    | SLuminance8Alpha8
    | CompressedAlpha
    | CompressedLuminance
    | CompressedLuminanceAlpha
    | CompressedIntensity
+   | CompressedRed
+   | CompressedRG
    | CompressedRGB
    | CompressedRGBA
    | CompressedSRGB
    | CompressedSRGBAlpha
    | CompressedSLuminance
    | CompressedSLuminanceAlpha
+   | CompressedRedRGTC1
+   | CompressedSignedRedRGTC1
+   | CompressedRG_RGTC2
+   | CompressedSignedRG_RGTC2
    | DepthComponent32f
    | Depth32fStencil8
    | RGB9E5
    | R11fG11fB10f
+   | StencilIndex1
+   | StencilIndex4
+   | StencilIndex8
+   | StencilIndex16
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
@@ -106,6 +152,10 @@ marshalPixelInternalFormat x = fromIntegral $ case x of
    DepthComponent' -> gl_DEPTH_COMPONENT
    Luminance' -> gl_LUMINANCE
    LuminanceAlpha' -> gl_LUMINANCE_ALPHA
+   R8 -> gl_R8
+   R16 -> gl_R16
+   RG8 -> gl_RG8
+   RG16 -> gl_RG16
    RGB' -> gl_RGB
    RGBA' -> gl_RGBA
    SRGB -> gl_SRGB
@@ -150,22 +200,64 @@ marshalPixelInternalFormat x = fromIntegral $ case x of
    RGBA16 -> gl_RGBA16
    SRGB8 -> gl_SRGB8
    SRGB8Alpha8 -> gl_SRGB8_ALPHA8
+   R16F -> gl_R16F
+   RG16F -> gl_RG16F
+   RGB16F -> gl_RGB16F
+   RGBA16F -> gl_RGBA16F
+   R32F -> gl_R32F
+   RG32F -> gl_RG32F
+   RGB32F -> gl_RGB32F
+   RGBA32F -> gl_RGBA32F
+   R8I -> gl_R8I
+   R8UI -> gl_R8UI
+   R16I -> gl_R16I
+   R16UI -> gl_R16UI
+   R32I -> gl_R32I
+   R32UI -> gl_R32UI
+   RG8I -> gl_RG8I
+   RG8UI -> gl_RG8UI
+   RG16I -> gl_RG16I
+   RG16UI -> gl_RG16UI
+   RG32I -> gl_R32I
+   RG32UI -> gl_R32UI
+   RGB8I -> gl_RGB8I
+   RGB8UI -> gl_RGB8UI
+   RGB16I -> gl_RGB16I
+   RGB16UI -> gl_RGB16UI
+   RGB32I -> gl_RGB32I
+   RGB32UI -> gl_RGB32UI
+   RGBA8I -> gl_RGBA8I
+   RGBA8UI -> gl_RGBA8UI
+   RGBA16I -> gl_RGBA16I
+   RGBA16UI -> gl_RGBA16UI
+   RGBA32I -> gl_RGBA32I
+   RGBA32UI -> gl_RGBA32UI
    SLuminance8 -> gl_SLUMINANCE8
    SLuminance8Alpha8 -> gl_SLUMINANCE8_ALPHA8
    CompressedAlpha -> gl_COMPRESSED_ALPHA
    CompressedLuminance -> gl_COMPRESSED_LUMINANCE
    CompressedLuminanceAlpha -> gl_COMPRESSED_LUMINANCE_ALPHA
    CompressedIntensity -> gl_COMPRESSED_INTENSITY
+   CompressedRed -> gl_COMPRESSED_RED
+   CompressedRG -> gl_COMPRESSED_RG
    CompressedRGB -> gl_COMPRESSED_RGB
    CompressedRGBA -> gl_COMPRESSED_RGBA
    CompressedSRGB -> gl_COMPRESSED_SRGB
    CompressedSRGBAlpha -> gl_COMPRESSED_SRGB_ALPHA
    CompressedSLuminance -> gl_COMPRESSED_SLUMINANCE
    CompressedSLuminanceAlpha -> gl_COMPRESSED_SLUMINANCE_ALPHA
+   CompressedRedRGTC1 -> gl_COMPRESSED_RED_RGTC1
+   CompressedSignedRedRGTC1 -> gl_COMPRESSED_SIGNED_RED_RGTC1
+   CompressedRG_RGTC2 -> gl_COMPRESSED_RG_RGTC2
+   CompressedSignedRG_RGTC2 -> gl_COMPRESSED_SIGNED_RG_RGTC2
    DepthComponent32f -> gl_DEPTH_COMPONENT32F
    Depth32fStencil8 -> gl_DEPTH32F_STENCIL8
    RGB9E5 -> gl_RGB9_E5
    R11fG11fB10f -> gl_R11F_G11F_B10F
+   StencilIndex1 -> gl_STENCIL_INDEX1
+   StencilIndex4 -> gl_STENCIL_INDEX4
+   StencilIndex8 -> gl_STENCIL_INDEX8
+   StencilIndex16 -> gl_STENCIL_INDEX16
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -221,21 +313,63 @@ unmarshalPixelInternalFormat x
    | y == gl_RGBA16 = RGBA16
    | y == gl_SRGB8 = SRGB8
    | y == gl_SRGB8_ALPHA8 = SRGB8Alpha8
+   | y == gl_R16F = R16F
+   | y == gl_RG16F = RG16F
+   | y == gl_RGB16F = RGB16F
+   | y == gl_RGBA16F = RGBA16F
+   | y == gl_R32F = R32F
+   | y == gl_RG32F = RG32F
+   | y == gl_RGB32F = RGB32F
+   | y == gl_RGBA32F = RGBA32F
+   | y == gl_R8I = R8I
+   | y == gl_R8UI = R8UI
+   | y == gl_R16I = R16I
+   | y == gl_R16UI = R16UI
+   | y == gl_R32I = R32I
+   | y == gl_R32UI = R32UI
+   | y == gl_RG8I = RG8I
+   | y == gl_RG8UI = RG8UI
+   | y == gl_RG16I = RG16I
+   | y == gl_RG16UI = RG16UI
+   | y == gl_R32I = RG32I
+   | y == gl_R32UI = RG32UI
+   | y == gl_RGB8I = RGB8I
+   | y == gl_RGB8UI = RGB8UI
+   | y == gl_RGB16I = RGB16I
+   | y == gl_RGB16UI = RGB16UI
+   | y == gl_RGB32I = RGB32I
+   | y == gl_RGB32UI = RGB32UI
+   | y == gl_RGBA8I = RGBA8I
+   | y == gl_RGBA8UI = RGBA8UI
+   | y == gl_RGBA16I = RGBA16I
+   | y == gl_RGBA16UI = RGBA16UI
+   | y == gl_RGBA32I = RGBA32I
+   | y == gl_RGBA32UI = RGBA32UI
    | y == gl_SLUMINANCE8 = SLuminance8
    | y == gl_SLUMINANCE8_ALPHA8 = SLuminance8Alpha8
    | y == gl_COMPRESSED_ALPHA = CompressedAlpha
    | y == gl_COMPRESSED_LUMINANCE = CompressedLuminance
    | y == gl_COMPRESSED_LUMINANCE_ALPHA = CompressedLuminanceAlpha
    | y == gl_COMPRESSED_INTENSITY = CompressedIntensity
+   | y == gl_COMPRESSED_RED = CompressedRed
+   | y == gl_COMPRESSED_RG = CompressedRG
    | y == gl_COMPRESSED_RGB = CompressedRGB
    | y == gl_COMPRESSED_RGBA = CompressedRGBA
    | y == gl_COMPRESSED_SRGB = CompressedSRGB
    | y == gl_COMPRESSED_SRGB_ALPHA = CompressedSRGBAlpha
    | y == gl_COMPRESSED_SLUMINANCE = CompressedSLuminance
    | y == gl_COMPRESSED_SLUMINANCE_ALPHA = CompressedSLuminanceAlpha
+   | y == gl_COMPRESSED_RED_RGTC1 = CompressedRedRGTC1
+   | y == gl_COMPRESSED_SIGNED_RED_RGTC1 = CompressedSignedRedRGTC1
+   | y == gl_COMPRESSED_RG_RGTC2 = CompressedRG_RGTC2
+   | y == gl_COMPRESSED_SIGNED_RG_RGTC2 = CompressedSignedRG_RGTC2
    | y == gl_DEPTH_COMPONENT32F = DepthComponent32f
    | y == gl_DEPTH32F_STENCIL8 = Depth32fStencil8
    | y == gl_RGB9_E5 = RGB9E5
+   | y == gl_STENCIL_INDEX1 = StencilIndex1
+   | y == gl_STENCIL_INDEX4 = StencilIndex4
+   | y == gl_STENCIL_INDEX8 = StencilIndex8
+   | y == gl_STENCIL_INDEX16 = StencilIndex16
    -- legacy values
    | y == 1 = Luminance'
    | y == 2 = LuminanceAlpha'

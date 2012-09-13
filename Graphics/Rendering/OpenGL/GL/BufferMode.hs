@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.BufferMode
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -14,7 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.BufferMode (
-   BufferMode(..), marshalBufferMode, unmarshalBufferMode
+   BufferMode(..), marshalBufferMode, unmarshalBufferMode, unmarshalBufferModeSafe,
+   maxColorAttachments,
 ) where
 
 import Graphics.Rendering.OpenGL.Raw.Core31
@@ -60,6 +61,9 @@ data BufferMode =
      -- front left color buffer is selected.
    | AuxBuffer GLsizei
      -- ^ Only the given auxiliary color buffer no. /i/ is selected.
+   | FBOColorAttachment GLsizei
+     -- ^ Only the given color attachment of the bound framebufferobject is selected for reading
+     -- or writing.
    deriving ( Eq, Ord, Show )
 
 marshalBufferMode :: BufferMode -> Maybe GLenum
@@ -77,21 +81,46 @@ marshalBufferMode x = case x of
    AuxBuffer i
       | fromIntegral i <= maxAuxBuffer -> Just (gl_AUX0 + fromIntegral i)
       | otherwise -> Nothing
+   FBOColorAttachment i
+      | fromIntegral i <= maxColorAttachments -> Just (gl_COLOR_ATTACHMENT0 + fromIntegral i)
+      | otherwise -> Nothing
 
 unmarshalBufferMode :: GLenum -> BufferMode
-unmarshalBufferMode x
-   | x == gl_NONE = NoBuffers
-   | x == gl_FRONT_LEFT = FrontLeftBuffer
-   | x == gl_FRONT_RIGHT = FrontRightBuffer
-   | x == gl_BACK_LEFT = BackLeftBuffer
-   | x == gl_BACK_RIGHT = BackRightBuffer
-   | x == gl_FRONT = FrontBuffers
-   | x == gl_BACK = BackBuffers
-   | x == gl_LEFT = LeftBuffers
-   | x == gl_RIGHT = RightBuffers
-   | x == gl_FRONT_AND_BACK = FrontAndBackBuffers
-   | gl_AUX0 <= x && x <= gl_AUX0 + maxAuxBuffer = AuxBuffer (fromIntegral (x - gl_AUX0))
-   | otherwise = error ("unmarshalBufferMode: illegal value " ++ show x)
+unmarshalBufferMode x = maybe
+   (error ("unmarshalBufferMode: illegal value " ++ show x)) id $ unmarshalBufferModeSafe x
+--unmarshalBufferMode x
+--   | x == gl_NONE = NoBuffers
+--   | x == gl_FRONT_LEFT = FrontLeftBuffer
+--   | x == gl_FRONT_RIGHT = FrontRightBuffer
+--   | x == gl_BACK_LEFT = BackLeftBuffer
+--   | x == gl_BACK_RIGHT = BackRightBuffer
+--   | x == gl_FRONT = FrontBuffers
+--   | x == gl_BACK = BackBuffers
+--   | x == gl_LEFT = LeftBuffers
+--   | x == gl_RIGHT = RightBuffers
+--   | x == gl_FRONT_AND_BACK = FrontAndBackBuffers
+--   | gl_AUX0 <= x && x <= gl_AUX0 + maxAuxBuffer = AuxBuffer (fromIntegral (x - gl_AUX0))
+--   | otherwise = error ("unmarshalBufferMode: illegal value " ++ show x)
+
+unmarshalBufferModeSafe :: GLenum -> Maybe BufferMode
+unmarshalBufferModeSafe x
+   | x == gl_NONE = Just NoBuffers
+   | x == gl_FRONT_LEFT = Just FrontLeftBuffer
+   | x == gl_FRONT_RIGHT = Just FrontRightBuffer
+   | x == gl_BACK_LEFT = Just BackLeftBuffer
+   | x == gl_BACK_RIGHT = Just BackRightBuffer
+   | x == gl_FRONT = Just FrontBuffers
+   | x == gl_BACK = Just BackBuffers
+   | x == gl_LEFT = Just LeftBuffers
+   | x == gl_RIGHT = Just RightBuffers
+   | x == gl_FRONT_AND_BACK = Just FrontAndBackBuffers
+   | gl_AUX0 <= x && x <= gl_AUX0 + maxAuxBuffer = Just . AuxBuffer . fromIntegral $ x - gl_AUX0
+   | gl_COLOR_ATTACHMENT0 <= x && x <= gl_COLOR_ATTACHMENT0 + maxColorAttachments
+      = Just . FBOColorAttachment . fromIntegral $ x - gl_COLOR_ATTACHMENT0
+   | otherwise = Nothing
 
 maxAuxBuffer :: GLenum
 maxAuxBuffer = 246
+
+maxColorAttachments :: GLenum
+maxColorAttachments = 16

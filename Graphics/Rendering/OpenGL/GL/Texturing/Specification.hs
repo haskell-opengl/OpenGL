@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Specification
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -41,7 +41,6 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
 ) where
 
 import Data.StateVar
-import Foreign.Marshal.Array
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelData
@@ -175,9 +174,10 @@ compressedTextureFormats :: GettableStateVar [CompressedTextureFormat]
 compressedTextureFormats =
    makeGettableStateVar $ do
       n <- getInteger1 fromIntegral GetNumCompressedTextureFormats
-      allocaArray n $ \buf -> do
-         getIntegerv GetCompressedTextureFormats buf
-         fmap (map (CompressedTextureFormat . fromIntegral)) $ peekArray n buf
+--      allocaArray n $ \buf -> do
+--         getIntegerv GetCompressedTextureFormats buf
+--         fmap (map (CompressedTextureFormat . fromIntegral)) $ peekArray n buf
+      getIntegerN (CompressedTextureFormat . fromIntegral) GetCompressedTextureFormats n
 
 --------------------------------------------------------------------------------
 
@@ -249,7 +249,7 @@ compressedTexSubImage3D level (TexturePosition3D xOff yOff zOff) (TextureSize3D 
 maxTextureSize :: TextureTarget -> GettableStateVar GLsizei
 maxTextureSize = makeGettableStateVar . getInteger1 fromIntegral . textureTargetToMaxQuery
 
-textureTargetToMaxQuery :: TextureTarget -> GetPName
+textureTargetToMaxQuery :: TextureTarget -> PName1I
 textureTargetToMaxQuery x = case x of
    Texture1D -> GetMaxTextureSize
    Texture2D -> GetMaxTextureSize

@@ -147,7 +147,7 @@ unmarshalMatrixMode x
            Just i -> Modelview i
            Nothing -> error ("unmarshalMatrixMode: illegal value " ++ show x)
 
-matrixModeToGetMatrix :: MatrixMode -> GetPName
+matrixModeToGetMatrix :: MatrixMode -> PNameMatrix
 matrixModeToGetMatrix x = case x of
    Modelview _   -> GetModelviewMatrix -- ???
    Projection    -> GetProjectionMatrix
@@ -155,7 +155,7 @@ matrixModeToGetMatrix x = case x of
    Color         -> GetColorMatrix
    MatrixPalette -> GetMatrixPalette
 
-matrixModeToGetStackDepth :: MatrixMode -> GetPName
+matrixModeToGetStackDepth :: MatrixMode -> PName1I
 matrixModeToGetStackDepth x =  case x of
    Modelview _   -> GetModelviewStackDepth
    Projection    -> GetProjectionStackDepth
@@ -163,7 +163,7 @@ matrixModeToGetStackDepth x =  case x of
    Color         -> GetColorMatrixStackDepth
    MatrixPalette -> error "matrixModeToGetStackDepth: impossible"
 
-matrixModeToGetMaxStackDepth :: MatrixMode -> GetPName
+matrixModeToGetMaxStackDepth :: MatrixMode -> PName1I
 matrixModeToGetMaxStackDepth x = case x of
    Modelview _    -> GetMaxModelviewStackDepth
    Projection     -> GetMaxProjectionStackDepth
@@ -189,7 +189,7 @@ data MatrixOrder = ColumnMajor | RowMajor
 --------------------------------------------------------------------------------
 
 class Storable c => MatrixComponent c where
-   getMatrix :: GetPName -> Ptr c -> IO ()
+   getMatrix :: GetPNameMatrix p => p -> Ptr c -> IO ()
    loadMatrix :: Ptr c -> IO ()
    loadTransposeMatrix :: Ptr c -> IO ()
    multMatrix_ :: Ptr c -> IO ()
@@ -199,7 +199,7 @@ class Storable c => MatrixComponent c where
    scale :: c -> c -> c -> IO ()
 
 instance MatrixComponent GLfloat where
-   getMatrix = getFloatv
+   getMatrix = getMatrixf
    loadMatrix = glLoadMatrixf
    loadTransposeMatrix = glLoadTransposeMatrixf
    multMatrix_ = glMultMatrixf
@@ -209,7 +209,7 @@ instance MatrixComponent GLfloat where
    scale = glScalef
 
 instance MatrixComponent GLdouble where
-   getMatrix = getDoublev
+   getMatrix = getMatrixd
    loadMatrix = glLoadMatrixd
    loadTransposeMatrix = glLoadTransposeMatrixd
    multMatrix_ = glMultMatrixd
@@ -274,7 +274,7 @@ withMatrixMode mode act =
       matrixMode $= mode
       act
 
-getMatrix' :: (Matrix m, MatrixComponent c) => GetPName -> IO (m c)
+getMatrix' :: (Matrix m, MatrixComponent c) => PNameMatrix -> IO (m c)
 getMatrix' = withNewMatrix ColumnMajor . getMatrix
 
 setMatrix :: (Matrix m, MatrixComponent c) => m c -> IO ()

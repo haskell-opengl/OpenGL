@@ -4,7 +4,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget(..), marshalTextureTarget, marshalProxyTextureTarget,
-   CubeMapTarget(..), marshalCubeMapTarget
+   CubeMapTarget(..), marshalCubeMapTarget, unmarshalCubeMapTarget,
 ) where
 
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
@@ -67,3 +67,14 @@ marshalCubeMapTarget x = case x of
    TextureCubeMapNegativeY -> gl_TEXTURE_CUBE_MAP_NEGATIVE_Y
    TextureCubeMapPositiveZ -> gl_TEXTURE_CUBE_MAP_POSITIVE_Z
    TextureCubeMapNegativeZ -> gl_TEXTURE_CUBE_MAP_NEGATIVE_Z
+
+unmarshalCubeMapTarget :: GLenum -> CubeMapTarget
+unmarshalCubeMapTarget x
+   | x == gl_TEXTURE_CUBE_MAP_POSITIVE_X = TextureCubeMapPositiveX
+   | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_X = TextureCubeMapNegativeX
+   | x == gl_TEXTURE_CUBE_MAP_POSITIVE_Y = TextureCubeMapPositiveY
+   | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_Y = TextureCubeMapNegativeY
+   | x == gl_TEXTURE_CUBE_MAP_POSITIVE_Z = TextureCubeMapPositiveZ
+   | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_Z = TextureCubeMapNegativeZ
+   | otherwise = error $ "unmarshalCubeMapTarget: unknown enum " ++ show x
+

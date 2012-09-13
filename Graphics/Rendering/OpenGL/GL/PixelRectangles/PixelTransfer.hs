@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelTransfer
 -- Copyright   :  (c) Sven Panne 2002-2009
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
+--
 -- Maintainer  :  sven.panne@aedion.de
 -- Stability   :  stable
 -- Portability :  portable
@@ -115,7 +115,7 @@ data PixelTransferStage =
 
 stageToGetScales ::
       PixelTransferStage
-   -> (GetPName, GetPName, GetPName, GetPName)
+   -> (PName1F, PName1F, PName1F, PName1F)
 stageToGetScales s = case s of
    PreConvolution  -> (GetRedScale,
                        GetGreenScale,
@@ -149,7 +149,7 @@ stageToSetScales s = case s of
 
 stageToGetBiases ::
       PixelTransferStage
-   -> (GetPName, GetPName, GetPName, GetPName)
+   -> (PName1F, PName1F, PName1F, PName1F)
 stageToGetBiases s = case s of
    PreConvolution  -> (GetRedBias,
                        GetGreenBias,
@@ -209,27 +209,27 @@ rgbaBias s = pixelTransfer4f (stageToGetBiases s) (stageToSetBiases s)
 
 --------------------------------------------------------------------------------
 
-pixelTransferb :: GetPName -> PixelTransfer -> StateVar Capability
+pixelTransferb :: GetPName1I p => p -> PixelTransfer -> StateVar Capability
 pixelTransferb pn pt =
    makeStateVar
       (getBoolean1 unmarshalCapability pn)
       (glPixelTransferi (marshalPixelTransfer pt) .
        fromIntegral . marshalCapability)
 
-pixelTransferi :: GetPName -> PixelTransfer -> StateVar GLint
+pixelTransferi :: GetPName1I p => p -> PixelTransfer -> StateVar GLint
 pixelTransferi pn pt =
    makeStateVar
       (getInteger1 id pn)
       (glPixelTransferi (marshalPixelTransfer pt))
 
-pixelTransferf :: GetPName -> PixelTransfer -> StateVar GLfloat
+pixelTransferf :: GetPName1F p => p -> PixelTransfer -> StateVar GLfloat
 pixelTransferf pn pt =
    makeStateVar
       (getFloat1 id pn)
       (glPixelTransferf (marshalPixelTransfer pt))
 
-pixelTransfer4f ::
-      (GetPName,      GetPName,      GetPName,      GetPName)
+pixelTransfer4f :: GetPName1F p =>
+      (p, p, p, p)
    -> (PixelTransfer, PixelTransfer, PixelTransfer, PixelTransfer)
    -> StateVar (Color4 GLfloat)
 pixelTransfer4f (pr, pg, pb, pa) (tr, tg, tb, ta) = makeStateVar get4f set4f

@@ -33,4 +33,4 @@ marshalEdgeFlag = marshalGLboolean . (BeginsBoundaryEdge ==)
 
 unmarshalEdgeFlag :: GLboolean -> EdgeFlag
 unmarshalEdgeFlag f =
-   if unmarshalGLboolean f then BeginsBoundaryEdge else BeginsBoundaryEdge
+   if unmarshalGLboolean f then BeginsBoundaryEdge else BeginsInteriorEdge
