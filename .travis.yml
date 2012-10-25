@@ -1,11 +1,19 @@
 language: haskell
 before_install:
   - ghc-pkg list
-  - if [ ! -f /home/travis/.cabal/bin/cabal-dev ]; then cabal install cabal-dev; fi
-  - if [ ! -d ../OpenGLRaw.git ]; then pushd ..; git clone https://github.com/haskell-opengl/OpenGLRaw.git; cd OpenGLRaw; git checkout develop; popd; fi
-  - ls
-  - touch here
+  - #if [ ! -f /home/travis/.cabal/bin/cabal-dev ]; then cabal install cabal-dev; fi
+  - if [ ! -d ../OpenGLRaw.git ]
+  - then 
+  -   pushd .. 
+  -   git clone https://github.com/haskell-opengl/OpenGLRaw.git
+  -   cd OpenGLRaw
+  -   git checkout develop
+  -   cabal install
+  -   popd
+  - fi
+  - ghc-pkg list
 install:
-  - cabal-dev add-source ../OpenGLRaw
-  - cabal-dev install
+  - # cabal-dev add-source ../OpenGLRaw
+  - # cabal-dev install
+  - cabal install
   
