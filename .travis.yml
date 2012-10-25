@@ -3,9 +3,14 @@ before_install:
   - cabal update
   - cabal install cabal-dev
   - git clone https://github.com/haskell-opengl/OpenGLRaw.git
-  - cd OpenGLRaw
+  - pushd OpenGLRaw
   - git checkout develop
+  - ghc-pkg list
+  - popd
+  - ls
+  - touch here
 install:
   - cabal-dev add-source ../OpenGLRaw
+  - pwd
   - cabal-dev install
   
