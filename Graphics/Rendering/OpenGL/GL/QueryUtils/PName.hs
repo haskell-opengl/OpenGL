@@ -176,7 +176,7 @@ class GetPName p => GetPName1F p where
 -- | Helper function for the get*1 functions.
 get1 :: (Storable b, Storable c, GetPName p)
     => (p -> Ptr c -> IO ())
-    -> (b -> a) -- | Conversion from the casted value to the return value
+    -> (b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
 get1 g f n = alloca $ \buf -> do
     g n buf
@@ -197,7 +197,7 @@ class GetPName p => GetIPName1I p where
 -- Indexed helper
 get1i :: (Storable b, Storable c, GetPName p)
     => (p -> GLuint -> Ptr c -> IO ())
-    -> (b -> a) -- | Conversion from the casted value to the return value
+    -> (b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> GLuint -> IO a
 get1i g f n i = alloca $ \buf -> do
     g n i buf
@@ -231,7 +231,7 @@ class GetPName p => GetPName2F p where
 -- | Helper function for the get*2 functions.
 get2 :: (Storable b, Storable c, GetPName p)
     => (p -> Ptr c -> IO ())
-    -> (b -> b -> a) -- | Conversion from the casted value to the return value
+    -> (b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
 get2 g f n = allocaArray 2 $ \buf -> do
     g n buf
