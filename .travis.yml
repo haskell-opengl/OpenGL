@@ -1,7 +1,6 @@
 language: haskell
 before_install:
   - ghc-pkg list
-  - #if [ ! -f /home/travis/.cabal/bin/cabal-dev ]; then cabal install cabal-dev; fi
   - if [ ! -d ../OpenGLRaw.git ]
   - then 
   -   pushd .. 
@@ -12,8 +11,4 @@ before_install:
   -   popd
   - fi
   - ghc-pkg list
-install:
-  - # cabal-dev add-source ../OpenGLRaw
-  - # cabal-dev install
-  - cabal install
   
