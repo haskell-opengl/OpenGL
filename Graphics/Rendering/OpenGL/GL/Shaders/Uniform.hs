@@ -12,6 +12,8 @@
 -- to section 2.20.3 of the OpenGL 3.1 spec (Shader Variables).
 -----------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
    -- * Uniform variables
    UniformLocation, uniformLocation, activeUniforms, Uniform(..),
@@ -109,19 +111,6 @@ instance UniformComponent GLfloat where
    uniform2v (UniformLocation ul) = glUniform2fv ul
    uniform3v (UniformLocation ul) = glUniform3fv ul
    uniform4v (UniformLocation ul) = glUniform4fv ul
-
-instance UniformComponent GLclampf where
-   uniform1 (UniformLocation ul) x = glUniform1f ul (realToFrac x)
-   uniform2 (UniformLocation ul) x y = glUniform2f ul (realToFrac x) (realToFrac y)
-   uniform3 (UniformLocation ul) x y z = glUniform3f ul (realToFrac x) (realToFrac y) (realToFrac z)
-   uniform4 (UniformLocation ul) x y z w = glUniform4f ul (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
-
-   getUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
-
-   uniform1v (UniformLocation ul) n = glUniform1fv ul n . castPtr
-   uniform2v (UniformLocation ul) n = glUniform2fv ul n . castPtr
-   uniform3v (UniformLocation ul) n = glUniform3fv ul n . castPtr
-   uniform4v (UniformLocation ul) n = glUniform4fv ul n . castPtr
 
 --------------------------------------------------------------------------------
 
