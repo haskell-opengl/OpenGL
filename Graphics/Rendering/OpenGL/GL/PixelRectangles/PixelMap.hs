@@ -13,6 +13,8 @@
 --
 --------------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap (
    PixelMapTarget(..), PixelMapComponent, PixelMap(..), GLpixelmap,
    maxPixelMapTable, pixelMap, pixelMapIToRGBA, pixelMapRGBAToRGBA,

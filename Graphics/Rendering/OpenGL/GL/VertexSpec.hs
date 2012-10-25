@@ -13,6 +13,8 @@
 --
 --------------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.VertexSpec (
    -- * Vertex Coordinates
    Vertex(..),
@@ -539,16 +541,6 @@ instance ColorComponent GLfloat where
    secondaryColor3 = glSecondaryColor3f
    secondaryColor3v = glSecondaryColor3fv
 
-instance ColorComponent GLclampf where
-   color3 r g b = glColor3f (realToFrac r) (realToFrac g) (realToFrac b)
-   color4 r g b a = glColor4f (realToFrac r) (realToFrac g) (realToFrac b) (realToFrac a)
-
-   color3v = glColor3fv . castPtr
-   color4v = glColor4fv . castPtr
-
-   secondaryColor3 r g b = glSecondaryColor3f (realToFrac r) (realToFrac g) (realToFrac b)
-   secondaryColor3v = glSecondaryColor3fv . castPtr
-
 instance ColorComponent GLdouble where
    color3 = glColor3d
    color4 = glColor4d
@@ -558,16 +550,6 @@ instance ColorComponent GLdouble where
 
    secondaryColor3 = glSecondaryColor3d
    secondaryColor3v = glSecondaryColor3dv
-
-instance ColorComponent GLclampd where
-   color3 r g b = glColor3d (realToFrac r) (realToFrac g) (realToFrac b)
-   color4 r g b a = glColor4d (realToFrac r) (realToFrac g) (realToFrac b) (realToFrac a)
-
-   color3v = glColor3dv . castPtr
-   color4v = glColor4dv . castPtr
-
-   secondaryColor3 r g b = glSecondaryColor3d (realToFrac r) (realToFrac g) (realToFrac b)
-   secondaryColor3v = glSecondaryColor3dv . castPtr
 
 instance ColorComponent GLubyte where
    color3 = glColor3ub
@@ -851,21 +833,6 @@ instance VertexAttribComponent GLfloat where
 
    vertexAttrib4Iv = vertexAttrib4IvRealFrac
 
-instance VertexAttribComponent GLclampf where
-   vertexAttrib1 (AttribLocation al) x = glVertexAttrib1f al (realToFrac x)
-   vertexAttrib2 (AttribLocation al) x y = glVertexAttrib2f al (realToFrac x) (realToFrac y)
-   vertexAttrib3 (AttribLocation al) x y z = glVertexAttrib3f al (realToFrac x) (realToFrac y) (realToFrac z)
-   vertexAttrib4 (AttribLocation al) x y z w = glVertexAttrib4f al (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
-
-   vertexAttrib1v (AttribLocation al) = glVertexAttrib1fv al . castPtr
-   vertexAttrib2v (AttribLocation al) = glVertexAttrib2fv al . castPtr
-   vertexAttrib3v (AttribLocation al) = glVertexAttrib3fv al . castPtr
-   vertexAttrib4v (AttribLocation al) = glVertexAttrib4fv al . castPtr
-
-   vertexAttrib4Nv = vertexAttrib4v
-
-   vertexAttrib4Iv = vertexAttrib4IvRealFrac
-
 vertexAttrib4IvRealFrac :: (Storable a, RealFrac a) => AttribLocation -> Ptr a -> IO ()
 vertexAttrib4IvRealFrac location = peek4M $ \x y z w ->
    vertexAttrib4I location (toGLint x) (toGLint y) (toGLint z) (toGLint w)
@@ -885,21 +852,6 @@ instance VertexAttribComponent GLdouble where
    vertexAttrib2v (AttribLocation al) = glVertexAttrib2dv al
    vertexAttrib3v (AttribLocation al) = glVertexAttrib3dv al
    vertexAttrib4v (AttribLocation al) = glVertexAttrib4dv al
-
-   vertexAttrib4Nv = vertexAttrib4v
-
-   vertexAttrib4Iv = vertexAttrib4IvRealFrac
-
-instance VertexAttribComponent GLclampd where
-   vertexAttrib1 (AttribLocation al) x = glVertexAttrib1d al (realToFrac x)
-   vertexAttrib2 (AttribLocation al) x y = glVertexAttrib2d al (realToFrac x) (realToFrac y)
-   vertexAttrib3 (AttribLocation al) x y z = glVertexAttrib3d al (realToFrac x) (realToFrac y) (realToFrac z)
-   vertexAttrib4 (AttribLocation al) x y z w = glVertexAttrib4d al (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
-
-   vertexAttrib1v (AttribLocation al) = glVertexAttrib1dv al . castPtr
-   vertexAttrib2v (AttribLocation al) = glVertexAttrib2dv al . castPtr
-   vertexAttrib3v (AttribLocation al) = glVertexAttrib3dv al . castPtr
-   vertexAttrib4v (AttribLocation al) = glVertexAttrib4dv al . castPtr
 
    vertexAttrib4Nv = vertexAttrib4v
 
