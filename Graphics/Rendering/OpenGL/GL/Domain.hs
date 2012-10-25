@@ -13,6 +13,8 @@
 --
 --------------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.Domain (
    Domain(..)
 ) where

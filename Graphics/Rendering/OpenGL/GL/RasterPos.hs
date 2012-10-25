@@ -13,6 +13,8 @@
 --
 --------------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.RasterPos (
    currentRasterPosition, RasterPosComponent, RasterPos(..),
    WindowPosComponent, WindowPos(..),

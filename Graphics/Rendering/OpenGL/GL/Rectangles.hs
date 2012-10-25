@@ -12,6 +12,8 @@
 --
 --------------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.Rectangles (
    Rect(..)
 ) where
