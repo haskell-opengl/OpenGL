@@ -342,233 +342,233 @@ class GetPName p => GetPNameMatrix p where
 -----------------------------------------------------------------------------
 
 data PName1I
-    = GetEdgeFlag           -- | bool
-    | GetRGBAMode           -- | enum
-    | GetCurrentIndex       -- | int
-    | GetMaxTextureUnits    -- | enum
+    = GetEdgeFlag           -- ^ bool
+    | GetRGBAMode           -- ^ enum
+    | GetCurrentIndex       -- ^ int
+    | GetMaxTextureUnits    -- ^ enum
     -- displaylist
-    | GetListIndex          -- | enum
-    | GetListMode           -- | enum
-    | GetMaxListNesting     -- | sizei
-    | GetListBase           -- | enum
+    | GetListIndex          -- ^ enum
+    | GetListMode           -- ^ enum
+    | GetMaxListNesting     -- ^ sizei
+    | GetListBase           -- ^ enum
     -- rendermode
-    | GetRenderMode         -- | enum
+    | GetRenderMode         -- ^ enum
     -- framebufferbinding
-    | GetDrawFramebufferBinding -- | int
-    | GetReadFramebufferBinding -- | int
-    | GetFramebufferBinding     -- | int
+    | GetDrawFramebufferBinding -- ^ int
+    | GetReadFramebufferBinding -- ^ int
+    | GetFramebufferBinding     -- ^ int
     -- renderbufferbinding
-    | GetRenderbufferBinding    -- | int
+    | GetRenderbufferBinding    -- ^ int
     -- hint
-    | GetPerspectiveCorrectionHint -- | enum
-    | GetPointSmoothHint        -- | enum
-    | GetLineSmoothHint         -- | enum
-    | GetPolygonSmoothHint      -- | enum
-    | GetFogHint                -- | enum
-    | GetGenerateMipmapHint     -- | enum
-    | GetTextureCompressionHint -- | enum
-    | GetPackCMYKHint           -- | enum
-    | GetUnpackCMYKHint         -- | enum
+    | GetPerspectiveCorrectionHint -- ^ enum
+    | GetPointSmoothHint        -- ^ enum
+    | GetLineSmoothHint         -- ^ enum
+    | GetPolygonSmoothHint      -- ^ enum
+    | GetFogHint                -- ^ enum
+    | GetGenerateMipmapHint     -- ^ enum
+    | GetTextureCompressionHint -- ^ enum
+    | GetPackCMYKHint           -- ^ enum
+    | GetUnpackCMYKHint         -- ^ enum
     -- vertexarray
-    | GetVertexArrayBinding     -- | int
+    | GetVertexArrayBinding     -- ^ int
     -- Selction?
-    | GetMaxNameStackDepth      -- | int
-    | GetNameStackDepth         -- | int
+    | GetMaxNameStackDepth      -- ^ int
+    | GetNameStackDepth         -- ^ int
     -- ContextProfile
     | GetContextProfileMask     -- | enum
     -- pixelStorage
-    | GetPackSwapBytes      -- | bool
-    | GetUnpackSwapBytes    -- | bool
-    | GetPackLSBFirst       -- | bool
-    | GetUnpackLSBFirst     -- | bool
-    | GetPackRowLength      -- | int
-    | GetUnpackRowLength    -- | int
-    | GetPackSkipRows       -- | int
-    | GetUnpackSkipRows     -- | int
-    | GetPackSkipPixels     -- | int
-    | GetUnpackSkipPixels   -- | int
-    | GetPackAlignment      -- | int
-    | GetUnpackAlignment    -- | int
-    | GetPackImageHeight    -- | int
-    | GetUnpackImageHeight  -- | int
-    | GetPackSkipImages     -- | int
-    | GetUnpackSkipImages   -- | int
+    | GetPackSwapBytes      -- ^ bool
+    | GetUnpackSwapBytes    -- ^ bool
+    | GetPackLSBFirst       -- ^ bool
+    | GetUnpackLSBFirst     -- ^ bool
+    | GetPackRowLength      -- ^ int
+    | GetUnpackRowLength    -- ^ int
+    | GetPackSkipRows       -- ^ int
+    | GetUnpackSkipRows     -- ^ int
+    | GetPackSkipPixels     -- ^ int
+    | GetUnpackSkipPixels   -- ^ int
+    | GetPackAlignment      -- ^ int
+    | GetUnpackAlignment    -- ^ int
+    | GetPackImageHeight    -- ^ int
+    | GetUnpackImageHeight  -- ^ int
+    | GetPackSkipImages     -- ^ int
+    | GetUnpackSkipImages   -- ^ int
     -- pixel map
-    | GetPixelMapIToISize   -- | int
-    | GetPixelMapSToSSize   -- | int
-    | GetPixelMapIToRSize   -- | int
-    | GetPixelMapIToGSize   -- | int
-    | GetPixelMapIToBSize   -- | int
-    | GetPixelMapIToASize   -- | int
-    | GetPixelMapRToRSize   -- | int
-    | GetPixelMapGToGSize   -- | int
-    | GetPixelMapBToBSize   -- | int
-    | GetPixelMapAToASize   -- | int
-    | GetMaxPixelMapTable   -- | sizei
+    | GetPixelMapIToISize   -- ^ int
+    | GetPixelMapSToSSize   -- ^ int
+    | GetPixelMapIToRSize   -- ^ int
+    | GetPixelMapIToGSize   -- ^ int
+    | GetPixelMapIToBSize   -- ^ int
+    | GetPixelMapIToASize   -- ^ int
+    | GetPixelMapRToRSize   -- ^ int
+    | GetPixelMapGToGSize   -- ^ int
+    | GetPixelMapBToBSize   -- ^ int
+    | GetPixelMapAToASize   -- ^ int
+    | GetMaxPixelMapTable   -- ^ sizei
     -- shader limits
-    | GetMaxVertexTextureImageUnits     -- | sizei
-    | GetMaxTextureImageUnits           -- | sizei
-    | GetMaxCombinedTextureImageUnits   -- | sizei
-    | GetMaxTextureCoords               -- | sizei
-    | GetMaxVertexUniformComponents     -- | sizei
-    | GetMaxFragmentUniformComponents   -- | sizei
-    | GetMaxVertexAttribs               -- | sizei
-    | GetMaxVaryingFloats               -- | sizei
+    | GetMaxVertexTextureImageUnits     -- ^ sizei
+    | GetMaxTextureImageUnits           -- ^ sizei
+    | GetMaxCombinedTextureImageUnits   -- ^ sizei
+    | GetMaxTextureCoords               -- ^ sizei
+    | GetMaxVertexUniformComponents     -- ^ sizei
+    | GetMaxFragmentUniformComponents   -- ^ sizei
+    | GetMaxVertexAttribs               -- ^ sizei
+    | GetMaxVaryingFloats               -- ^ sizei
     -- coordtrans
-    | GetMatrixMode                 -- | enum
-    | GetModelviewStackDepth        -- | sizei
-    | GetProjectionStackDepth       -- | sizei
-    | GetTextureStackDepth          -- | sizei
-    | GetColorMatrixStackDepth      -- | sizei
-    | GetMaxModelviewStackDepth     -- | sizei
-    | GetMaxProjectionStackDepth    -- | sizei
-    | GetMaxTextureStackDepth       -- | sizei
-    | GetMaxColorMatrixStackDepth   -- | sizei
-    | GetMaxMatrixPaletteStackDepth -- | sizei
-    | GetCurrentMatrixStackDepth    -- | sizei
-    | GetActiveTexture              -- | enum
+    | GetMatrixMode                 -- ^ enum
+    | GetModelviewStackDepth        -- ^ sizei
+    | GetProjectionStackDepth       -- ^ sizei
+    | GetTextureStackDepth          -- ^ sizei
+    | GetColorMatrixStackDepth      -- ^ sizei
+    | GetMaxModelviewStackDepth     -- ^ sizei
+    | GetMaxProjectionStackDepth    -- ^ sizei
+    | GetMaxTextureStackDepth       -- ^ sizei
+    | GetMaxColorMatrixStackDepth   -- ^ sizei
+    | GetMaxMatrixPaletteStackDepth -- ^ sizei
+    | GetCurrentMatrixStackDepth    -- ^ sizei
+    | GetActiveTexture              -- ^ enum
     -- VertexArrays
-    | GetVertexArraySize    -- | int
-    | GetVertexArrayType    -- | enum
-    | GetVertexArrayStride  -- | int
-    | GetNormalArrayType    -- | enum
-    | GetNormalArrayStride  -- | int
-    | GetColorArraySize     -- | int
-    | GetColorArrayType     -- | enum
-    | GetColorArrayStride   -- | int
-    | GetIndexArrayType     -- | enum
-    | GetIndexArrayStride   -- | int
-    | GetTextureCoordArraySize      -- | int
-    | GetTextureCoordArrayType      -- | enum
-    | GetTextureCoordArrayStride    -- | int
-    | GetEdgeFlagArrayStride        -- | int
-    | GetFogCoordArrayType          -- | enum
-    | GetFogCoordArrayStride        -- | int
-    | GetSecondaryColorArraySize    -- | int
-    | GetSecondaryColorArrayType    -- | enum
-    | GetSecondaryColorArrayStride  -- | int
-    | GetArrayElementLockCount      -- | int
-    | GetArrayElementLockFirst      -- | int
-    | GetClientActiveTexture        -- | enum
-    | GetMaxElementsVertices        -- | sizei
-    | GetMaxElementsIndices         -- | sizei
-    | GetPrimitiveRestartIndex      -- | int
-    | GetPrimitiveRestartNV         -- | bool
-    | GetPrimitiveRestartIndexNV    -- | int
+    | GetVertexArraySize    -- ^ int
+    | GetVertexArrayType    -- ^ enum
+    | GetVertexArrayStride  -- ^ int
+    | GetNormalArrayType    -- ^ enum
+    | GetNormalArrayStride  -- ^ int
+    | GetColorArraySize     -- ^ int
+    | GetColorArrayType     -- ^ enum
+    | GetColorArrayStride   -- ^ int
+    | GetIndexArrayType     -- ^ enum
+    | GetIndexArrayStride   -- ^ int
+    | GetTextureCoordArraySize      -- ^ int
+    | GetTextureCoordArrayType      -- ^ enum
+    | GetTextureCoordArrayStride    -- ^ int
+    | GetEdgeFlagArrayStride        -- ^ int
+    | GetFogCoordArrayType          -- ^ enum
+    | GetFogCoordArrayStride        -- ^ int
+    | GetSecondaryColorArraySize    -- ^ int
+    | GetSecondaryColorArrayType    -- ^ enum
+    | GetSecondaryColorArrayStride  -- ^ int
+    | GetArrayElementLockCount      -- ^ int
+    | GetArrayElementLockFirst      -- ^ int
+    | GetClientActiveTexture        -- ^ enum
+    | GetMaxElementsVertices        -- ^ sizei
+    | GetMaxElementsIndices         -- ^ sizei
+    | GetPrimitiveRestartIndex      -- ^ int
+    | GetPrimitiveRestartNV         -- ^ bool
+    | GetPrimitiveRestartIndexNV    -- ^ int
     -- bufferObjects
-    | GetArrayBufferBinding         -- | int
-    | GetElementArrayBufferBinding  -- | int
-    | GetCopyReadBuffer             -- | int
-    | GetCopyWriteBuffer            -- | int
-    | GetPixelPackBufferBinding     -- | int
-    | GetPixelUnpackBufferBinding   -- | int
-    | GetTransformFeedbackBufferBinding -- | int
-    | GetVertexArrayBufferBinding   -- | int
-    | GetNormalArrayBufferBinding   -- | int
-    | GetColorArrayBufferBinding    -- | int
-    | GetIndexArrayBufferBinding    -- | int
-    | GetTextureCoordArrayBufferBinding -- | int
-    | GetEdgeFlagArrayBufferBinding -- | int
-    | GetSecondaryColorArrayBufferBinding   -- | int
-    | GetFogCoordArrayBufferBinding -- | int
+    | GetArrayBufferBinding         -- ^ int
+    | GetElementArrayBufferBinding  -- ^ int
+    | GetCopyReadBuffer             -- ^ int
+    | GetCopyWriteBuffer            -- ^ int
+    | GetPixelPackBufferBinding     -- ^ int
+    | GetPixelUnpackBufferBinding   -- ^ int
+    | GetTransformFeedbackBufferBinding -- ^ int
+    | GetVertexArrayBufferBinding   -- ^ int
+    | GetNormalArrayBufferBinding   -- ^ int
+    | GetColorArrayBufferBinding    -- ^ int
+    | GetIndexArrayBufferBinding    -- ^ int
+    | GetTextureCoordArrayBufferBinding -- ^ int
+    | GetEdgeFlagArrayBufferBinding -- ^ int
+    | GetSecondaryColorArrayBufferBinding   -- ^ int
+    | GetFogCoordArrayBufferBinding -- ^ int
     -- clipping
-    | GetMaxClipPlanes          -- | sizei
+    | GetMaxClipPlanes          -- ^ sizei
     -- Colors
-    | GetMaxLights              -- | sizei
-    | GetFrontFace              -- | enum
-    | GetLightModelLocalViewer  -- | bool
-    | GetLightModelTwoSide      -- | bool
-    | GetLightModelColorControl -- | enum
-    | GetColorMaterialFace      -- | enum
-    | GetColorMaterialParameter -- | enum
-    | GetShadeModel             -- | enum
-    | GetFragmentColorClamp     -- | enum
-    | GetVertexColorClamp       -- | enum
-    | GetReadColorClamp         -- | enum
+    | GetMaxLights              -- ^ sizei
+    | GetFrontFace              -- ^ enum
+    | GetLightModelLocalViewer  -- ^ bool
+    | GetLightModelTwoSide      -- ^ bool
+    | GetLightModelColorControl -- ^ enum
+    | GetColorMaterialFace      -- ^ enum
+    | GetColorMaterialParameter -- ^ enum
+    | GetShadeModel             -- ^ enum
+    | GetFragmentColorClamp     -- ^ enum
+    | GetVertexColorClamp       -- ^ enum
+    | GetReadColorClamp         -- ^ enum
     -- Evaluators
-    | GetMaxEvalOrder       -- | int
-    | GetMap1GridSegments   -- | int
+    | GetMaxEvalOrder       -- ^ int
+    | GetMap1GridSegments   -- ^ int
     -- Fog
-    | GetFogMode            -- | int => enum
-    | GetFogIndex           -- | int
-    | GetFogCoordSrc        -- | int
-    | GetFogDistanceMode    -- | int => enum
+    | GetFogMode            -- ^ int => enum
+    | GetFogIndex           -- ^ int
+    | GetFogCoordSrc        -- ^ int
+    | GetFogDistanceMode    -- ^ int => enum
     -- Framebuffer
-    | GetAuxBuffers         -- | sizei
-    | GetDoublebuffer       -- | bool
-    | GetStereo             -- | bool
-    | GetRedBits            -- | sizei
-    | GetGreenBits          -- | sizei
-    | GetBlueBits           -- | sizei
-    | GetAlphaBits          -- | sizei
-    | GetStencilBits        -- | sizei
-    | GetDepthBits          -- | sizei
-    | GetAccumRedBits       -- | sizei
-    | GetAccumGreenBits     -- | sizei
-    | GetAccumBlueBits      -- | sizei
-    | GetAccumAlphaBits     -- | sizei
-    | GetDrawBuffer         -- | enum
+    | GetAuxBuffers         -- ^ sizei
+    | GetDoublebuffer       -- ^ bool
+    | GetStereo             -- ^ bool
+    | GetRedBits            -- ^ sizei
+    | GetGreenBits          -- ^ sizei
+    | GetBlueBits           -- ^ sizei
+    | GetAlphaBits          -- ^ sizei
+    | GetStencilBits        -- ^ sizei
+    | GetDepthBits          -- ^ sizei
+    | GetAccumRedBits       -- ^ sizei
+    | GetAccumGreenBits     -- ^ sizei
+    | GetAccumBlueBits      -- ^ sizei
+    | GetAccumAlphaBits     -- ^ sizei
+    | GetDrawBuffer         -- ^ enum
     | GetDrawBufferN GLsizei -- enum
-    | GetMaxDrawBuffers     -- | sizei
-    | GetIndexWritemask     -- | int
-    | GetDepthWritemask     -- | bool
-    | GetStencilWritemask   -- | bool
-    | GetStencilClearValue  -- | int
+    | GetMaxDrawBuffers     -- ^ sizei
+    | GetIndexWritemask     -- ^ int
+    | GetDepthWritemask     -- ^ bool
+    | GetStencilWritemask   -- ^ bool
+    | GetStencilClearValue  -- ^ int
     -- Program
-    | GetCurrentProgram     -- | int
+    | GetCurrentProgram     -- ^ int
     -- Transformfeedback
-    | GetMaxTransformFeedbackSeparateAttribs        -- | int
-    | GetMaxTransformFeedbackInterleavedComponents  -- | int
-    | GetMaxTransformFeedbackSeparateComponents     -- | int
-    | GetCurrentRasterIndex         -- | int
-    | GetCurrentRasterPositionValid -- | bool
+    | GetMaxTransformFeedbackSeparateAttribs        -- ^ int
+    | GetMaxTransformFeedbackInterleavedComponents  -- ^ int
+    | GetMaxTransformFeedbackSeparateComponents     -- ^ int
+    | GetCurrentRasterIndex         -- ^ int
+    | GetCurrentRasterPositionValid -- ^ bool
     -- LineSegment
-    | GetLineStippleRepeat          -- | int
-    | GetLineStipplePattern         -- | int
+    | GetLineStippleRepeat          -- ^ int
+    | GetLineStipplePattern         -- ^ int
     -- PerFragment
-    | GetSampleCoverageInvert       -- | bool
-    | GetAlphaTestFunc              -- | enum
-    | GetStencilFunc                -- | enum
-    | GetStencilValueMask           -- | int
-    | GetStencilRef                 -- | int
-    | GetStencilFail                -- | enum
-    | GetStencilPassDepthFail       -- | enum
-    | GetStencilPassDepthPass       -- | enum
-    | GetActiveStencilFace          -- | enum
-    | GetLogicOpMode                -- | enum
-    | GetBlendDst                   -- | enum
-    | GetBlendSrc                   -- | enum
-    | GetBlendSrcRGB                -- | enum
-    | GetBlendSrcAlpha              -- | enum
-    | GetBlendDstRGB                -- | enum
-    | GetBlendDstAlpha              -- | enum
-    | GetBlendEquation              -- | enum
-    | GetBlendEquationAlpha         -- | enum
-    | GetDepthFunc                  -- | enum
-    | GetMapColor                   -- | bool
-    | GetMapStencil                 -- | bool
-    | GetIndexShift                 -- | int
-    | GetIndexOffset                -- | int
-    -- Polygons                     -- | enum
+    | GetSampleCoverageInvert       -- ^ bool
+    | GetAlphaTestFunc              -- ^ enum
+    | GetStencilFunc                -- ^ enum
+    | GetStencilValueMask           -- ^ int
+    | GetStencilRef                 -- ^ int
+    | GetStencilFail                -- ^ enum
+    | GetStencilPassDepthFail       -- ^ enum
+    | GetStencilPassDepthPass       -- ^ enum
+    | GetActiveStencilFace          -- ^ enum
+    | GetLogicOpMode                -- ^ enum
+    | GetBlendDst                   -- ^ enum
+    | GetBlendSrc                   -- ^ enum
+    | GetBlendSrcRGB                -- ^ enum
+    | GetBlendSrcAlpha              -- ^ enum
+    | GetBlendDstRGB                -- ^ enum
+    | GetBlendDstAlpha              -- ^ enum
+    | GetBlendEquation              -- ^ enum
+    | GetBlendEquationAlpha         -- ^ enum
+    | GetDepthFunc                  -- ^ enum
+    | GetMapColor                   -- ^ bool
+    | GetMapStencil                 -- ^ bool
+    | GetIndexShift                 -- ^ int
+    | GetIndexOffset                -- ^ int
+    -- Polygons                     -- ^ enum
     | GetCullFaceMode
     -- TextureSpecification
-    | GetNumCompressedTextureFormats    -- | int
-    | GetMaxTextureSize                 -- | int
-    | GetMax3DTextureSize               -- | int
-    | GetMaxCubeMapTextureSize          -- | int
-    | GetMaxRectangleTextureSize        -- | int
+    | GetNumCompressedTextureFormats    -- ^ int
+    | GetMaxTextureSize                 -- ^ int
+    | GetMax3DTextureSize               -- ^ int
+    | GetMaxCubeMapTextureSize          -- ^ int
+    | GetMaxRectangleTextureSize        -- ^ int
     -- ReadCopyPixels
-    | GetReadBuffer                 -- | enum
+    | GetReadBuffer                 -- ^ enum
     -- Texture Objects
-    | GetTextureBinding1D           -- | int\/enum
-    | GetTextureBinding2D           -- | int\/enum
-    | GetTextureBinding3D           -- | int\/enum
-    | GetTextureBindingCubeMap      -- | int\/enum
-    | GetTextureBindingRectangle    -- | int\/enum
+    | GetTextureBinding1D           -- ^ int\/enum
+    | GetTextureBinding2D           -- ^ int\/enum
+    | GetTextureBinding3D           -- ^ int\/enum
+    | GetTextureBindingCubeMap      -- ^ int\/enum
+    | GetTextureBindingRectangle    -- ^ int\/enum
     -- Antialiasing
-    | GetSubpixelBits               -- | sizei
-    | GetSamples                    -- | sizei
-    | GetSampleBuffers              -- | sizei
+    | GetSubpixelBits               -- ^ sizei
+    | GetSamples                    -- ^ sizei
+    | GetSampleBuffers              -- ^ sizei
 
 instance GetPName1I PName1I where
 
@@ -817,67 +817,67 @@ maxDrawBufferIndex = fromIntegral (gl_DRAW_BUFFER15 - gl_DRAW_BUFFER0)
 -----------------------------------------------------------------------------
 
 data PName1F
-    = GetCurrentFogCoord    -- | Float1
+    = GetCurrentFogCoord    -- ^ Float1
     -- Rasterization
-    | GetZoomX              -- | Float
-    | GetZoomY              -- | Float
+    | GetZoomX              -- ^ Float
+    | GetZoomY              -- ^ Float
     -- Colors
-    | GetMaxShininess       -- | Float
-    | GetMaxSpotExponent    -- | Float
+    | GetMaxShininess       -- ^ Float
+    | GetMaxSpotExponent    -- ^ Float
     -- Fog
-    | GetFogStart           -- | float
-    | GetFogEnd             -- | float
-    | GetFogDensity         -- | float
+    | GetFogStart           -- ^ float
+    | GetFogEnd             -- ^ float
+    | GetFogDensity         -- ^ float
     -- Framebuffer
-    | GetDepthClearValue    -- | clampf
-    | GetIndexClearValue    -- | float
+    | GetDepthClearValue    -- ^ clampf
+    | GetIndexClearValue    -- ^ float
     -- RasterPos
-    | GetCurrentRasterDistance -- | float
+    | GetCurrentRasterDistance -- ^ float
     -- Point
-    | GetPointSizeMin               -- | float
-    | GetPointSizeMax               -- | float
-    | GetPointFadeThresholdSize     -- | float
-    | GetSmoothPointSizeGranularity -- | float
-    | GetPointSize                  -- | float
+    | GetPointSizeMin               -- ^ float
+    | GetPointSizeMax               -- ^ float
+    | GetPointFadeThresholdSize     -- ^ float
+    | GetSmoothPointSizeGranularity -- ^ float
+    | GetPointSize                  -- ^ float
     -- LineSegment
-    | GetLineWidth                  -- | float
-    | GetSmoothLineWidthGranularity -- | float
+    | GetLineWidth                  -- ^ float
+    | GetSmoothLineWidthGranularity -- ^ float
     -- PerFragment
-    | GetSampleCoverageValue        -- | clampf
-    | GetAlphaTestRef               -- | clampf
+    | GetSampleCoverageValue        -- ^ clampf
+    | GetAlphaTestRef               -- ^ clampf
     -- PixelTransfer
-    | GetRedScale                   -- | float
-    | GetGreenScale                 -- | float
-    | GetBlueScale                  -- | float
-    | GetAlphaScale                 -- | float
-    | GetPostConvolutionRedScale    -- | float
-    | GetPostConvolutionGreenScale  -- | float
-    | GetPostConvolutionBlueScale   -- | float
-    | GetPostConvolutionAlphaScale  -- | float
-    | GetPostColorMatrixRedScale    -- | float
-    | GetPostColorMatrixGreenScale  -- | float
-    | GetPostColorMatrixBlueScale   -- | float
-    | GetPostColorMatrixAlphaScale  -- | float
-    | GetRedBias                    -- | float
-    | GetGreenBias                  -- | float
-    | GetBlueBias                   -- | float
-    | GetAlphaBias                  -- | float
-    | GetPostConvolutionRedBias     -- | float
-    | GetPostConvolutionGreenBias   -- | float
-    | GetPostConvolutionBlueBias    -- | float
-    | GetPostConvolutionAlphaBias   -- | float
-    | GetPostColorMatrixRedBias     -- | float
-    | GetPostColorMatrixGreenBias   -- | float
-    | GetPostColorMatrixBlueBias    -- | float
-    | GetPostColorMatrixAlphaBias   -- | float
-    | GetDepthScale                 -- | float
-    | GetDepthBias                  -- | float
+    | GetRedScale                   -- ^ float
+    | GetGreenScale                 -- ^ float
+    | GetBlueScale                  -- ^ float
+    | GetAlphaScale                 -- ^ float
+    | GetPostConvolutionRedScale    -- ^ float
+    | GetPostConvolutionGreenScale  -- ^ float
+    | GetPostConvolutionBlueScale   -- ^ float
+    | GetPostConvolutionAlphaScale  -- ^ float
+    | GetPostColorMatrixRedScale    -- ^ float
+    | GetPostColorMatrixGreenScale  -- ^ float
+    | GetPostColorMatrixBlueScale   -- ^ float
+    | GetPostColorMatrixAlphaScale  -- ^ float
+    | GetRedBias                    -- ^ float
+    | GetGreenBias                  -- ^ float
+    | GetBlueBias                   -- ^ float
+    | GetAlphaBias                  -- ^ float
+    | GetPostConvolutionRedBias     -- ^ float
+    | GetPostConvolutionGreenBias   -- ^ float
+    | GetPostConvolutionBlueBias    -- ^ float
+    | GetPostConvolutionAlphaBias   -- ^ float
+    | GetPostColorMatrixRedBias     -- ^ float
+    | GetPostColorMatrixGreenBias   -- ^ float
+    | GetPostColorMatrixBlueBias    -- ^ float
+    | GetPostColorMatrixAlphaBias   -- ^ float
+    | GetDepthScale                 -- ^ float
+    | GetDepthBias                  -- ^ float
     -- Polygons
-    | GetPolygonOffsetFactor        -- | float
-    | GetPolygonOffsetUnits         -- | float
+    | GetPolygonOffsetFactor        -- ^ float
+    | GetPolygonOffsetUnits         -- ^ float
     -- Texture parameters
-    | GetMaxTextureMaxAnisotropy    -- | float
-    | GetMaxTextureLODBias          -- | float
+    | GetMaxTextureMaxAnisotropy    -- ^ float
+    | GetMaxTextureLODBias          -- ^ float
 
 instance GetPName1F PName1F where
 
@@ -964,7 +964,7 @@ instance GetPName IPName1I where
 
 data PName2I
     -- coordtrans
-    = GetMaxViewportDims -- | sizei
+    = GetMaxViewportDims -- ^ sizei
     -- Evaluators
     | GetMap2GridSegments
     -- Polygons
