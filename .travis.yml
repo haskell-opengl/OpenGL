@@ -11,5 +11,5 @@ before_install:
   - ghc-pkg list
 install:
   - true
-test:
+script:
   - cabal install --enable-tests && cabal test
