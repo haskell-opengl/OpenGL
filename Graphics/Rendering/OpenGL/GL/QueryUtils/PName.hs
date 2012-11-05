@@ -265,7 +265,7 @@ class GetPName p => GetPName3F p where
 -- | Helper function for the get*3 functions.
 get3 :: (Storable b, Storable c, GetPName p)
     => (p -> Ptr c -> IO ())
-    -> (b -> b -> b -> a) -- | Conversion from the casted value to the return value
+    -> (b -> b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
 get3 g f n = allocaArray 3 $ \buf -> do
     g n buf
@@ -299,7 +299,7 @@ class GetPName p => GetPName4F p where
 -- | Helper function for the get*4 functions.
 get4 :: (Storable b, Storable c, GetPName p)
     => (p -> Ptr c -> IO ())
-    -> (b -> b -> b -> b -> a) -- | Conversion from the casted value to the return value
+    -> (b -> b -> b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
 get4 g f n = allocaArray 4 $ \buf -> do
     g n buf
@@ -319,7 +319,7 @@ class GetPName p => GetIPName4I p where
 -- | Helper function for the get*4 functions.
 get4i :: (Storable b, Storable c, GetPName p)
     => (p -> GLuint -> Ptr c -> IO ())
-    -> (b -> b -> b -> b -> a) -- | Conversion from the casted value to the return value
+    -> (b -> b -> b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> GLuint -> IO a
 get4i g f n i = allocaArray 4 $ \buf -> do
     g n i buf
@@ -985,17 +985,17 @@ instance GetPName PName2I where
 
 data PName2F
     -- coordtrans
-    = GetDepthRange -- | clamp
+    = GetDepthRange -- ^ clamp
     -- Evaluators
-    | GetMap1GridDomain -- | float2?
+    | GetMap1GridDomain -- ^ float2?
     -- Point
-    | GetAliasedPointSizeRange  -- | float
-    | GetSmoothPointSizeRange   -- | float
+    | GetAliasedPointSizeRange  -- ^ float
+    | GetSmoothPointSizeRange   -- ^ float
     -- LineSegments
-    | GetAliasedLineWidthRange  -- | float
-    | GetSmoothLineWidthRange   -- | float
+    | GetAliasedLineWidthRange  -- ^ float
+    | GetSmoothLineWidthRange   -- ^ float
     -- PerFragment
-    | GetDepthBounds            -- | clampd
+    | GetDepthBounds            -- ^ clampd
 
 instance GetPName2F PName2F where
 
@@ -1017,9 +1017,9 @@ instance GetPName PName2F where
 -----------------------------------------------------------------------------
 
 data PName3F
-    = GetCurrentNormal -- | Float3
+    = GetCurrentNormal -- ^ Float3
     -- Point
-    | GetPointDistanceAttenuation -- | float
+    | GetPointDistanceAttenuation -- ^ float
 
 instance GetPName3F PName3F where
 
@@ -1033,11 +1033,11 @@ instance GetPName PName3F where
 
 data PName4I
     -- coordtrans
-    = GetViewport               -- | int
+    = GetViewport               -- ^ int
     -- Framebuffer
-    | GetRGBASignedComponents   -- | int
+    | GetRGBASignedComponents   -- ^ int
     -- PerFragment
-    | GetScissorBox             -- | int
+    | GetScissorBox             -- ^ int
 
 
 instance GetPName4I PName4I where
@@ -1054,7 +1054,7 @@ instance GetPName PName4I where
 
 -- | Both indexed and unindexed
 data PName4ISemiIndexed
-    = GetColorWritemask         -- | bool
+    = GetColorWritemask         -- ^ bool
 
 instance GetPName4I  PName4ISemiIndexed where
 instance GetIPName4I PName4ISemiIndexed where
@@ -1067,25 +1067,25 @@ instance GetPName PName4ISemiIndexed where
 
 data PName4F
     = GetCurrentColor -- | ?
-    | GetCurrentTextureCoords   -- | Float
-    | GetCurrentSecondaryColor  -- | Float
+    | GetCurrentTextureCoords   -- ^ Float
+    | GetCurrentSecondaryColor  -- ^ Float
     -- clipping
-    | GetClipPlane GLsizei  -- | double
+    | GetClipPlane GLsizei  -- ^ double
     -- Colors
-    | GetLightModelAmbient  -- | float
+    | GetLightModelAmbient  -- ^ float
     -- Evaluators
-    | GetMap2GridDomain     -- | float?
+    | GetMap2GridDomain     -- ^ float?
     -- Fog
-    | GetFogColor           -- | clampf
+    | GetFogColor           -- ^ clampf
     -- Framebuffer
-    | GetColorClearValue    -- | clampf
-    | GetAccumClearValue    -- | float
+    | GetColorClearValue    -- ^ clampf
+    | GetAccumClearValue    -- ^ float
     -- RasterPos
-    | GetCurrentRasterColor             -- | float
-    | GetCurrentRasterSecondaryColor    -- | float
-    | GetCurrentRasterTextureCoords     -- | float
-    | GetCurrentRasterPosition          -- | float
-    | GetBlendColor                     -- | clampf
+    | GetCurrentRasterColor             -- ^ float
+    | GetCurrentRasterSecondaryColor    -- ^ float
+    | GetCurrentRasterTextureCoords     -- ^ float
+    | GetCurrentRasterPosition          -- ^ float
+    | GetBlendColor                     -- ^ clampf
 
 instance GetPName4F PName4F where
 
