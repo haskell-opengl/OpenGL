@@ -1,6 +1,5 @@
 language: haskell
 before_install:
-  - cabal install cabal-install
   - echo documentation:\ True >> $HOME/.cabal/config
   - ghc-pkg list
   - pushd ..
@@ -10,4 +9,5 @@ before_install:
   - cabal install
   - popd
   - ghc-pkg list
-  
+install:
+test: cabal install --enable-tests && cabal test
