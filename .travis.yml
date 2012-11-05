@@ -1,6 +1,5 @@
 language: haskell
 before_install:
-  - echo documentation:\ True >> $HOME/.cabal/config
   - ghc-pkg list
   - pushd ..
   - git clone --depth=100 --quiet https://github.com/haskell-opengl/OpenGLRaw.git
