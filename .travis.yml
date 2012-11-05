@@ -1,5 +1,7 @@
 language: haskell
 before_install:
+  - ls -dl $HOME/.cabal
+  - ls -l $HOME/.cabal
   - echo "documentation: True" >> $HOME/.cabal/config
   - ghc-pkg list
   - pushd ..
