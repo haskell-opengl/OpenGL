@@ -10,4 +10,5 @@ before_install:
   - popd
   - ghc-pkg list
 install:
-test: cabal install --enable-tests && cabal test
+test:
+  - cabal install --enable-tests && cabal test
