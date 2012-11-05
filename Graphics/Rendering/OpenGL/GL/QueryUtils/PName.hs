@@ -375,7 +375,7 @@ data PName1I
     | GetMaxNameStackDepth      -- ^ int
     | GetNameStackDepth         -- ^ int
     -- ContextProfile
-    | GetContextProfileMask     -- | enum
+    | GetContextProfileMask     -- ^ enum
     -- pixelStorage
     | GetPackSwapBytes      -- ^ bool
     | GetUnpackSwapBytes    -- ^ bool
@@ -1066,7 +1066,7 @@ instance GetPName PName4ISemiIndexed where
 -----------------------------------------------------------------------------
 
 data PName4F
-    = GetCurrentColor -- | ?
+    = GetCurrentColor -- ^ ?
     | GetCurrentTextureCoords   -- ^ Float
     | GetCurrentSecondaryColor  -- ^ Float
     -- clipping
