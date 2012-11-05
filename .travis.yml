@@ -9,7 +9,7 @@ before_install:
   - cabal install
   - popd
   - ghc-pkg list
-install:
-  - true
 script:
-  - cabal install --enable-tests && cabal test
+  - set -e
+  - cabal haddock
+  - cabal test
