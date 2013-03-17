@@ -9,6 +9,4 @@ before_install:
   - popd
   - ghc-pkg list
 script:
-  - set -e
-  - cabal configure
-  - cabal haddock
+  - cabal install --enable-documentation
