@@ -10,5 +10,6 @@ before_install:
   - ghc-pkg list
 script:
   - set -e
+  - cabal configure
   - cabal haddock
   - cabal test
