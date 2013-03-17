@@ -17,9 +17,9 @@ module Graphics.Rendering.OpenGL.GL.ControlPoint (
    ControlPoint(..)
 ) where
 
-import Data.Tensor
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Domain
 import Graphics.Rendering.OpenGL.GL.VertexArrays

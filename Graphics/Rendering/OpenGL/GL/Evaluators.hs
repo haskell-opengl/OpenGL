@@ -46,12 +46,12 @@ module Graphics.Rendering.OpenGL.GL.Evaluators (
 
 import Control.Monad
 import Data.List
-import Data.StateVar
 import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.Domain

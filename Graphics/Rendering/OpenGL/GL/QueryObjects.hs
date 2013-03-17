@@ -26,10 +26,10 @@ ConditionalRenderMode(..),
 beginConditionalRender, endConditionalRender, withConditionalRender
 ) where
 
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
+import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke

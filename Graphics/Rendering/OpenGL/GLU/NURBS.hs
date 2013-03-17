@@ -31,7 +31,6 @@ module Graphics.Rendering.OpenGL.GLU.NURBS (
 ) where
 
 import Control.Monad
-import Data.Tensor
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
@@ -39,6 +38,7 @@ import Graphics.Rendering.GLU.Raw hiding (
    NURBSBeginCallback, NURBSVertexCallback, NURBSNormalCallback,
    NURBSColorCallback, NURBSEndCallback )
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.CoordTrans

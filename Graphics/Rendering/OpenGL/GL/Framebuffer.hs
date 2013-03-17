@@ -35,8 +35,8 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
 import Control.Monad
 import Data.List
 import Data.Maybe
-import Data.StateVar
 import Foreign.Marshal.Array
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Face

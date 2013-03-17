@@ -31,12 +31,12 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
    maxTransformFeedbackSeparateComponents
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Storable
 
 import Graphics.Rendering.OpenGL.Raw.Core32
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode

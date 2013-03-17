@@ -22,11 +22,11 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Environments (
 ) where
 
 import Control.Monad
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.BlendingFactor
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.Texturing.Parameters

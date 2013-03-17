@@ -16,9 +16,9 @@ module Graphics.Rendering.OpenGL.GL.Clipping (
    ClipPlaneName(..), clipPlane, maxClipPlanes
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Utils
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.QueryUtils

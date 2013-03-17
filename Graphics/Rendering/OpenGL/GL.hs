@@ -58,8 +58,8 @@ module Graphics.Rendering.OpenGL.GL (
 --   module Graphics.Rendering.OpenGL.GL.QueryObjects,
 
    -- * State and State Requests
-   module Data.StateVar,
-   module Data.Tensor,
+   module Graphics.Rendering.OpenGL.GL.StateVar,
+   module Graphics.Rendering.OpenGL.GL.Tensor,
    module Graphics.Rendering.OpenGL.GL.StringQueries,
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
@@ -106,7 +106,7 @@ import Graphics.Rendering.OpenGL.GL.TransformFeedback
 -- is exported through PerFragment for backwards compatibility reasons
 --import Graphics.Rendering.OpenGL.GL.QueryObjects
 
-import Data.StateVar
-import Data.Tensor
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.StringQueries
 import Graphics.Rendering.OpenGL.GL.SavingState

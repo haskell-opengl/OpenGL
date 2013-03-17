@@ -38,7 +38,6 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
 import Control.Monad ( foldM_, unless )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
 import Data.Maybe ( fromJust, fromMaybe )
-import Data.Tensor
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
@@ -46,6 +45,7 @@ import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )

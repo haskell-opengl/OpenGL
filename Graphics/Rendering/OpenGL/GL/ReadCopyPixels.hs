@@ -24,7 +24,7 @@ module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
    BlitFramebufferMask(..), blitFramebuffer
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelData

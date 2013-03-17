@@ -20,11 +20,11 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
    UniformComponent,
 ) where
 
-import Data.StateVar
-import Data.Tensor
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.Core31

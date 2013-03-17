@@ -17,12 +17,13 @@ module Graphics.Rendering.OpenGL.GL.GLstring (
     stringQuery
 ) where
 
-import Data.StateVar
 import Foreign.C.String
 import Foreign.Marshal.Array
 import Foreign.Ptr
 
 import Graphics.Rendering.OpenGL.Raw.Core31
+
+import Graphics.Rendering.OpenGL.GL.StateVar
 
 -----------------------------------------------------------------------------
 

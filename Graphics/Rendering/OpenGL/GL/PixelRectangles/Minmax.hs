@@ -17,8 +17,8 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Minmax (
    minmax, getMinmax, resetMinmax
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData

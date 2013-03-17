@@ -16,11 +16,11 @@ module Graphics.Rendering.OpenGL.GL.Bitmaps (
    bitmap
 ) where
 
-import Data.Tensor
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glBitmap )
 import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.Tensor
 
 --------------------------------------------------------------------------------
 

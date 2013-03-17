@@ -40,8 +40,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
   maxTextureSize
 ) where
 
-import Data.StateVar
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelRectangles

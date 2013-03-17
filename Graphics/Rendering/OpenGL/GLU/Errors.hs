@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GLU.Errors (
    Error(..), ErrorCategory(..), errors
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 
 --------------------------------------------------------------------------------

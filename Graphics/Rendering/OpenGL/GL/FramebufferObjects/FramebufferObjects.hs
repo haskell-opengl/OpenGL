@@ -22,11 +22,11 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects (
    FramebufferStatus(..), framebufferStatus,
 ) where
 
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Marshal
 import Graphics.Rendering.OpenGL.Raw.Core31
 
+import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 

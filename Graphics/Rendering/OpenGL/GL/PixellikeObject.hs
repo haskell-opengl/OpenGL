@@ -17,8 +17,8 @@ module Graphics.Rendering.OpenGL.GL.PixellikeObject (
   PixellikeObjectTarget(pixellikeObjTarParam),
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.Raw.Core31
 

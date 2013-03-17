@@ -20,13 +20,13 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Variables (
 import Graphics.Rendering.OpenGL.GL.GLstring
 
 import Control.Monad
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.Raw.Core31
 
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 
 -- Table 2.9 of the OpenGL 3.1 spec: OpenGL Shading Language type tokens

@@ -35,10 +35,10 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    vertexAttribPointer, vertexAttribArray,
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLboolean

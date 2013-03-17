@@ -23,9 +23,9 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
    rasterPositionUnclipped
 ) where
 
-import Data.StateVar
-import Data.Tensor
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils

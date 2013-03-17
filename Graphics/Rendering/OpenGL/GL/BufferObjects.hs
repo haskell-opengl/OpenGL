@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.BufferObjects (
    -- * Object Names
-   module Data.ObjectName,
+   module Graphics.Rendering.OpenGL.GL.ObjectName,
 
    -- * Buffer Objects
    BufferObject(BufferObject),
@@ -44,17 +44,17 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    indexedBufferStart, indexedBufferSize
 ) where
 
-import Data.ObjectName
 import Data.List(foldl1')
 import Data.Bits((.|.))
 import Data.Maybe
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke

@@ -23,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
    edgeFlag
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.EdgeFlag
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode

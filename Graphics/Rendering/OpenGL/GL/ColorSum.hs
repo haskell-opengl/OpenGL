@@ -16,7 +16,7 @@ module Graphics.Rendering.OpenGL.GL.ColorSum (
    colorSum
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 
 --------------------------------------------------------------------------------

@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Limits (
    maxFragmentUniformComponents, maxVertexAttribs, maxVaryingFloats
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31
 

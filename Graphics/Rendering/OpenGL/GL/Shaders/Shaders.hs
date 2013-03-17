@@ -26,11 +26,11 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Shaders (
 import Control.Monad
 import Control.Monad.Fix
 import Data.List
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
+import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PeekPoke

@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.Antialiasing (
    sampleBuffers, samples, multisample, subpixelBits
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw.Core31

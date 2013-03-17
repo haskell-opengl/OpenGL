@@ -25,9 +25,9 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
    genLists, deleteLists, isList,
 ) where
 
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean

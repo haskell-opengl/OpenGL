@@ -28,11 +28,11 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Program (
 import Control.Monad
 import Data.List
 import Data.Maybe (fromMaybe)
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring

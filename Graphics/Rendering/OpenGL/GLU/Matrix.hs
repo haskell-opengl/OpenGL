@@ -17,12 +17,12 @@ module Graphics.Rendering.OpenGL.GLU.Matrix (
    project, unProject, unProject4
 ) where
 
-import Data.Tensor
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.GLU.Raw
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal

@@ -18,8 +18,8 @@ module Graphics.Rendering.OpenGL.GL.Rectangles (
    Rect(..)
 ) where
 
-import Data.Tensor
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
    glRectd, glRectdv, glRectf, glRectfv, glRecti, glRectiv, glRects, glRectsv )
 import Graphics.Rendering.OpenGL.Raw.Core31

@@ -20,10 +20,10 @@ module Graphics.Rendering.OpenGL.GL.Polygons (
 ) where
 
 import Control.Monad
-import Data.StateVar
 import Foreign.ForeignPtr
 import Foreign.Marshal.Array
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
