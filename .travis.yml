@@ -12,4 +12,3 @@ script:
   - set -e
   - cabal configure
   - cabal haddock
-  - cabal test
