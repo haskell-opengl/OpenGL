@@ -359,19 +359,19 @@ type RangeSize = GLsizeiptr
 type BufferRange = (BufferObject, RangeStartIndex, RangeSize)
 
 data IndexedBufferTarget =
-     IndexedTransformFeedBackbuffer
+     IndexedTransformFeedbackBuffer
 --marshaling
 marshalIndexedBufferTarget :: IndexedBufferTarget -> IPName1I
 marshalIndexedBufferTarget x = case x of
-   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBuffer
+   IndexedTransformFeedbackBuffer -> GetTransformFeedbackBuffer
 
 marshalIndexedBufferStart :: IndexedBufferTarget -> IPName1I
 marshalIndexedBufferStart x = case x of
-   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBufferStart
+   IndexedTransformFeedbackBuffer -> GetTransformFeedbackBufferStart
 
 marshalIndexedBufferSize :: IndexedBufferTarget -> IPName1I
 marshalIndexedBufferSize x = case x of
-   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBufferSize
+   IndexedTransformFeedbackBuffer -> GetTransformFeedbackBufferSize
 
 getIndexed :: Num a => IPName1I -> BufferIndex -> GettableStateVar a
 getIndexed e i = makeGettableStateVar $ getInteger1i fromIntegral e i
