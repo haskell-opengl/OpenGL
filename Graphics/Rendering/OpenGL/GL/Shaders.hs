@@ -15,13 +15,13 @@
 
 module Graphics.Rendering.OpenGL.GL.Shaders (
    -- * Shader Objects
-   Shader, VertexShader, FragmentShader, shaderDeleteStatus, shaderSource,
-   compileShader, compileStatus, shaderInfoLog,
+   Shader, VertexShader, FragmentShader, GeometryShader, shaderDeleteStatus,
+   shaderSource, compileShader, compileStatus, shaderInfoLog,
 
    -- * Program Objects
-   Program, programDeleteStatus, attachedShaders, linkProgram, linkStatus,
-   programInfoLog, validateProgram, validateStatus, currentProgram,
-
+   Program(..), programDeleteStatus, attachedShaders, attachShader,
+   linkProgram, linkStatus, programInfoLog, validateProgram, validateStatus,
+   currentProgram,
 
    -- * FragmentData
    bindFragDataLocation,
@@ -31,7 +31,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    attribLocation, VariableType(..), activeAttribs,
 
    -- * Uniform variables
-   UniformLocation, uniformLocation, activeUniforms, Uniform(..),
+   UniformLocation(..), uniformLocation, activeUniforms, Uniform(..),
    UniformComponent,
 
    -- * Implementation limits related to GLSL

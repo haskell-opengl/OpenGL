@@ -14,6 +14,9 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.PerFragment (
+   -- * Discard Rasterizer
+   discardRasterizer,
+
    -- * Scissor Test
    scissor,
 
@@ -48,6 +51,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 ) where
 
 import Control.Monad
+import Control.Exception (bracket_)
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.BlendingFactor
 import Graphics.Rendering.OpenGL.GL.Capability
@@ -64,6 +68,12 @@ import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest ( glDepthBounds )
 import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide ( glActiveStencilFace )
+
+--------------------------------------------------------------------------------
+
+discardRasterizer :: IO a -> IO a
+discardRasterizer = 
+    bracket_ (glEnable gl_RASTERIZER_DISCARD) (glDisable gl_RASTERIZER_DISCARD)
 
 --------------------------------------------------------------------------------
 

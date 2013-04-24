@@ -16,8 +16,9 @@
 module Graphics.Rendering.OpenGL.GL.Shaders.Program (
 
    -- * Program Objects
-   Program(..), programDeleteStatus, attachedShaders, linkProgram, linkStatus,
-   programInfoLog, validateProgram, validateStatus, currentProgram,
+   Program(..), programDeleteStatus, attachedShaders,attachShader,
+   linkProgram, linkStatus, programInfoLog, validateProgram, validateStatus,
+   currentProgram,
 
    bindFragDataLocation, getFragDataLocation,
 
@@ -38,7 +39,7 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.Core32
 
 import Graphics.Rendering.OpenGL.GL.Shaders.Shaders
 
@@ -90,6 +91,9 @@ setAttachedShaders p@(Program program) (vs, fs) = do
    let newIDs = map shaderID vs ++ map shaderID fs
    mapM_ (glAttachShader program) (newIDs \\ currentIDs)
    mapM_ (glDetachShader program) (currentIDs \\ newIDs)
+
+attachShader :: Shader s => Program -> s -> IO ()
+attachShader p s = glAttachShader (programID p) (shaderID s)
 
 --------------------------------------------------------------------------------
 
