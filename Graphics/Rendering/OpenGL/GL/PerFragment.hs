@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.PerFragment (
    -- * Discard Rasterizer
-   discardRasterizer,
+   discardingRasterizer,
 
    -- * Scissor Test
    scissor,
@@ -71,8 +71,8 @@ import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide ( glActiveStencilFace )
 
 --------------------------------------------------------------------------------
 
-discardRasterizer :: IO a -> IO a
-discardRasterizer = 
+discardingRasterizer :: IO a -> IO a
+discardingRasterizer = 
     bracket_ (glEnable gl_RASTERIZER_DISCARD) (glDisable gl_RASTERIZER_DISCARD)
 
 --------------------------------------------------------------------------------

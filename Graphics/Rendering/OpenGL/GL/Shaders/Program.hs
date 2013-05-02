@@ -16,9 +16,9 @@
 module Graphics.Rendering.OpenGL.GL.Shaders.Program (
 
    -- * Program Objects
-   Program(..), programDeleteStatus, attachedShaders,attachShader,
-   linkProgram, linkStatus, programInfoLog, validateProgram, validateStatus,
-   currentProgram,
+   Program(..), programDeleteStatus, attachedShaders, attachShader,
+   detachShader, linkProgram, linkStatus, programInfoLog, validateProgram,
+   validateStatus, currentProgram,
 
    bindFragDataLocation, getFragDataLocation,
 
@@ -94,6 +94,9 @@ setAttachedShaders p@(Program program) (vs, fs) = do
 
 attachShader :: Shader s => Program -> s -> IO ()
 attachShader p s = glAttachShader (programID p) (shaderID s)
+
+detachShader :: Shader s => Program -> s -> IO ()
+detachShader p s = glDetachShader (programID p) (shaderID s)
 
 --------------------------------------------------------------------------------
 
