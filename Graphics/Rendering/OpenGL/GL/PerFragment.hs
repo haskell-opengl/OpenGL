@@ -72,8 +72,11 @@ import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide ( glActiveStencilFace )
 --------------------------------------------------------------------------------
 
 discardingRasterizer :: IO a -> IO a
-discardingRasterizer = 
-    bracket_ (glEnable gl_RASTERIZER_DISCARD) (glDisable gl_RASTERIZER_DISCARD)
+discardingRasterizer act = do
+    e <- liftM unmarshalGLboolean $ glIsEnabled gl_RASTERIZER_DISCARD
+    if e then act
+         else bracket_ (glEnable gl_RASTERIZER_DISCARD)
+                       (glDisable gl_RASTERIZER_DISCARD) act
 
 --------------------------------------------------------------------------------
 
