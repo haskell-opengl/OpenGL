@@ -29,6 +29,9 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 newtype TextureUnit = TextureUnit GLuint
    deriving ( Eq, Ord, Show )
 
+-- Internal note, when setting a sampler (TextureUnit) uniform the GLint
+-- functions should be used.
+
 instance Storable TextureUnit where
     sizeOf _                 = sizeOf    (undefined :: GLuint)
     alignment _              = alignment (undefined :: GLuint)
