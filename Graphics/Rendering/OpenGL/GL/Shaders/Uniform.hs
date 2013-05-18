@@ -185,17 +185,18 @@ instance UniformComponent a => Uniform (Index1 a) where
    uniform = makeUniformVar $ \location (Index1 i) -> uniform1 location i
    uniformv location count = uniform1v location count . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
--- nasty instance declaration as TextureUnit is not of the form Storable (b a) as requiered for
--- getUniform
+-- Nasty instance declaration as TextureUnit is not of the form Storable (b a) as required for
+-- getUniform. Even worse is that it requires the `GLint` uniforms while it is an enum or
+-- uint.
 instance Uniform TextureUnit where
     uniform loc@(UniformLocation ul)  = makeStateVar getter setter
-        where setter (TextureUnit tu) = uniform1 loc tu
+        where setter (TextureUnit tu) = uniform1 loc (fromIntegral tu :: GLint)
               getter = do
                  program <- getCurrentProgram
-                 allocaBytes (sizeOf (undefined :: GLuint))  $ \buf -> do
-                 glGetUniformuiv (programID program) ul buf
+                 allocaBytes (sizeOf (undefined :: GLint))  $ \buf -> do
+                 glGetUniformiv (programID program) ul buf
                  tuID <- peek buf
-                 return $ TextureUnit tuID
-    uniformv location count = uniform1v location count . (castPtr :: Ptr TextureUnit -> Ptr GLuint)
+                 return . TextureUnit $ fromIntegral tuID
+    uniformv location count = uniform1v location count . (castPtr :: Ptr TextureUnit -> Ptr GLint)
 
 --------------------------------------------------------------------------------
