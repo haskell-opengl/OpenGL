@@ -36,7 +36,7 @@ instance ObjectName VertexArrayObject where
       fmap (map VertexArrayObject) $ peekArray n buf
    deleteObjectNames bufferObjects =
       withArrayLen (map vertexArrayID bufferObjects) $
-         glDeleteBuffers . fromIntegral
+         glDeleteVertexArrays . fromIntegral
    isObjectName =  fmap unmarshalGLboolean . glIsVertexArray . vertexArrayID
 
 bindVertexArrayObject :: StateVar (Maybe VertexArrayObject)
