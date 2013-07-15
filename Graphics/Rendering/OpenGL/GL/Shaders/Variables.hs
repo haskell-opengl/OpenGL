@@ -151,7 +151,7 @@ activeVars numVars maxLength getter p@(Program program) =
          alloca $ \nameLengthBuf ->
             alloca $ \sizeBuf ->
                alloca $ \typeBuf ->
-                  let ixs = if numActiveVars > 0 then [0 .. numActiveVars] else []
+                  let ixs = if numActiveVars > 0 then [0 .. numActiveVars-1] else []
                   in forM ixs $ \i -> do
                         getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
                         l <- peek nameLengthBuf
