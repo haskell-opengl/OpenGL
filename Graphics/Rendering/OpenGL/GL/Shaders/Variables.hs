@@ -151,10 +151,11 @@ activeVars numVars maxLength getter p@(Program program) =
          alloca $ \nameLengthBuf ->
             alloca $ \sizeBuf ->
                alloca $ \typeBuf ->
-                  forM [0 .. numActiveVars - 1] $ \i -> do
-                    getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
-                    l <- peek nameLengthBuf
-                    s <- peek sizeBuf
-                    t <- peek typeBuf
-                    n <- peekGLstringLen (nameBuf, l)
-                    return (s, unmarshalVariableType t, n)
+                  let ixs = if numActiveVars > 0 then [0 .. numActiveVars] else []
+                  in forM ixs $ \i -> do
+                        getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
+                        l <- peek nameLengthBuf
+                        s <- peek sizeBuf
+                        t <- peek typeBuf
+                        n <- peekGLstringLen (nameBuf, l)
+                        return (s, unmarshalVariableType t, n)
