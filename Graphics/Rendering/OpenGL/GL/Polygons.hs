@@ -115,9 +115,11 @@ getPolygonMode = getInteger2 (\front back -> (un front, un back)) GetPolygonMode
    where un = unmarshalPolygonMode . fromIntegral
 
 setPolygonMode :: (PolygonMode, PolygonMode) -> IO ()
-setPolygonMode (front, back) = do
-   glPolygonMode (marshalFace Front) (marshalPolygonMode front)
-   glPolygonMode (marshalFace Back ) (marshalPolygonMode back )
+setPolygonMode (front, back)
+   -- OpenGL 3 deprecated separate polygon draw modes, so try to avoid them.
+   | front == back = setPM FrontAndBack front
+   | otherwise = do setPM Front front; setPM Back back
+   where setPM f m = glPolygonMode (marshalFace f) (marshalPolygonMode m)
 
 --------------------------------------------------------------------------------
 
