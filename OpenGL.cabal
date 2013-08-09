@@ -1,8 +1,8 @@
 name: OpenGL
-version: 2.8.0.0
+version: 2.9.0.0
 license: BSD3
 license-file: LICENSE
-maintainer: Jason Dagit <dagitj@gmail.com>
+maintainer: Jason Dagit <dagitj@gmail.com>, Sven Panne <svenpanne@gmail.com>
 bug-reports: https://github.com/haskell-opengl/OpenGL/issues
 homepage: http://www.haskell.org/haskellwiki/Opengl
 category: Graphics
@@ -126,7 +126,7 @@ library
    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
   ghc-options: -Wall -O2
   build-depends:
-   base >= 3 && < 5, OpenGLRaw >= 1.3.0.0, GLURaw >= 1.1.0.0
+   base >= 3 && < 5, OpenGLRaw >= 1.4.0.0, GLURaw >= 1.4.0.0
 
 source-repository head
   type:     git
