@@ -8,5 +8,12 @@ before_install:
   - cabal install
   - popd
   - ghc-pkg list
+  - pushd ..
+  - git clone --depth=100 --quiet https://github.com/haskell-opengl/GLURaw.git
+  - cd GLURaw
+  - git checkout
+  - cabal install
+  - popd
+  - ghc-pkg list
 script:
   - cabal install --enable-documentation
