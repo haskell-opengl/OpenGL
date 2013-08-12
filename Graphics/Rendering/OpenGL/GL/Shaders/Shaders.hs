@@ -15,8 +15,8 @@
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Shaders (
 
-   Shader(..), VertexShader(..), FragmentShader(..), shaderDeleteStatus, shaderSource,
-   compileShader, compileStatus, shaderInfoLog,
+   Shader(..), VertexShader(..), FragmentShader(..), GeometryShader(..), shaderDeleteStatus,
+   shaderSource, compileShader, compileStatus, shaderInfoLog,
 
    -- * internals
    shaderTypeEnum
@@ -34,12 +34,15 @@ import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw.Core32
 
 newtype VertexShader = VertexShader { vertexShaderID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 newtype FragmentShader = FragmentShader { fragmentShaderID :: GLuint }
+   deriving ( Eq, Ord, Show )
+
+newtype GeometryShader = GeometryShader { geometryShaderID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 --------------------------------------------------------------------------------
@@ -59,6 +62,11 @@ instance Shader FragmentShader where
    shaderID = fragmentShaderID
    shaderType = const gl_FRAGMENT_SHADER
 
+instance Shader GeometryShader where
+   makeShader = GeometryShader
+   shaderID = geometryShaderID
+   shaderType = const gl_GEOMETRY_SHADER
+
 --------------------------------------------------------------------------------
 
 instance ObjectName VertexShader where
@@ -67,6 +75,11 @@ instance ObjectName VertexShader where
    isObjectName = isShaderName
 
 instance ObjectName FragmentShader where
+   genObjectNames = genShaderNames
+   deleteObjectNames = deleteShaderNames
+   isObjectName = isShaderName
+
+instance ObjectName GeometryShader where
    genObjectNames = genShaderNames
    deleteObjectNames = deleteShaderNames
    isObjectName = isShaderName

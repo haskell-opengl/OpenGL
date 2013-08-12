@@ -89,6 +89,7 @@ data FramebufferStatus =
    | IncompleteReadBuffer
    | IncompleteMultiSample
    | Unsupported
+   deriving (Eq, Show)
 
 unmarshalFramebufferStatus :: GLenum -> FramebufferStatus
 unmarshalFramebufferStatus x
