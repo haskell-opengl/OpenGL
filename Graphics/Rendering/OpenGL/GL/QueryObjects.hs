@@ -41,16 +41,17 @@ newtype QueryObject = QueryObject { queryID :: GLuint }
 --------------------------------------------------------------------------------
 
 instance ObjectName QueryObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-        glGenQueries (fromIntegral n) buf
-        fmap (map QueryObject) $ peekArray n buf
-
    deleteObjectNames queryObjects =
       withArrayLen (map queryID queryObjects) $
          glDeleteQueries . fromIntegral
 
    isObjectName = fmap unmarshalGLboolean . glIsQuery . queryID
+
+instance GeneratableObjectName QueryObject where
+   genObjectNames n =
+      allocaArray n $ \buf -> do
+        glGenQueries (fromIntegral n) buf
+        fmap (map QueryObject) $ peekArray n buf
 
 --------------------------------------------------------------------------------
 

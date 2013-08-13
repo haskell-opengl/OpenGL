@@ -14,10 +14,13 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Program (
-
    -- * Program Objects
-   Program(..), programDeleteStatus, attachedShaders, linkProgram, linkStatus,
-   programInfoLog, validateProgram, validateStatus, currentProgram,
+   Program(..), createProgram, programDeleteStatus,
+   attachShader, detachShader, attachedShaders,
+   linkProgram, linkStatus,
+   validateProgram, validateStatus,
+   programInfoLog,
+   currentProgram,
 
    bindFragDataLocation, getFragDataLocation,
 
@@ -25,9 +28,8 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Program (
    GetProgramPName(..), programVar, getCurrentProgram
 ) where
 
-import Control.Monad
 import Data.List
-import Data.Maybe (fromMaybe)
+import Data.Maybe
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -48,60 +50,50 @@ newtype Program = Program { programID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName Program where
-   genObjectNames n = replicateM n $ fmap Program glCreateProgram
    deleteObjectNames = mapM_ (glDeleteProgram . programID)
    isObjectName = fmap unmarshalGLboolean . glIsProgram . programID
 
+
+createProgram :: IO Program
+createProgram = fmap Program glCreateProgram
+
 --------------------------------------------------------------------------------
 
-attachedShaders :: Program -> StateVar ([VertexShader],[FragmentShader])
+attachShader :: Program -> Shader -> IO ()
+attachShader p s = glAttachShader (programID p) (shaderID s)
+
+detachShader :: Program -> Shader -> IO ()
+detachShader p s = glDetachShader (programID p) (shaderID s)
+
+attachedShaders :: Program -> StateVar [Shader]
 attachedShaders program =
    makeStateVar (getAttachedShaders program) (setAttachedShaders program)
 
-getAttachedShaders :: Program -> IO ([VertexShader],[FragmentShader])
-getAttachedShaders program = getAttachedShaderIDs program >>= splitShaderIDs
-
-getAttachedShaderIDs :: Program -> IO [GLuint]
-getAttachedShaderIDs program = do
+getAttachedShaders :: Program -> IO [Shader]
+getAttachedShaders program = do
    numShaders <- get (numAttachedShaders program)
-   allocaArray (fromIntegral numShaders) $ \buf -> do
+   ids <- allocaArray (fromIntegral numShaders) $ \buf -> do
       glGetAttachedShaders (programID program) numShaders nullPtr buf
       peekArray (fromIntegral numShaders) buf
+   return $ map Shader ids
 
-splitShaderIDs :: [GLuint] -> IO ([VertexShader],[FragmentShader])
-splitShaderIDs ids = do
-   (vs, fs) <- partitionM isVertexShaderID ids
-   return (map VertexShader vs, map FragmentShader fs)
-
-isVertexShaderID :: GLuint -> IO Bool
-isVertexShaderID x = do
-   t <- get (shaderTypeEnum (VertexShader x))
-   return $ t == shaderType (undefined :: VertexShader)
-
-partitionM :: (a -> IO Bool) -> [a] -> IO ([a],[a])
-partitionM p = foldM select ([],[])
-   where select (ts, fs) x = do
-            b <- p x
-            return $ if b then (x:ts, fs) else (ts, x:fs)
-
-setAttachedShaders :: Program -> ([VertexShader],[FragmentShader]) -> IO ()
-setAttachedShaders p@(Program program) (vs, fs) = do
-   currentIDs <- getAttachedShaderIDs p
-   let newIDs = map shaderID vs ++ map shaderID fs
-   mapM_ (glAttachShader program) (newIDs \\ currentIDs)
-   mapM_ (glDetachShader program) (currentIDs \\ newIDs)
+setAttachedShaders :: Program -> [Shader] -> IO ()
+setAttachedShaders program newShaders = do
+   currentShaders <- getAttachedShaders program
+   mapM_ (attachShader program) (newShaders \\ currentShaders)
+   mapM_ (detachShader program) (currentShaders \\ newShaders)
 
 --------------------------------------------------------------------------------
 
 linkProgram :: Program -> IO ()
-linkProgram (Program program) = glLinkProgram program
+linkProgram = glLinkProgram . programID
 
 currentProgram :: StateVar (Maybe Program)
 currentProgram =
    makeStateVar
       (do p <- getCurrentProgram
           return $ if p == noProgram then Nothing else Just p)
-      ((\(Program p) -> glUseProgram p) . fromMaybe noProgram)
+      (glUseProgram . programID . fromMaybe noProgram)
 
 getCurrentProgram :: IO Program
 getCurrentProgram = fmap Program $ getInteger1 fromIntegral GetCurrentProgram
@@ -110,7 +102,7 @@ noProgram :: Program
 noProgram = Program 0
 
 validateProgram :: Program -> IO ()
-validateProgram (Program program) = glValidateProgram program
+validateProgram = glValidateProgram . programID
 
 programInfoLog :: Program -> GettableStateVar String
 programInfoLog p =

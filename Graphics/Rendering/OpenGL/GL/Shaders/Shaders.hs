@@ -14,17 +14,10 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Shaders (
-
-   Shader(..), VertexShader(..), FragmentShader(..), shaderDeleteStatus, shaderSource,
-   compileShader, compileStatus, shaderInfoLog,
-
-   -- * internals
-   shaderTypeEnum
-
+   ShaderType(..), Shader(..), createShader, shaderType, shaderDeleteStatus,
+   shaderSource, compileShader, compileStatus, shaderInfoLog
 ) where
 
-import Control.Monad
-import Control.Monad.Fix
 import Data.List
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
@@ -36,65 +29,48 @@ import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.Raw.Core31
 
-newtype VertexShader = VertexShader { vertexShaderID :: GLuint }
+--------------------------------------------------------------------------------
+
+data ShaderType =
+     VertexShader
+   | FragmentShader
    deriving ( Eq, Ord, Show )
 
-newtype FragmentShader = FragmentShader { fragmentShaderID :: GLuint }
+marshalShaderType :: ShaderType -> GLenum
+marshalShaderType x = case x of
+   VertexShader -> gl_VERTEX_SHADER
+   FragmentShader -> gl_FRAGMENT_SHADER
+
+unmarshalShaderType :: GLenum -> ShaderType
+unmarshalShaderType x
+   | x == gl_VERTEX_SHADER = VertexShader
+   | x == gl_FRAGMENT_SHADER = FragmentShader
+   | otherwise = error ("unmarshalShaderType: illegal value " ++ show x)
+
+--------------------------------------------------------------------------------
+
+newtype Shader = Shader { shaderID :: GLuint }
    deriving ( Eq, Ord, Show )
 
---------------------------------------------------------------------------------
+instance ObjectName Shader where
+   deleteObjectNames = mapM_ (glDeleteShader . shaderID)
+   isObjectName = fmap unmarshalGLboolean . glIsShader . shaderID
 
-class (Eq s, Ord s, Show s, ObjectName s) => Shader s where
-   shaderID :: s -> GLuint
-   makeShader :: GLuint -> s
-   shaderType :: s -> GLenum
-
-instance Shader VertexShader where
-   makeShader = VertexShader
-   shaderID = vertexShaderID
-   shaderType = const gl_VERTEX_SHADER
-
-instance Shader FragmentShader where
-   makeShader = FragmentShader
-   shaderID = fragmentShaderID
-   shaderType = const gl_FRAGMENT_SHADER
+createShader :: ShaderType -> IO Shader
+createShader st = fmap Shader (glCreateShader (marshalShaderType st))
 
 --------------------------------------------------------------------------------
 
-instance ObjectName VertexShader where
-   genObjectNames = genShaderNames
-   deleteObjectNames = deleteShaderNames
-   isObjectName = isShaderName
-
-instance ObjectName FragmentShader where
-   genObjectNames = genShaderNames
-   deleteObjectNames = deleteShaderNames
-   isObjectName = isShaderName
-
-genShaderNames :: Shader s => Int -> IO [s]
-genShaderNames n = replicateM n createShader
-
-createShader :: Shader s => IO s
-createShader = mfix (fmap makeShader . glCreateShader . shaderType)
-
-deleteShaderNames :: Shader s => [s] -> IO ()
-deleteShaderNames = mapM_ (glDeleteShader . shaderID)
-
-isShaderName :: Shader s => s -> IO Bool
-isShaderName = fmap unmarshalGLboolean . glIsShader . shaderID
-
---------------------------------------------------------------------------------
-
-compileShader :: Shader s => s -> IO ()
+compileShader :: Shader -> IO ()
 compileShader = glCompileShader . shaderID
 
 --------------------------------------------------------------------------------
 
-shaderSource :: Shader s => s -> StateVar [String]
+shaderSource :: Shader -> StateVar [String]
 shaderSource shader =
    makeStateVar (getShaderSource shader) (setShaderSource shader)
 
-setShaderSource :: Shader s => s -> [String] -> IO ()
+setShaderSource :: Shader -> [String] -> IO ()
 setShaderSource shader srcs = do
    let len = genericLength srcs
    withMany withGLStringLen srcs $ \charBufsAndLengths -> do
@@ -103,7 +79,7 @@ setShaderSource shader srcs = do
          withArray (map fromIntegral lengths) $ \lengthsBuf ->
             glShaderSource (shaderID shader) len charBufsBuf lengthsBuf
 
-getShaderSource :: Shader s => s -> IO [String]
+getShaderSource :: Shader -> IO [String]
 getShaderSource shader = do
    src <- get (stringQuery (shaderSourceLength shader)
                            (glGetShaderSource (shaderID shader)))
@@ -111,26 +87,26 @@ getShaderSource shader = do
 
 --------------------------------------------------------------------------------
 
-shaderInfoLog :: Shader s => s -> GettableStateVar String
+shaderInfoLog :: Shader -> GettableStateVar String
 shaderInfoLog shader =
    stringQuery (shaderInfoLogLength shader) (glGetShaderInfoLog (shaderID shader))
 
 --------------------------------------------------------------------------------
 
-shaderDeleteStatus :: Shader s => s -> GettableStateVar Bool
+shaderDeleteStatus :: Shader -> GettableStateVar Bool
 shaderDeleteStatus = shaderVar unmarshalGLboolean ShaderDeleteStatus
 
-compileStatus :: Shader s => s -> GettableStateVar Bool
+compileStatus :: Shader -> GettableStateVar Bool
 compileStatus = shaderVar unmarshalGLboolean CompileStatus
 
-shaderInfoLogLength :: Shader s => s -> GettableStateVar GLsizei
+shaderInfoLogLength :: Shader -> GettableStateVar GLsizei
 shaderInfoLogLength = shaderVar fromIntegral ShaderInfoLogLength
 
-shaderSourceLength :: Shader s => s -> GettableStateVar GLsizei
+shaderSourceLength :: Shader -> GettableStateVar GLsizei
 shaderSourceLength = shaderVar fromIntegral ShaderSourceLength
 
-shaderTypeEnum :: Shader s => s -> GettableStateVar GLenum
-shaderTypeEnum = shaderVar fromIntegral ShaderType
+shaderType :: Shader -> GettableStateVar ShaderType
+shaderType = shaderVar (unmarshalShaderType . fromIntegral) ShaderType
 
 --------------------------------------------------------------------------------
 
@@ -149,7 +125,7 @@ marshalGetShaderPName x = case x of
    ShaderSourceLength -> gl_SHADER_SOURCE_LENGTH
    ShaderType -> gl_SHADER_TYPE
 
-shaderVar :: Shader s => (GLint -> a) -> GetShaderPName -> s -> GettableStateVar a
+shaderVar :: (GLint -> a) -> GetShaderPName -> Shader -> GettableStateVar a
 shaderVar f p shader =
    makeGettableStateVar $
       alloca $ \buf -> do

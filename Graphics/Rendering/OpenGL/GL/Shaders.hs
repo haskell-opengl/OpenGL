@@ -15,13 +15,13 @@
 
 module Graphics.Rendering.OpenGL.GL.Shaders (
    -- * Shader Objects
-   Shader, VertexShader, FragmentShader, shaderDeleteStatus, shaderSource,
-   compileShader, compileStatus, shaderInfoLog,
+   ShaderType(..), Shader, createShader, shaderType, shaderDeleteStatus,
+   shaderSource, compileShader, compileStatus, shaderInfoLog,
 
    -- * Program Objects
-   Program, programDeleteStatus, attachedShaders, linkProgram, linkStatus,
-   programInfoLog, validateProgram, validateStatus, currentProgram,
-
+   Program, createProgram, programDeleteStatus,
+   attachShader, detachShader, attachedShaders, linkProgram, linkStatus,
+   validateProgram, validateStatus, programInfoLog, currentProgram,
 
    -- * FragmentData
    bindFragDataLocation,

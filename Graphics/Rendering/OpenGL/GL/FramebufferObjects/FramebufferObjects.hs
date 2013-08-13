@@ -36,13 +36,15 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 data FramebufferObject = FramebufferObject{ fbufferID :: GLuint }
 
 instance ObjectName FramebufferObject where
+    deleteObjectNames objs = withArrayLen (map fbufferID objs) $
+       glDeleteFramebuffers . fromIntegral
+    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . fbufferID
+
+instance GeneratableObjectName FramebufferObject where
     genObjectNames n =
        allocaArray n $ \buf -> do
           glGenFramebuffers (fromIntegral n) buf
           fmap (map FramebufferObject) $ peekArray n buf
-    deleteObjectNames objs = withArrayLen (map fbufferID objs) $
-       glDeleteFramebuffers . fromIntegral
-    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . fbufferID
 
 defaultFramebufferObject :: FramebufferObject
 defaultFramebufferObject = FramebufferObject 0

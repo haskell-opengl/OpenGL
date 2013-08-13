@@ -44,9 +44,11 @@ newtype DisplayList = DisplayList GLuint
    deriving ( Eq, Ord, Show )
 
 instance ObjectName DisplayList where
-   genObjectNames = genLists_
    deleteObjectNames = deleteLists_
    isObjectName = isList_
+
+instance GeneratableObjectName DisplayList where
+   genObjectNames = genLists_
 
 --------------------------------------------------------------------------------
 

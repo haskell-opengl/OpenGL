@@ -71,16 +71,17 @@ newtype BufferObject = BufferObject { bufferID :: GLuint }
 --------------------------------------------------------------------------------
 
 instance ObjectName BufferObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-        glGenBuffers (fromIntegral n) buf
-        fmap (map BufferObject) $ peekArray n buf
-
    deleteObjectNames bufferObjects =
       withArrayLen (map bufferID bufferObjects) $
          glDeleteBuffers . fromIntegral
 
    isObjectName = fmap unmarshalGLboolean . glIsBuffer . bufferID
+
+instance GeneratableObjectName BufferObject where
+   genObjectNames n =
+      allocaArray n $ \buf -> do
+        glGenBuffers (fromIntegral n) buf
+        fmap (map BufferObject) $ peekArray n buf
 
 --------------------------------------------------------------------------------
 
