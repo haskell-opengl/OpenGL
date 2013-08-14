@@ -19,6 +19,8 @@ description:
    and <http://www.opengl.org/registry/>.
 build-type: Simple
 cabal-version: >= 1.6
+extra-source-files:
+   README.md
 library
   exposed-modules:
    Graphics.Rendering.OpenGL.GL.Antialiasing,
