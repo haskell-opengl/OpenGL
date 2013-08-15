@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL
--- Copyright   :  (c) Sven Panne 2002-2009
+-- Copyright   :  (c) Sven Panne 2002-2013
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 --
 -- Maintainer  :  sven.panne@aedion.de
@@ -14,8 +14,14 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL (
+   -- * OpenGL Fundamentals
+   module Graphics.Rendering.OpenGL.GL.FlushFinish,
+
+   -- * Event Model
+   module Graphics.Rendering.OpenGL.GL.SyncObjects,
+
    -- * OpenGL Operation
-   module Graphics.Rendering.OpenGL.Raw.Core31,
+   module Graphics.Rendering.OpenGL.Raw.Core31,  -- Huh???
    module Graphics.Rendering.OpenGL.GL.BeginEnd,
    module Graphics.Rendering.OpenGL.GL.VertexSpec,
    module Graphics.Rendering.OpenGL.GL.VertexArrays,
@@ -50,7 +56,6 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Selection,
    module Graphics.Rendering.OpenGL.GL.Feedback,
    module Graphics.Rendering.OpenGL.GL.DisplayLists,
-   module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Graphics.Rendering.OpenGL.GL.Hints,
    module Graphics.Rendering.OpenGL.GL.PixellikeObject,
    module Graphics.Rendering.OpenGL.GL.TransformFeedback,
@@ -63,6 +68,10 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.StringQueries,
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
+
+import Graphics.Rendering.OpenGL.GL.FlushFinish
+
+import Graphics.Rendering.OpenGL.GL.SyncObjects
 
 import Graphics.Rendering.OpenGL.Raw.Core31 (
    GLbitfield,  GLboolean,  GLbyte,  GLchar,  GLclampd,  GLclampf,  GLdouble,
@@ -99,7 +108,6 @@ import Graphics.Rendering.OpenGL.GL.Evaluators
 import Graphics.Rendering.OpenGL.GL.Selection
 import Graphics.Rendering.OpenGL.GL.Feedback
 import Graphics.Rendering.OpenGL.GL.DisplayLists
-import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
 import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
