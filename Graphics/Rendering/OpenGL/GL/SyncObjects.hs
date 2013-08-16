@@ -51,7 +51,7 @@ type WaitTimeout = GLuint64
 data WaitFlag = SyncFlushCommands
    deriving ( Eq, Ord, Show )
 
-marshalWaitFlag :: WaitFlag -> GLenum
+marshalWaitFlag :: WaitFlag -> GLbitfield
 marshalWaitFlag x = case x of
    SyncFlushCommands -> gl_SYNC_FLUSH_COMMANDS_BIT
 

@@ -58,7 +58,7 @@ data ServerAttributeGroup =
    deriving ( Eq, Ord, Show )
 
 marshalServerAttributeGroup :: ServerAttributeGroup -> GLbitfield
-marshalServerAttributeGroup x = fromIntegral $ case x of
+marshalServerAttributeGroup x = case x of
    CurrentAttributes -> gl_CURRENT_BIT
    PointAttributes -> gl_POINT_BIT
    LineAttributes -> gl_LINE_BIT
@@ -99,7 +99,7 @@ data ClientAttributeGroup =
    deriving ( Eq, Ord, Show )
 
 marshalClientAttributeGroup :: ClientAttributeGroup -> GLbitfield
-marshalClientAttributeGroup x = fromIntegral $ case x of
+marshalClientAttributeGroup x = case x of
    PixelStoreAttributes -> gl_CLIENT_PIXEL_STORE_BIT
    VertexArrayAttributes -> gl_CLIENT_VERTEX_ARRAY_BIT
    AllClientAttributes -> gl_CLIENT_ALL_ATTRIB_BITS

@@ -274,7 +274,7 @@ data ClearBuffer =
    deriving ( Eq, Ord, Show )
 
 marshalClearBuffer :: ClearBuffer -> GLbitfield
-marshalClearBuffer x = fromIntegral $ case x of
+marshalClearBuffer x = case x of
    ColorBuffer -> gl_COLOR_BUFFER_BIT
    AccumBuffer -> gl_ACCUM_BUFFER_BIT
    StencilBuffer -> gl_STENCIL_BUFFER_BIT

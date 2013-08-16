@@ -321,11 +321,12 @@ data BufferRangeAccessBit =
    | InvalidateBufferBit
    | FlushExplicitBit
    | UnsychronizedBit
+   deriving ( Eq, Ord, Show )
 
 type Offset = GLintptr
 type Length = GLsizeiptr
 
-marshalBufferRangeAccessBit :: BufferRangeAccessBit -> GLenum
+marshalBufferRangeAccessBit :: BufferRangeAccessBit -> GLbitfield
 marshalBufferRangeAccessBit x = case x of
     ReadBit -> gl_MAP_READ_BIT
     WriteBit -> gl_MAP_WRITE_BIT
@@ -334,15 +335,12 @@ marshalBufferRangeAccessBit x = case x of
     FlushExplicitBit -> gl_MAP_FLUSH_EXPLICIT_BIT
     UnsychronizedBit -> gl_MAP_FLUSH_EXPLICIT_BIT
 
-marshalToBitfield :: [BufferRangeAccessBit] -> GLenum
-marshalToBitfield b = foldl1' (.|.)  $ map marshalBufferRangeAccessBit b
-
 --------------------------------------------------------------------------------
 
 mapBufferRange_ :: BufferTarget -> Offset -> Length ->
    [BufferRangeAccessBit] -> IO (Ptr a)
 mapBufferRange_ t o l b = glMapBufferRange (marshalBufferTarget t) o l
-    (fromIntegral $ marshalToBitfield b)
+   (sum (map marshalBufferRangeAccessBit b))
 
 mapBufferRange :: BufferTarget -> Offset -> Length ->
    [BufferRangeAccessBit] -> IO (Maybe (Ptr a))
@@ -351,8 +349,8 @@ mapBufferRange t o l b = fmap (maybeNullPtr Nothing Just) $ mapBufferRange_ t o 
 flushMappedBufferRange :: BufferTarget -> Offset -> Length -> IO()
 flushMappedBufferRange t = glFlushMappedBufferRange (marshalBufferTarget t)
 
-
 --------------------------------------------------------------------------------
+
 type BufferIndex = GLuint
 
 type RangeStartIndex = GLintptr

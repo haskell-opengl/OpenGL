@@ -50,18 +50,18 @@ data ContextProfile'
    | CompatibilityProfile'
    deriving ( Eq, Ord, Show )
 
-marshalContextProfile' :: ContextProfile' -> GLenum
+marshalContextProfile' :: ContextProfile' -> GLbitfield
 marshalContextProfile' x = case x of
    CoreProfile' -> gl_CONTEXT_CORE_PROFILE_BIT
    CompatibilityProfile' -> gl_CONTEXT_COMPATIBILITY_PROFILE_BIT
 
 contextProfile :: GettableStateVar [ContextProfile']
-contextProfile = makeGettableStateVar (getEnum1 i2cps GetContextProfileMask)
+contextProfile = makeGettableStateVar (getInteger1 i2cps GetContextProfileMask)
 
-i2cps :: GLenum -> [ContextProfile']
+i2cps :: GLint -> [ContextProfile']
 i2cps bitfield =
    [ c | c <- [ CoreProfile', CompatibilityProfile' ]
-       , (bitfield .&. marshalContextProfile' c) /= 0 ]
+       , (fromIntegral bitfield .&. marshalContextProfile' c) /= 0 ]
 
 --------------------------------------------------------------------------------
 

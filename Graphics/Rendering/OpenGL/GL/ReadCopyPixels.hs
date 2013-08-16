@@ -70,23 +70,23 @@ copyPixels (Position x y) (Size w h) t =
 
 --------------------------------------------------------------------------------
 
-data BlitFramebufferMask
-   = BlitColorBuffer
+data BlitFramebufferMask =
+     BlitColorBuffer
    | BlitStencilBuffer
    | BlitDepthBuffer
+   deriving ( Eq, Ord, Show )
 
-marshalBlitFramebufferMask :: [BlitFramebufferMask] -> GLbitfield
-marshalBlitFramebufferMask = fromIntegral . sum . map marshal
-    where marshal x = case x of
-             BlitColorBuffer -> gl_COLOR_BUFFER_BIT
-             BlitStencilBuffer -> gl_STENCIL_BUFFER_BIT
-             BlitDepthBuffer -> gl_DEPTH_BUFFER_BIT
+marshalBlitFramebufferMask :: BlitFramebufferMask -> GLbitfield
+marshalBlitFramebufferMask x = case x of
+   BlitColorBuffer -> gl_COLOR_BUFFER_BIT
+   BlitStencilBuffer -> gl_STENCIL_BUFFER_BIT
+   BlitDepthBuffer -> gl_DEPTH_BUFFER_BIT
 
 blitFramebuffer :: Position -> Position -> Position -> Position -> [BlitFramebufferMask]
    -> TextureFilter -> IO ()
 blitFramebuffer (Position sx0 sy0) (Position sx1 sy1) (Position dx0 dy0) (Position dx1 dy1)
    bfbm filt = glBlitFramebuffer sx0 sy0 sx1 sy1 dx0 dy0 dx1 dy1
-      (marshalBlitFramebufferMask bfbm) (marshalTextureFilter filt)
+      (sum (map marshalBlitFramebufferMask bfbm)) (marshalTextureFilter filt)
       where marshalTextureFilter x = case x of
                 Nearest -> gl_NEAREST
                 Linear' -> gl_LINEAR
