@@ -32,7 +32,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    mapBuffer, unmapBuffer,
    bufferAccess, bufferMapped,
 
-   BufferRangeAccessBit(..), Offset, Length,
+   MapBufferUsage(..), Offset, Length,
    mapBufferRange, flushMappedBufferRange,
 
    -- * Indexed Buffer manipulation
@@ -310,37 +310,38 @@ bufferMapped t = makeGettableStateVar $
 
 --------------------------------------------------------------------------------
 
-data BufferRangeAccessBit =
-     ReadBit
-   | WriteBit
-   | InvalidateRangeBit
-   | InvalidateBufferBit
-   | FlushExplicitBit
-   | UnsychronizedBit
+data MapBufferUsage =
+     Read
+   | Write
+   | InvalidateRange
+   | InvalidateBuffer
+   | FlushExplicit
+   | Unsychronized
    deriving ( Eq, Ord, Show )
 
 type Offset = GLintptr
 type Length = GLsizeiptr
 
-marshalBufferRangeAccessBit :: BufferRangeAccessBit -> GLbitfield
-marshalBufferRangeAccessBit x = case x of
-    ReadBit -> gl_MAP_READ_BIT
-    WriteBit -> gl_MAP_WRITE_BIT
-    InvalidateRangeBit -> gl_MAP_INVALIDATE_RANGE_BIT
-    InvalidateBufferBit -> gl_MAP_INVALIDATE_BUFFER_BIT
-    FlushExplicitBit -> gl_MAP_FLUSH_EXPLICIT_BIT
-    UnsychronizedBit -> gl_MAP_FLUSH_EXPLICIT_BIT
+marshalMapBufferUsage :: MapBufferUsage -> GLbitfield
+marshalMapBufferUsage x = case x of
+    Read -> gl_MAP_READ_BIT
+    Write -> gl_MAP_WRITE_BIT
+    InvalidateRange -> gl_MAP_INVALIDATE_RANGE_BIT
+    InvalidateBuffer -> gl_MAP_INVALIDATE_BUFFER_BIT
+    FlushExplicit -> gl_MAP_FLUSH_EXPLICIT_BIT
+    Unsychronized -> gl_MAP_FLUSH_EXPLICIT_BIT
 
 --------------------------------------------------------------------------------
 
-mapBufferRange_ :: BufferTarget -> Offset -> Length ->
-   [BufferRangeAccessBit] -> IO (Ptr a)
+mapBufferRange_ ::
+   BufferTarget -> Offset -> Length -> [MapBufferUsage] -> IO (Ptr a)
 mapBufferRange_ t o l b = glMapBufferRange (marshalBufferTarget t) o l
-   (sum (map marshalBufferRangeAccessBit b))
+   (sum (map marshalMapBufferUsage b))
 
-mapBufferRange :: BufferTarget -> Offset -> Length ->
-   [BufferRangeAccessBit] -> IO (Maybe (Ptr a))
-mapBufferRange t o l b = fmap (maybeNullPtr Nothing Just) $ mapBufferRange_ t o l b
+mapBufferRange ::
+   BufferTarget -> Offset -> Length -> [MapBufferUsage] -> IO (Maybe (Ptr a))
+mapBufferRange t o l b =
+   fmap (maybeNullPtr Nothing Just) $ mapBufferRange_ t o l b
 
 flushMappedBufferRange :: BufferTarget -> Offset -> Length -> IO()
 flushMappedBufferRange t = glFlushMappedBufferRange (marshalBufferTarget t)
