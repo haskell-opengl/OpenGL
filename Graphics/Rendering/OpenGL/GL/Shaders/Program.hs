@@ -176,14 +176,14 @@ programVar f p program =
 -- It's not an error to specify unused variables, those will be ingored.
 bindFragDataLocation :: Program -> String -> SettableStateVar DrawBufferIndex
 bindFragDataLocation (Program program) varName = makeSettableStateVar $ \ind ->
-   withGLString varName $ glBindFragDataLocation program ind
+   withGLstring varName $ glBindFragDataLocation program ind
 
 -- | query the binding of a given variable, specified by program and name. The program has to be
 -- linked. The result is Nothing if an error occures or the name is not a name of a varying
 -- variable. If the program hasn't been linked an 'InvalidOperation' error is generated.
 getFragDataLocation :: Program -> String -> IO (Maybe DrawBufferIndex)
 getFragDataLocation (Program program) varName = do
-   r <- withGLString varName $ glGetFragDataLocation program
+   r <- withGLstring varName $ glGetFragDataLocation program
    if r < 0
     then return Nothing
     else return . Just $ fromIntegral r

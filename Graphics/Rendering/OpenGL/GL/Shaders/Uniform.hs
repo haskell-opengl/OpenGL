@@ -50,7 +50,7 @@ uniformLocation :: Program -> String -> GettableStateVar UniformLocation
 uniformLocation (Program program) name =
    makeGettableStateVar $
       fmap UniformLocation $
-         withGLString name $
+         withGLstring name $
             glGetUniformLocation program
 
 --------------------------------------------------------------------------------

@@ -44,12 +44,12 @@ attribLocation program name =
 getAttribLocation :: Program -> String -> IO AttribLocation
 getAttribLocation (Program program) name =
    fmap (AttribLocation . fromIntegral) $
-      withGLString name $
+      withGLstring name $
          glGetAttribLocation program
 
 bindAttribLocation :: Program -> AttribLocation -> String -> IO ()
 bindAttribLocation (Program program) (AttribLocation location) name =
-   withGLString name $
+   withGLstring name $
       glBindAttribLocation program location
 
 --------------------------------------------------------------------------------

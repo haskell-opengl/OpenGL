@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.StringQueries (
    vendor, renderer, glVersion, glExtensions, shadingLanguageVersion,
-   majorMinor, contextProfile
+   majorMinor, ContextProfile'(..), contextProfile
 ) where
 
 import Data.Bits

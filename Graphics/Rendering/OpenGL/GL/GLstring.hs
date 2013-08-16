@@ -13,8 +13,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.GLstring (
-    peekGLstringLen, withGLStringLen, withGLString,
-    stringQuery
+    GLstringLen, peekGLstringLen, withGLstringLen, withGLstring, stringQuery
 ) where
 
 import Foreign.C.String
@@ -27,18 +26,18 @@ import Graphics.Rendering.OpenGL.GL.StateVar
 
 -----------------------------------------------------------------------------
 
-type GLStringLen = (Ptr GLchar, GLsizei)
+type GLstringLen = (Ptr GLchar, GLsizei)
 
-peekGLstringLen :: GLStringLen -> IO String
+peekGLstringLen :: GLstringLen -> IO String
 peekGLstringLen (p,l) = peekCAStringLen (castPtr p, fromIntegral l)
 
-withGLStringLen :: String -> (GLStringLen -> IO a) -> IO a
-withGLStringLen s act =
+withGLstringLen :: String -> (GLstringLen -> IO a) -> IO a
+withGLstringLen s act =
    withCAStringLen s $ \(p,len) ->
       act (castPtr p, fromIntegral len)
 
-withGLString :: String -> (Ptr GLchar -> IO a) -> IO a
-withGLString s act = withCAString s $ act . castPtr
+withGLstring :: String -> (Ptr GLchar -> IO a) -> IO a
+withGLstring s act = withCAString s $ act . castPtr
 
 stringQuery :: GettableStateVar GLsizei -> (GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ()) -> GettableStateVar String
 stringQuery lengthVar getStr =

@@ -73,7 +73,7 @@ shaderSource shader =
 setShaderSource :: Shader -> [String] -> IO ()
 setShaderSource shader srcs = do
    let len = genericLength srcs
-   withMany withGLStringLen srcs $ \charBufsAndLengths -> do
+   withMany withGLstringLen srcs $ \charBufsAndLengths -> do
       let (charBufs, lengths) = unzip charBufsAndLengths
       withArray charBufs $ \charBufsBuf ->
          withArray (map fromIntegral lengths) $ \lengthsBuf ->

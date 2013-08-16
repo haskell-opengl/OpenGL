@@ -21,9 +21,10 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
    unmarshalTransformFeedbackBufferMode,
 
    -- * Shader related
-   transformFeedbackBufferMode, getTransformFeedbackVaryings,
-   setTransformFeedbackVaryings, getTransformFeedbackVarying,
-   getTransformFeedbackVaryingMaxLength,
+   transformFeedbackBufferMode,
+   VaryingIndex, MaxLength,
+   getTransformFeedbackVaryings, setTransformFeedbackVaryings,
+   getTransformFeedbackVarying, getTransformFeedbackVaryingMaxLength,
 
    -- * limits
    maxTransformFeedbackSeparateAttribs,
@@ -95,7 +96,7 @@ type MaxLength = GLsizei
 setTransformFeedbackVaryings :: Program -> [String]
    -> TransformFeedbackBufferMode -> IO ()
 setTransformFeedbackVaryings (Program program) sts tfbm = do
-   ptSts <- mapM (\x -> withGLString x return) sts
+   ptSts <- mapM (\x -> withGLstring x return) sts
    stsPtrs <- newArray ptSts
    glTransformFeedbackVaryings program (fromIntegral . length $ sts)  stsPtrs
       (marshalTransformFeedbackBufferMode tfbm)
