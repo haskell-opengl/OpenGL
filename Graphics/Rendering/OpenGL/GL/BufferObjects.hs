@@ -44,21 +44,17 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    indexedBufferStart, indexedBufferSize
 ) where
 
-import Data.List(foldl1')
-import Data.Bits((.|.))
 import Data.Maybe
-
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
-
-import Graphics.Rendering.OpenGL.GL.StateVar
-import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.Core31

@@ -28,6 +28,7 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Texturing.Filter
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
@@ -37,51 +38,6 @@ import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( gl_CLAMP )
 import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.Raw.EXT.TextureMirrorClamp (
    gl_MIRROR_CLAMP, gl_MIRROR_CLAMP_TO_BORDER, gl_MIRROR_CLAMP_TO_EDGE )
-
---------------------------------------------------------------------------------
-
-data TextureFilter =
-     Nearest
-   | Linear'
-   deriving ( Eq, Ord, Show )
-
-type MinificationFilter = (TextureFilter, Maybe TextureFilter)
-
-type MagnificationFilter = TextureFilter
-
--- We treat MagnificationFilter as a degenerated case of MinificationFilter
-magToMin :: MagnificationFilter -> MinificationFilter
-magToMin magFilter = (magFilter, Nothing)
-
-minToMag :: MinificationFilter -> MagnificationFilter
-minToMag (magFilter, Nothing) = magFilter
-minToMag minFilter = error ("minToMag: illegal value " ++ show minFilter)
-
-marshalMinificationFilter :: MinificationFilter -> GLint
-marshalMinificationFilter x = fromIntegral $ case x of
-   (Nearest, Nothing     ) -> gl_NEAREST
-   (Linear', Nothing     ) -> gl_LINEAR
-   (Nearest, Just Nearest) -> gl_NEAREST_MIPMAP_NEAREST
-   (Linear', Just Nearest) -> gl_LINEAR_MIPMAP_NEAREST
-   (Nearest, Just Linear') -> gl_NEAREST_MIPMAP_LINEAR
-   (Linear', Just Linear') -> gl_LINEAR_MIPMAP_LINEAR
-
-marshalMagnificationFilter :: MagnificationFilter -> GLint
-marshalMagnificationFilter = marshalMinificationFilter . magToMin
-
-unmarshalMinificationFilter :: GLint -> MinificationFilter
-unmarshalMinificationFilter x
-   | y ==  gl_NEAREST = (Nearest, Nothing)
-   | y ==  gl_LINEAR = (Linear', Nothing)
-   | y ==  gl_NEAREST_MIPMAP_NEAREST = (Nearest, Just Nearest)
-   | y ==  gl_LINEAR_MIPMAP_NEAREST = (Linear', Just Nearest)
-   | y ==  gl_NEAREST_MIPMAP_LINEAR = (Nearest, Just Linear')
-   | y ==  gl_LINEAR_MIPMAP_LINEAR = (Linear', Just Linear')
-   | otherwise = error ("unmarshalMinificationFilter: illegal value " ++ show x)
-   where y = fromIntegral x
-
-unmarshalMagnificationFilter :: GLint -> MagnificationFilter
-unmarshalMagnificationFilter = minToMag . unmarshalMinificationFilter
 
 --------------------------------------------------------------------------------
 
