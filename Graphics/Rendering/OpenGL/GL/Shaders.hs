@@ -25,9 +25,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    bindFragDataLocation,
    getFragDataLocation,
 
-   -- * Vertex attributes
-   attribLocation, VariableType(..), activeAttribs,
-
+   module Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
    module Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
    module Graphics.Rendering.OpenGL.GL.Shaders.Limits
 ) where
@@ -37,4 +35,3 @@ import Graphics.Rendering.OpenGL.GL.Shaders.Limits
 import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
 import Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects
 import Graphics.Rendering.OpenGL.GL.Shaders.Uniform
-import Graphics.Rendering.OpenGL.GL.Shaders.Variables

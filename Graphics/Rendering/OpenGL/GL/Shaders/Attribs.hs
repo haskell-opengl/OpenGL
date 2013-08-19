@@ -1,4 +1,3 @@
--- #hide
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Attribs
@@ -15,7 +14,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Attribs (
-   attribLocation, activeAttribs,
+   attribLocation, VariableType(..), activeAttribs,
 ) where
 
 import Graphics.Rendering.OpenGL.GL.GLstring
