@@ -23,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    -- * Matrices
    MatrixMode(..), matrixMode,
    MatrixOrder(..), MatrixComponent(rotate,translate,scale), Matrix(..),
-   currentMatrix, matrix, multMatrix, GLmatrix, loadIdentity,
+   matrix, multMatrix, GLmatrix, loadIdentity,
    ortho, frustum, depthClamp,
    activeTexture,
    preservingMatrix, unsafePreservingMatrix,
@@ -259,10 +259,6 @@ class Matrix m where
                                        3, 7, 11, 15 ]
 
 --------------------------------------------------------------------------------
-
-{-# DEPRECATED currentMatrix "use `matrix' instead" #-}
-currentMatrix :: (Matrix m, MatrixComponent c) => StateVar (m c)
-currentMatrix = matrix Nothing
 
 matrix :: (Matrix m, MatrixComponent c) => Maybe MatrixMode -> StateVar (m c)
 matrix maybeMode =

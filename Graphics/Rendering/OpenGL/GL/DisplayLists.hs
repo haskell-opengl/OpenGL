@@ -19,10 +19,7 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
    listMode, maxListNesting,
 
    -- * Calling Display Lists
-   callList, callLists, listBase,
-
-   -- * Deprecated Functions
-   genLists, deleteLists, isList,
+   callList, callLists, listBase
 ) where
 
 import Foreign.Ptr
@@ -34,8 +31,8 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
- glCallList, glCallLists, glDeleteLists, glEndList, glGenLists, glIsList,
- glListBase, glNewList, gl_COMPILE, gl_COMPILE_AND_EXECUTE )
+   glCallList, glCallLists, glDeleteLists, glEndList, glGenLists, glIsList,
+   glListBase, glNewList, gl_COMPILE, gl_COMPILE_AND_EXECUTE )
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -44,37 +41,11 @@ newtype DisplayList = DisplayList GLuint
    deriving ( Eq, Ord, Show )
 
 instance ObjectName DisplayList where
-   isObjectName = isList_
-   deleteObjectNames = deleteLists_
-
-instance GeneratableObjectName DisplayList where
-   genObjectNames = genLists_
-
---------------------------------------------------------------------------------
-
-{-# DEPRECATED genLists "use `genObjectNames' instead" #-}
-genLists :: GLsizei -> IO [DisplayList]
-genLists = genLists_ . fromIntegral
-
-genLists_ :: Int -> IO [DisplayList]
-genLists_ n = do
-   first <- glGenLists (fromIntegral n)
-   if DisplayList first == noDisplayList
-      then do recordOutOfMemory
-              return []
-      else return [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
-
---------------------------------------------------------------------------------
-
-{-# DEPRECATED deleteLists "use `deleteObjectNames' instead" #-}
-deleteLists :: [DisplayList] -> IO ()
-deleteLists = deleteLists_
-
-deleteLists_ :: [DisplayList] -> IO ()
-deleteLists_ = mapM_ (uncurry glDeleteLists) . combineConsecutive
+   isObjectName (DisplayList dl) = fmap unmarshalGLboolean (glIsList dl)
+   deleteObjectNames = mapM_ (uncurry glDeleteLists) . combineConsecutive
 
 combineConsecutive :: [DisplayList] -> [(GLuint, GLsizei)]
-combineConsecutive []     = []
+combineConsecutive [] = []
 combineConsecutive (z@(DisplayList dl) :zs) = (dl, len) : combineConsecutive rest
    where (len, rest) = run (0 :: GLsizei) z zs
          run n x xs = case n + 1 of
@@ -84,14 +55,13 @@ combineConsecutive (z@(DisplayList dl) :zs) = (dl, len) : combineConsecutive res
                                         | otherwise          -> (m, xs)
          DisplayList x `isFollowedBy` DisplayList y = x + 1 == y
 
---------------------------------------------------------------------------------
-
-{-# DEPRECATED isList "use `isObjectName' instead" #-}
-isList :: DisplayList -> IO Bool
-isList = isList_
-
-isList_ :: DisplayList -> IO Bool
-isList_ (DisplayList dl) = fmap unmarshalGLboolean (glIsList dl)
+instance GeneratableObjectName DisplayList where
+   genObjectNames n = do
+      first <- glGenLists (fromIntegral n)
+      if DisplayList first == noDisplayList
+         then do recordOutOfMemory
+                 return []
+         else return [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
 
 --------------------------------------------------------------------------------
 
@@ -114,17 +84,14 @@ unmarshalListMode x
 --------------------------------------------------------------------------------
 
 defineList :: DisplayList -> ListMode -> IO a -> IO a
-defineList (DisplayList dl) mode = bracket_ (glNewList dl (marshalListMode mode)) glEndList
+defineList (DisplayList dl) mode =
+   bracket_ (glNewList dl (marshalListMode mode)) glEndList
 
 defineNewList :: ListMode -> IO a -> IO DisplayList
 defineNewList mode action = do
-   lists <- genLists 1
-   if null lists
-      then do recordOutOfMemory
-              return noDisplayList
-      else do let lst = head lists
-              _ <- defineList lst mode action
-              return lst
+   lst <- genObjectName
+   _ <- defineList lst mode action
+   return lst
 
 --------------------------------------------------------------------------------
 
