@@ -1,5 +1,6 @@
+-- #hide
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
 -- Copyright   :
 -- License     :  BSD3
@@ -8,7 +9,6 @@
 -- Stability   :
 -- Portability :
 --
--- |
 --
 -----------------------------------------------------------------------------
 
@@ -33,14 +33,14 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 
 -----------------------------------------------------------------------------
 
-data FramebufferObject = FramebufferObject { frameBufferID :: GLuint }
+data FramebufferObject = FramebufferObject { framebufferID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName FramebufferObject where
-    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . frameBufferID
+    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . framebufferID
 
     deleteObjectNames objs =
-       withArrayLen (map frameBufferID objs) $
+       withArrayLen (map framebufferID objs) $
           glDeleteFramebuffers . fromIntegral
 
 instance GeneratableObjectName FramebufferObject where
@@ -84,7 +84,7 @@ getBoundFramebuffer =
 
 setFramebuffer :: FramebufferTarget -> FramebufferObject -> IO ()
 setFramebuffer fbt =
-   glBindFramebuffer (marshalFramebufferTarget fbt) . frameBufferID
+   glBindFramebuffer (marshalFramebufferTarget fbt) . framebufferID
 
 -----------------------------------------------------------------------------
 

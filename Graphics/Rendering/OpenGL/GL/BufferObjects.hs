@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    module Graphics.Rendering.OpenGL.GL.ObjectName,
 
    -- * Buffer Objects
-   BufferObject(BufferObject),
+   BufferObject,
 
    -- * Binding Buffer Objects
    BufferTarget(..), bindBuffer, arrayBufferBinding,

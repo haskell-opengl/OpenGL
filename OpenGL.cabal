@@ -85,7 +85,8 @@ library
    Graphics.Rendering.OpenGL.GL.VertexArrays,
    Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
    Graphics.Rendering.OpenGL.GL.VertexSpec,
-   Graphics.Rendering.OpenGL,
+   Graphics.Rendering.OpenGL
+  other-modules:
    Graphics.Rendering.OpenGL.GL.BlendingFactor,
    Graphics.Rendering.OpenGL.GL.BufferMode,
    Graphics.Rendering.OpenGL.GL.Capability,
@@ -122,6 +123,7 @@ library
    Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
    Graphics.Rendering.OpenGL.GL.Shaders.Variables,
    Graphics.Rendering.OpenGL.GL.Texturing.Filter,
+   Graphics.Rendering.OpenGL.GL.Texturing.TextureObject,
    Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat,
    Graphics.Rendering.OpenGL.GL.Texturing.TexParameter,
    Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget,

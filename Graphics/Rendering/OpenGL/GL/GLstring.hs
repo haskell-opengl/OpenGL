@@ -1,14 +1,15 @@
+-- #hide
 -----------------------------------------------------------------------------
 --
 -- Module      :  Graphics.Rendering.OpenGL.GL.GLstring
--- Copyright   :
--- License     :  BSD3
+-- Copyright   :  (c) Sven Panne 2006-2013
+-- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 --
 -- Maintainer  :  Sven Panne <sven.panne@aedion.de>
 -- Stability   :
 -- Portability :
 --
--- |
+-- This is a purely internal module for (un-)marshaling GL strings.
 --
 -----------------------------------------------------------------------------
 

@@ -1,15 +1,17 @@
+-- #hide
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Attribs
--- Copyright   :
--- License     :  BSD3
+-- Copyright   :  (c) Sven Panne 2006-2013
+-- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  svenpanne@gmail.com
+-- Stability   :  stable
+-- Portability :  portable
 --
--- This module contains functions related to shader attributes, this corresponds
+-- This module contains functions related to shader attributes, corresponding
 -- to section 2.20.3 of the OpenGL 3.1 spec (Shader Variables).
+--
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Attribs (
@@ -17,14 +19,11 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Attribs (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.GLstring
-
-
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
-
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 

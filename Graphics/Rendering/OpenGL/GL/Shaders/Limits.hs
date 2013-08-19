@@ -1,14 +1,15 @@
+-- #hide
 -----------------------------------------------------------------------------
---
--- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Limits
--- Copyright   :
--- License     :  BSD3
---
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
---
 -- |
+-- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Limits
+-- Copyright   :  (c) Sven Panne 2006-2013
+-- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+--
+-- Maintainer  :  svenpanne@gmail.com
+-- Stability   :  stable
+-- Portability :  portable
+--
+-- This module contains functions related to shader limits.
 --
 -----------------------------------------------------------------------------
 

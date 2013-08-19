@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.DisplayLists (
    -- * Defining Display Lists
-   DisplayList(..), ListMode(..), defineList, defineNewList, listIndex,
+   DisplayList(DisplayList), ListMode(..), defineList, defineNewList, listIndex,
    listMode, maxListNesting,
 
    -- * Calling Display Lists
@@ -41,7 +41,7 @@ newtype DisplayList = DisplayList { displayListID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName DisplayList where
-   isObjectName = fmap unmarshalGLboolean . glIsList dl . displayListID
+   isObjectName = fmap unmarshalGLboolean . glIsList . displayListID
    deleteObjectNames = mapM_ (uncurry glDeleteLists) . combineConsecutive
 
 combineConsecutive :: [DisplayList] -> [(GLuint, GLsizei)]

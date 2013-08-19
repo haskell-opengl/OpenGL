@@ -1,5 +1,6 @@
+-- #hide
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.RendebufferObjects
 -- Copyright   :
 -- License     :  BSD3
@@ -7,8 +8,6 @@
 -- Maintainer  :  Sven Panne <sven.panne@aedion.de>
 -- Stability   :
 -- Portability :
---
--- |
 --
 -----------------------------------------------------------------------------
 
@@ -37,12 +36,12 @@ import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 
 -----------------------------------------------------------------------------
 
-data RenderbufferObject = RenderbufferObject{ rbufferID :: GLuint}
+data RenderbufferObject = RenderbufferObject { renderbufferID :: GLuint}
 
 instance ObjectName RenderbufferObject where
-   deleteObjectNames objs = withArrayLen (map rbufferID objs) $
+   deleteObjectNames objs = withArrayLen (map renderbufferID objs) $
       glDeleteRenderbuffers . fromIntegral
-   isObjectName = fmap unmarshalGLboolean . glIsRenderbuffer . rbufferID
+   isObjectName = fmap unmarshalGLboolean . glIsRenderbuffer . renderbufferID
 
 instance GeneratableObjectName RenderbufferObject where
    genObjectNames n =
@@ -83,7 +82,7 @@ getBoundRenderbuffer = getInteger1 (RenderbufferObject . fromIntegral)
 
 setRenderbuffer :: RenderbufferTarget -> RenderbufferObject -> IO ()
 setRenderbuffer rbt = glBindRenderbuffer (marshalRenderbufferTarget rbt)
-   . rbufferID
+   . renderbufferID
 
 -----------------------------------------------------------------------------
 

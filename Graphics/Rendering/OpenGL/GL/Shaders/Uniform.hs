@@ -1,15 +1,17 @@
+-- #hide
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Uniform
--- Copyright   :
--- License     :  BSD3
+-- Copyright   :  (c) Sven Panne 2006-2013
+-- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  svenpanne@gmail.com
+-- Stability   :  stable
+-- Portability :  portable
 --
 -- This module contains functions related to shader uniforms, this corresponds
 -- to section 2.20.3 of the OpenGL 3.1 spec (Shader Variables).
+--
 -----------------------------------------------------------------------------
 
 {-# LANGUAGE TypeSynonymInstances #-}

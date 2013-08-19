@@ -1,12 +1,13 @@
+-- #hide
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Shaders
--- Copyright   :
--- License     :  BSD3
+-- Copyright   :  (c) Sven Panne 2006-2013
+-- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  svenpanne@gmail.com
+-- Stability   :  stable
+-- Portability :  portable
 --
 -- This module correspons with section 2.20.1 (Shader Objects) of the OpenGL
 -- 3.1 spec.
@@ -22,11 +23,11 @@ import Data.List
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
-import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
+import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
+-- #hide
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
 -- Copyright   :
 -- License     :  BSD3
@@ -7,8 +8,6 @@
 -- Maintainer  :  Sven Panne <sven.panne@aedion.de>
 -- Stability   :
 -- Portability :
---
--- |
 --
 -----------------------------------------------------------------------------
 
@@ -29,17 +28,16 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments (
 
 import Data.Maybe (fromMaybe)
 import Foreign.Marshal
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-
+import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
-
-import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.Texturing.Objects
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureObject
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw.Core31
+
 -----------------------------------------------------------------------------
 
 data FramebufferObjectAttachment =
@@ -47,7 +45,7 @@ data FramebufferObjectAttachment =
    | DepthAttachment
    | StencilAttachment
    | DepthStencilAttachment
-   deriving (Eq, Show)
+   deriving ( Eq, Ord, Show )
 
 marshalFramebufferObjectAttachment :: FramebufferObjectAttachment -> Maybe GLenum
 marshalFramebufferObjectAttachment x = case x of
