@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.TransformFeedback
 -- Copyright   :
 -- License     :  BSD3
@@ -7,8 +7,6 @@
 -- Maintainer  :  Sven Panne <sven.panne@aedion.de>
 -- Stability   :
 -- Portability :
---
--- |
 --
 -----------------------------------------------------------------------------
 
@@ -35,14 +33,15 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Storable
-
-import Graphics.Rendering.OpenGL.Raw.Core32
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
+import Graphics.Rendering.OpenGL.GL.Shaders.Program
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.Core32
+
+--------------------------------------------------------------------------------
 
 beginTransformFeedback :: PrimitiveMode -> IO ()
 beginTransformFeedback = glBeginTransformFeedback . marshalPrimitiveMode

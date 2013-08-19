@@ -14,17 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders (
-  module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,
-
-   -- * Program Objects
-   Program, createProgram, programDeleteStatus,
-   attachShader, detachShader, attachedShaders, linkProgram, linkStatus,
-   validateProgram, validateStatus, programInfoLog, currentProgram,
-
-   -- * FragmentData
-   bindFragDataLocation,
-   getFragDataLocation,
-
+   module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,
+   module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects,
    module Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
    module Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
    module Graphics.Rendering.OpenGL.GL.Shaders.Limits

@@ -1,4 +1,3 @@
--- #hide
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
@@ -16,42 +15,31 @@
 
 module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects (
    -- * Program Objects
-   Program(..), createProgram, programDeleteStatus,
+   Program, createProgram, programDeleteStatus,
    attachShader, detachShader, attachedShaders,
    linkProgram, linkStatus,
    validateProgram, validateStatus,
    programInfoLog,
    currentProgram,
 
-   bindFragDataLocation, getFragDataLocation,
-
-   -- * internals
-   GetProgramPName(..), programVar
+   -- * Fragment Data
+   bindFragDataLocation, getFragDataLocation
 ) where
 
 import Data.List
 import Data.Maybe
-import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
-import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
-
-newtype Program = Program { programID :: GLuint }
-   deriving ( Eq, Ord, Show )
-
-instance ObjectName Program where
-   isObjectName = fmap unmarshalGLboolean . glIsProgram . programID
-   deleteObjectName = glDeleteProgram . programID
 
 createProgram :: IO Program
 createProgram = fmap Program glCreateProgram
@@ -120,44 +108,6 @@ programInfoLogLength = programVar fromIntegral ProgramInfoLogLength
 
 numAttachedShaders :: Program -> GettableStateVar GLsizei
 numAttachedShaders = programVar fromIntegral AttachedShaders
-
---------------------------------------------------------------------------------
-
-data GetProgramPName =
-     ProgramDeleteStatus
-   | LinkStatus
-   | ValidateStatus
-   | ProgramInfoLogLength
-   | AttachedShaders
-   | ActiveAttributes
-   | ActiveAttributeMaxLength
-   | ActiveUniforms
-   | ActiveUniformMaxLength
-   | TransformFeedbackBufferMode
-   | TransformFeedbackVaryings
-   | TransformFeedbackVaryingMaxLength
-
-marshalGetProgramPName :: GetProgramPName -> GLenum
-marshalGetProgramPName x = case x of
-   ProgramDeleteStatus -> gl_DELETE_STATUS
-   LinkStatus -> gl_LINK_STATUS
-   ValidateStatus -> gl_VALIDATE_STATUS
-   ProgramInfoLogLength -> gl_INFO_LOG_LENGTH
-   AttachedShaders -> gl_ATTACHED_SHADERS
-   ActiveAttributes -> gl_ACTIVE_ATTRIBUTES
-   ActiveAttributeMaxLength -> gl_ACTIVE_ATTRIBUTE_MAX_LENGTH
-   ActiveUniforms -> gl_ACTIVE_UNIFORMS
-   ActiveUniformMaxLength -> gl_ACTIVE_UNIFORM_MAX_LENGTH
-   TransformFeedbackBufferMode -> gl_TRANSFORM_FEEDBACK_BUFFER_MODE
-   TransformFeedbackVaryings -> gl_TRANSFORM_FEEDBACK_VARYINGS
-   TransformFeedbackVaryingMaxLength -> gl_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH
-
-programVar :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
-programVar f p program =
-   makeGettableStateVar $
-      alloca $ \buf -> do
-         glGetProgramiv (programID program) (marshalGetProgramPName p) buf
-         peek1 f buf
 
 --------------------------------------------------------------------------------
 
