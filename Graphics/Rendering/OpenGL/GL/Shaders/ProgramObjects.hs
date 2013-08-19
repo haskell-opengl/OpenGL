@@ -26,7 +26,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects (
    bindFragDataLocation, getFragDataLocation,
 
    -- * internals
-   GetProgramPName(..), programVar, getCurrentProgram
+   GetProgramPName(..), programVar
 ) where
 
 import Data.List
@@ -90,12 +90,9 @@ linkProgram = glLinkProgram . programID
 currentProgram :: StateVar (Maybe Program)
 currentProgram =
    makeStateVar
-      (do p <- getCurrentProgram
+      (do p <- fmap Program $ getInteger1 fromIntegral GetCurrentProgram
           return $ if p == noProgram then Nothing else Just p)
       (glUseProgram . programID . fromMaybe noProgram)
-
-getCurrentProgram :: IO Program
-getCurrentProgram = fmap Program $ getInteger1 fromIntegral GetCurrentProgram
 
 noProgram :: Program
 noProgram = Program 0

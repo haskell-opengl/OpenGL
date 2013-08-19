@@ -21,6 +21,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
    UniformComponent,
 ) where
 
+import Data.Maybe
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
@@ -131,7 +132,7 @@ makeUniformVar :: (UniformComponent a, Storable (b a))
                -> UniformLocation -> StateVar (b a)
 makeUniformVar setter location = makeStateVar getter (setter location)
    where getter = do
-            program <- getCurrentProgram
+            program <- fmap fromJust $ get currentProgram
             allocaBytes maxUniformBufferSize  $ \buf -> do
             getUniform program location buf
             peek buf
@@ -191,7 +192,7 @@ instance Uniform TextureUnit where
     uniform loc@(UniformLocation ul)  = makeStateVar getter setter
         where setter (TextureUnit tu) = uniform1 loc (fromIntegral tu :: GLint)
               getter = do
-                 program <- getCurrentProgram
+                 program <- fmap fromJust $ get currentProgram
                  allocaBytes (sizeOf (undefined :: GLint))  $ \buf -> do
                  glGetUniformiv (programID program) ul buf
                  tuID <- peek buf
