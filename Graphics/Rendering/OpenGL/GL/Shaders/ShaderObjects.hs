@@ -15,7 +15,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
-   ShaderType(..), Shader(..), createShader, shaderType, shaderDeleteStatus,
+   ShaderType(..), Shader, createShader, shaderType, shaderDeleteStatus,
    shaderSource, compileShader, compileStatus, shaderInfoLog
 ) where
 
@@ -25,8 +25,8 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
-import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.Shaders.Shader
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
 
@@ -49,13 +49,6 @@ unmarshalShaderType x
    | otherwise = error ("unmarshalShaderType: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
-
-newtype Shader = Shader { shaderID :: GLuint }
-   deriving ( Eq, Ord, Show )
-
-instance ObjectName Shader where
-   isObjectName = fmap unmarshalGLboolean . glIsShader . shaderID
-   deleteObjectName = glDeleteShader . shaderID
 
 createShader :: ShaderType -> IO Shader
 createShader = fmap Shader . glCreateShader . marshalShaderType
