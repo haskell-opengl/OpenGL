@@ -43,6 +43,6 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 import Graphics.Rendering.OpenGL.GL.Shaders.Attribs
 import Graphics.Rendering.OpenGL.GL.Shaders.Limits
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
-import Graphics.Rendering.OpenGL.GL.Shaders.Shaders
+import Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects
 import Graphics.Rendering.OpenGL.GL.Shaders.Uniform
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables

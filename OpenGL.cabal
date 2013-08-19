@@ -119,7 +119,7 @@ library
    Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
    Graphics.Rendering.OpenGL.GL.Shaders.Limits,
    Graphics.Rendering.OpenGL.GL.Shaders.Program,
-   Graphics.Rendering.OpenGL.GL.Shaders.Shaders,
+   Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,
    Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
    Graphics.Rendering.OpenGL.GL.Shaders.Variables,
    Graphics.Rendering.OpenGL.GL.Texturing.Filter,

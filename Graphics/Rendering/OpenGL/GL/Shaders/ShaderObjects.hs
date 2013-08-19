@@ -1,7 +1,7 @@
 -- #hide
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Shaders
+-- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects
 -- Copyright   :  (c) Sven Panne 2006-2013
 -- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
 --
@@ -14,7 +14,7 @@
 --
 -----------------------------------------------------------------------------
 
-module Graphics.Rendering.OpenGL.GL.Shaders.Shaders (
+module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
    ShaderType(..), Shader(..), createShader, shaderType, shaderDeleteStatus,
    shaderSource, compileShader, compileStatus, shaderInfoLog
 ) where
