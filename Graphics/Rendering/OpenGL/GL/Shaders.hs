@@ -32,10 +32,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    UniformLocation, uniformLocation, activeUniforms, Uniform(..),
    UniformComponent,
 
-   -- * Implementation limits related to GLSL
-   maxVertexTextureImageUnits, maxTextureImageUnits,
-   maxCombinedTextureImageUnits, maxTextureCoords, maxVertexUniformComponents,
-   maxFragmentUniformComponents, maxVertexAttribs, maxVaryingFloats
+   module Graphics.Rendering.OpenGL.GL.Shaders.Limits
 ) where
 
 import Graphics.Rendering.OpenGL.GL.Shaders.Attribs
