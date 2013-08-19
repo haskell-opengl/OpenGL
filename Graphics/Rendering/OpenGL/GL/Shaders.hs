@@ -14,9 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders (
-   -- * Shader Objects
-   ShaderType(..), Shader, createShader, shaderType, shaderDeleteStatus,
-   shaderSource, compileShader, compileStatus, shaderInfoLog,
+  module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,
 
    -- * Program Objects
    Program, createProgram, programDeleteStatus,
