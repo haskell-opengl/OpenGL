@@ -33,7 +33,8 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 
 -----------------------------------------------------------------------------
 
-data FramebufferObject = FramebufferObject{ frameBufferID :: GLuint }
+data FramebufferObject = FramebufferObject { frameBufferID :: GLuint }
+   deriving ( Eq, Ord, Show )
 
 instance ObjectName FramebufferObject where
     isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . frameBufferID
@@ -57,6 +58,7 @@ data FramebufferTarget =
      DrawFramebuffer
    | ReadFramebuffer
    | Framebuffer
+   deriving ( Eq, Ord, Show )
 
 marshalFramebufferTarget :: FramebufferTarget -> GLenum
 marshalFramebufferTarget xs = case xs of
@@ -94,6 +96,7 @@ data FramebufferStatus =
    | IncompleteReadBuffer
    | IncompleteMultiSample
    | Unsupported
+   deriving ( Eq, Ord, Show )
 
 unmarshalFramebufferStatus :: GLenum -> FramebufferStatus
 unmarshalFramebufferStatus x
