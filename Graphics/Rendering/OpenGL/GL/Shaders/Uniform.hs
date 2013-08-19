@@ -25,14 +25,13 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.GLstring
+import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
+import Graphics.Rendering.OpenGL.GL.Shaders.Variables
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Tensor
-import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.Core31
-
-import Graphics.Rendering.OpenGL.GL.Shaders.Program
-import Graphics.Rendering.OpenGL.GL.Shaders.Variables
 
 --------------------------------------------------------------------------------
 
@@ -42,7 +41,6 @@ numActiveUniforms = programVar fromIntegral ActiveUniforms
 activeUniformMaxLength :: Program -> GettableStateVar GLsizei
 activeUniformMaxLength = programVar fromIntegral ActiveUniformMaxLength
 
---------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 newtype UniformLocation = UniformLocation GLint

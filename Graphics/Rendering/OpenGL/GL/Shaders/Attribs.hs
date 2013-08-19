@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Attribs (
 
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.Shaders.Program
+import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31

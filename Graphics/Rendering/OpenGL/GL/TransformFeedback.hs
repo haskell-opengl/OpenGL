@@ -42,7 +42,7 @@ import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.Shaders.Program
+import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
 
 beginTransformFeedback :: PrimitiveMode -> IO ()
 beginTransformFeedback = glBeginTransformFeedback . marshalPrimitiveMode
