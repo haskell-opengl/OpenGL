@@ -28,10 +28,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    -- * Vertex attributes
    attribLocation, VariableType(..), activeAttribs,
 
-   -- * Uniform variables
-   UniformLocation, uniformLocation, activeUniforms, Uniform(..),
-   UniformComponent,
-
+   module Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
    module Graphics.Rendering.OpenGL.GL.Shaders.Limits
 ) where
 
