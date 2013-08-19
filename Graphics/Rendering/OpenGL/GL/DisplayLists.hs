@@ -37,16 +37,16 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
-newtype DisplayList = DisplayList GLuint
+newtype DisplayList = DisplayList { displayListID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName DisplayList where
-   isObjectName (DisplayList dl) = fmap unmarshalGLboolean (glIsList dl)
+   isObjectName = fmap unmarshalGLboolean . glIsList dl . displayListID
    deleteObjectNames = mapM_ (uncurry glDeleteLists) . combineConsecutive
 
 combineConsecutive :: [DisplayList] -> [(GLuint, GLsizei)]
 combineConsecutive [] = []
-combineConsecutive (z@(DisplayList dl) :zs) = (dl, len) : combineConsecutive rest
+combineConsecutive (z:zs) = (displayListID z, len) : combineConsecutive rest
    where (len, rest) = run (0 :: GLsizei) z zs
          run n x xs = case n + 1 of
                          m -> case xs of
@@ -84,8 +84,8 @@ unmarshalListMode x
 --------------------------------------------------------------------------------
 
 defineList :: DisplayList -> ListMode -> IO a -> IO a
-defineList (DisplayList dl) mode =
-   bracket_ (glNewList dl (marshalListMode mode)) glEndList
+defineList dl mode =
+   bracket_ (glNewList (displayListID dl) (marshalListMode mode)) glEndList
 
 defineNewList :: ListMode -> IO a -> IO DisplayList
 defineNewList mode action = do
@@ -113,7 +113,7 @@ maxListNesting = makeGettableStateVar (getSizei1 id GetMaxListNesting)
 --------------------------------------------------------------------------------
 
 callList :: DisplayList -> IO ()
-callList (DisplayList dl) = glCallList dl
+callList = glCallList . displayListID
 
 callLists :: GLsizei -> DataType -> Ptr a -> IO ()
 callLists n = glCallLists n . marshalDataType
@@ -124,4 +124,4 @@ listBase :: StateVar DisplayList
 listBase =
    makeStateVar
       (getEnum1 (DisplayList . fromIntegral) GetListBase)
-       (\(DisplayList dl) -> glListBase dl)
+      (glListBase . displayListID)
