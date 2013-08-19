@@ -31,10 +31,11 @@ newtype VertexArrayObject = VertexArrayObject { vertexArrayID :: GLuint }
    deriving( Eq, Ord, Show )
 
 instance ObjectName VertexArrayObject where
+   isObjectName =  fmap unmarshalGLboolean . glIsVertexArray . vertexArrayID
+
    deleteObjectNames bufferObjects =
       withArrayLen (map vertexArrayID bufferObjects) $
          glDeleteVertexArrays . fromIntegral
-   isObjectName =  fmap unmarshalGLboolean . glIsVertexArray . vertexArrayID
 
 instance GeneratableObjectName VertexArrayObject where
    genObjectNames n = allocaArray n $ \buf -> do

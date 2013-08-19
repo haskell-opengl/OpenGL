@@ -33,12 +33,14 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 
 -----------------------------------------------------------------------------
 
-data FramebufferObject = FramebufferObject{ fbufferID :: GLuint }
+data FramebufferObject = FramebufferObject{ frameBufferID :: GLuint }
 
 instance ObjectName FramebufferObject where
-    deleteObjectNames objs = withArrayLen (map fbufferID objs) $
-       glDeleteFramebuffers . fromIntegral
-    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . fbufferID
+    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . frameBufferID
+
+    deleteObjectNames objs =
+       withArrayLen (map frameBufferID objs) $
+          glDeleteFramebuffers . fromIntegral
 
 instance GeneratableObjectName FramebufferObject where
     genObjectNames n =
@@ -75,11 +77,12 @@ bindFramebuffer fbt =
     makeStateVar (getBoundFramebuffer fbt) (setFramebuffer fbt)
 
 getBoundFramebuffer :: FramebufferTarget -> IO FramebufferObject
-getBoundFramebuffer = getInteger1 (FramebufferObject . fromIntegral)
-   . marshalFramebufferTargetBinding
+getBoundFramebuffer =
+   getInteger1 (FramebufferObject . fromIntegral) . marshalFramebufferTargetBinding
 
 setFramebuffer :: FramebufferTarget -> FramebufferObject -> IO ()
-setFramebuffer fbt = glBindFramebuffer (marshalFramebufferTarget fbt) . fbufferID
+setFramebuffer fbt =
+   glBindFramebuffer (marshalFramebufferTarget fbt) . frameBufferID
 
 -----------------------------------------------------------------------------
 

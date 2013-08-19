@@ -40,11 +40,11 @@ newtype TextureObject = TextureObject { textureID :: GLuint }
 --------------------------------------------------------------------------------
 
 instance ObjectName TextureObject where
+   isObjectName = fmap unmarshalGLboolean . glIsTexture . textureID
+
    deleteObjectNames textureObjects =
       withArrayLen (map textureID textureObjects) $
          glDeleteTextures . fromIntegral
-
-   isObjectName = fmap unmarshalGLboolean . glIsTexture . textureID
 
 instance GeneratableObjectName TextureObject where
    genObjectNames n =

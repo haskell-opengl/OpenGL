@@ -53,11 +53,11 @@ newtype Shader = Shader { shaderID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName Shader where
-   deleteObjectNames = mapM_ (glDeleteShader . shaderID)
    isObjectName = fmap unmarshalGLboolean . glIsShader . shaderID
+   deleteObjectName = glDeleteShader . shaderID
 
 createShader :: ShaderType -> IO Shader
-createShader st = fmap Shader (glCreateShader (marshalShaderType st))
+createShader = fmap Shader . glCreateShader . marshalShaderType
 
 --------------------------------------------------------------------------------
 

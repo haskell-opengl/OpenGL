@@ -35,8 +35,8 @@ newtype SyncObject = SyncObject { syncID :: GLsync }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName SyncObject where
-   deleteObjectNames = mapM_ (glDeleteSync . syncID)
    isObjectName = fmap unmarshalGLboolean . glIsSync . syncID
+   deleteObjectName = glDeleteSync . syncID
 
 syncGpuCommandsComplete :: IO SyncObject
 syncGpuCommandsComplete =

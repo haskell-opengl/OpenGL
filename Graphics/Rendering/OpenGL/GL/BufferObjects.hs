@@ -67,11 +67,11 @@ newtype BufferObject = BufferObject { bufferID :: GLuint }
 --------------------------------------------------------------------------------
 
 instance ObjectName BufferObject where
+   isObjectName = fmap unmarshalGLboolean . glIsBuffer . bufferID
+
    deleteObjectNames bufferObjects =
       withArrayLen (map bufferID bufferObjects) $
          glDeleteBuffers . fromIntegral
-
-   isObjectName = fmap unmarshalGLboolean . glIsBuffer . bufferID
 
 instance GeneratableObjectName BufferObject where
    genObjectNames n =

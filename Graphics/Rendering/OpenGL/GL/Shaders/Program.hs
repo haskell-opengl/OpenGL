@@ -50,9 +50,8 @@ newtype Program = Program { programID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName Program where
-   deleteObjectNames = mapM_ (glDeleteProgram . programID)
    isObjectName = fmap unmarshalGLboolean . glIsProgram . programID
-
+   deleteObjectName = glDeleteProgram . programID
 
 createProgram :: IO Program
 createProgram = fmap Program glCreateProgram
