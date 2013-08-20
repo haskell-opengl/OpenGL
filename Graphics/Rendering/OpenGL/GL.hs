@@ -21,7 +21,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.SyncObjects,
 
    -- * OpenGL Operation
-   module Graphics.Rendering.OpenGL.Raw.Core31,  -- Huh???
+   module Graphics.Rendering.OpenGL.Raw.Core31.Types,
    module Graphics.Rendering.OpenGL.GL.BeginEnd,
    module Graphics.Rendering.OpenGL.GL.VertexSpec,
    module Graphics.Rendering.OpenGL.GL.VertexArrays,
@@ -59,8 +59,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Hints,
    module Graphics.Rendering.OpenGL.GL.PixellikeObject,
    module Graphics.Rendering.OpenGL.GL.TransformFeedback,
--- is exported through PerFragment for backwards compatibility reasons
---   module Graphics.Rendering.OpenGL.GL.QueryObjects,
+   module Graphics.Rendering.OpenGL.GL.QueryObjects,
 
    -- * State and State Requests
    module Graphics.Rendering.OpenGL.GL.StateVar,
@@ -73,10 +72,7 @@ import Graphics.Rendering.OpenGL.GL.FlushFinish
 
 import Graphics.Rendering.OpenGL.GL.SyncObjects
 
-import Graphics.Rendering.OpenGL.Raw.Core31 (
-   GLbitfield,  GLboolean,  GLbyte,  GLchar,  GLclampd,  GLclampf,  GLdouble,
-   GLenum,  GLfloat,  GLhalf,  GLint,  GLintptr,  GLshort,  GLsizei,
-   GLsizeiptr,  GLubyte,  GLuint,  GLushort )
+import Graphics.Rendering.OpenGL.Raw.Core31.Types
 import Graphics.Rendering.OpenGL.GL.BeginEnd
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.VertexArrays
@@ -111,8 +107,7 @@ import Graphics.Rendering.OpenGL.GL.DisplayLists
 import Graphics.Rendering.OpenGL.GL.Hints
 import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
--- is exported through PerFragment for backwards compatibility reasons
---import Graphics.Rendering.OpenGL.GL.QueryObjects
+import Graphics.Rendering.OpenGL.GL.QueryObjects
 
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Tensor

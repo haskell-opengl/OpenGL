@@ -41,10 +41,7 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
    dither,
 
    -- * Logical Operation
-   LogicOp(..), logicOp,
-
-   -- * for backward compatibility reasons
-   module Graphics.Rendering.OpenGL.GL.QueryObjects
+   LogicOp(..), logicOp
 ) where
 
 import Control.Monad
@@ -56,7 +53,6 @@ import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.QueryObjects
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (

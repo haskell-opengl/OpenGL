@@ -14,9 +14,6 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.BufferObjects (
-   -- * Object Names
-   module Graphics.Rendering.OpenGL.GL.ObjectName,
-
    -- * Buffer Objects
    BufferObject,
 
