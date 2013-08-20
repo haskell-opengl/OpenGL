@@ -16,6 +16,7 @@
 module Graphics.Rendering.OpenGL.GL (
    -- * OpenGL Fundamentals
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
+   module Graphics.Rendering.OpenGL.GL.ObjectName,
 
    -- * Event Model
    module Graphics.Rendering.OpenGL.GL.SyncObjects,
@@ -69,6 +70,7 @@ module Graphics.Rendering.OpenGL.GL (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.FlushFinish
+import Graphics.Rendering.OpenGL.GL.ObjectName
 
 import Graphics.Rendering.OpenGL.GL.SyncObjects
 
