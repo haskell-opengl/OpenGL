@@ -1,4 +1,3 @@
--- #hide
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries
@@ -29,7 +28,7 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification(Level)
@@ -80,6 +79,7 @@ data AttachmentObjectType =
      DefaultFramebufferAttachment
    | TextureAttachment
    | RenderbufferAttachment
+   deriving ( Eq, Ord, Show )
 
 unmarshalAttachmentObjectType :: GLenum -> Maybe AttachmentObjectType
 unmarshalAttachmentObjectType x

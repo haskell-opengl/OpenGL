@@ -1,4 +1,3 @@
--- #hide
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
@@ -25,7 +24,7 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments (
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureObject
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget

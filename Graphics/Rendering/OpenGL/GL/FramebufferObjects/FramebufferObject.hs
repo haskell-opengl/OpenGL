@@ -9,7 +9,7 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This is a purely internal module for (un-)marshaling FrameBufferObjects.
+-- This is a purely internal module for handling FrameBufferObjects.
 --
 --------------------------------------------------------------------------------
 

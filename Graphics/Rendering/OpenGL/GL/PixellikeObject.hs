@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.PixellikeObject (
 import Foreign.Marshal.Alloc
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
