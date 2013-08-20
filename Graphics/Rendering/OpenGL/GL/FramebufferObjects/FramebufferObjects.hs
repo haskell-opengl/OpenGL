@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects (
-   FramebufferObject(FramebufferObject),
+   FramebufferObject,
    defaultFramebufferObject,
    FramebufferTarget(..), marshalFramebufferTarget,
 
@@ -22,32 +22,12 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects (
    FramebufferStatus(..), framebufferStatus,
 ) where
 
-import Foreign.Marshal
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
 
-import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.GL.StateVar
-import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.QueryUtils
-
-
 -----------------------------------------------------------------------------
-
-data FramebufferObject = FramebufferObject { framebufferID :: GLuint }
-   deriving ( Eq, Ord, Show )
-
-instance ObjectName FramebufferObject where
-    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . framebufferID
-
-    deleteObjectNames objs =
-       withArrayLen (map framebufferID objs) $
-          glDeleteFramebuffers . fromIntegral
-
-instance GeneratableObjectName FramebufferObject where
-    genObjectNames n =
-       allocaArray n $ \buf -> do
-          glGenFramebuffers (fromIntegral n) buf
-          fmap (map FramebufferObject) $ peekArray n buf
 
 defaultFramebufferObject :: FramebufferObject
 defaultFramebufferObject = FramebufferObject 0

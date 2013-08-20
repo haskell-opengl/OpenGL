@@ -103,6 +103,7 @@ library
    Graphics.Rendering.OpenGL.GL.Exception,
    Graphics.Rendering.OpenGL.GL.Face,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject,
