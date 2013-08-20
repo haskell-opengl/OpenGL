@@ -18,16 +18,16 @@ module Graphics.Rendering.OpenGL.GL.PixellikeObject (
 ) where
 
 import Foreign.Marshal.Alloc
-import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.Raw.Core31
-
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
+import Graphics.Rendering.OpenGL.Raw.Core31
 
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
+-----------------------------------------------------------------------------
 
 data PixellikeObjectGetPName =
      RedSize

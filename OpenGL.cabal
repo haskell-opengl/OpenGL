@@ -104,6 +104,7 @@ library
    Graphics.Rendering.OpenGL.GL.Face,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries,

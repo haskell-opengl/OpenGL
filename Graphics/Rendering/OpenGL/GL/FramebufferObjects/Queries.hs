@@ -26,8 +26,8 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
    renderbufferAlphaSize, renderbufferDepthSize, renderbufferStencilSize,
 ) where
 
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
 import Graphics.Rendering.OpenGL.GL.StateVar

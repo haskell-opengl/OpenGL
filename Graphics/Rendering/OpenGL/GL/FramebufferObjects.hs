@@ -21,7 +21,6 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects (
 
 
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
-    hiding (getFBAParameteriv)
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
