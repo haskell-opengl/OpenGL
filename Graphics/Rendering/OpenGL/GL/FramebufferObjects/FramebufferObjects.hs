@@ -13,16 +13,13 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects (
-   FramebufferObject,
-   defaultFramebufferObject,
-   FramebufferTarget(..), marshalFramebufferTarget,
-
-   bindFramebuffer,
-
+   FramebufferObject, defaultFramebufferObject,
+   FramebufferTarget(..), bindFramebuffer,
    FramebufferStatus(..), framebufferStatus,
 ) where
 
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
@@ -34,29 +31,15 @@ defaultFramebufferObject = FramebufferObject 0
 
 -----------------------------------------------------------------------------
 
-data FramebufferTarget =
-     DrawFramebuffer
-   | ReadFramebuffer
-   | Framebuffer
-   deriving ( Eq, Ord, Show )
-
-marshalFramebufferTarget :: FramebufferTarget -> GLenum
-marshalFramebufferTarget xs = case xs of
-   DrawFramebuffer -> gl_DRAW_FRAMEBUFFER
-   ReadFramebuffer -> gl_READ_FRAMEBUFFER
-   Framebuffer -> gl_FRAMEBUFFER
+bindFramebuffer :: FramebufferTarget -> StateVar FramebufferObject
+bindFramebuffer fbt =
+    makeStateVar (getBoundFramebuffer fbt) (setFramebuffer fbt)
 
 marshalFramebufferTargetBinding :: FramebufferTarget -> PName1I
 marshalFramebufferTargetBinding x = case x of
    DrawFramebuffer -> GetDrawFramebufferBinding
    ReadFramebuffer -> GetReadFramebufferBinding
    Framebuffer -> GetFramebufferBinding
-
------------------------------------------------------------------------------
-
-bindFramebuffer :: FramebufferTarget -> StateVar FramebufferObject
-bindFramebuffer fbt =
-    makeStateVar (getBoundFramebuffer fbt) (setFramebuffer fbt)
 
 getBoundFramebuffer :: FramebufferTarget -> IO FramebufferObject
 getBoundFramebuffer =
@@ -90,6 +73,7 @@ unmarshalFramebufferStatus x
    | x == gl_FRAMEBUFFER_UNSUPPORTED = Unsupported
    | otherwise = error $ "unmarshalFramebufferStatus: unknown value: "
       ++ show x
+
 -----------------------------------------------------------------------------
 
 framebufferStatus :: FramebufferTarget -> GettableStateVar FramebufferStatus
