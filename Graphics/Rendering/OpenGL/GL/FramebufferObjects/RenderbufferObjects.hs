@@ -12,7 +12,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects (
-   RenderbufferObject(RenderbufferObject),
+   RenderbufferObject,
    noRenderbufferObject,
    RenderbufferTarget(..), marshalRenderbufferTarget,
    RenderbufferSize(..), Samples(..),
@@ -25,29 +25,14 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects (
 ) where
 
 import Foreign.Marshal
-import Graphics.Rendering.OpenGL.Raw.Core31
-
-import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.GL.StateVar
-import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+import Graphics.Rendering.OpenGL.Raw.Core31
 
 -----------------------------------------------------------------------------
-
-data RenderbufferObject = RenderbufferObject { renderbufferID :: GLuint}
-
-instance ObjectName RenderbufferObject where
-   deleteObjectNames objs = withArrayLen (map renderbufferID objs) $
-      glDeleteRenderbuffers . fromIntegral
-   isObjectName = fmap unmarshalGLboolean . glIsRenderbuffer . renderbufferID
-
-instance GeneratableObjectName RenderbufferObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-         glGenRenderbuffers (fromIntegral n) buf
-         fmap (map RenderbufferObject) $ peekArray n buf
 
 noRenderbufferObject :: RenderbufferObject
 noRenderbufferObject = RenderbufferObject 0

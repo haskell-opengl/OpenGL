@@ -28,11 +28,12 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
 
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
 import Graphics.Rendering.OpenGL.GL.StateVar
-import Graphics.Rendering.OpenGL.GL.Texturing.TextureObject
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification(Level)
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureObject
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.Raw.Core31
 

@@ -105,6 +105,7 @@ library
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries,
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects,
    Graphics.Rendering.OpenGL.GL.GLboolean,
    Graphics.Rendering.OpenGL.GL.GLstring,

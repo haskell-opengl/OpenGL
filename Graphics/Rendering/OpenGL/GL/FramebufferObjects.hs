@@ -28,8 +28,5 @@ import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
    (FramebufferObject)
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries
--- import RenderbufferObjects, hiding the constructor for RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
-   hiding ( RenderbufferObject, marshalRenderbufferTarget, getRBParameteriv )
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
-   (RenderbufferObject)
+   hiding ( marshalRenderbufferTarget, getRBParameteriv )
