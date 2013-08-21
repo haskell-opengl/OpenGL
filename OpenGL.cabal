@@ -2,7 +2,7 @@ name: OpenGL
 version: 2.9.0.0
 license: BSD3
 license-file: LICENSE
-maintainer: Jason Dagit <dagitj@gmail.com>, Sven Panne <svenpanne@gmail.com>
+maintainer: Sven Panne <svenpanne@gmail.com>, Jason Dagit <dagitj@gmail.com>
 bug-reports: https://github.com/haskell-opengl/OpenGL/issues
 homepage: http://www.haskell.org/haskellwiki/Opengl
 category: Graphics
