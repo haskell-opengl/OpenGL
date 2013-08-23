@@ -1,15 +1,13 @@
 -- #hide
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib
--- Copyright   :
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2009-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Jason Dagit <dagitj@gmail.com>, Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
---
--- |
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>, Jason Dagit <dagitj@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
 -----------------------------------------------------------------------------
 
