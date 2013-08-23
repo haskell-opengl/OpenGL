@@ -8,7 +8,7 @@ homepage: http://www.haskell.org/haskellwiki/Opengl
 category: Graphics
 synopsis: A binding for the OpenGL graphics system
 description:
-   A Haskell binding for the OpenGL graphics system (GL, version 3.2) and its
+   A Haskell binding for the OpenGL graphics system (GL, version 4.4) and its
    accompanying utility library (GLU, version 1.3).
    .
    OpenGL is the industry's most widely used and supported 2D and 3D graphics

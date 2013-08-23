@@ -14,9 +14,14 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.SyncObjects (
+   -- * Sync Objects and Fences
    SyncObject, syncGpuCommandsComplete,
+
+   -- * Waiting for Sync Objects
    WaitTimeout, WaitFlag(..), WaitResult(..), clientWaitSync,
    waitSync, maxServerWaitTimeout,
+
+   -- * Sync Object Queries
    SyncStatus(..), syncStatus
 ) where
 

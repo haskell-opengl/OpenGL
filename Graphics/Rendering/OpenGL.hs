@@ -30,7 +30,7 @@ import Graphics.Rendering.OpenGL.GLU
 
 --------------------------------------------------------------------------------
 -- $SupportedExtensions
--- There is support for full OpenGL 2.1, including the imaging subset, plus some
+-- There is support for full OpenGL 4.4 (compatibility profile), plus some
 -- extensions:
 --
 -- @

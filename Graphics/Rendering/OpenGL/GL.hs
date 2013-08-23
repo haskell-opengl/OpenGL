@@ -15,14 +15,15 @@
 
 module Graphics.Rendering.OpenGL.GL (
    -- * OpenGL Fundamentals
+   module Graphics.Rendering.OpenGL.Raw.Core31.Types,
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Graphics.Rendering.OpenGL.GL.ObjectName,
 
    -- * Event Model
    module Graphics.Rendering.OpenGL.GL.SyncObjects,
+   module Graphics.Rendering.OpenGL.GL.QueryObjects,
 
    -- * OpenGL Operation
-   module Graphics.Rendering.OpenGL.Raw.Core31.Types,
    module Graphics.Rendering.OpenGL.GL.BeginEnd,
    module Graphics.Rendering.OpenGL.GL.VertexSpec,
    module Graphics.Rendering.OpenGL.GL.VertexArrays,
@@ -60,7 +61,6 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Hints,
    module Graphics.Rendering.OpenGL.GL.PixellikeObject,
    module Graphics.Rendering.OpenGL.GL.TransformFeedback,
-   module Graphics.Rendering.OpenGL.GL.QueryObjects,
 
    -- * State and State Requests
    module Graphics.Rendering.OpenGL.GL.StateVar,
@@ -69,12 +69,13 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
 
+import Graphics.Rendering.OpenGL.Raw.Core31.Types
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.ObjectName
 
 import Graphics.Rendering.OpenGL.GL.SyncObjects
+import Graphics.Rendering.OpenGL.GL.QueryObjects
 
-import Graphics.Rendering.OpenGL.Raw.Core31.Types
 import Graphics.Rendering.OpenGL.GL.BeginEnd
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.VertexArrays
@@ -109,7 +110,6 @@ import Graphics.Rendering.OpenGL.GL.DisplayLists
 import Graphics.Rendering.OpenGL.GL.Hints
 import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
-import Graphics.Rendering.OpenGL.GL.QueryObjects
 
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Tensor

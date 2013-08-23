@@ -8,6 +8,9 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
+-- This module corresponds to section 2.5 (Objects and the Object Model) of the
+-- OpenGL 4.4 specs.
+--
 -- Object names are explicitly handled identifiers for API objects, e.g. a
 -- texture object name in OpenGL or a buffer object name in OpenAL.
 --

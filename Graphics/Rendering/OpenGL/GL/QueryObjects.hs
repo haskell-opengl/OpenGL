@@ -8,20 +8,24 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
+-- This module corresponds to section 4.2 (Query Objects and Asynchronous
+-- Queries) of the OpenGL 4.4 specs.
+--
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
-QueryObject, QueryTarget(..), marshalQueryTarget,
+   QueryObject, QueryTarget(..), marshalQueryTarget,
 
-beginQuery, endQuery, withQuery,
+   beginQuery, endQuery, withQuery,
 
-queryCounterBits, currentQuery,
+   queryCounterBits, currentQuery,
 
-queryResult, queryResultAvailable,
--- * Conditional rendering
-ConditionalRenderMode(..),
+   queryResult, queryResultAvailable,
 
-beginConditionalRender, endConditionalRender, withConditionalRender
+   -- * Conditional rendering
+   ConditionalRenderMode(..),
+
+   beginConditionalRender, endConditionalRender, withConditionalRender
 ) where
 
 import Foreign.Marshal.Alloc
@@ -32,6 +36,8 @@ import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.Raw.Core31
+
+--------------------------------------------------------------------------------
 
 newtype QueryObject = QueryObject { queryID :: GLuint }
    deriving ( Eq, Ord, Show )
