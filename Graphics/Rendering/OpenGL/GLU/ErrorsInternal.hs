@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-cse #-}
 
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.ErrorsInternal
