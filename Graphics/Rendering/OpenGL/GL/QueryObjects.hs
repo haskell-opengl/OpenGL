@@ -14,7 +14,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
-   QueryObject, QueryTarget(..), marshalQueryTarget,
+   QueryObject, QueryTarget(..),
 
    beginQuery, endQuery, withQuery,
 
