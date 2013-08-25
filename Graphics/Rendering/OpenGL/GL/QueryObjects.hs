@@ -23,7 +23,10 @@ module Graphics.Rendering.OpenGL.GL.QueryObjects (
 
    -- * Query Object Queries
    queryResultAvailable,
-   queryResulti, queryResultui, queryResulti64, queryResultui64
+   queryResulti, queryResultui, queryResulti64, queryResultui64,
+
+   -- * Time Queries
+   timestamp
 ) where
 
 import Foreign.Marshal.Alloc
@@ -159,3 +162,8 @@ getQueryObject getQueryObjectv f p q =
       alloca $ \buf -> do
          getQueryObjectv (queryID q) (marshalGetQueryObjectPName p) buf
          peek1 f buf
+
+--------------------------------------------------------------------------------
+
+timestamp :: QueryObject -> IO ()
+timestamp q = glQueryCounter (queryID q) gl_TIMESTAMP
