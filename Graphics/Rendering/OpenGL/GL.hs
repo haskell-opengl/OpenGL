@@ -23,13 +23,16 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.SyncObjects,
    module Graphics.Rendering.OpenGL.GL.QueryObjects,
 
-   -- * OpenGL Operation
+   -- * Vertex Specification and Drawing Commands
    module Graphics.Rendering.OpenGL.GL.BeginEnd,
+   module Graphics.Rendering.OpenGL.GL.Rectangles,
+   module Graphics.Rendering.OpenGL.GL.ConditionalRendering,
+
+   -- * OpenGL Operation
    module Graphics.Rendering.OpenGL.GL.VertexSpec,
    module Graphics.Rendering.OpenGL.GL.VertexArrays,
    module Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
    module Graphics.Rendering.OpenGL.GL.BufferObjects,
-   module Graphics.Rendering.OpenGL.GL.Rectangles,
    module Graphics.Rendering.OpenGL.GL.CoordTrans,
    module Graphics.Rendering.OpenGL.GL.Clipping,
    module Graphics.Rendering.OpenGL.GL.RasterPos,
@@ -77,11 +80,13 @@ import Graphics.Rendering.OpenGL.GL.SyncObjects
 import Graphics.Rendering.OpenGL.GL.QueryObjects
 
 import Graphics.Rendering.OpenGL.GL.BeginEnd
+import Graphics.Rendering.OpenGL.GL.Rectangles
+import Graphics.Rendering.OpenGL.GL.ConditionalRendering
+
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GL.VertexArrayObjects
 import Graphics.Rendering.OpenGL.GL.BufferObjects
-import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Clipping
 import Graphics.Rendering.OpenGL.GL.RasterPos

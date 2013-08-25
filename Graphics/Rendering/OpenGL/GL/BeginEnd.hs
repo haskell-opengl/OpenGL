@@ -8,8 +8,8 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to section 2.6 (Begin\/End Paradigm) of the
--- OpenGL 2.1 specs.
+-- This module corresponds to section 10.8 (Drawing Commands Using Begin and
+-- End) of the OpenGL 4.4 specs.
 --
 --------------------------------------------------------------------------------
 

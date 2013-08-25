@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.QueryObject
+-- Module      :  Graphics.Rendering.OpenGL.GL.QueryObjects
 -- Copyright   :  (c) Sven Panne, Lars Corbijn 2004-2013
 -- License     :  BSD3
 --
@@ -15,47 +15,18 @@
 
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
    QueryObject, QueryTarget(..),
-
    beginQuery, endQuery, withQuery,
-
    queryCounterBits, currentQuery,
-
-   queryResult, queryResultAvailable,
-
-   -- * Conditional rendering
-   ConditionalRenderMode(..),
-
-   beginConditionalRender, endConditionalRender, withConditionalRender
+   queryResult, queryResultAvailable
 ) where
 
 import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
-import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryObject
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
-
---------------------------------------------------------------------------------
-
-newtype QueryObject = QueryObject { queryID :: GLuint }
-   deriving ( Eq, Ord, Show )
-
---------------------------------------------------------------------------------
-
-instance ObjectName QueryObject where
-   isObjectName = fmap unmarshalGLboolean . glIsQuery . queryID
-
-   deleteObjectNames queryObjects =
-      withArrayLen (map queryID queryObjects) $
-         glDeleteQueries . fromIntegral
-
-instance GeneratableObjectName QueryObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-        glGenQueries (fromIntegral n) buf
-        fmap (map QueryObject) $ peekArray n buf
 
 --------------------------------------------------------------------------------
 
@@ -139,33 +110,3 @@ getQueryObjectui f p q =
       alloca $ \buf -> do
          glGetQueryObjectuiv (queryID q) (marshalGetQueryObjectPName p) buf
          peek1 f buf
-
---------------------------------------------------------------------------------
-
-data ConditionalRenderMode =
-     QueryWait
-   | QueryNoWait
-   | QueryByRegionWait
-   | QueryByRegionNoWait
-
-marshalConditionalRenderMode :: ConditionalRenderMode -> GLenum
-marshalConditionalRenderMode x = case x of
-   QueryWait -> gl_QUERY_WAIT
-   QueryNoWait -> gl_QUERY_NO_WAIT
-   QueryByRegionWait -> gl_QUERY_BY_REGION_WAIT
-   QueryByRegionNoWait -> gl_QUERY_BY_REGION_NO_WAIT
-
---------------------------------------------------------------------------------
-
-beginConditionalRender :: QueryObject -> ConditionalRenderMode -> IO ()
-beginConditionalRender q m = glBeginConditionalRender (queryID q) (marshalConditionalRenderMode m)
-
-endConditionalRender :: IO ()
-endConditionalRender = glEndConditionalRender
-
-withConditionalRender :: QueryObject -> ConditionalRenderMode -> IO a -> IO a
-withConditionalRender q m = bracket_ (beginConditionalRender q m) endConditionalRender
-
-
-
-

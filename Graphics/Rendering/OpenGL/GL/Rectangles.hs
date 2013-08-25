@@ -8,7 +8,7 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to section 2.10 (Rectangles) of the OpenGL 2.1 specs.
+-- This module corresponds to section 10.9 (Rectangles) of the OpenGL 4.4 specs.
 --
 --------------------------------------------------------------------------------
 
