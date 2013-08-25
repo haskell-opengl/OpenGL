@@ -15,15 +15,16 @@
 
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
    -- * Creating and Delimiting Queries
-   QueryObject, QueryTarget(..),
+   QueryObject, QueryIndex, QueryTarget(..),
    beginQuery, endQuery, withQuery,
 
    -- * Query Object Queries
-   queryCounterBits, currentQuery,
+   currentQuery, queryCounterBits,
    queryResult, queryResultAvailable
 ) where
 
 import Foreign.Marshal.Alloc
+import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
@@ -32,35 +33,43 @@ import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.ARB.ES3Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.OcclusionQuery2
 import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery
+import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
+
+type QueryIndex = GLuint
 
 data QueryTarget =
      SamplesPassed
    | AnySamplesPassed
    | AnySamplesPassedConservative
    | TimeElapsed
-   | PrimitivesGenerated
-   | TransformFeedbackPrimitivesWritten
+   | PrimitivesGenerated QueryIndex
+   | TransformFeedbackPrimitivesWritten QueryIndex
    deriving ( Eq, Ord, Show )
 
-marshalQueryTarget :: QueryTarget -> GLenum
+marshalQueryTarget :: QueryTarget -> (GLenum, QueryIndex)
 marshalQueryTarget x = case x of
-   SamplesPassed -> gl_SAMPLES_PASSED
-   AnySamplesPassed -> gl_ANY_SAMPLES_PASSED
-   AnySamplesPassedConservative -> gl_ANY_SAMPLES_PASSED_CONSERVATIVE
-   TimeElapsed -> gl_TIME_ELAPSED
-   PrimitivesGenerated -> gl_PRIMITIVES_GENERATED
-   TransformFeedbackPrimitivesWritten -> gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN
+   SamplesPassed -> (gl_SAMPLES_PASSED, 0)
+   AnySamplesPassed -> (gl_ANY_SAMPLES_PASSED, 0)
+   AnySamplesPassedConservative -> (gl_ANY_SAMPLES_PASSED_CONSERVATIVE, 0)
+   TimeElapsed -> (gl_TIME_ELAPSED, 0)
+   PrimitivesGenerated n -> (gl_PRIMITIVES_GENERATED, n)
+   TransformFeedbackPrimitivesWritten n ->
+      (gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, n)
 
 --------------------------------------------------------------------------------
 
 beginQuery :: QueryTarget -> QueryObject -> IO ()
-beginQuery t = glBeginQuery (marshalQueryTarget t) . queryID
+beginQuery target = case marshalQueryTarget target of
+   (t, 0) -> glBeginQuery t . queryID
+   (t, n) -> glBeginQueryIndexed t n . queryID
 
 endQuery :: QueryTarget -> IO ()
-endQuery = glEndQuery . marshalQueryTarget
+endQuery target = case marshalQueryTarget target of
+   (t, 0) -> glEndQuery t
+   (t, n) -> glEndQueryIndexed t n
 
 -- | Convenience function for an exception-safe combination of 'beginQuery' and
 -- 'endQuery'.
@@ -80,21 +89,25 @@ marshalGetQueryPName x = case x of
 
 --------------------------------------------------------------------------------
 
+currentQuery :: QueryTarget -> GettableStateVar (Maybe QueryObject)
+currentQuery = getQueryi (toMaybeQueryObject . toQueryObject) CurrentQuery
+   where toQueryObject = QueryObject . fromIntegral
+         toMaybeQueryObject q = if q == noQueryObject then Nothing else Just q
+
 queryCounterBits :: QueryTarget -> GettableStateVar GLsizei
 queryCounterBits = getQueryi fromIntegral QueryCounterBits
-
-currentQuery :: QueryTarget -> GettableStateVar (Maybe QueryObject)
-currentQuery =
-   getQueryi
-      (\q -> if q == 0 then Nothing else Just (QueryObject (fromIntegral q)))
-      CurrentQuery
 
 getQueryi :: (GLint -> a) -> GetQueryPName -> QueryTarget -> GettableStateVar a
 getQueryi f p t =
    makeGettableStateVar $
       alloca $ \buf -> do
-         glGetQueryiv (marshalQueryTarget t) (marshalGetQueryPName p) buf
+         getQueryiv' t p buf
          peek1 f buf
+
+getQueryiv' :: QueryTarget -> GetQueryPName -> Ptr GLint -> IO ()
+getQueryiv' target = case marshalQueryTarget target of
+   (t, 0) -> glGetQueryiv t . marshalGetQueryPName
+   (t, n) -> glGetQueryIndexediv t n . marshalGetQueryPName
 
 --------------------------------------------------------------------------------
 

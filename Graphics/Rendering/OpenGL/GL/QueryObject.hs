@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.QueryObject (
-   QueryObject(..)
+   QueryObject(..), noQueryObject
 ) where
 
 import Foreign.Marshal.Array
@@ -26,6 +26,9 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 
 newtype QueryObject = QueryObject { queryID :: GLuint }
    deriving ( Eq, Ord, Show )
+
+noQueryObject :: QueryObject
+noQueryObject = QueryObject 0
 
 --------------------------------------------------------------------------------
 
