@@ -31,6 +31,7 @@ import Graphics.Rendering.OpenGL.GL.QueryObject
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.ARB.ES3Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.OcclusionQuery2
+import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -39,8 +40,9 @@ data QueryTarget =
      SamplesPassed
    | AnySamplesPassed
    | AnySamplesPassedConservative
-   | TransformFeedbackPrimitivesWritten
+   | TimeElapsed
    | PrimitivesGenerated
+   | TransformFeedbackPrimitivesWritten
    deriving ( Eq, Ord, Show )
 
 marshalQueryTarget :: QueryTarget -> GLenum
@@ -48,8 +50,9 @@ marshalQueryTarget x = case x of
    SamplesPassed -> gl_SAMPLES_PASSED
    AnySamplesPassed -> gl_ANY_SAMPLES_PASSED
    AnySamplesPassedConservative -> gl_ANY_SAMPLES_PASSED_CONSERVATIVE
-   TransformFeedbackPrimitivesWritten -> gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN
+   TimeElapsed -> gl_TIME_ELAPSED
    PrimitivesGenerated -> gl_PRIMITIVES_GENERATED
+   TransformFeedbackPrimitivesWritten -> gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN
 
 --------------------------------------------------------------------------------
 
