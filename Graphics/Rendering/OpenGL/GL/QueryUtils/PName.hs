@@ -106,6 +106,8 @@ import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram (
    gl_CURRENT_MATRIX_STACK_DEPTH )
 import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette (
    gl_MATRIX_PALETTE, gl_MAX_MATRIX_PALETTE_STACK_DEPTH)
+import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3 (
+   gl_MAX_VERTEX_STREAMS )
 import Graphics.Rendering.OpenGL.Raw.Core32
 import Graphics.Rendering.OpenGL.Raw.EXT ( gl_RGBA_SIGNED_COMPONENTS )
 import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka ( gl_PACK_CMYK_HINT, gl_UNPACK_CMYK_HINT )
@@ -567,6 +569,8 @@ data PName1I
     | GetSubpixelBits               -- ^ sizei
     | GetSamples                    -- ^ sizei
     | GetSampleBuffers              -- ^ sizei
+    -- Query Objects
+    | GetMaxVertexStreams           -- ^ int
 
 instance GetPName1I PName1I where
 
@@ -799,7 +803,8 @@ instance GetPName PName1I where
         GetSubpixelBits -> Just gl_SUBPIXEL_BITS
         GetSampleBuffers -> Just gl_SAMPLE_BUFFERS
         GetSamples -> Just gl_SAMPLES
-
+        -- Query Objects
+        GetMaxVertexStreams -> Just gl_MAX_VERTEX_STREAMS
 
 -- 0x8825 through 0x8834 are reserved for draw buffers
 

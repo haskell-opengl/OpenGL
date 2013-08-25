@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
    -- * Creating and Delimiting Queries
-   QueryObject, QueryIndex, QueryTarget(..),
+   QueryObject, QueryIndex, maxVertexStreams, QueryTarget(..),
    beginQuery, endQuery, withQuery,
 
    -- * Query Target Queries
@@ -36,6 +36,7 @@ import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryObject
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.ARB.ES3Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.OcclusionQuery2
@@ -47,6 +48,11 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 
 type QueryIndex = GLuint
 
+maxVertexStreams :: GettableStateVar QueryIndex
+maxVertexStreams =
+   makeGettableStateVar (getInteger1 fromIntegral GetMaxVertexStreams)
+
+--------------------------------------------------------------------------------
 data QueryTarget =
      SamplesPassed
    | AnySamplesPassed
