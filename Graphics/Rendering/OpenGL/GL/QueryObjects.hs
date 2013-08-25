@@ -14,8 +14,11 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
+   -- * Creating and Delimiting Queries
    QueryObject, QueryTarget(..),
    beginQuery, endQuery, withQuery,
+
+   -- * Query Object Queries
    queryCounterBits, currentQuery,
    queryResult, queryResultAvailable
 ) where
@@ -26,12 +29,16 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryObject
 import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.ARB.ES3Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.OcclusionQuery2
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
 data QueryTarget =
      SamplesPassed
+   | AnySamplesPassed
+   | AnySamplesPassedConservative
    | TransformFeedbackPrimitivesWritten
    | PrimitivesGenerated
    deriving ( Eq, Ord, Show )
@@ -39,6 +46,8 @@ data QueryTarget =
 marshalQueryTarget :: QueryTarget -> GLenum
 marshalQueryTarget x = case x of
    SamplesPassed -> gl_SAMPLES_PASSED
+   AnySamplesPassed -> gl_ANY_SAMPLES_PASSED
+   AnySamplesPassedConservative -> gl_ANY_SAMPLES_PASSED_CONSERVATIVE
    TransformFeedbackPrimitivesWritten -> gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN
    PrimitivesGenerated -> gl_PRIMITIVES_GENERATED
 
