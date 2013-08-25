@@ -18,13 +18,17 @@ module Graphics.Rendering.OpenGL.GL.QueryObjects (
    QueryObject, QueryIndex, QueryTarget(..),
    beginQuery, endQuery, withQuery,
 
-   -- * Query Object Queries
+   -- * Query Target Queries
    currentQuery, queryCounterBits,
-   queryResult, queryResultAvailable
+
+   -- * Query Object Queries
+   queryResultAvailable,
+   queryResulti, queryResultui, queryResulti64, queryResultui64
 ) where
 
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
+import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
@@ -122,16 +126,36 @@ marshalGetQueryObjectPName x = case x of
 
 --------------------------------------------------------------------------------
 
-queryResult :: QueryObject -> GettableStateVar GLuint
-queryResult = getQueryObjectui id QueryResult
-
 queryResultAvailable :: QueryObject -> GettableStateVar Bool
-queryResultAvailable = getQueryObjectui unmarshalGLboolean QueryResultAvailable
+queryResultAvailable =
+   getQueryObject glGetQueryObjectuiv unmarshalGLboolean QueryResultAvailable
 
-getQueryObjectui ::
-   (GLuint -> a) -> GetQueryObjectPName -> QueryObject -> GettableStateVar a
-getQueryObjectui f p q =
+queryResulti :: QueryObject -> GettableStateVar GLint
+queryResulti = queryResult glGetQueryObjectiv
+
+queryResultui :: QueryObject -> GettableStateVar GLuint
+queryResultui = queryResult glGetQueryObjectuiv
+
+queryResulti64 :: QueryObject -> GettableStateVar GLint64
+queryResulti64 = queryResult glGetQueryObjecti64v
+
+queryResultui64 :: QueryObject -> GettableStateVar GLuint64
+queryResultui64 = queryResult glGetQueryObjectui64v
+
+queryResult :: (Storable a)
+            => (GLuint -> GLenum -> Ptr a -> IO ())
+            -> QueryObject
+            -> GettableStateVar a
+queryResult getQueryObjectv = getQueryObject getQueryObjectv id QueryResult
+
+getQueryObject :: (Storable a)
+               => (GLuint -> GLenum -> Ptr a -> IO ())
+               -> (a -> b)
+               -> GetQueryObjectPName
+               -> QueryObject
+               -> GettableStateVar b
+getQueryObject getQueryObjectv f p q =
    makeGettableStateVar $
       alloca $ \buf -> do
-         glGetQueryObjectuiv (queryID q) (marshalGetQueryObjectPName p) buf
+         getQueryObjectv (queryID q) (marshalGetQueryObjectPName p) buf
          peek1 f buf
