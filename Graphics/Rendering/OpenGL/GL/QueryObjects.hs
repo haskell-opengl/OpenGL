@@ -13,6 +13,8 @@
 --
 -----------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
    -- * Creating and Delimiting Queries
    QueryObject, QueryIndex, maxVertexStreams, QueryTarget(..),
@@ -22,8 +24,7 @@ module Graphics.Rendering.OpenGL.GL.QueryObjects (
    currentQuery, queryCounterBits,
 
    -- * Query Object Queries
-   queryResultAvailable,
-   queryResulti, queryResultui, queryResulti64, queryResultui64,
+   queryResultAvailable, QueryResult, queryResult,
 
    -- * Time Queries
    timestamp
@@ -53,6 +54,7 @@ maxVertexStreams =
    makeGettableStateVar (getInteger1 fromIntegral GetMaxVertexStreams)
 
 --------------------------------------------------------------------------------
+
 data QueryTarget =
      SamplesPassed
    | AnySamplesPassed
@@ -125,45 +127,37 @@ getQueryiv' target = case marshalQueryTarget target of
 --------------------------------------------------------------------------------
 
 data GetQueryObjectPName =
-     QueryResult
-   | QueryResultAvailable
+     QueryResultAvailable
+   | QueryResult
 
 marshalGetQueryObjectPName :: GetQueryObjectPName -> GLenum
 marshalGetQueryObjectPName x = case x of
-   QueryResult -> gl_QUERY_RESULT
    QueryResultAvailable -> gl_QUERY_RESULT_AVAILABLE
+   QueryResult -> gl_QUERY_RESULT
 
 --------------------------------------------------------------------------------
 
 queryResultAvailable :: QueryObject -> GettableStateVar Bool
 queryResultAvailable =
-   getQueryObject glGetQueryObjectuiv unmarshalGLboolean QueryResultAvailable
+   getQueryObject (unmarshalGLboolean :: GLuint -> Bool) QueryResultAvailable
 
-queryResulti :: QueryObject -> GettableStateVar GLint
-queryResulti = queryResult glGetQueryObjectiv
+queryResult :: QueryResult a => QueryObject -> GettableStateVar a
+queryResult = getQueryObject id QueryResult
 
-queryResultui :: QueryObject -> GettableStateVar GLuint
-queryResultui = queryResult glGetQueryObjectuiv
+class Storable a => QueryResult a where
+   getQueryObjectv :: GLuint -> GLenum -> Ptr a -> IO ()
 
-queryResulti64 :: QueryObject -> GettableStateVar GLint64
-queryResulti64 = queryResult glGetQueryObjecti64v
+instance QueryResult GLint where getQueryObjectv = glGetQueryObjectiv
+instance QueryResult GLuint where getQueryObjectv = glGetQueryObjectuiv
+instance QueryResult GLint64 where getQueryObjectv = glGetQueryObjecti64v
+instance QueryResult GLuint64 where getQueryObjectv = glGetQueryObjectui64v
 
-queryResultui64 :: QueryObject -> GettableStateVar GLuint64
-queryResultui64 = queryResult glGetQueryObjectui64v
-
-queryResult :: (Storable a)
-            => (GLuint -> GLenum -> Ptr a -> IO ())
-            -> QueryObject
-            -> GettableStateVar a
-queryResult getQueryObjectv = getQueryObject getQueryObjectv id QueryResult
-
-getQueryObject :: (Storable a)
-               => (GLuint -> GLenum -> Ptr a -> IO ())
-               -> (a -> b)
+getQueryObject :: (QueryResult a)
+               => (a -> b)
                -> GetQueryObjectPName
                -> QueryObject
                -> GettableStateVar b
-getQueryObject getQueryObjectv f p q =
+getQueryObject f p q =
    makeGettableStateVar $
       alloca $ \buf -> do
          getQueryObjectv (queryID q) (marshalGetQueryObjectPName p) buf
