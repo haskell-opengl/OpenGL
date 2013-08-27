@@ -30,6 +30,7 @@ import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.ARB.Sync
 import Graphics.Rendering.OpenGL.Raw.Core31
@@ -90,10 +91,7 @@ waitSync syncObject =
 
 maxServerWaitTimeout :: GettableStateVar WaitTimeout
 maxServerWaitTimeout =
-   makeGettableStateVar $
-      alloca $ \buf -> do
-         glGetInteger64v gl_MAX_SERVER_WAIT_TIMEOUT buf
-         peek1 fromIntegral buf
+   makeGettableStateVar (getInteger64 fromIntegral GetMaxServerWaitTimeout)
 
 --------------------------------------------------------------------------------
 

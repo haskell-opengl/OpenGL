@@ -27,7 +27,7 @@ module Graphics.Rendering.OpenGL.GL.QueryObjects (
    queryResultAvailable, QueryResult, queryResult,
 
    -- * Time Queries
-   timestamp
+   timestampQuery, timestamp
 ) where
 
 import Foreign.Marshal.Alloc
@@ -41,6 +41,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.ARB.ES3Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.OcclusionQuery2
+import Graphics.Rendering.OpenGL.Raw.ARB.Sync
 import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery
 import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3
 import Graphics.Rendering.OpenGL.Raw.Core31
@@ -165,5 +166,14 @@ getQueryObject f p q =
 
 --------------------------------------------------------------------------------
 
-timestamp :: QueryObject -> IO ()
-timestamp q = glQueryCounter (queryID q) gl_TIMESTAMP
+-- | Record the time after all previous commands on the GL client and server
+-- state and the framebuffer have been fully realized
+
+timestampQuery :: QueryObject -> IO ()
+timestampQuery q = glQueryCounter (queryID q) gl_TIMESTAMP
+
+-- | Contains the GL time after all previous commands have reached the GL server
+-- but have not yet necessarily executed.
+
+timestamp :: GettableStateVar GLuint64
+timestamp = makeGettableStateVar (getInteger64 fromIntegral GetTimestamp)

@@ -106,6 +106,7 @@ import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram (
    gl_CURRENT_MATRIX_STACK_DEPTH )
 import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette (
    gl_MATRIX_PALETTE, gl_MAX_MATRIX_PALETTE_STACK_DEPTH)
+import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery ( gl_TIMESTAMP )
 import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3 (
    gl_MAX_VERTEX_STREAMS )
 import Graphics.Rendering.OpenGL.Raw.Core32
@@ -126,23 +127,30 @@ class GetPName p where
 
 -----------------------------------------------------------------------------
 
-getIntegerv :: GetPName p => p -> Ptr GLint -> IO ()
-getIntegerv = maybe (const recordInvalidEnum) glGetIntegerv . marshalGetPName
-
-getFloatv :: GetPName p => p -> Ptr GLfloat -> IO ()
-getFloatv = maybe (const recordInvalidEnum) glGetFloatv . marshalGetPName
-
-getDoublev :: GetPName p => p -> Ptr GLdouble -> IO ()
-getDoublev = maybe (const recordInvalidEnum) glGetDoublev . marshalGetPName
-
 getBooleanv :: GetPName p => p-> Ptr GLboolean -> IO ()
 getBooleanv = makeGetter glGetBooleanv
+
+getIntegerv :: GetPName p => p -> Ptr GLint -> IO ()
+getIntegerv = makeGetter glGetIntegerv
+
+getInteger64v :: GetPName p => p -> Ptr GLint64 -> IO ()
+getInteger64v = makeGetter glGetInteger64v
+
+getFloatv :: GetPName p => p -> Ptr GLfloat -> IO ()
+getFloatv = makeGetter glGetFloatv
+
+getDoublev :: GetPName p => p -> Ptr GLdouble -> IO ()
+getDoublev = makeGetter glGetDoublev
+
+-----------------------------------------------------------------------------
 
 getBooleaniv :: GetPName p => p -> GLuint -> Ptr GLboolean -> IO ()
 getBooleaniv p i = makeGetter (\e -> glGetBooleani_v e i) p
 
 getIntegeriv :: GetPName p => p -> GLuint -> Ptr GLint -> IO ()
-getIntegeriv = maybe (\_ _ -> recordInvalidEnum) glGetIntegeri_v . marshalGetPName
+getIntegeriv p i =  makeGetter (\e -> glGetIntegeri_v e i) p
+
+-----------------------------------------------------------------------------
 
 {-# INLINE makeGetter #-}
 makeGetter :: GetPName p => (GLenum -> Ptr a -> IO ()) -> p -> Ptr a -> IO ()
@@ -153,13 +161,18 @@ makeGetter f = maybe (const recordInvalidEnum) f . marshalGetPName
 class GetPName p => GetPName1I p where
     getBoolean1 :: (GLboolean -> a) -> p -> IO a
     getBoolean1 = get1 getBooleanv
+
     getInteger1 :: (GLint -> a) -> p -> IO a
     getInteger1 = get1 getIntegerv
 
     getEnum1 :: (GLenum -> a) -> p -> IO a
     getEnum1 = get1 getIntegerv
+
     getSizei1 :: (GLsizei -> a) -> p -> IO a
     getSizei1 = get1 getIntegerv
+
+    getInteger64 :: (GLint64 -> a) -> p -> IO a
+    getInteger64 = get1 getInteger64v
 
 class GetPName p => GetPName1F p where
     getFloat1 :: (GLfloat -> a) -> p -> IO a
@@ -170,6 +183,7 @@ class GetPName p => GetPName1F p where
 
     getDouble1 :: (GLdouble -> a) -> p -> IO a
     getDouble1 = get1 getDoublev
+
     getClampd1 :: (GLclampd -> a) -> p -> IO a
     getClampd1 = get1 getDoublev
 
@@ -185,14 +199,15 @@ get1 g f n = alloca $ \buf -> do
 class GetPName p => GetIPName1I p where
     getBoolean1i :: (GLboolean -> a) -> p -> GLuint -> IO a
     getBoolean1i = get1i getBooleaniv
+
     getInteger1i :: (GLint -> a) -> p -> GLuint -> IO a
     getInteger1i = get1i getIntegeriv
 
     getEnum1i :: (GLenum -> a) -> p -> GLuint -> IO a
     getEnum1i = get1i getIntegeriv
+
     getSizei1i :: (GLsizei -> a) -> p -> GLuint -> IO a
     getSizei1i = get1i getIntegeriv
-
 
 -- Indexed helper
 get1i :: (Storable b, Storable c, GetPName p)
@@ -208,11 +223,13 @@ get1i g f n i = alloca $ \buf -> do
 class GetPName p => GetPName2I p where
     getBoolean2 :: (GLboolean -> GLboolean -> a) -> p -> IO a
     getBoolean2 = get2 getBooleanv
+
     getInteger2 :: (GLint -> GLint -> a) -> p -> IO a
     getInteger2 = get2 getIntegerv
 
     getEnum2 :: (GLenum -> GLenum -> a) -> p -> IO a
     getEnum2 = get2 getIntegerv
+
     getSizei2 :: (GLsizei -> GLsizei -> a) -> p -> IO a
     getSizei2 = get2 getIntegerv
 
@@ -225,6 +242,7 @@ class GetPName p => GetPName2F p where
 
     getDouble2 :: (GLdouble -> GLdouble -> a) -> p -> IO a
     getDouble2 = get2 getDoublev
+
     getClampd2 :: (GLclampd -> GLclampd -> a) -> p -> IO a
     getClampd2 = get2 getDoublev
 
@@ -242,11 +260,13 @@ get2 g f n = allocaArray 2 $ \buf -> do
 class GetPName p => GetPName3I p where
     getBoolean3 :: (GLboolean -> GLboolean -> GLboolean -> a) -> p -> IO a
     getBoolean3 = get3 getBooleanv
+
     getInteger3 :: (GLint -> GLint -> GLint -> a) -> p -> IO a
     getInteger3 = get3 getIntegerv
 
     getEnum3 :: (GLenum -> GLenum -> GLenum -> a) -> p -> IO a
     getEnum3 = get3 getIntegerv
+
     getSizei3 :: (GLsizei -> GLsizei -> GLsizei -> a) -> p -> IO a
     getSizei3 = get3 getIntegerv
 
@@ -259,6 +279,7 @@ class GetPName p => GetPName3F p where
 
     getDouble3 :: (GLdouble -> GLdouble -> GLdouble -> a) -> p -> IO a
     getDouble3 = get3 getDoublev
+
     getClampd3 :: (GLclampd -> GLclampd -> GLclampd -> a) -> p -> IO a
     getClampd3 = get3 getDoublev
 
@@ -276,11 +297,13 @@ get3 g f n = allocaArray 3 $ \buf -> do
 class GetPName p => GetPName4I p where
     getBoolean4 :: (GLboolean -> GLboolean -> GLboolean -> GLboolean -> a) -> p -> IO a
     getBoolean4 = get4 getBooleanv
+
     getInteger4 :: (GLint -> GLint -> GLint -> GLint -> a) -> p -> IO a
     getInteger4 = get4 getIntegerv
 
     getEnum4 :: (GLenum -> GLenum -> GLenum -> GLenum -> a) -> p -> IO a
     getEnum4 = get4 getIntegerv
+
     getSizei4 :: (GLsizei -> GLsizei -> GLsizei -> GLsizei -> a) -> p -> IO a
     getSizei4 = get4 getIntegerv
 
@@ -293,6 +316,7 @@ class GetPName p => GetPName4F p where
 
     getDouble4 :: (GLdouble -> GLdouble -> GLdouble -> GLdouble -> a) -> p -> IO a
     getDouble4 = get4 getDoublev
+
     getClampd4 :: (GLclampd -> GLclampd -> GLclampd -> GLclampd -> a) -> p -> IO a
     getClampd4 = get4 getDoublev
 
@@ -308,11 +332,13 @@ get4 g f n = allocaArray 4 $ \buf -> do
 class GetPName p => GetIPName4I p where
     getBoolean4i :: (GLboolean -> GLboolean -> GLboolean -> GLboolean -> a) -> p -> GLuint -> IO a
     getBoolean4i = get4i getBooleaniv
+
     getInteger4i :: (GLint -> GLint -> GLint -> GLint -> a) -> p -> GLuint -> IO a
     getInteger4i = get4i getIntegeriv
 
     getEnum4i :: (GLenum -> GLenum -> GLenum -> GLenum -> a) -> p -> GLuint -> IO a
     getEnum4i = get4i getIntegeriv
+
     getSizei4i :: (GLsizei -> GLsizei -> GLsizei -> GLsizei -> a) -> p -> GLuint -> IO a
     getSizei4i = get4i getIntegeriv
 
@@ -569,8 +595,12 @@ data PName1I
     | GetSubpixelBits               -- ^ sizei
     | GetSamples                    -- ^ sizei
     | GetSampleBuffers              -- ^ sizei
+    -- Sync Objects
+    | GetMaxServerWaitTimeout       -- ^ int
     -- Query Objects
     | GetMaxVertexStreams           -- ^ int
+    -- GL Time
+    | GetTimestamp                  -- ^ int
 
 instance GetPName1I PName1I where
 
@@ -803,8 +833,12 @@ instance GetPName PName1I where
         GetSubpixelBits -> Just gl_SUBPIXEL_BITS
         GetSampleBuffers -> Just gl_SAMPLE_BUFFERS
         GetSamples -> Just gl_SAMPLES
+         -- Sync Objects
+        GetMaxServerWaitTimeout -> Just gl_MAX_SERVER_WAIT_TIMEOUT
         -- Query Objects
         GetMaxVertexStreams -> Just gl_MAX_VERTEX_STREAMS
+        -- GL Time
+        GetTimestamp -> Just gl_TIMESTAMP
 
 -- 0x8825 through 0x8834 are reserved for draw buffers
 
