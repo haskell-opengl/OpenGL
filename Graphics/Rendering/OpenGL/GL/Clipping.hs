@@ -42,7 +42,7 @@ clipPlane name =
    makeStateVarMaybe
       (return $ nameToCap name)
       (alloca $ \buf -> do
-          clipPlaneAction name (flip glGetClipPlane (castPtr buf))
+          clipPlaneAction name $ flip glGetClipPlane $ castPtr buf
           peek buf)
       (\plane -> with plane $ clipPlaneAction name . flip glClipPlane . castPtr)
 
