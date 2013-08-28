@@ -85,7 +85,9 @@ data BufferTarget =
    | ElementArrayBuffer
    | PixelPackBuffer
    | PixelUnpackBuffer
+   | TextureBuffer
    | TransformFeedbackBuffer
+   | UniformBuffer
    deriving ( Eq, Ord, Show )
 
 marshalBufferTarget :: BufferTarget -> GLenum
@@ -96,17 +98,21 @@ marshalBufferTarget x = case x of
    ElementArrayBuffer -> gl_ELEMENT_ARRAY_BUFFER
    PixelPackBuffer -> gl_PIXEL_PACK_BUFFER
    PixelUnpackBuffer -> gl_PIXEL_UNPACK_BUFFER
+   TextureBuffer -> gl_TEXTURE_BUFFER
    TransformFeedbackBuffer -> gl_TRANSFORM_FEEDBACK_BUFFER
+   UniformBuffer -> gl_UNIFORM_BUFFER
 
 bufferTargetToGetPName :: BufferTarget -> PName1I
 bufferTargetToGetPName x = case x of
    ArrayBuffer -> GetArrayBufferBinding
+   CopyReadBuffer -> GetCopyReadBufferBinding
+   CopyWriteBuffer -> GetCopyWriteBufferBinding
    ElementArrayBuffer -> GetElementArrayBufferBinding
-   CopyReadBuffer -> GetCopyReadBuffer
-   CopyWriteBuffer -> GetCopyWriteBuffer
    PixelPackBuffer -> GetPixelPackBufferBinding
    PixelUnpackBuffer -> GetPixelUnpackBufferBinding
+   TextureBuffer -> GetTextureBindingBuffer
    TransformFeedbackBuffer -> GetTransformFeedbackBufferBinding
+   UniformBuffer -> GetUniformBufferBinding
 
 --------------------------------------------------------------------------------
 

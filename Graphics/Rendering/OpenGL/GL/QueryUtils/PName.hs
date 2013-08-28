@@ -483,12 +483,15 @@ data PName1I
     | GetPrimitiveRestartIndexNV    -- ^ int
     -- bufferObjects
     | GetArrayBufferBinding         -- ^ int
+    | GetCopyReadBufferBinding      -- ^ int
+    | GetCopyWriteBufferBinding     -- ^ int
     | GetElementArrayBufferBinding  -- ^ int
-    | GetCopyReadBuffer             -- ^ int
-    | GetCopyWriteBuffer            -- ^ int
     | GetPixelPackBufferBinding     -- ^ int
     | GetPixelUnpackBufferBinding   -- ^ int
+    | GetTextureBindingBuffer       -- ^ int
     | GetTransformFeedbackBufferBinding -- ^ int
+    | GetUniformBufferBinding       -- ^ int
+
     | GetVertexArrayBufferBinding   -- ^ int
     | GetNormalArrayBufferBinding   -- ^ int
     | GetColorArrayBufferBinding    -- ^ int
@@ -720,12 +723,15 @@ instance GetPName PName1I where
         GetPrimitiveRestartIndexNV -> Just gl_PRIMITIVE_RESTART_INDEX_NV
         -- bufferobjects
         GetArrayBufferBinding -> Just gl_ARRAY_BUFFER_BINDING
+        GetCopyReadBufferBinding -> Just gl_COPY_READ_BUFFER_BINDING
+        GetCopyWriteBufferBinding -> Just gl_COPY_WRITE_BUFFER_BINDING
         GetElementArrayBufferBinding -> Just gl_ELEMENT_ARRAY_BUFFER_BINDING
-        GetCopyReadBuffer -> Just gl_COPY_READ_BUFFER
-        GetCopyWriteBuffer -> Just gl_COPY_WRITE_BUFFER
         GetPixelPackBufferBinding -> Just gl_PIXEL_PACK_BUFFER_BINDING
         GetPixelUnpackBufferBinding -> Just gl_PIXEL_UNPACK_BUFFER_BINDING
+        GetTextureBindingBuffer -> Just gl_TEXTURE_BINDING_BUFFER
         GetTransformFeedbackBufferBinding -> Just gl_TRANSFORM_FEEDBACK_BUFFER_BINDING
+        GetUniformBufferBinding -> Just gl_UNIFORM_BUFFER_BINDING
+
         GetVertexArrayBufferBinding -> Just gl_VERTEX_ARRAY_BUFFER_BINDING
         GetNormalArrayBufferBinding -> Just gl_NORMAL_ARRAY_BUFFER_BINDING
         GetColorArrayBufferBinding -> Just gl_COLOR_ARRAY_BUFFER_BINDING
