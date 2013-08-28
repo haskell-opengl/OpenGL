@@ -1106,8 +1106,6 @@ data PName4F
     = GetCurrentColor -- ^ ?
     | GetCurrentTextureCoords   -- ^ Float
     | GetCurrentSecondaryColor  -- ^ Float
-    -- clipping
-    | GetClipPlane GLsizei  -- ^ double
     -- Colors
     | GetLightModelAmbient  -- ^ float
     -- Evaluators
@@ -1131,8 +1129,6 @@ instance GetPName PName4F where
         GetCurrentColor -> Just gl_CURRENT_COLOR
         GetCurrentTextureCoords -> Just gl_CURRENT_TEXTURE_COORDS
         GetCurrentSecondaryColor -> Just gl_CURRENT_SECONDARY_COLOR
-        -- clipping
-        GetClipPlane i -> clipPlaneIndexToEnum i
         -- Colors
         GetLightModelAmbient -> Just gl_LIGHT_MODEL_AMBIENT
         -- Evaluators
