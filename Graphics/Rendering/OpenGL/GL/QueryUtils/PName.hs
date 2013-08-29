@@ -37,8 +37,6 @@ import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters (
-   gl_ATOMIC_COUNTER_BUFFER_BINDING )
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
    gl_ACCUM_ALPHA_BITS, gl_ACCUM_BLUE_BITS, gl_ACCUM_CLEAR_VALUE,
    gl_ACCUM_GREEN_BITS, gl_ACCUM_RED_BITS, gl_ALIASED_POINT_SIZE_RANGE,
@@ -108,6 +106,10 @@ import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram (
    gl_CURRENT_MATRIX_STACK_DEPTH )
 import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette (
    gl_MATRIX_PALETTE, gl_MAX_MATRIX_PALETTE_STACK_DEPTH)
+import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject (
+   gl_QUERY_BUFFER_BINDING )
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters (
+   gl_ATOMIC_COUNTER_BUFFER_BINDING )
 import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery ( gl_TIMESTAMP )
 import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3 (
    gl_MAX_VERTEX_STREAMS )
@@ -491,6 +493,7 @@ data PName1I
     | GetElementArrayBufferBinding  -- ^ int
     | GetPixelPackBufferBinding     -- ^ int
     | GetPixelUnpackBufferBinding   -- ^ int
+    | GetQueryBufferBinding         -- ^ int
     | GetTextureBindingBuffer       -- ^ int
     | GetTransformFeedbackBufferBinding -- ^ int
     | GetUniformBufferBinding       -- ^ int
@@ -732,6 +735,7 @@ instance GetPName PName1I where
         GetElementArrayBufferBinding -> Just gl_ELEMENT_ARRAY_BUFFER_BINDING
         GetPixelPackBufferBinding -> Just gl_PIXEL_PACK_BUFFER_BINDING
         GetPixelUnpackBufferBinding -> Just gl_PIXEL_UNPACK_BUFFER_BINDING
+        GetQueryBufferBinding -> Just gl_QUERY_BUFFER_BINDING
         GetTextureBindingBuffer -> Just gl_TEXTURE_BINDING_BUFFER
         GetTransformFeedbackBufferBinding -> Just gl_TRANSFORM_FEEDBACK_BUFFER_BINDING
         GetUniformBufferBinding -> Just gl_UNIFORM_BUFFER_BINDING
