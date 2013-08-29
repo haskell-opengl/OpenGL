@@ -37,6 +37,8 @@ import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters (
+   gl_ATOMIC_COUNTER_BUFFER_BINDING )
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
    gl_ACCUM_ALPHA_BITS, gl_ACCUM_BLUE_BITS, gl_ACCUM_CLEAR_VALUE,
    gl_ACCUM_GREEN_BITS, gl_ACCUM_RED_BITS, gl_ALIASED_POINT_SIZE_RANGE,
@@ -483,6 +485,7 @@ data PName1I
     | GetPrimitiveRestartIndexNV    -- ^ int
     -- bufferObjects
     | GetArrayBufferBinding         -- ^ int
+    | GetAtomicCounterBufferBinding -- ^ int
     | GetCopyReadBufferBinding      -- ^ int
     | GetCopyWriteBufferBinding     -- ^ int
     | GetElementArrayBufferBinding  -- ^ int
@@ -723,6 +726,7 @@ instance GetPName PName1I where
         GetPrimitiveRestartIndexNV -> Just gl_PRIMITIVE_RESTART_INDEX_NV
         -- bufferobjects
         GetArrayBufferBinding -> Just gl_ARRAY_BUFFER_BINDING
+        GetAtomicCounterBufferBinding -> Just gl_ATOMIC_COUNTER_BUFFER_BINDING
         GetCopyReadBufferBinding -> Just gl_COPY_READ_BUFFER_BINDING
         GetCopyWriteBufferBinding -> Just gl_COPY_WRITE_BUFFER_BINDING
         GetElementArrayBufferBinding -> Just gl_ELEMENT_ARRAY_BUFFER_BINDING

@@ -54,6 +54,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -80,6 +81,7 @@ instance GeneratableObjectName BufferObject where
 
 data BufferTarget =
      ArrayBuffer
+   | AtomicCounterBuffer
    | CopyReadBuffer
    | CopyWriteBuffer
    | ElementArrayBuffer
@@ -93,6 +95,7 @@ data BufferTarget =
 marshalBufferTarget :: BufferTarget -> GLenum
 marshalBufferTarget x = case x of
    ArrayBuffer -> gl_ARRAY_BUFFER
+   AtomicCounterBuffer -> gl_ATOMIC_COUNTER_BUFFER
    CopyReadBuffer -> gl_COPY_READ_BUFFER
    CopyWriteBuffer -> gl_COPY_WRITE_BUFFER
    ElementArrayBuffer -> gl_ELEMENT_ARRAY_BUFFER
@@ -105,6 +108,7 @@ marshalBufferTarget x = case x of
 bufferTargetToGetPName :: BufferTarget -> PName1I
 bufferTargetToGetPName x = case x of
    ArrayBuffer -> GetArrayBufferBinding
+   AtomicCounterBuffer -> GetAtomicCounterBufferBinding
    CopyReadBuffer -> GetCopyReadBufferBinding
    CopyWriteBuffer -> GetCopyWriteBufferBinding
    ElementArrayBuffer -> GetElementArrayBufferBinding
