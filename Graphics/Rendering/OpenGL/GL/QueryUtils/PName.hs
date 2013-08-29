@@ -28,7 +28,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils.PName (
     GetPNameMatrix(..),
     PNameMatrix(..),
 
-    clipPlaneIndexToEnum,
+    clipPlaneIndexToEnum
 ) where
 
 import Foreign.Marshal.Alloc
@@ -37,92 +37,24 @@ import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_ACCUM_ALPHA_BITS, gl_ACCUM_BLUE_BITS, gl_ACCUM_CLEAR_VALUE,
-   gl_ACCUM_GREEN_BITS, gl_ACCUM_RED_BITS, gl_ALIASED_POINT_SIZE_RANGE,
-   gl_ALPHA_BIAS, gl_ALPHA_BITS, gl_ALPHA_SCALE,
-   gl_ALPHA_TEST_FUNC, gl_ALPHA_TEST_REF,
-   gl_AUX_BUFFERS, gl_BLUE_BIAS, gl_BLUE_BITS, gl_BLUE_SCALE,
-   gl_CLAMP_FRAGMENT_COLOR, gl_CLAMP_VERTEX_COLOR,
-   gl_CLIENT_ACTIVE_TEXTURE,
-   gl_COLOR_ARRAY_BUFFER_BINDING, gl_COLOR_ARRAY_SIZE, gl_COLOR_ARRAY_STRIDE,
-   gl_COLOR_ARRAY_TYPE, gl_COLOR_MATERIAL_FACE,
-   gl_COLOR_MATERIAL_PARAMETER, gl_COLOR_MATRIX, gl_COLOR_MATRIX_STACK_DEPTH,
-   gl_CURRENT_COLOR, gl_CURRENT_FOG_COORD, gl_CURRENT_INDEX, gl_CURRENT_NORMAL,
-   gl_CURRENT_RASTER_COLOR, gl_CURRENT_RASTER_DISTANCE, gl_CURRENT_RASTER_INDEX,
-   gl_CURRENT_RASTER_POSITION, gl_CURRENT_RASTER_POSITION_VALID,
-   gl_CURRENT_RASTER_SECONDARY_COLOR, gl_CURRENT_RASTER_TEXTURE_COORDS,
-   gl_CURRENT_SECONDARY_COLOR, gl_CURRENT_TEXTURE_COORDS, gl_DEPTH_BIAS,
-   gl_DEPTH_BITS, gl_DEPTH_SCALE, gl_EDGE_FLAG,
-   gl_EDGE_FLAG_ARRAY_BUFFER_BINDING, gl_EDGE_FLAG_ARRAY_STRIDE,
-   gl_FOG_COLOR, gl_FOG_COORD_ARRAY_BUFFER_BINDING,
-   gl_FOG_COORD_ARRAY_STRIDE, gl_FOG_COORD_ARRAY_TYPE, gl_FOG_COORD_SRC,
-   gl_FOG_DENSITY, gl_FOG_END, gl_FOG_HINT, gl_FOG_INDEX, gl_FOG_MODE,
-   gl_FOG_START, gl_GENERATE_MIPMAP_HINT, gl_GREEN_BIAS, gl_GREEN_BITS,
-   gl_GREEN_SCALE, gl_INDEX_ARRAY_BUFFER_BINDING,
-   gl_INDEX_ARRAY_STRIDE, gl_INDEX_ARRAY_TYPE,
-   gl_INDEX_CLEAR_VALUE, gl_INDEX_OFFSET,
-   gl_INDEX_SHIFT, gl_INDEX_WRITEMASK,
-   gl_LIGHT_MODEL_AMBIENT, gl_LIGHT_MODEL_COLOR_CONTROL,
-   gl_LIGHT_MODEL_LOCAL_VIEWER, gl_LIGHT_MODEL_TWO_SIDE,
-   gl_LINE_STIPPLE_PATTERN, gl_LINE_STIPPLE_REPEAT, gl_LIST_BASE, gl_LIST_INDEX,
-   gl_LIST_MODE, gl_MAP1_GRID_DOMAIN, gl_MAP1_GRID_SEGMENTS,
-   gl_MAP2_GRID_DOMAIN, gl_MAP2_GRID_SEGMENTS, gl_MAP_COLOR,
-   gl_MAP_STENCIL, gl_MATRIX_MODE, gl_MAX_COLOR_MATRIX_STACK_DEPTH,
-   gl_MAX_EVAL_ORDER,
-   gl_MAX_LIGHTS, gl_MAX_LIST_NESTING, gl_MAX_MODELVIEW_STACK_DEPTH,
-   gl_MAX_NAME_STACK_DEPTH, gl_MAX_PIXEL_MAP_TABLE,
-   gl_MAX_PROJECTION_STACK_DEPTH, gl_MAX_TEXTURE_COORDS,
-   gl_MAX_TEXTURE_STACK_DEPTH, gl_MAX_TEXTURE_UNITS,
-   gl_MODELVIEW_MATRIX, gl_MODELVIEW_STACK_DEPTH, gl_NAME_STACK_DEPTH,
-   gl_NORMAL_ARRAY_BUFFER_BINDING,
-   gl_NORMAL_ARRAY_STRIDE, gl_NORMAL_ARRAY_TYPE, gl_PERSPECTIVE_CORRECTION_HINT,
-   gl_PIXEL_MAP_A_TO_A_SIZE, gl_PIXEL_MAP_B_TO_B_SIZE, gl_PIXEL_MAP_G_TO_G_SIZE,
-   gl_PIXEL_MAP_I_TO_A_SIZE, gl_PIXEL_MAP_I_TO_B_SIZE, gl_PIXEL_MAP_I_TO_G_SIZE,
-   gl_PIXEL_MAP_I_TO_I_SIZE, gl_PIXEL_MAP_I_TO_R_SIZE, gl_PIXEL_MAP_R_TO_R_SIZE,
-   gl_PIXEL_MAP_S_TO_S_SIZE, gl_POINT_DISTANCE_ATTENUATION, gl_POINT_SIZE_MAX,
-   gl_POINT_SIZE_MIN, gl_POINT_SMOOTH_HINT, gl_POLYGON_MODE,
-   gl_POST_COLOR_MATRIX_ALPHA_BIAS, gl_POST_COLOR_MATRIX_ALPHA_SCALE,
-   gl_POST_COLOR_MATRIX_BLUE_BIAS, gl_POST_COLOR_MATRIX_BLUE_SCALE,
-   gl_POST_COLOR_MATRIX_GREEN_BIAS, gl_POST_COLOR_MATRIX_GREEN_SCALE,
-   gl_POST_COLOR_MATRIX_RED_BIAS, gl_POST_COLOR_MATRIX_RED_SCALE,
-   gl_POST_CONVOLUTION_ALPHA_BIAS, gl_POST_CONVOLUTION_ALPHA_SCALE,
-   gl_POST_CONVOLUTION_BLUE_BIAS, gl_POST_CONVOLUTION_BLUE_SCALE,
-   gl_POST_CONVOLUTION_GREEN_BIAS,
-   gl_POST_CONVOLUTION_GREEN_SCALE, gl_POST_CONVOLUTION_RED_BIAS,
-   gl_POST_CONVOLUTION_RED_SCALE, gl_PROJECTION_MATRIX,
-   gl_PROJECTION_STACK_DEPTH, gl_RED_BIAS, gl_RED_BITS, gl_RED_SCALE,
-   gl_RENDER_MODE, gl_RGBA_MODE,
-   gl_SECONDARY_COLOR_ARRAY_BUFFER_BINDING, gl_SECONDARY_COLOR_ARRAY_SIZE,
-   gl_SECONDARY_COLOR_ARRAY_STRIDE, gl_SECONDARY_COLOR_ARRAY_TYPE,
-   gl_SHADE_MODEL, gl_STENCIL_BITS,
-   gl_TEXTURE_COORD_ARRAY_BUFFER_BINDING,
-   gl_TEXTURE_COORD_ARRAY_SIZE, gl_TEXTURE_COORD_ARRAY_STRIDE,
-   gl_TEXTURE_COORD_ARRAY_TYPE, gl_TEXTURE_MATRIX,
-   gl_TEXTURE_STACK_DEPTH, gl_VERTEX_ARRAY_BUFFER_BINDING,
-   gl_VERTEX_ARRAY_SIZE, gl_VERTEX_ARRAY_STRIDE, gl_VERTEX_ARRAY_TYPE,
-   gl_ZOOM_X, gl_ZOOM_Y )
-import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram (
-   gl_CURRENT_MATRIX_STACK_DEPTH )
-import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette (
-   gl_MATRIX_PALETTE, gl_MAX_MATRIX_PALETTE_STACK_DEPTH)
-import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject (
-   gl_QUERY_BUFFER_BINDING )
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters (
-   gl_ATOMIC_COUNTER_BUFFER_BINDING )
-import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery ( gl_TIMESTAMP )
-import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3 (
-   gl_MAX_VERTEX_STREAMS )
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram
+import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette
+import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderStorageBufferObject
+import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery
+import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3
 import Graphics.Rendering.OpenGL.Raw.Core32
-import Graphics.Rendering.OpenGL.Raw.EXT ( gl_RGBA_SIGNED_COMPONENTS )
-import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka ( gl_PACK_CMYK_HINT, gl_UNPACK_CMYK_HINT )
-import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray ( gl_ARRAY_ELEMENT_LOCK_FIRST, gl_ARRAY_ELEMENT_LOCK_COUNT )
-import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest ( gl_DEPTH_BOUNDS, )
-import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide ( gl_ACTIVE_STENCIL_FACE )
-import Graphics.Rendering.OpenGL.Raw.EXT.TextureFilterAnisotropic ( gl_MAX_TEXTURE_MAX_ANISOTROPY )
-import Graphics.Rendering.OpenGL.Raw.NV.FogDistance ( gl_FOG_DISTANCE_MODE )
-import Graphics.Rendering.OpenGL.Raw.NV.LightMaxExponent (  gl_MAX_SHININESS, gl_MAX_SPOT_EXPONENT )
-import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart ( gl_PRIMITIVE_RESTART_INDEX_NV, gl_PRIMITIVE_RESTART_NV )
+import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka
+import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray
+import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest
+import Graphics.Rendering.OpenGL.Raw.EXT.PackedFloat
+import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide
+import Graphics.Rendering.OpenGL.Raw.EXT.TextureFilterAnisotropic
+import Graphics.Rendering.OpenGL.Raw.NV.FogDistance
+import Graphics.Rendering.OpenGL.Raw.NV.LightMaxExponent
+import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
 
 -----------------------------------------------------------------------------
 
@@ -494,6 +426,7 @@ data PName1I
     | GetPixelPackBufferBinding     -- ^ int
     | GetPixelUnpackBufferBinding   -- ^ int
     | GetQueryBufferBinding         -- ^ int
+    | GetShaderStorageBufferBinding -- ^ int
     | GetTextureBindingBuffer       -- ^ int
     | GetTransformFeedbackBufferBinding -- ^ int
     | GetUniformBufferBinding       -- ^ int
@@ -736,6 +669,7 @@ instance GetPName PName1I where
         GetPixelPackBufferBinding -> Just gl_PIXEL_PACK_BUFFER_BINDING
         GetPixelUnpackBufferBinding -> Just gl_PIXEL_UNPACK_BUFFER_BINDING
         GetQueryBufferBinding -> Just gl_QUERY_BUFFER_BINDING
+        GetShaderStorageBufferBinding -> Just gl_SHADER_STORAGE_BUFFER_BINDING
         GetTextureBindingBuffer -> Just gl_TEXTURE_BINDING_BUFFER
         GetTransformFeedbackBufferBinding -> Just gl_TRANSFORM_FEEDBACK_BUFFER_BINDING
         GetUniformBufferBinding -> Just gl_UNIFORM_BUFFER_BINDING

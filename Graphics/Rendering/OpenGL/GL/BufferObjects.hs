@@ -56,6 +56,7 @@ import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject
 import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderStorageBufferObject
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -89,6 +90,7 @@ data BufferTarget =
    | PixelPackBuffer
    | PixelUnpackBuffer
    | QueryBuffer
+   | ShaderStorageBuffer
    | TextureBuffer
    | TransformFeedbackBuffer
    | UniformBuffer
@@ -104,6 +106,7 @@ marshalBufferTarget x = case x of
    PixelPackBuffer -> gl_PIXEL_PACK_BUFFER
    PixelUnpackBuffer -> gl_PIXEL_UNPACK_BUFFER
    QueryBuffer -> gl_QUERY_BUFFER
+   ShaderStorageBuffer -> gl_SHADER_STORAGE_BUFFER
    TextureBuffer -> gl_TEXTURE_BUFFER
    TransformFeedbackBuffer -> gl_TRANSFORM_FEEDBACK_BUFFER
    UniformBuffer -> gl_UNIFORM_BUFFER
@@ -118,6 +121,7 @@ bufferTargetToGetPName x = case x of
    PixelPackBuffer -> GetPixelPackBufferBinding
    PixelUnpackBuffer -> GetPixelUnpackBufferBinding
    QueryBuffer -> GetQueryBufferBinding
+   ShaderStorageBuffer -> GetShaderStorageBufferBinding
    TextureBuffer -> GetTextureBindingBuffer
    TransformFeedbackBuffer -> GetTransformFeedbackBufferBinding
    UniformBuffer -> GetUniformBufferBinding
