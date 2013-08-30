@@ -54,6 +54,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
 import Graphics.Rendering.OpenGL.Raw.ARB.DrawIndirect
 import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject
 import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
@@ -87,6 +88,7 @@ data BufferTarget =
    | AtomicCounterBuffer
    | CopyReadBuffer
    | CopyWriteBuffer
+   | DispatchIndirectBuffer
    | DrawIndirectBuffer
    | ElementArrayBuffer
    | PixelPackBuffer
@@ -104,6 +106,7 @@ marshalBufferTarget x = case x of
    AtomicCounterBuffer -> gl_ATOMIC_COUNTER_BUFFER
    CopyReadBuffer -> gl_COPY_READ_BUFFER
    CopyWriteBuffer -> gl_COPY_WRITE_BUFFER
+   DispatchIndirectBuffer -> gl_DISPATCH_INDIRECT_BUFFER
    DrawIndirectBuffer -> gl_DRAW_INDIRECT_BUFFER
    ElementArrayBuffer -> gl_ELEMENT_ARRAY_BUFFER
    PixelPackBuffer -> gl_PIXEL_PACK_BUFFER
@@ -120,6 +123,7 @@ bufferTargetToGetPName x = case x of
    AtomicCounterBuffer -> GetAtomicCounterBufferBinding
    CopyReadBuffer -> GetCopyReadBufferBinding
    CopyWriteBuffer -> GetCopyWriteBufferBinding
+   DispatchIndirectBuffer -> GetDispatchIndirectBufferBinding
    DrawIndirectBuffer -> GetDrawIndirectBufferBinding
    ElementArrayBuffer -> GetElementArrayBufferBinding
    PixelPackBuffer -> GetPixelPackBufferBinding

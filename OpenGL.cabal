@@ -40,7 +40,7 @@ library
    Graphics.Rendering.OpenGL.GL.FlushFinish,
    Graphics.Rendering.OpenGL.GL.Fog,
    Graphics.Rendering.OpenGL.GL.Framebuffer,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects
+   Graphics.Rendering.OpenGL.GL.FramebufferObjects,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries,
@@ -84,7 +84,7 @@ library
    Graphics.Rendering.OpenGL.GL.Texturing.Parameters,
    Graphics.Rendering.OpenGL.GL.Texturing.Queries,
    Graphics.Rendering.OpenGL.GL.Texturing.Specification,
-   Graphics.Rendering.OpenGL.GL.TransformFeedback
+   Graphics.Rendering.OpenGL.GL.TransformFeedback,
    Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
    Graphics.Rendering.OpenGL.GL.VertexArrays,
    Graphics.Rendering.OpenGL.GL.VertexSpec,

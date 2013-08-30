@@ -38,6 +38,7 @@ import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
+import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
 import Graphics.Rendering.OpenGL.Raw.ARB.DrawIndirect
 import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram
 import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette
@@ -423,6 +424,7 @@ data PName1I
     | GetAtomicCounterBufferBinding -- ^ int
     | GetCopyReadBufferBinding      -- ^ int
     | GetCopyWriteBufferBinding     -- ^ int
+    | GetDispatchIndirectBufferBinding -- ^ int
     | GetDrawIndirectBufferBinding  -- ^ int
     | GetElementArrayBufferBinding  -- ^ int
     | GetPixelPackBufferBinding     -- ^ int
@@ -667,6 +669,7 @@ instance GetPName PName1I where
         GetAtomicCounterBufferBinding -> Just gl_ATOMIC_COUNTER_BUFFER_BINDING
         GetCopyReadBufferBinding -> Just gl_COPY_READ_BUFFER_BINDING
         GetCopyWriteBufferBinding -> Just gl_COPY_WRITE_BUFFER_BINDING
+        GetDispatchIndirectBufferBinding -> Just gl_DISPATCH_INDIRECT_BUFFER_BINDING
         GetDrawIndirectBufferBinding -> Just gl_DRAW_INDIRECT_BUFFER_BINDING
         GetElementArrayBufferBinding -> Just gl_ELEMENT_ARRAY_BUFFER_BINDING
         GetPixelPackBufferBinding -> Just gl_PIXEL_PACK_BUFFER_BINDING
