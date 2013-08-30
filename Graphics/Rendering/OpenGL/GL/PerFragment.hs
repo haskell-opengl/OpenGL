@@ -14,6 +14,9 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.PerFragment (
+   -- * Discarding Primitives Before Rasterization
+   rasterizerDiscard, discardingRasterizer,
+
    -- * Scissor Test
    scissor,
 
@@ -45,21 +48,31 @@ module Graphics.Rendering.OpenGL.GL.PerFragment (
 ) where
 
 import Control.Monad
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.BlendingFactor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ComparisonFunction
 import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glAlphaFunc, gl_INDEX_LOGIC_OP )
+import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest ( glDepthBounds )
-import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide ( glActiveStencilFace )
+import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest
+import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide
+
+--------------------------------------------------------------------------------
+
+rasterizerDiscard :: StateVar Capability
+rasterizerDiscard = makeCapability CapRasterizerDiscard
+
+discardingRasterizer :: IO a -> IO a
+discardingRasterizer act = do
+   r <- get rasterizerDiscard
+   bracket_ (rasterizerDiscard $= Enabled) (rasterizerDiscard $= r) act
 
 --------------------------------------------------------------------------------
 
