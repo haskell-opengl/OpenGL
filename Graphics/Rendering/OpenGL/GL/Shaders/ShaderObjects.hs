@@ -29,12 +29,15 @@ import Graphics.Rendering.OpenGL.GL.Shaders.Shader
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
 import Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4
+import Graphics.Rendering.OpenGL.Raw.ARB.TessellationShader
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
 
 data ShaderType =
      VertexShader
+   | TessControlShader
+   | TessEvaluationShader
    | GeometryShader
    | FragmentShader
    | ComputeShader
@@ -43,6 +46,8 @@ data ShaderType =
 marshalShaderType :: ShaderType -> GLenum
 marshalShaderType x = case x of
    VertexShader -> gl_VERTEX_SHADER
+   TessControlShader -> gl_TESS_CONTROL_SHADER
+   TessEvaluationShader -> gl_TESS_EVALUATION_SHADER
    GeometryShader -> gl_GEOMETRY_SHADER
    FragmentShader -> gl_FRAGMENT_SHADER
    ComputeShader -> gl_COMPUTE_SHADER
@@ -50,6 +55,8 @@ marshalShaderType x = case x of
 unmarshalShaderType :: GLenum -> ShaderType
 unmarshalShaderType x
    | x == gl_VERTEX_SHADER = VertexShader
+   | x == gl_TESS_CONTROL_SHADER = TessControlShader
+   | x == gl_TESS_EVALUATION_SHADER = TessEvaluationShader
    | x == gl_GEOMETRY_SHADER = GeometryShader
    | x == gl_FRAGMENT_SHADER = FragmentShader
    | x == gl_COMPUTE_SHADER = ComputeShader
