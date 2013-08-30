@@ -27,6 +27,7 @@ import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
 import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
 import Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4
 import Graphics.Rendering.OpenGL.Raw.Core31
 
@@ -36,6 +37,7 @@ data ShaderType =
      VertexShader
    | GeometryShader
    | FragmentShader
+   | ComputeShader
    deriving ( Eq, Ord, Show )
 
 marshalShaderType :: ShaderType -> GLenum
@@ -43,12 +45,14 @@ marshalShaderType x = case x of
    VertexShader -> gl_VERTEX_SHADER
    GeometryShader -> gl_GEOMETRY_SHADER
    FragmentShader -> gl_FRAGMENT_SHADER
+   ComputeShader -> gl_COMPUTE_SHADER
 
 unmarshalShaderType :: GLenum -> ShaderType
 unmarshalShaderType x
    | x == gl_VERTEX_SHADER = VertexShader
    | x == gl_GEOMETRY_SHADER = GeometryShader
    | x == gl_FRAGMENT_SHADER = FragmentShader
+   | x == gl_COMPUTE_SHADER = ComputeShader
    | otherwise = error ("unmarshalShaderType: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
