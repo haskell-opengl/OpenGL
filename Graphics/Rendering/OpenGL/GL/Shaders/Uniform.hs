@@ -17,7 +17,7 @@
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
    -- * Uniform variables
-   UniformLocation, uniformLocation, activeUniforms, Uniform(..),
+   UniformLocation(..), uniformLocation, activeUniforms, Uniform(..),
    UniformComponent,
 ) where
 
