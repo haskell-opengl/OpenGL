@@ -19,6 +19,8 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
    -- * Uniform variables
    UniformLocation(..), uniformLocation, activeUniforms, Uniform(..),
    UniformComponent,
+
+   -- TODO: glGetUniformSubroutineuiv
 ) where
 
 import Data.Maybe

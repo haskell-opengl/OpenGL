@@ -40,12 +40,15 @@ withGLstringLen s act =
 withGLstring :: String -> (Ptr GLchar -> IO a) -> IO a
 withGLstring s act = withCAString s $ act . castPtr
 
-stringQuery :: GettableStateVar GLsizei -> (GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ()) -> GettableStateVar String
-stringQuery lengthVar getStr =
+stringQuery :: (a -> GettableStateVar GLsizei)
+            -> (a -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
+            -> a
+            -> GettableStateVar String
+stringQuery lengthVar getStr obj =
    makeGettableStateVar $ do
-      len <- get lengthVar -- Note: This includes the NUL character!
+      len <- get (lengthVar obj) -- Note: This includes the NUL character!
       if len == 0
         then return ""
         else allocaArray (fromIntegral len) $ \buf -> do
-                getStr len nullPtr buf
+                getStr obj len nullPtr buf
                 peekGLstringLen (buf, len-1)

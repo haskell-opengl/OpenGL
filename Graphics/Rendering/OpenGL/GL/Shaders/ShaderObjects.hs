@@ -8,29 +8,46 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module correspons with section 2.20.1 (Shader Objects) of the OpenGL
--- 3.1 spec.
+-- This module corresponds to section 7.1 (Shader Objects) and 7.13 (Shader,
+-- Program, and Program Pipeline Queries) of the OpenGL 4.4 spec.
 --
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
-   ShaderType(..), Shader, createShader, shaderType, shaderDeleteStatus,
-   shaderSource, compileShader, compileStatus, shaderInfoLog
+   -- * Shader Objects
+   shaderCompiler,
+   ShaderType(..), Shader, createShader,
+   shaderSource, compileShader, releaseShaderCompiler,
+
+
+   -- * Shader Queries
+   shaderType, shaderDeleteStatus, compileStatus, shaderInfoLog,
+   PrecisionType, shaderPrecisionFormat
 ) where
 
+import Control.Monad
 import Data.List
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
+import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
+import Graphics.Rendering.OpenGL.Raw.ARB.ES2Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4
 import Graphics.Rendering.OpenGL.Raw.ARB.TessellationShader
 import Graphics.Rendering.OpenGL.Raw.Core31
+
+--------------------------------------------------------------------------------
+
+shaderCompiler :: GettableStateVar Bool
+shaderCompiler =
+   makeGettableStateVar (getBoolean1 unmarshalGLboolean GetShaderCompiler)
 
 --------------------------------------------------------------------------------
 
@@ -69,14 +86,18 @@ createShader = fmap Shader . glCreateShader . marshalShaderType
 
 --------------------------------------------------------------------------------
 
-compileShader :: Shader -> IO ()
-compileShader = glCompileShader . shaderID
-
---------------------------------------------------------------------------------
-
 shaderSource :: Shader -> StateVar [String]
 shaderSource shader =
    makeStateVar (getShaderSource shader) (setShaderSource shader)
+
+getShaderSource :: Shader -> IO [String]
+getShaderSource = fmap (:[]) . get . getShaderSource'
+
+getShaderSource' :: Shader -> GettableStateVar String
+getShaderSource' = stringQuery shaderSourceLength (glGetShaderSource . shaderID)
+
+shaderSourceLength :: Shader -> GettableStateVar GLsizei
+shaderSourceLength = shaderVar fromIntegral ShaderSourceLength
 
 setShaderSource :: Shader -> [String] -> IO ()
 setShaderSource shader srcs = do
@@ -87,19 +108,18 @@ setShaderSource shader srcs = do
          withArray (map fromIntegral lengths) $ \lengthsBuf ->
             glShaderSource (shaderID shader) len charBufsBuf lengthsBuf
 
-getShaderSource :: Shader -> IO [String]
-getShaderSource shader = do
-   src <- get (stringQuery (shaderSourceLength shader)
-                           (glGetShaderSource (shaderID shader)))
-   return [src]
+--------------------------------------------------------------------------------
+
+compileShader :: Shader -> IO ()
+compileShader = glCompileShader . shaderID
+
+releaseShaderCompiler :: IO ()
+releaseShaderCompiler = glReleaseShaderCompiler
 
 --------------------------------------------------------------------------------
 
-shaderInfoLog :: Shader -> GettableStateVar String
-shaderInfoLog shader =
-   stringQuery (shaderInfoLogLength shader) (glGetShaderInfoLog (shaderID shader))
-
---------------------------------------------------------------------------------
+shaderType :: Shader -> GettableStateVar ShaderType
+shaderType = shaderVar (unmarshalShaderType . fromIntegral) ShaderType
 
 shaderDeleteStatus :: Shader -> GettableStateVar Bool
 shaderDeleteStatus = shaderVar unmarshalGLboolean ShaderDeleteStatus
@@ -107,14 +127,11 @@ shaderDeleteStatus = shaderVar unmarshalGLboolean ShaderDeleteStatus
 compileStatus :: Shader -> GettableStateVar Bool
 compileStatus = shaderVar unmarshalGLboolean CompileStatus
 
+shaderInfoLog :: Shader -> GettableStateVar String
+shaderInfoLog = stringQuery shaderInfoLogLength (glGetShaderInfoLog . shaderID)
+
 shaderInfoLogLength :: Shader -> GettableStateVar GLsizei
 shaderInfoLogLength = shaderVar fromIntegral ShaderInfoLogLength
-
-shaderSourceLength :: Shader -> GettableStateVar GLsizei
-shaderSourceLength = shaderVar fromIntegral ShaderSourceLength
-
-shaderType :: Shader -> GettableStateVar ShaderType
-shaderType = shaderVar (unmarshalShaderType . fromIntegral) ShaderType
 
 --------------------------------------------------------------------------------
 
@@ -139,3 +156,38 @@ shaderVar f p shader =
       alloca $ \buf -> do
          glGetShaderiv (shaderID shader) (marshalGetShaderPName p) buf
          peek1 f buf
+
+--------------------------------------------------------------------------------
+
+data PrecisionType =
+     LowFloat
+   | MediumFloat
+   | HighFloat
+   | LowInt
+   | MediumInt
+   | HighInt
+   deriving ( Eq, Ord, Show )
+
+marshalPrecisionType :: PrecisionType -> GLenum
+marshalPrecisionType x = case x of
+   LowFloat -> gl_LOW_FLOAT
+   MediumFloat -> gl_MEDIUM_FLOAT
+   HighFloat -> gl_HIGH_FLOAT
+   LowInt -> gl_LOW_INT
+   MediumInt -> gl_MEDIUM_INT
+   HighInt -> gl_HIGH_INT
+
+--------------------------------------------------------------------------------
+
+shaderPrecisionFormat :: ShaderType
+                      -> PrecisionType
+                      -> GettableStateVar ((GLint,GLint),GLint)
+shaderPrecisionFormat st pt =
+   makeGettableStateVar $
+      allocaArray 2 $ \rangeBuf ->
+         alloca $ \precisionBuf -> do
+            glGetShaderPrecisionFormat (marshalShaderType st)
+                                       (marshalPrecisionType pt)
+                                       rangeBuf
+                                       precisionBuf
+            liftM2 (,) (peek2 (,) rangeBuf) (peek precisionBuf)

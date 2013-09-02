@@ -8,8 +8,8 @@
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module correspons with section 2.20.2 (Program Objects) of the OpenGL
--- 3.1 spec.
+-- This module corresponds to section 7.3 (Program Objects) of the OpenGL 4.4
+-- spec.
 --
 -----------------------------------------------------------------------------
 
@@ -21,6 +21,17 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects (
    validateProgram, validateStatus,
    programInfoLog,
    currentProgram,
+
+   -- TODOs:
+   --    glProgramParameteri({GL_PROGRAM_SEPARABLE,GL_PROGRAM_BINARY_RETRIEVABLE_HINT}
+   --    glCreateShaderProgramv
+   --    ProgramInterface type (from 7.3.1)
+   --    glGetProgramInterfaceiv
+   --    glGetProgramResourceIndex
+   --    glGetProgramResourceName
+   --    glGetProgramResourceiv
+   --    glGetProgramResourceLocation
+   --    glGetProgramResourceLocationIndex
 
    -- * Fragment Data
    bindFragDataLocation, getFragDataLocation
@@ -89,8 +100,8 @@ validateProgram :: Program -> IO ()
 validateProgram = glValidateProgram . programID
 
 programInfoLog :: Program -> GettableStateVar String
-programInfoLog p =
-   stringQuery (programInfoLogLength p) (glGetProgramInfoLog (programID p))
+programInfoLog =
+   stringQuery programInfoLogLength (glGetProgramInfoLog . programID)
 
 --------------------------------------------------------------------------------
 

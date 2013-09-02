@@ -40,6 +40,7 @@ import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
 import Graphics.Rendering.OpenGL.Raw.ARB.DrawIndirect
+import Graphics.Rendering.OpenGL.Raw.ARB.ES2Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram
 import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette
 import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject
@@ -290,10 +291,11 @@ get4i g f n i = allocaArray 4 $ \buf -> do
     peek4 f (castPtr buf)
 
 class GetPName p => GetPNameNI p where
-    getIntegerN :: (GLint -> a) -> p -> Int -> IO [a]
-    getIntegerN f p n = allocaArray n $ \buf -> do
-            getIntegerv p buf
-            (map f) `fmap` peekArray n buf
+   getEnumN :: (GLenum -> a) -> p -> Int -> IO [a]
+   getEnumN f p n =
+      allocaArray n $ \buf -> do
+         getIntegerv p buf
+         (map (f . fromIntegral)) `fmap` peekArray n buf
 
 -----------------------------------------------------------------------------
 
@@ -547,6 +549,9 @@ data PName1I
     | GetMaxVertexStreams           -- ^ int
     -- GL Time
     | GetTimestamp                  -- ^ int
+    -- Shader
+    | GetShaderCompiler             -- ^ bool
+    | GetNumShaderBinaryFormats     -- ^ int
 
 instance GetPName1I PName1I where
 
@@ -793,6 +798,9 @@ instance GetPName PName1I where
         GetMaxVertexStreams -> Just gl_MAX_VERTEX_STREAMS
         -- GL Time
         GetTimestamp -> Just gl_TIMESTAMP
+        -- Shader
+        GetShaderCompiler -> Just gl_SHADER_COMPILER
+        GetNumShaderBinaryFormats -> Just gl_NUM_SHADER_BINARY_FORMATS
 
 -- 0x8825 through 0x8834 are reserved for draw buffers
 
@@ -1115,12 +1123,13 @@ maxClipPlaneIndex = 0xFFF
 
 data PNameNI
     = GetCompressedTextureFormats
+    | GetShaderBinaryFormats
 
 instance GetPNameNI PNameNI where
 instance GetPName   PNameNI where
-    marshalGetPName pn = case pn of
-        GetCompressedTextureFormats -> Just gl_COMPRESSED_TEXTURE_FORMATS
-
+   marshalGetPName pn = case pn of
+      GetCompressedTextureFormats -> Just gl_COMPRESSED_TEXTURE_FORMATS
+      GetShaderBinaryFormats -> Just gl_SHADER_BINARY_FORMATS
 
 -----------------------------------------------------------------------------
 
@@ -1142,5 +1151,3 @@ instance GetPName PNameMatrix where
         GetTextureMatrix -> Just gl_TEXTURE_MATRIX
         GetColorMatrix -> Just gl_COLOR_MATRIX
         GetMatrixPalette -> Just gl_MATRIX_PALETTE
-
------------------------------------------------------------------------------

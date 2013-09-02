@@ -174,10 +174,7 @@ compressedTextureFormats :: GettableStateVar [CompressedTextureFormat]
 compressedTextureFormats =
    makeGettableStateVar $ do
       n <- getInteger1 fromIntegral GetNumCompressedTextureFormats
---      allocaArray n $ \buf -> do
---         getIntegerv GetCompressedTextureFormats buf
---         fmap (map (CompressedTextureFormat . fromIntegral)) $ peekArray n buf
-      getIntegerN (CompressedTextureFormat . fromIntegral) GetCompressedTextureFormats n
+      getEnumN CompressedTextureFormat GetCompressedTextureFormats n
 
 --------------------------------------------------------------------------------
 
