@@ -70,6 +70,7 @@ library
    Graphics.Rendering.OpenGL.GL.Shaders,
    Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
    Graphics.Rendering.OpenGL.GL.Shaders.Limits,
+   Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries,
    Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects,
    Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries,
    Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,

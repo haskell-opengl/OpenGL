@@ -42,6 +42,7 @@ import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
 import Graphics.Rendering.OpenGL.Raw.ARB.DrawIndirect
 import Graphics.Rendering.OpenGL.Raw.ARB.ES2Compatibility
 import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram
+import Graphics.Rendering.OpenGL.Raw.ARB.GetProgramBinary
 import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette
 import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject
 import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
@@ -552,6 +553,7 @@ data PName1I
     -- Shader
     | GetShaderCompiler             -- ^ bool
     | GetNumShaderBinaryFormats     -- ^ int
+    | GetNumProgramBinaryFormats    -- ^ int
 
 instance GetPName1I PName1I where
 
@@ -801,6 +803,7 @@ instance GetPName PName1I where
         -- Shader
         GetShaderCompiler -> Just gl_SHADER_COMPILER
         GetNumShaderBinaryFormats -> Just gl_NUM_SHADER_BINARY_FORMATS
+        GetNumProgramBinaryFormats -> Just gl_NUM_PROGRAM_BINARY_FORMATS
 
 -- 0x8825 through 0x8834 are reserved for draw buffers
 
@@ -1124,12 +1127,14 @@ maxClipPlaneIndex = 0xFFF
 data PNameNI
     = GetCompressedTextureFormats
     | GetShaderBinaryFormats
+    | GetProgramBinaryFormats
 
 instance GetPNameNI PNameNI where
 instance GetPName   PNameNI where
    marshalGetPName pn = case pn of
       GetCompressedTextureFormats -> Just gl_COMPRESSED_TEXTURE_FORMATS
       GetShaderBinaryFormats -> Just gl_SHADER_BINARY_FORMATS
+      GetProgramBinaryFormats -> Just gl_PROGRAM_BINARY_FORMATS
 
 -----------------------------------------------------------------------------
 

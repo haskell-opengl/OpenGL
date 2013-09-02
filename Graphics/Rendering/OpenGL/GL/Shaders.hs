@@ -17,6 +17,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
    module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,
    module Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries,
    module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects,
+   module Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries,
    module Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
    module Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
    module Graphics.Rendering.OpenGL.GL.Shaders.Limits
@@ -25,6 +26,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders (
 import Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects
 import Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries
 import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
+import Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries
 import Graphics.Rendering.OpenGL.GL.Shaders.Attribs
 import Graphics.Rendering.OpenGL.GL.Shaders.Uniform
 import Graphics.Rendering.OpenGL.GL.Shaders.Limits
