@@ -15,14 +15,24 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Program (
-   Program(..), GetProgramPName(..), programVar
+   Program(..),
+   GetProgramPName(..), marshalGetProgramPName,
+   programVar1, programVar3
 ) where
 
 import Foreign.Marshal.Alloc
+import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
+import Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4
+import Graphics.Rendering.OpenGL.Raw.ARB.GetProgramBinary
+import Graphics.Rendering.OpenGL.Raw.ARB.GpuShader5
+import Graphics.Rendering.OpenGL.Raw.ARB.SeparateShaderObjects
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
+import Graphics.Rendering.OpenGL.Raw.ARB.TessellationShader
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -49,6 +59,22 @@ data GetProgramPName =
    | TransformFeedbackBufferMode
    | TransformFeedbackVaryings
    | TransformFeedbackVaryingMaxLength
+   | ActiveUniformBlocks
+   | ActiveUniformBlockMaxNameLength
+   | GeometryVerticesOut
+   | GeometryInputType
+   | GeometryOutputType
+   | GeometryShaderInvocations
+   | TessControlOutputVertices
+   | TessGenMode
+   | TessGenSpacing
+   | TessGenVertexOrder
+   | TessGenPointMode
+   | ComputeLocalWorkSize  -- 3 integers!
+   | ProgramSeparable
+   | ProgramBinaryRetrievableHint
+   | ActiveAtomicCounterBuffers
+   | ProgramBinaryLength
 
 marshalGetProgramPName :: GetProgramPName -> GLenum
 marshalGetProgramPName x = case x of
@@ -64,10 +90,32 @@ marshalGetProgramPName x = case x of
    TransformFeedbackBufferMode -> gl_TRANSFORM_FEEDBACK_BUFFER_MODE
    TransformFeedbackVaryings -> gl_TRANSFORM_FEEDBACK_VARYINGS
    TransformFeedbackVaryingMaxLength -> gl_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH
+   ActiveUniformBlocks -> gl_ACTIVE_UNIFORM_BLOCKS
+   ActiveUniformBlockMaxNameLength -> gl_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH
+   GeometryVerticesOut -> gl_GEOMETRY_VERTICES_OUT
+   GeometryInputType -> gl_GEOMETRY_INPUT_TYPE
+   GeometryOutputType -> gl_GEOMETRY_OUTPUT_TYPE
+   GeometryShaderInvocations -> gl_GEOMETRY_SHADER_INVOCATIONS
+   TessControlOutputVertices -> gl_TESS_CONTROL_OUTPUT_VERTICES
+   TessGenMode -> gl_TESS_GEN_MODE
+   TessGenSpacing -> gl_TESS_GEN_SPACING
+   TessGenVertexOrder -> gl_TESS_GEN_VERTEX_ORDER
+   TessGenPointMode -> gl_TESS_GEN_POINT_MODE
+   ComputeLocalWorkSize -> gl_COMPUTE_LOCAL_WORK_SIZE
+   ProgramSeparable -> gl_PROGRAM_SEPARABLE
+   ProgramBinaryRetrievableHint -> gl_PROGRAM_BINARY_RETRIEVABLE_HINT
+   ActiveAtomicCounterBuffers -> gl_ACTIVE_ATOMIC_COUNTER_BUFFERS
+   ProgramBinaryLength -> gl_PROGRAM_BINARY_LENGTH
 
-programVar :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
-programVar f p program =
+programVar1 :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
+programVar1 = programVarN . peek1
+
+programVar3 :: (GLint -> GLint -> GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
+programVar3 = programVarN . peek3
+
+programVarN :: (Ptr GLint -> IO a) -> GetProgramPName -> Program -> GettableStateVar a
+programVarN f p program =
    makeGettableStateVar $
       alloca $ \buf -> do
          glGetProgramiv (programID program) (marshalGetProgramPName p) buf
-         peek1 f buf
+         f buf

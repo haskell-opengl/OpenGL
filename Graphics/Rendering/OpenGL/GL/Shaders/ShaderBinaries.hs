@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries (
 ) where
 
 import Foreign.Marshal.Array
-import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
 import Graphics.Rendering.OpenGL.GL.StateVar
@@ -37,10 +37,12 @@ shaderBinaryFormats =
       n <- getInteger1 fromIntegral GetNumShaderBinaryFormats
       getEnumN ShaderBinaryFormat GetShaderBinaryFormats n
 
-data ShaderBinary a = ShaderBinary ShaderBinaryFormat (Ptr a) GLsizei
+data ShaderBinary = ShaderBinary ShaderBinaryFormat ByteString
    deriving ( Eq, Ord, Show )
 
-shaderBinary :: [Shader] -> ShaderBinary a -> IO ()
-shaderBinary shaders (ShaderBinary (ShaderBinaryFormat format) ptr size) =
-   withArrayLen (map shaderID shaders) $ \numShaders shadersBuf ->
-      glShaderBinary (fromIntegral numShaders) shadersBuf format ptr size
+shaderBinary :: [Shader] -> SettableStateVar ShaderBinary
+shaderBinary shaders =
+   makeSettableStateVar $ \(ShaderBinary (ShaderBinaryFormat format) bs) ->
+      withArrayLen (map shaderID shaders) $ \numShaders shadersBuf ->
+         withByteString bs $
+            glShaderBinary (fromIntegral numShaders) shadersBuf format

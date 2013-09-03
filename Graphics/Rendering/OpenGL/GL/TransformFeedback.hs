@@ -103,7 +103,7 @@ setTransformFeedbackVaryings (Program program) sts tfbm = do
 -- | Get the currently used transformFeedbackBufferMode
 transformFeedbackBufferMode
    :: Program -> GettableStateVar TransformFeedbackBufferMode
-transformFeedbackBufferMode = programVar
+transformFeedbackBufferMode = programVar1
    (unmarshalTransformFeedbackBufferMode . fromIntegral)
    TransformFeedbackBufferMode
 
@@ -111,12 +111,12 @@ transformFeedbackBufferMode = programVar
 -- transform feedback mode
 getTransformFeedbackVaryings :: Program -> GettableStateVar GLuint
 getTransformFeedbackVaryings
-    = programVar fromIntegral TransformFeedbackVaryings
+    = programVar1 fromIntegral TransformFeedbackVaryings
 
 -- | The maximum length of a varying's name for transform feedback mode
 getTransformFeedbackVaryingMaxLength :: Program -> GettableStateVar GLuint
 getTransformFeedbackVaryingMaxLength
-   = programVar fromIntegral TransformFeedbackVaryingMaxLength
+   = programVar1 fromIntegral TransformFeedbackVaryingMaxLength
 
 -- | Get the name, datatype and size of a single transform feedback
 -- varying.

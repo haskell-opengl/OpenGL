@@ -14,11 +14,18 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries (
-   ProgramBinaryFormat(..), programBinaryFormats
+   ProgramBinaryFormat(..), programBinaryFormats,
+   ProgramBinary(..), programBinary
 ) where
 
+import Foreign.Marshal.Alloc
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.ByteString
+import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.ARB.GetProgramBinary
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -31,3 +38,26 @@ programBinaryFormats =
    makeGettableStateVar $ do
       n <- getInteger1 fromIntegral GetNumProgramBinaryFormats
       getEnumN ProgramBinaryFormat GetProgramBinaryFormats n
+
+data ProgramBinary = ProgramBinary ProgramBinaryFormat ByteString
+   deriving ( Eq, Ord, Show )
+
+programBinary :: Program -> StateVar ProgramBinary
+programBinary program =
+   makeStateVar (getProgramBinary program) (setProgramBinary program)
+
+getProgramBinary :: Program -> IO ProgramBinary
+getProgramBinary program = do
+   len <- get (programBinaryLength program)
+   alloca $ \formatBuf -> do
+      bs <- createByteString len $
+         glGetProgramBinary (programID program) len nullPtr formatBuf
+      format <- peek1 ProgramBinaryFormat formatBuf
+      return $ ProgramBinary format bs
+
+setProgramBinary :: Program -> ProgramBinary -> IO ()
+setProgramBinary program (ProgramBinary (ProgramBinaryFormat format) bs) = do
+   withByteString bs $ glProgramBinary (programID program) format
+
+programBinaryLength :: Program -> GettableStateVar GLsizei
+programBinaryLength = programVar1 fromIntegral ProgramBinaryLength

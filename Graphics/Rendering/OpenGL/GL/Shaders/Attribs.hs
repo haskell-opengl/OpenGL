@@ -27,10 +27,10 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 --------------------------------------------------------------------------------
 
 activeAttributes :: Program -> GettableStateVar GLuint
-activeAttributes = programVar fromIntegral ActiveAttributes
+activeAttributes = programVar1 fromIntegral ActiveAttributes
 
 activeAttributeMaxLength :: Program -> GettableStateVar GLsizei
-activeAttributeMaxLength = programVar fromIntegral ActiveAttributeMaxLength
+activeAttributeMaxLength = programVar1 fromIntegral ActiveAttributeMaxLength
 
 --------------------------------------------------------------------------------
 

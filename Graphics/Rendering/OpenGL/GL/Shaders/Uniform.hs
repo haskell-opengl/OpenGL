@@ -39,10 +39,10 @@ import Graphics.Rendering.OpenGL.Raw.Core31
 --------------------------------------------------------------------------------
 
 numActiveUniforms :: Program -> GettableStateVar GLuint
-numActiveUniforms = programVar fromIntegral ActiveUniforms
+numActiveUniforms = programVar1 fromIntegral ActiveUniforms
 
 activeUniformMaxLength :: Program -> GettableStateVar GLsizei
-activeUniformMaxLength = programVar fromIntegral ActiveUniformMaxLength
+activeUniformMaxLength = programVar1 fromIntegral ActiveUniformMaxLength
 
 --------------------------------------------------------------------------------
 

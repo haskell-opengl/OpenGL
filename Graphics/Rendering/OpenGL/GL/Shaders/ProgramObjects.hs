@@ -21,9 +21,9 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects (
    validateProgram, validateStatus,
    programInfoLog,
    currentProgram,
+   programSeparable, programBinaryRetrievableHint,
 
    -- TODOs:
-   --    glProgramParameteri({GL_PROGRAM_SEPARABLE,GL_PROGRAM_BINARY_RETRIEVABLE_HINT}
    --    glCreateShaderProgramv
    --    ProgramInterface type (from 7.3.1)
    --    glGetProgramInterfaceiv
@@ -48,6 +48,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
 import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.ARB.GetProgramBinary
 import Graphics.Rendering.OpenGL.Raw.Core31
 
 --------------------------------------------------------------------------------
@@ -105,20 +106,35 @@ programInfoLog =
 
 --------------------------------------------------------------------------------
 
+programSeparable :: Program -> StateVar Bool
+programSeparable = programStateVarBool ProgramSeparable
+
+programBinaryRetrievableHint :: Program -> StateVar Bool
+programBinaryRetrievableHint = programStateVarBool ProgramBinaryRetrievableHint
+
+programStateVarBool :: GetProgramPName -> Program -> StateVar Bool
+programStateVarBool pname program =
+   makeStateVar
+      (get (programVar1 unmarshalGLboolean pname program))
+      (glProgramParameteri (programID program)
+                           (marshalGetProgramPName pname) . marshalGLboolean)
+
+--------------------------------------------------------------------------------
+
 programDeleteStatus :: Program -> GettableStateVar Bool
-programDeleteStatus = programVar unmarshalGLboolean ProgramDeleteStatus
+programDeleteStatus = programVar1 unmarshalGLboolean ProgramDeleteStatus
 
 linkStatus :: Program -> GettableStateVar Bool
-linkStatus = programVar unmarshalGLboolean LinkStatus
+linkStatus = programVar1 unmarshalGLboolean LinkStatus
 
 validateStatus :: Program -> GettableStateVar Bool
-validateStatus = programVar unmarshalGLboolean ValidateStatus
+validateStatus = programVar1 unmarshalGLboolean ValidateStatus
 
 programInfoLogLength :: Program -> GettableStateVar GLsizei
-programInfoLogLength = programVar fromIntegral ProgramInfoLogLength
+programInfoLogLength = programVar1 fromIntegral ProgramInfoLogLength
 
 numAttachedShaders :: Program -> GettableStateVar GLsizei
-numAttachedShaders = programVar fromIntegral AttachedShaders
+numAttachedShaders = programVar1 fromIntegral AttachedShaders
 
 --------------------------------------------------------------------------------
 
