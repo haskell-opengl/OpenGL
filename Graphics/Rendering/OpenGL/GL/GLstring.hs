@@ -14,16 +14,12 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.GLstring (
-    GLstringLen, peekGLstringLen, withGLstringLen, withGLstring, stringQuery
+    GLstringLen, peekGLstringLen, withGLstringLen, withGLstring
 ) where
 
 import Foreign.C.String
-import Foreign.Marshal.Array
 import Foreign.Ptr
-
 import Graphics.Rendering.OpenGL.Raw.Core31
-
-import Graphics.Rendering.OpenGL.GL.StateVar
 
 -----------------------------------------------------------------------------
 
@@ -39,16 +35,3 @@ withGLstringLen s act =
 
 withGLstring :: String -> (Ptr GLchar -> IO a) -> IO a
 withGLstring s act = withCAString s $ act . castPtr
-
-stringQuery :: (a -> GettableStateVar GLsizei)
-            -> (a -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
-            -> a
-            -> GettableStateVar String
-stringQuery lengthVar getStr obj =
-   makeGettableStateVar $ do
-      len <- get (lengthVar obj) -- Note: This includes the NUL character!
-      if len == 0
-        then return ""
-        else allocaArray (fromIntegral len) $ \buf -> do
-                getStr obj len nullPtr buf
-                peekGLstringLen (buf, len-1)

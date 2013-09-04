@@ -19,7 +19,6 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries (
 ) where
 
 import Foreign.Marshal.Alloc
-import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
@@ -47,13 +46,15 @@ programBinary program =
    makeStateVar (getProgramBinary program) (setProgramBinary program)
 
 getProgramBinary :: Program -> IO ProgramBinary
-getProgramBinary program = do
-   len <- get (programBinaryLength program)
+getProgramBinary program =
    alloca $ \formatBuf -> do
-      bs <- createByteString len $
-         glGetProgramBinary (programID program) len nullPtr formatBuf
+      let getBin = bind4th formatBuf (glGetProgramBinary . programID)
+      bs <- stringQuery programBinaryLength getBin program
       format <- peek1 ProgramBinaryFormat formatBuf
       return $ ProgramBinary format bs
+
+bind4th :: d -> (a -> b -> c -> d -> e) -> (a -> b -> c -> e)
+bind4th x = ((.) . (.) . (.)) ($ x)
 
 setProgramBinary :: Program -> ProgramBinary -> IO ()
 setProgramBinary program (ProgramBinary (ProgramBinaryFormat format) bs) = do

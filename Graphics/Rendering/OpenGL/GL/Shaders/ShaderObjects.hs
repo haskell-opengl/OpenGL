@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects
@@ -17,8 +18,8 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
    -- * Shader Objects
    shaderCompiler,
    ShaderType(..), Shader, createShader,
-   shaderSource, compileShader, releaseShaderCompiler,
-
+   ShaderSource(..),
+   compileShader, releaseShaderCompiler,
 
    -- * Shader Queries
    shaderType, shaderDeleteStatus, compileStatus, shaderInfoLog,
@@ -26,13 +27,12 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
 ) where
 
 import Control.Monad
-import Data.List
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
@@ -86,27 +86,33 @@ createShader = fmap Shader . glCreateShader . marshalShaderType
 
 --------------------------------------------------------------------------------
 
-shaderSource :: Shader -> StateVar [String]
-shaderSource shader =
-   makeStateVar (getShaderSource shader) (setShaderSource shader)
+class ShaderSource a where
+   shaderSource :: Shader -> StateVar a
 
-getShaderSource :: Shader -> IO [String]
-getShaderSource = fmap (:[]) . get . getShaderSource'
+instance ShaderSource ByteString where
+   shaderSource shader =
+      makeStateVar (getShaderSource shader) (setShaderSource shader)
 
-getShaderSource' :: Shader -> GettableStateVar String
-getShaderSource' = stringQuery shaderSourceLength (glGetShaderSource . shaderID)
+instance ShaderSource String where
+   shaderSource shader =
+      makeStateVar
+         (fmap unpackUtf8 $ get (shaderSource shader))
+         ((shaderSource shader $=) . packUtf8)
+
+--------------------------------------------------------------------------------
+
+getShaderSource :: Shader -> IO ByteString
+getShaderSource = stringQuery shaderSourceLength (glGetShaderSource . shaderID)
 
 shaderSourceLength :: Shader -> GettableStateVar GLsizei
 shaderSourceLength = shaderVar fromIntegral ShaderSourceLength
 
-setShaderSource :: Shader -> [String] -> IO ()
-setShaderSource shader srcs = do
-   let len = genericLength srcs
-   withMany withGLstringLen srcs $ \charBufsAndLengths -> do
-      let (charBufs, lengths) = unzip charBufsAndLengths
-      withArray charBufs $ \charBufsBuf ->
-         withArray (map fromIntegral lengths) $ \lengthsBuf ->
-            glShaderSource (shaderID shader) len charBufsBuf lengthsBuf
+setShaderSource :: Shader -> ByteString -> IO ()
+setShaderSource shader src =
+   withByteString src $ \srcPtr srcLength ->
+      with srcPtr $ \srcPtrBuf ->
+         with srcLength $ \srcLengthBuf ->
+            glShaderSource (shaderID shader) 1 srcPtrBuf srcLengthBuf
 
 --------------------------------------------------------------------------------
 
@@ -128,7 +134,10 @@ compileStatus :: Shader -> GettableStateVar Bool
 compileStatus = shaderVar unmarshalGLboolean CompileStatus
 
 shaderInfoLog :: Shader -> GettableStateVar String
-shaderInfoLog = stringQuery shaderInfoLogLength (glGetShaderInfoLog . shaderID)
+shaderInfoLog =
+   makeGettableStateVar .
+      fmap unpackUtf8 .
+         stringQuery shaderInfoLogLength (glGetShaderInfoLog . shaderID)
 
 shaderInfoLogLength :: Shader -> GettableStateVar GLsizei
 shaderInfoLogLength = shaderVar fromIntegral ShaderInfoLogLength

@@ -41,6 +41,7 @@ import Data.List
 import Data.Maybe
 import Foreign.Marshal.Array
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.GLstring
@@ -102,7 +103,9 @@ validateProgram = glValidateProgram . programID
 
 programInfoLog :: Program -> GettableStateVar String
 programInfoLog =
-   stringQuery programInfoLogLength (glGetProgramInfoLog . programID)
+   makeGettableStateVar .
+      fmap unpackUtf8 .
+         stringQuery programInfoLogLength (glGetProgramInfoLog . programID)
 
 --------------------------------------------------------------------------------
 

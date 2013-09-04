@@ -14,16 +14,29 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.ByteString (
-   B.ByteString, createByteString, withByteString
+   B.ByteString, stringQuery, withByteString,
+   packUtf8, unpackUtf8
 ) where
 
+import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw.Core31
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as BI
 import qualified Data.ByteString.Unsafe as BU
-import Foreign.Ptr
-import Graphics.Rendering.OpenGL.Raw.Core31
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
 
 --------------------------------------------------------------------------------
+
+stringQuery :: (a -> GettableStateVar GLsizei)
+            -> (a -> GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
+            -> a
+            -> IO B.ByteString
+stringQuery lengthVar getStr obj = do
+   len <- get (lengthVar obj)
+   createByteString len $
+      getStr obj len nullPtr
 
 createByteString :: Integral a => a -> (Ptr b -> IO ()) -> IO B.ByteString
 createByteString size act = BI.create (fromIntegral size) (act . castPtr)
@@ -32,3 +45,9 @@ withByteString :: B.ByteString -> (Ptr a -> GLsizei -> IO b) -> IO b
 withByteString bs act =
    BU.unsafeUseAsCStringLen bs $ \(ptr, size) ->
       act (castPtr ptr) (fromIntegral size)
+
+packUtf8 :: String -> B.ByteString
+packUtf8 = TE.encodeUtf8 . T.pack
+
+unpackUtf8 :: B.ByteString -> String
+unpackUtf8 = T.unpack . TE.decodeUtf8
