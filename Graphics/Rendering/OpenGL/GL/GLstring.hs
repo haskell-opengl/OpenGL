@@ -14,7 +14,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.GLstring (
-    GLstringLen, peekGLstringLen, withGLstringLen, withGLstring
+    GLstringLen, peekGLstringLen, withGLstring
 ) where
 
 import Foreign.C.String
@@ -27,11 +27,6 @@ type GLstringLen = (Ptr GLchar, GLsizei)
 
 peekGLstringLen :: GLstringLen -> IO String
 peekGLstringLen (p,l) = peekCAStringLen (castPtr p, fromIntegral l)
-
-withGLstringLen :: String -> (GLstringLen -> IO a) -> IO a
-withGLstringLen s act =
-   withCAStringLen s $ \(p,len) ->
-      act (castPtr p, fromIntegral len)
 
 withGLstring :: String -> (Ptr GLchar -> IO a) -> IO a
 withGLstring s act = withCAString s $ act . castPtr
