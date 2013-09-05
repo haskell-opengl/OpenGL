@@ -18,8 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
    -- * Shader Objects
    shaderCompiler,
    ShaderType(..), Shader, createShader,
-   ShaderSource(..),
-   compileShader, releaseShaderCompiler,
+   shaderSource, compileShader, releaseShaderCompiler,
 
    -- * Shader Queries
    shaderType, shaderDeleteStatus, compileStatus, shaderInfoLog,
@@ -86,20 +85,10 @@ createShader = fmap Shader . glCreateShader . marshalShaderType
 
 --------------------------------------------------------------------------------
 
-class ShaderSource a where
-   shaderSource :: Shader -> StateVar a
-
-instance ShaderSource ByteString where
-   shaderSource shader =
-      makeStateVar (getShaderSource shader) (setShaderSource shader)
-
-instance ShaderSource String where
-   shaderSource shader =
-      makeStateVar
-         (fmap unpackUtf8 $ get (shaderSource shader))
-         ((shaderSource shader $=) . packUtf8)
-
---------------------------------------------------------------------------------
+-- | UTF8 encoded.
+shaderSource :: Shader -> StateVar ByteString
+shaderSource shader =
+   makeStateVar (getShaderSource shader) (setShaderSource shader)
 
 getShaderSource :: Shader -> IO ByteString
 getShaderSource = stringQuery shaderSourceLength (glGetShaderSource . shaderID)
