@@ -103,7 +103,7 @@ setShaderSource shader src =
          with srcLength $ \srcLengthBuf ->
             glShaderSource (shaderID shader) 1 srcPtrBuf srcLengthBuf
 
-{-# DEPRECATED shaderSource "use 'shaderSourceBS' instead" #-}
+{-# DEPRECATED shaderSource "Use 'shaderSourceBS' instead." #-}
 shaderSource :: Shader -> StateVar [String]
 shaderSource shader =
    makeStateVar
