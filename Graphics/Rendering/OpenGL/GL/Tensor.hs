@@ -54,9 +54,6 @@ instance Traversable Vertex1 where
    mapM f (Vertex1 x) = return Vertex1 `ap` f x
    sequence (Vertex1 x) = return Vertex1 `ap` x
 
-instance Typeable a => Typeable (Vertex1 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (Vertex1 a) where
    sizeOf    ~(Vertex1 s) = sizeOf s
    alignment ~(Vertex1 s) = alignment s
@@ -87,9 +84,6 @@ instance Traversable Vertex2 where
    sequenceA (Vertex2 x y) =  pure Vertex2 <*> x <*> y
    mapM f (Vertex2 x y) = return Vertex2 `ap` f x `ap` f y
    sequence (Vertex2 x y) = return Vertex2 `ap` x `ap` y
-
-instance Typeable a => Typeable (Vertex2 a) where
-   typeOf = typeOfDefault
 
 instance Storable a => Storable (Vertex2 a) where
    sizeOf ~(Vertex2 x _) = 2 * sizeOf x
@@ -122,9 +116,6 @@ instance Traversable Vertex3 where
    mapM f (Vertex3 x y z) = return Vertex3 `ap` f x `ap` f y `ap` f z
    sequence (Vertex3 x y z) = return Vertex3 `ap` x `ap` y `ap` z
 
-instance Typeable a => Typeable (Vertex3 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (Vertex3 a) where
    sizeOf ~(Vertex3 x _ _) = 3 * sizeOf x
    alignment ~(Vertex3 x _ _) = alignment x
@@ -155,9 +146,6 @@ instance Traversable Vertex4 where
    sequenceA (Vertex4 x y z w) =  pure Vertex4 <*> x <*> y <*> z <*> w
    mapM f (Vertex4 x y z w) = return Vertex4 `ap` f x `ap` f y `ap` f z `ap` f w
    sequence (Vertex4 x y z w) = return Vertex4 `ap` x `ap` y `ap` z `ap` w
-
-instance Typeable a => Typeable (Vertex4 a) where
-   typeOf = typeOfDefault
 
 instance Storable a => Storable (Vertex4 a) where
    sizeOf ~(Vertex4 x _ _ _) = 4 * sizeOf x
@@ -190,9 +178,6 @@ instance Traversable Vector1 where
    mapM f (Vector1 x) = return Vector1 `ap` f x
    sequence (Vector1 x) = return Vector1 `ap` x
 
-instance Typeable a => Typeable (Vector1 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (Vector1 a) where
    sizeOf    ~(Vector1 s) = sizeOf s
    alignment ~(Vector1 s) = alignment s
@@ -223,9 +208,6 @@ instance Traversable Vector2 where
    sequenceA (Vector2 x y) =  pure Vector2 <*> x <*> y
    mapM f (Vector2 x y) = return Vector2 `ap` f x `ap` f y
    sequence (Vector2 x y) = return Vector2 `ap` x `ap` y
-
-instance Typeable a => Typeable (Vector2 a) where
-   typeOf = typeOfDefault
 
 instance Storable a => Storable (Vector2 a) where
    sizeOf ~(Vector2 x _) = 2 * sizeOf x
@@ -258,9 +240,6 @@ instance Traversable Vector3 where
    mapM f (Vector3 x y z) = return Vector3 `ap` f x `ap` f y `ap` f z
    sequence (Vector3 x y z) = return Vector3 `ap` x `ap` y `ap` z
 
-instance Typeable a => Typeable (Vector3 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (Vector3 a) where
    sizeOf ~(Vector3 x _ _) = 3 * sizeOf x
    alignment ~(Vector3 x _ _) = alignment x
@@ -291,9 +270,6 @@ instance Traversable Vector4 where
    sequenceA (Vector4 x y z w) =  pure Vector4 <*> x <*> y <*> z <*> w
    mapM f (Vector4 x y z w) = return Vector4 `ap` f x `ap` f y `ap` f z `ap` f w
    sequence (Vector4 x y z w) = return Vector4 `ap` x `ap` y `ap` z `ap` w
-
-instance Typeable a => Typeable (Vector4 a) where
-   typeOf = typeOfDefault
 
 instance Storable a => Storable (Vector4 a) where
    sizeOf ~(Vector4 x _ _ _) = 4 * sizeOf x
