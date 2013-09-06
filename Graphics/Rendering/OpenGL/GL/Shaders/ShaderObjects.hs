@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
    -- * Shader Objects
    shaderCompiler,
    ShaderType(..), Shader, createShader,
-   shaderSource, compileShader, releaseShaderCompiler,
+   shaderSourceBS, shaderSource, compileShader, releaseShaderCompiler,
 
    -- * Shader Queries
    shaderType, shaderDeleteStatus, compileStatus, shaderInfoLog,
@@ -86,8 +86,8 @@ createShader = fmap Shader . glCreateShader . marshalShaderType
 --------------------------------------------------------------------------------
 
 -- | UTF8 encoded.
-shaderSource :: Shader -> StateVar ByteString
-shaderSource shader =
+shaderSourceBS :: Shader -> StateVar ByteString
+shaderSourceBS shader =
    makeStateVar (getShaderSource shader) (setShaderSource shader)
 
 getShaderSource :: Shader -> IO ByteString
@@ -102,6 +102,13 @@ setShaderSource shader src =
       with srcPtr $ \srcPtrBuf ->
          with srcLength $ \srcLengthBuf ->
             glShaderSource (shaderID shader) 1 srcPtrBuf srcLengthBuf
+
+{-# DEPRECATED shaderSource "use 'shaderSourceBS' instead" #-}
+shaderSource :: Shader -> StateVar [String]
+shaderSource shader =
+   makeStateVar
+     (fmap ((:[]) . unpackUtf8) $ get (shaderSourceBS shader))
+     ((shaderSourceBS shader $=) . packUtf8 . concat)
 
 --------------------------------------------------------------------------------
 
