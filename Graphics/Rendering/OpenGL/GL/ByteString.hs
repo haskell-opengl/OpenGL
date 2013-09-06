@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.ByteString (
-   B.ByteString, stringQuery, withByteString,
+   B.ByteString, stringQuery, createAndTrimByteString, withByteString,
    packUtf8, unpackUtf8
 ) where
 
@@ -38,10 +38,15 @@ stringQuery lengthVar getStr obj = do
    createByteString len $
       getStr obj len nullPtr
 
-createByteString :: Integral a => a -> (Ptr b -> IO ()) -> IO B.ByteString
+createByteString :: Integral a => a -> (Ptr GLchar -> IO ()) -> IO B.ByteString
 createByteString size act = BI.create (fromIntegral size) (act . castPtr)
 
-withByteString :: B.ByteString -> (Ptr a -> GLsizei -> IO b) -> IO b
+createAndTrimByteString ::
+   (Integral a, Integral b) => a -> (Ptr GLchar -> IO b) -> IO B.ByteString
+createAndTrimByteString maxLen act =
+   BI.createAndTrim (fromIntegral maxLen) (fmap fromIntegral . act . castPtr)
+
+withByteString :: B.ByteString -> (Ptr GLchar -> GLsizei -> IO b) -> IO b
 withByteString bs act =
    BU.unsafeUseAsCStringLen bs $ \(ptr, size) ->
       act (castPtr ptr) (fromIntegral size)

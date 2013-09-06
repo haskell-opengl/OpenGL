@@ -20,10 +20,9 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Variables (
 
 import Control.Monad
 import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.GLstring
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw.Core31
@@ -148,15 +147,14 @@ activeVars numVars maxLength getter p@(Program program) =
    makeGettableStateVar $ do
       numActiveVars <- get (numVars p)
       maxLen <- get (maxLength p)
-      allocaArray (fromIntegral maxLen) $ \nameBuf ->
-         alloca $ \nameLengthBuf ->
-            alloca $ \sizeBuf ->
-               alloca $ \typeBuf ->
-                  let ixs = if numActiveVars > 0 then [0 .. numActiveVars-1] else []
-                  in forM ixs $ \i -> do
-                        getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
-                        l <- peek nameLengthBuf
-                        s <- peek sizeBuf
-                        t <- peek typeBuf
-                        n <- peekGLstringLen (nameBuf, l)
-                        return (s, unmarshalVariableType t, n)
+      alloca $ \nameLengthBuf ->
+         alloca $ \sizeBuf ->
+            alloca $ \typeBuf ->
+               let ixs = if numActiveVars > 0 then [0 .. numActiveVars-1] else []
+               in forM ixs $ \i -> do
+                  n <- createAndTrimByteString maxLen $ \nameBuf -> do
+                     getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
+                     peek nameLengthBuf
+                  s <- peek sizeBuf
+                  t <- peek typeBuf
+                  return (s, unmarshalVariableType t, unpackUtf8 n)

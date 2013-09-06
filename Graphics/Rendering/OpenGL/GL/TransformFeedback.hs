@@ -33,6 +33,7 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
@@ -127,14 +128,12 @@ getTransformFeedbackVarying :: Program
    -> IO (String, DataType, GLsizei) -- ^ The name of the varying, it's type
                                      -- and size
 getTransformFeedbackVarying (Program program) vi ml = do
-   alloca $ \nlength -> do
-      alloca $ \size -> do
-          alloca $ \dtype -> do
-             allocaArray (fromIntegral ml) $ \name -> do
-                glGetTransformFeedbackVarying program vi ml nlength size
-                   dtype name
-                l <- peek nlength
-                s <- peek size
-                d <- peek dtype
-                n <- peekGLstringLen (name, l)
-                return (n,unmarshalDataType d, s)
+   alloca $ \nameLengthBuf ->
+      alloca $ \sizeBuf ->
+          alloca $ \typeBuf -> do
+             n <- createAndTrimByteString ml $ \nameBuf -> do
+                glGetTransformFeedbackVarying program vi ml nameLengthBuf sizeBuf typeBuf nameBuf
+                peek nameLengthBuf
+             s <- peek sizeBuf
+             d <- peek typeBuf
+             return (unpackUtf8 n, unmarshalDataType d, s)
