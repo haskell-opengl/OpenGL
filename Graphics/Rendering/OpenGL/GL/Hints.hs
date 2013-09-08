@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Hints
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+--
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -16,14 +16,9 @@ module Graphics.Rendering.OpenGL.GL.Hints (
    HintTarget(..), HintMode(..), hint
 ) where
 
-import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_FOG_HINT, gl_GENERATE_MIPMAP_HINT, gl_PERSPECTIVE_CORRECTION_HINT,
-   gl_POINT_SMOOTH_HINT )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka (
-   gl_PACK_CMYK_HINT, gl_UNPACK_CMYK_HINT )
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -51,7 +46,7 @@ marshalHintTarget x = case x of
    PackCMYK -> gl_PACK_CMYK_HINT
    UnpackCMYK -> gl_UNPACK_CMYK_HINT
 
-hintTargetToGetPName :: HintTarget -> GetPName
+hintTargetToGetPName :: HintTarget -> PName1I
 hintTargetToGetPName x = case x of
    PerspectiveCorrection -> GetPerspectiveCorrectionHint
    PointSmooth -> GetPointSmoothHint

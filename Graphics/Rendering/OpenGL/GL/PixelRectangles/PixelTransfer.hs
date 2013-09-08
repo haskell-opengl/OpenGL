@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelTransfer
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+--
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -19,24 +19,11 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelTransfer (
    rgbaScale, rgbaBias
 ) where
 
-import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glPixelTransferf, glPixelTransferi, gl_ALPHA_BIAS, gl_ALPHA_SCALE,
-   gl_BLUE_BIAS, gl_BLUE_SCALE, gl_DEPTH_BIAS, gl_DEPTH_SCALE, gl_GREEN_BIAS,
-   gl_GREEN_SCALE, gl_INDEX_OFFSET, gl_INDEX_SHIFT, gl_MAP_COLOR,
-   gl_MAP_STENCIL, gl_POST_COLOR_MATRIX_ALPHA_BIAS,
-   gl_POST_COLOR_MATRIX_ALPHA_SCALE, gl_POST_COLOR_MATRIX_BLUE_BIAS,
-   gl_POST_COLOR_MATRIX_BLUE_SCALE, gl_POST_COLOR_MATRIX_GREEN_BIAS,
-   gl_POST_COLOR_MATRIX_GREEN_SCALE, gl_POST_COLOR_MATRIX_RED_BIAS,
-   gl_POST_COLOR_MATRIX_RED_SCALE, gl_POST_CONVOLUTION_ALPHA_BIAS,
-   gl_POST_CONVOLUTION_ALPHA_SCALE, gl_POST_CONVOLUTION_BLUE_BIAS,
-   gl_POST_CONVOLUTION_BLUE_SCALE, gl_POST_CONVOLUTION_GREEN_BIAS,
-   gl_POST_CONVOLUTION_GREEN_SCALE, gl_POST_CONVOLUTION_RED_BIAS,
-   gl_POST_CONVOLUTION_RED_SCALE, gl_RED_BIAS, gl_RED_SCALE )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -115,7 +102,7 @@ data PixelTransferStage =
 
 stageToGetScales ::
       PixelTransferStage
-   -> (GetPName, GetPName, GetPName, GetPName)
+   -> (PName1F, PName1F, PName1F, PName1F)
 stageToGetScales s = case s of
    PreConvolution  -> (GetRedScale,
                        GetGreenScale,
@@ -149,7 +136,7 @@ stageToSetScales s = case s of
 
 stageToGetBiases ::
       PixelTransferStage
-   -> (GetPName, GetPName, GetPName, GetPName)
+   -> (PName1F, PName1F, PName1F, PName1F)
 stageToGetBiases s = case s of
    PreConvolution  -> (GetRedBias,
                        GetGreenBias,
@@ -209,27 +196,27 @@ rgbaBias s = pixelTransfer4f (stageToGetBiases s) (stageToSetBiases s)
 
 --------------------------------------------------------------------------------
 
-pixelTransferb :: GetPName -> PixelTransfer -> StateVar Capability
+pixelTransferb :: GetPName1I p => p -> PixelTransfer -> StateVar Capability
 pixelTransferb pn pt =
    makeStateVar
       (getBoolean1 unmarshalCapability pn)
       (glPixelTransferi (marshalPixelTransfer pt) .
        fromIntegral . marshalCapability)
 
-pixelTransferi :: GetPName -> PixelTransfer -> StateVar GLint
+pixelTransferi :: GetPName1I p => p -> PixelTransfer -> StateVar GLint
 pixelTransferi pn pt =
    makeStateVar
       (getInteger1 id pn)
       (glPixelTransferi (marshalPixelTransfer pt))
 
-pixelTransferf :: GetPName -> PixelTransfer -> StateVar GLfloat
+pixelTransferf :: GetPName1F p => p -> PixelTransfer -> StateVar GLfloat
 pixelTransferf pn pt =
    makeStateVar
       (getFloat1 id pn)
       (glPixelTransferf (marshalPixelTransfer pt))
 
-pixelTransfer4f ::
-      (GetPName,      GetPName,      GetPName,      GetPName)
+pixelTransfer4f :: GetPName1F p =>
+      (p, p, p, p)
    -> (PixelTransfer, PixelTransfer, PixelTransfer, PixelTransfer)
    -> StateVar (Color4 GLfloat)
 pixelTransfer4f (pr, pg, pb, pa) (tr, tg, tb, ta) = makeStateVar get4f set4f

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.BufferObjects
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -14,11 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.BufferObjects (
-   -- * Object Names
-   module Data.ObjectName,
-
    -- * Buffer Objects
-   BufferObject(BufferObject),
+   BufferObject,
 
    -- * Binding Buffer Objects
    BufferTarget(..), bindBuffer, arrayBufferBinding,
@@ -32,7 +29,7 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    mapBuffer, unmapBuffer,
    bufferAccess, bufferMapped,
 
-   BufferRangeAccessBit(..), Offset, Length,
+   MapBufferUsage(..), Offset, Length,
    mapBufferRange, flushMappedBufferRange,
 
    -- * Indexed Buffer manipulation
@@ -44,24 +41,20 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    indexedBufferStart, indexedBufferSize
 ) where
 
-import Data.ObjectName
-import Data.List(foldl1')
-import Data.Bits((.|.))
 import Data.Maybe
-
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
-
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -71,48 +64,70 @@ newtype BufferObject = BufferObject { bufferID :: GLuint }
 --------------------------------------------------------------------------------
 
 instance ObjectName BufferObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-        glGenBuffers (fromIntegral n) buf
-        fmap (map BufferObject) $ peekArray n buf
+   isObjectName = fmap unmarshalGLboolean . glIsBuffer . bufferID
 
    deleteObjectNames bufferObjects =
       withArrayLen (map bufferID bufferObjects) $
          glDeleteBuffers . fromIntegral
 
-   isObjectName = fmap unmarshalGLboolean . glIsBuffer . bufferID
+instance GeneratableObjectName BufferObject where
+   genObjectNames n =
+      allocaArray n $ \buf -> do
+        glGenBuffers (fromIntegral n) buf
+        fmap (map BufferObject) $ peekArray n buf
 
 --------------------------------------------------------------------------------
 
 data BufferTarget =
      ArrayBuffer
+   | AtomicCounterBuffer
    | CopyReadBuffer
    | CopyWriteBuffer
+   | DispatchIndirectBuffer
+   | DrawIndirectBuffer
    | ElementArrayBuffer
    | PixelPackBuffer
    | PixelUnpackBuffer
+   | QueryBuffer
+   | ShaderStorageBuffer
+   | TextureBuffer
    | TransformFeedbackBuffer
+   | UniformBuffer
    deriving ( Eq, Ord, Show )
 
 marshalBufferTarget :: BufferTarget -> GLenum
 marshalBufferTarget x = case x of
    ArrayBuffer -> gl_ARRAY_BUFFER
+   AtomicCounterBuffer -> gl_ATOMIC_COUNTER_BUFFER
    CopyReadBuffer -> gl_COPY_READ_BUFFER
    CopyWriteBuffer -> gl_COPY_WRITE_BUFFER
+   DispatchIndirectBuffer -> gl_DISPATCH_INDIRECT_BUFFER
+   DrawIndirectBuffer -> gl_DRAW_INDIRECT_BUFFER
    ElementArrayBuffer -> gl_ELEMENT_ARRAY_BUFFER
    PixelPackBuffer -> gl_PIXEL_PACK_BUFFER
    PixelUnpackBuffer -> gl_PIXEL_UNPACK_BUFFER
+   QueryBuffer -> gl_QUERY_BUFFER
+   ShaderStorageBuffer -> gl_SHADER_STORAGE_BUFFER
+   TextureBuffer -> gl_TEXTURE_BUFFER
    TransformFeedbackBuffer -> gl_TRANSFORM_FEEDBACK_BUFFER
+   UniformBuffer -> gl_UNIFORM_BUFFER
 
-bufferTargetToGetPName :: BufferTarget -> GetPName
+bufferTargetToGetPName :: BufferTarget -> PName1I
 bufferTargetToGetPName x = case x of
    ArrayBuffer -> GetArrayBufferBinding
+   AtomicCounterBuffer -> GetAtomicCounterBufferBinding
+   CopyReadBuffer -> GetCopyReadBufferBinding
+   CopyWriteBuffer -> GetCopyWriteBufferBinding
+   DispatchIndirectBuffer -> GetDispatchIndirectBufferBinding
+   DrawIndirectBuffer -> GetDrawIndirectBufferBinding
    ElementArrayBuffer -> GetElementArrayBufferBinding
-   CopyReadBuffer -> GetCopyReadBuffer
-   CopyWriteBuffer -> GetCopyWriteBuffer
    PixelPackBuffer -> GetPixelPackBufferBinding
    PixelUnpackBuffer -> GetPixelUnpackBufferBinding
+   QueryBuffer -> GetQueryBufferBinding
+   ShaderStorageBuffer -> GetShaderStorageBufferBinding
+   TextureBuffer -> GetTextureBindingBuffer
    TransformFeedbackBuffer -> GetTransformFeedbackBufferBinding
+   UniformBuffer -> GetUniformBufferBinding
 
 --------------------------------------------------------------------------------
 
@@ -182,7 +197,7 @@ bindBuffer t = makeStateVar (getBindBuffer t) (setBindBuffer t)
 getBindBuffer :: BufferTarget -> IO (Maybe BufferObject)
 getBindBuffer = bufferQuery bufferTargetToGetPName
 
-bufferQuery :: (a -> GetPName) -> a -> IO (Maybe BufferObject)
+bufferQuery :: (a -> PName1I) -> a -> IO (Maybe BufferObject)
 bufferQuery func t = do
    buf <- getInteger1 (BufferObject . fromIntegral) (func t)
    return $ if buf == noBufferObject then Nothing else Just buf
@@ -194,7 +209,7 @@ setBindBuffer :: BufferTarget -> Maybe BufferObject -> IO ()
 setBindBuffer t =
    glBindBuffer (marshalBufferTarget t) . bufferID . fromMaybe noBufferObject
 
-clientArrayTypeToGetPName :: ClientArrayType -> GetPName
+clientArrayTypeToGetPName :: ClientArrayType -> PName1I
 clientArrayTypeToGetPName x = case x of
    VertexArray -> GetVertexArrayBufferBinding
    NormalArray -> GetNormalArrayBufferBinding
@@ -313,45 +328,44 @@ bufferMapped t = makeGettableStateVar $
 
 --------------------------------------------------------------------------------
 
-data BufferRangeAccessBit =
-     ReadBit
-   | WriteBit
-   | InvalidateRangeBit
-   | InvalidateBufferBit
-   | FlushExplicitBit
-   | UnsychronizedBit
+data MapBufferUsage =
+     Read
+   | Write
+   | InvalidateRange
+   | InvalidateBuffer
+   | FlushExplicit
+   | Unsychronized
+   deriving ( Eq, Ord, Show )
 
 type Offset = GLintptr
 type Length = GLsizeiptr
 
-marshalBufferRangeAccessBit :: BufferRangeAccessBit -> GLenum
-marshalBufferRangeAccessBit x = case x of
-    ReadBit -> gl_MAP_READ_BIT
-    WriteBit -> gl_MAP_WRITE_BIT
-    InvalidateRangeBit -> gl_MAP_INVALIDATE_RANGE_BIT
-    InvalidateBufferBit -> gl_MAP_INVALIDATE_BUFFER_BIT
-    FlushExplicitBit -> gl_MAP_FLUSH_EXPLICIT_BIT
-    UnsychronizedBit -> gl_MAP_FLUSH_EXPLICIT_BIT
-
-marshalToBitfield :: [BufferRangeAccessBit] -> GLenum
-marshalToBitfield b = foldl1' (.|.)  $ map marshalBufferRangeAccessBit b
+marshalMapBufferUsage :: MapBufferUsage -> GLbitfield
+marshalMapBufferUsage x = case x of
+    Read -> gl_MAP_READ_BIT
+    Write -> gl_MAP_WRITE_BIT
+    InvalidateRange -> gl_MAP_INVALIDATE_RANGE_BIT
+    InvalidateBuffer -> gl_MAP_INVALIDATE_BUFFER_BIT
+    FlushExplicit -> gl_MAP_FLUSH_EXPLICIT_BIT
+    Unsychronized -> gl_MAP_FLUSH_EXPLICIT_BIT
 
 --------------------------------------------------------------------------------
 
-mapBufferRange_ :: BufferTarget -> Offset -> Length ->
-   [BufferRangeAccessBit] -> IO (Ptr a)
+mapBufferRange_ ::
+   BufferTarget -> Offset -> Length -> [MapBufferUsage] -> IO (Ptr a)
 mapBufferRange_ t o l b = glMapBufferRange (marshalBufferTarget t) o l
-    (fromIntegral $ marshalToBitfield b)
+   (sum (map marshalMapBufferUsage b))
 
-mapBufferRange :: BufferTarget -> Offset -> Length ->
-   [BufferRangeAccessBit] -> IO (Maybe (Ptr a))
-mapBufferRange t o l b = fmap (maybeNullPtr Nothing Just) $ mapBufferRange_ t o l b
+mapBufferRange ::
+   BufferTarget -> Offset -> Length -> [MapBufferUsage] -> IO (Maybe (Ptr a))
+mapBufferRange t o l b =
+   fmap (maybeNullPtr Nothing Just) $ mapBufferRange_ t o l b
 
 flushMappedBufferRange :: BufferTarget -> Offset -> Length -> IO()
 flushMappedBufferRange t = glFlushMappedBufferRange (marshalBufferTarget t)
 
-
 --------------------------------------------------------------------------------
+
 type BufferIndex = GLuint
 
 type RangeStartIndex = GLintptr
@@ -359,21 +373,21 @@ type RangeSize = GLsizeiptr
 type BufferRange = (BufferObject, RangeStartIndex, RangeSize)
 
 data IndexedBufferTarget =
-     IndexedTransformFeedBackbuffer
+     IndexedTransformFeedbackBuffer
 --marshaling
-marshalIndexedBufferTarget :: IndexedBufferTarget -> GetIndexedPName
+marshalIndexedBufferTarget :: IndexedBufferTarget -> IPName1I
 marshalIndexedBufferTarget x = case x of
-   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBuffer
+   IndexedTransformFeedbackBuffer -> GetTransformFeedbackBuffer
 
-marshalIndexedBufferStart :: IndexedBufferTarget -> GetIndexedPName
+marshalIndexedBufferStart :: IndexedBufferTarget -> IPName1I
 marshalIndexedBufferStart x = case x of
-   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBufferStart
+   IndexedTransformFeedbackBuffer -> GetTransformFeedbackBufferStart
 
-marshalIndexedBufferSize :: IndexedBufferTarget -> GetIndexedPName
+marshalIndexedBufferSize :: IndexedBufferTarget -> IPName1I
 marshalIndexedBufferSize x = case x of
-   IndexedTransformFeedBackbuffer -> GetTransformFeedbackBufferSize
+   IndexedTransformFeedbackBuffer -> GetTransformFeedbackBufferSize
 
-getIndexed :: Num a => GetIndexedPName -> BufferIndex -> GettableStateVar a
+getIndexed :: Num a => IPName1I -> BufferIndex -> GettableStateVar a
 getIndexed e i = makeGettableStateVar $ getInteger1i fromIntegral e i
 
 --buffer
@@ -381,9 +395,11 @@ bindBufferBase :: IndexedBufferTarget -> BufferIndex -> StateVar (Maybe BufferOb
 bindBufferBase t i = makeStateVar (getIndexedBufferBinding t i) (setIndexedBufferBase t i)
 
 setIndexedBufferBase :: IndexedBufferTarget -> BufferIndex -> Maybe BufferObject -> IO ()
-setIndexedBufferBase t i =
-   glBindBufferBase (marshalGetIndexedPName . marshalIndexedBufferTarget $ t) i
-      . bufferID . fromMaybe noBufferObject
+setIndexedBufferBase t i buf=
+   case marshalGetPName . marshalIndexedBufferTarget $ t of
+      Nothing -> recordInvalidEnum
+      Just t' ->
+         glBindBufferBase t' i . bufferID . fromMaybe noBufferObject $ buf
 
 getIndexedBufferBinding :: IndexedBufferTarget -> BufferIndex -> IO (Maybe BufferObject)
 getIndexedBufferBinding t i = do
@@ -395,8 +411,9 @@ bindBufferRange t i = makeStateVar (getIndexedBufferRange t i) (setIndexedBuffer
 
 setIndexedBufferRange :: IndexedBufferTarget -> BufferIndex -> Maybe BufferRange -> IO ()
 setIndexedBufferRange t i (Just (buf, start, range)) =
-   glBindBufferRange (marshalGetIndexedPName . marshalIndexedBufferTarget $ t)
-      i (bufferID buf) start range
+   case marshalGetPName . marshalIndexedBufferTarget $ t of
+      Nothing -> recordInvalidEnum
+      Just t' -> glBindBufferRange t' i (bufferID buf) start range
 setIndexedBufferRange t i Nothing = setIndexedBufferBase t i Nothing
 
 getIndexedBufferRange :: IndexedBufferTarget -> BufferIndex -> IO(Maybe BufferRange)

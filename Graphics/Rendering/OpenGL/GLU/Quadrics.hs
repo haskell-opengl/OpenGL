@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Quadrics
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -22,12 +22,12 @@ module Graphics.Rendering.OpenGL.GLU.Quadrics (
 import Control.Monad ( unless )
 import Foreign.Ptr ( Ptr, nullPtr, freeHaskellFunPtr )
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordOutOfMemory )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

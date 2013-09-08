@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.VertexSpec
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -12,6 +12,8 @@
 -- OpenGL 2.1 specs.
 --
 --------------------------------------------------------------------------------
+
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Graphics.Rendering.OpenGL.GL.VertexSpec (
    -- * Vertex Coordinates
@@ -56,52 +58,17 @@ module Graphics.Rendering.OpenGL.GL.VertexSpec (
    TextureUnit(..), maxTextureUnit
 ) where
 
-import Data.StateVar
-import Data.Tensor
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexAttributes
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glColor3b, glColor3bv, glColor3d, glColor3dv, glColor3f, glColor3fv,
-   glColor3i, glColor3iv, glColor3s, glColor3sv, glColor3ub, glColor3ubv,
-   glColor3ui, glColor3uiv, glColor3us, glColor3usv, glColor4b, glColor4bv,
-   glColor4d, glColor4dv, glColor4f, glColor4fv, glColor4i, glColor4iv,
-   glColor4s, glColor4sv, glColor4ub, glColor4ubv, glColor4ui, glColor4uiv,
-   glColor4us, glColor4usv, glFogCoordd, glFogCoorddv, glFogCoordf,
-   glFogCoordfv, glIndexd, glIndexdv, glIndexf, glIndexfv, glIndexi, glIndexiv,
-   glIndexs, glIndexsv, glIndexub, glIndexubv, glMultiTexCoord1d,
-   glMultiTexCoord1dv, glMultiTexCoord1f, glMultiTexCoord1fv, glMultiTexCoord1i,
-   glMultiTexCoord1iv, glMultiTexCoord1s, glMultiTexCoord1sv, glMultiTexCoord2d,
-   glMultiTexCoord2dv, glMultiTexCoord2f, glMultiTexCoord2fv, glMultiTexCoord2i,
-   glMultiTexCoord2iv, glMultiTexCoord2s, glMultiTexCoord2sv, glMultiTexCoord3d,
-   glMultiTexCoord3dv, glMultiTexCoord3f, glMultiTexCoord3fv, glMultiTexCoord3i,
-   glMultiTexCoord3iv, glMultiTexCoord3s, glMultiTexCoord3sv, glMultiTexCoord4d,
-   glMultiTexCoord4dv, glMultiTexCoord4f, glMultiTexCoord4fv, glMultiTexCoord4i,
-   glMultiTexCoord4iv, glMultiTexCoord4s, glMultiTexCoord4sv, glNormal3b,
-   glNormal3bv, glNormal3d, glNormal3dv, glNormal3f, glNormal3fv, glNormal3i,
-   glNormal3iv, glNormal3s, glNormal3sv, glSecondaryColor3b,
-   glSecondaryColor3bv, glSecondaryColor3d, glSecondaryColor3dv,
-   glSecondaryColor3f, glSecondaryColor3fv, glSecondaryColor3i,
-   glSecondaryColor3iv, glSecondaryColor3s, glSecondaryColor3sv,
-   glSecondaryColor3ub, glSecondaryColor3ubv, glSecondaryColor3ui,
-   glSecondaryColor3uiv, glSecondaryColor3us, glSecondaryColor3usv,
-   glTexCoord1d, glTexCoord1dv, glTexCoord1f, glTexCoord1fv, glTexCoord1i,
-   glTexCoord1iv, glTexCoord1s, glTexCoord1sv, glTexCoord2d, glTexCoord2dv,
-   glTexCoord2f, glTexCoord2fv, glTexCoord2i, glTexCoord2iv, glTexCoord2s,
-   glTexCoord2sv, glTexCoord3d, glTexCoord3dv, glTexCoord3f, glTexCoord3fv,
-   glTexCoord3i, glTexCoord3iv, glTexCoord3s, glTexCoord3sv, glTexCoord4d,
-   glTexCoord4dv, glTexCoord4f, glTexCoord4fv, glTexCoord4i, glTexCoord4iv,
-   glTexCoord4s, glTexCoord4sv, glVertex2d, glVertex2dv, glVertex2f,
-   glVertex2fv, glVertex2i, glVertex2iv, glVertex2s, glVertex2sv, glVertex3d,
-   glVertex3dv, glVertex3f, glVertex3fv, glVertex3i, glVertex3iv, glVertex3s,
-   glVertex3sv, glVertex4d, glVertex4dv, glVertex4f, glVertex4fv, glVertex4i,
-   glVertex4iv, glVertex4s, glVertex4sv )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -539,16 +506,6 @@ instance ColorComponent GLfloat where
    secondaryColor3 = glSecondaryColor3f
    secondaryColor3v = glSecondaryColor3fv
 
-instance ColorComponent GLclampf where
-   color3 r g b = glColor3f (realToFrac r) (realToFrac g) (realToFrac b)
-   color4 r g b a = glColor4f (realToFrac r) (realToFrac g) (realToFrac b) (realToFrac a)
-
-   color3v = glColor3fv . castPtr
-   color4v = glColor4fv . castPtr
-
-   secondaryColor3 r g b = glSecondaryColor3f (realToFrac r) (realToFrac g) (realToFrac b)
-   secondaryColor3v = glSecondaryColor3fv . castPtr
-
 instance ColorComponent GLdouble where
    color3 = glColor3d
    color4 = glColor4d
@@ -558,16 +515,6 @@ instance ColorComponent GLdouble where
 
    secondaryColor3 = glSecondaryColor3d
    secondaryColor3v = glSecondaryColor3dv
-
-instance ColorComponent GLclampd where
-   color3 r g b = glColor3d (realToFrac r) (realToFrac g) (realToFrac b)
-   color4 r g b a = glColor4d (realToFrac r) (realToFrac g) (realToFrac b) (realToFrac a)
-
-   color3v = glColor3dv . castPtr
-   color4v = glColor4dv . castPtr
-
-   secondaryColor3 r g b = glSecondaryColor3d (realToFrac r) (realToFrac g) (realToFrac b)
-   secondaryColor3v = glSecondaryColor3dv . castPtr
 
 instance ColorComponent GLubyte where
    color3 = glColor3ub
@@ -851,21 +798,6 @@ instance VertexAttribComponent GLfloat where
 
    vertexAttrib4Iv = vertexAttrib4IvRealFrac
 
-instance VertexAttribComponent GLclampf where
-   vertexAttrib1 (AttribLocation al) x = glVertexAttrib1f al (realToFrac x)
-   vertexAttrib2 (AttribLocation al) x y = glVertexAttrib2f al (realToFrac x) (realToFrac y)
-   vertexAttrib3 (AttribLocation al) x y z = glVertexAttrib3f al (realToFrac x) (realToFrac y) (realToFrac z)
-   vertexAttrib4 (AttribLocation al) x y z w = glVertexAttrib4f al (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
-
-   vertexAttrib1v (AttribLocation al) = glVertexAttrib1fv al . castPtr
-   vertexAttrib2v (AttribLocation al) = glVertexAttrib2fv al . castPtr
-   vertexAttrib3v (AttribLocation al) = glVertexAttrib3fv al . castPtr
-   vertexAttrib4v (AttribLocation al) = glVertexAttrib4fv al . castPtr
-
-   vertexAttrib4Nv = vertexAttrib4v
-
-   vertexAttrib4Iv = vertexAttrib4IvRealFrac
-
 vertexAttrib4IvRealFrac :: (Storable a, RealFrac a) => AttribLocation -> Ptr a -> IO ()
 vertexAttrib4IvRealFrac location = peek4M $ \x y z w ->
    vertexAttrib4I location (toGLint x) (toGLint y) (toGLint z) (toGLint w)
@@ -885,21 +817,6 @@ instance VertexAttribComponent GLdouble where
    vertexAttrib2v (AttribLocation al) = glVertexAttrib2dv al
    vertexAttrib3v (AttribLocation al) = glVertexAttrib3dv al
    vertexAttrib4v (AttribLocation al) = glVertexAttrib4dv al
-
-   vertexAttrib4Nv = vertexAttrib4v
-
-   vertexAttrib4Iv = vertexAttrib4IvRealFrac
-
-instance VertexAttribComponent GLclampd where
-   vertexAttrib1 (AttribLocation al) x = glVertexAttrib1d al (realToFrac x)
-   vertexAttrib2 (AttribLocation al) x y = glVertexAttrib2d al (realToFrac x) (realToFrac y)
-   vertexAttrib3 (AttribLocation al) x y z = glVertexAttrib3d al (realToFrac x) (realToFrac y) (realToFrac z)
-   vertexAttrib4 (AttribLocation al) x y z w = glVertexAttrib4d al (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
-
-   vertexAttrib1v (AttribLocation al) = glVertexAttrib1dv al . castPtr
-   vertexAttrib2v (AttribLocation al) = glVertexAttrib2dv al . castPtr
-   vertexAttrib3v (AttribLocation al) = glVertexAttrib3dv al . castPtr
-   vertexAttrib4v (AttribLocation al) = glVertexAttrib4dv al . castPtr
 
    vertexAttrib4Nv = vertexAttrib4v
 

@@ -1,11 +1,11 @@
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.GLboolean
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.GLboolean (
    marshalGLboolean, unmarshalGLboolean
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -26,5 +26,5 @@ marshalGLboolean x = fromIntegral $ case x of
    False -> gl_FALSE
    True -> gl_TRUE
 
-unmarshalGLboolean :: Num a => a -> Bool
+unmarshalGLboolean :: (Eq a, Num a) => a -> Bool
 unmarshalGLboolean = (/= fromIntegral gl_FALSE)

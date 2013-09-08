@@ -1,44 +1,49 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Uniform
--- Copyright   :
+-- Copyright   :  (c) Sven Panne 2006-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
 -- This module contains functions related to shader uniforms, this corresponds
 -- to section 2.20.3 of the OpenGL 3.1 spec (Shader Variables).
+--
 -----------------------------------------------------------------------------
+
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
    -- * Uniform variables
-   UniformLocation, uniformLocation, activeUniforms, Uniform(..),
+   UniformLocation(..), uniformLocation, activeUniforms, Uniform(..),
    UniformComponent,
+
+   -- TODO: glGetUniformSubroutineuiv
 ) where
 
-import Data.StateVar
-import Data.Tensor
+import Data.Maybe
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.GLstring
-import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.Core31
-
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
+import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
+import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
 numActiveUniforms :: Program -> GettableStateVar GLuint
-numActiveUniforms = programVar fromIntegral ActiveUniforms
+numActiveUniforms = programVar1 fromIntegral ActiveUniforms
 
 activeUniformMaxLength :: Program -> GettableStateVar GLsizei
-activeUniformMaxLength = programVar fromIntegral ActiveUniformMaxLength
+activeUniformMaxLength = programVar1 fromIntegral ActiveUniformMaxLength
 
---------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
 newtype UniformLocation = UniformLocation GLint
@@ -48,7 +53,7 @@ uniformLocation :: Program -> String -> GettableStateVar UniformLocation
 uniformLocation (Program program) name =
    makeGettableStateVar $
       fmap UniformLocation $
-         withGLString name $
+         withGLstring name $
             glGetUniformLocation program
 
 --------------------------------------------------------------------------------
@@ -110,19 +115,6 @@ instance UniformComponent GLfloat where
    uniform3v (UniformLocation ul) = glUniform3fv ul
    uniform4v (UniformLocation ul) = glUniform4fv ul
 
-instance UniformComponent GLclampf where
-   uniform1 (UniformLocation ul) x = glUniform1f ul (realToFrac x)
-   uniform2 (UniformLocation ul) x y = glUniform2f ul (realToFrac x) (realToFrac y)
-   uniform3 (UniformLocation ul) x y z = glUniform3f ul (realToFrac x) (realToFrac y) (realToFrac z)
-   uniform4 (UniformLocation ul) x y z w = glUniform4f ul (realToFrac x) (realToFrac y) (realToFrac z) (realToFrac w)
-
-   getUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
-
-   uniform1v (UniformLocation ul) n = glUniform1fv ul n . castPtr
-   uniform2v (UniformLocation ul) n = glUniform2fv ul n . castPtr
-   uniform3v (UniformLocation ul) n = glUniform3fv ul n . castPtr
-   uniform4v (UniformLocation ul) n = glUniform4fv ul n . castPtr
-
 --------------------------------------------------------------------------------
 
 class Uniform a where
@@ -143,7 +135,7 @@ makeUniformVar :: (UniformComponent a, Storable (b a))
                -> UniformLocation -> StateVar (b a)
 makeUniformVar setter location = makeStateVar getter (setter location)
    where getter = do
-            program <- getCurrentProgram
+            program <- fmap fromJust $ get currentProgram
             allocaBytes maxUniformBufferSize  $ \buf -> do
             getUniform program location buf
             peek buf
@@ -196,17 +188,18 @@ instance UniformComponent a => Uniform (Index1 a) where
    uniform = makeUniformVar $ \location (Index1 i) -> uniform1 location i
    uniformv location count = uniform1v location count . (castPtr :: Ptr (Index1 b) -> Ptr b)
 
--- nasty instance declaration as TextureUnit is not of the form Storable (b a) as requiered for
--- getUniform
+-- Nasty instance declaration as TextureUnit is not of the form Storable (b a) as required for
+-- getUniform. Even worse is that it requires the `GLint` uniforms while it is an enum or
+-- uint.
 instance Uniform TextureUnit where
     uniform loc@(UniformLocation ul)  = makeStateVar getter setter
-        where setter (TextureUnit tu) = uniform1 loc tu
+        where setter (TextureUnit tu) = uniform1 loc (fromIntegral tu :: GLint)
               getter = do
-                 program <- getCurrentProgram
-                 allocaBytes (sizeOf (undefined :: GLuint))  $ \buf -> do
-                 glGetUniformuiv (programID program) ul buf
+                 program <- fmap fromJust $ get currentProgram
+                 allocaBytes (sizeOf (undefined :: GLint))  $ \buf -> do
+                 glGetUniformiv (programID program) ul buf
                  tuID <- peek buf
-                 return $ TextureUnit tuID
-    uniformv location count = uniform1v location count . (castPtr :: Ptr TextureUnit -> Ptr GLuint)
+                 return . TextureUnit $ fromIntegral tuID
+    uniformv location count = uniform1v location count . (castPtr :: Ptr TextureUnit -> Ptr GLint)
 
 --------------------------------------------------------------------------------

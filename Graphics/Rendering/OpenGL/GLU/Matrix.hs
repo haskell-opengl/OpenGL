@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Matrix
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -17,7 +17,6 @@ module Graphics.Rendering.OpenGL.GLU.Matrix (
    project, unProject, unProject4
 ) where
 
-import Data.Tensor
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -25,8 +24,9 @@ import Foreign.Storable
 import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 -- matrix setup

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.RasterPos
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+--
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -12,6 +12,8 @@
 -- OpenGL 2.1 specs.
 --
 --------------------------------------------------------------------------------
+
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Graphics.Rendering.OpenGL.GL.RasterPos (
    currentRasterPosition, RasterPosComponent, RasterPos(..),
@@ -21,23 +23,14 @@ module Graphics.Rendering.OpenGL.GL.RasterPos (
    rasterPositionUnclipped
 ) where
 
-import Data.StateVar
-import Data.Tensor
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glRasterPos2d, glRasterPos2dv, glRasterPos2f, glRasterPos2fv, glRasterPos2i,
-   glRasterPos2iv, glRasterPos2s, glRasterPos2sv, glRasterPos3d, glRasterPos3dv,
-   glRasterPos3f, glRasterPos3fv, glRasterPos3i, glRasterPos3iv, glRasterPos3s,
-   glRasterPos3sv, glRasterPos4d, glRasterPos4dv, glRasterPos4f, glRasterPos4fv,
-   glRasterPos4i, glRasterPos4iv, glRasterPos4s, glRasterPos4sv, glWindowPos2d,
-   glWindowPos2dv, glWindowPos2f, glWindowPos2fv, glWindowPos2i, glWindowPos2iv,
-   glWindowPos2s, glWindowPos2sv, glWindowPos3d, glWindowPos3dv, glWindowPos3f,
-   glWindowPos3fv, glWindowPos3i, glWindowPos3iv, glWindowPos3s, glWindowPos3sv )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Objects
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -14,42 +14,21 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
-   TextureObject(TextureObject), textureBinding,
+   TextureObject, textureBinding,
    textureResident, areTexturesResident,
    TexturePriority, texturePriority, prioritizeTextures
 ) where
 
 import Data.List
 import Data.Maybe (fromMaybe)
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Marshal.Array
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureObject
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
- glAreTexturesResident, glPrioritizeTextures )
-import Graphics.Rendering.OpenGL.Raw.Core31
-
---------------------------------------------------------------------------------
-
-newtype TextureObject = TextureObject { textureID :: GLuint }
-   deriving ( Eq, Ord, Show )
-
---------------------------------------------------------------------------------
-
-instance ObjectName TextureObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-        glGenTextures (fromIntegral n) buf
-        fmap (map TextureObject) $ peekArray n buf
-
-   deleteObjectNames textureObjects =
-      withArrayLen (map textureID textureObjects) $
-         glDeleteTextures . fromIntegral
-
-   isObjectName = fmap unmarshalGLboolean . glIsTexture . textureID
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

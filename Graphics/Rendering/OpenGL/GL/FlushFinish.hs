@@ -1,14 +1,14 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FlushFinish
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to section 5.5 (Flush and Finish) of the OpenGL 2.1
+-- This module corresponds to section 2.3.2 (Flush and Finish) of the OpenGL 4.4
 -- specs.
 --
 --------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.FlushFinish (
    flush, finish      
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.Specification
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -41,16 +41,15 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
   maxTextureSize
 ) where
 
-import Data.StateVar
-import Foreign.Marshal.Array
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -174,9 +173,7 @@ compressedTextureFormats :: GettableStateVar [CompressedTextureFormat]
 compressedTextureFormats =
    makeGettableStateVar $ do
       n <- getInteger1 fromIntegral GetNumCompressedTextureFormats
-      allocaArray n $ \buf -> do
-         getIntegerv GetCompressedTextureFormats buf
-         fmap (map (CompressedTextureFormat . fromIntegral)) $ peekArray n buf
+      getEnumN CompressedTextureFormat GetCompressedTextureFormats n
 
 --------------------------------------------------------------------------------
 

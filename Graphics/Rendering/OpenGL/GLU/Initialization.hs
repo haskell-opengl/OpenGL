@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Initialization
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -16,12 +16,12 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
    gluVersion, gluExtensions
 ) where
 
-import Data.StateVar
 import Foreign.C.String
 import Foreign.Ptr
 import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

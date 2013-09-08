@@ -1,70 +1,31 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
--- Copyright   :
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2011-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
---
--- |
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects (
-   FramebufferObject(FramebufferObject),
-   defaultFramebufferObject,
-   FramebufferTarget(..), marshalFramebufferTarget,
-
-   bindFramebuffer,
-
+   FramebufferObject, defaultFramebufferObject,
+   FramebufferTarget(..), bindFramebuffer,
    FramebufferStatus(..), framebufferStatus,
 ) where
 
-import Data.ObjectName
-import Data.StateVar
-import Foreign.Marshal
-import Graphics.Rendering.OpenGL.Raw.Core31
-
-import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 -----------------------------------------------------------------------------
-
-data FramebufferObject = FramebufferObject{ fbufferID :: GLuint }
-
-instance ObjectName FramebufferObject where
-    genObjectNames n =
-       allocaArray n $ \buf -> do
-          glGenFramebuffers (fromIntegral n) buf
-          fmap (map FramebufferObject) $ peekArray n buf
-    deleteObjectNames objs = withArrayLen (map fbufferID objs) $
-       glDeleteFramebuffers . fromIntegral
-    isObjectName = fmap unmarshalGLboolean . glIsFramebuffer . fbufferID
 
 defaultFramebufferObject :: FramebufferObject
 defaultFramebufferObject = FramebufferObject 0
-
------------------------------------------------------------------------------
-
-data FramebufferTarget =
-     DrawFramebuffer
-   | ReadFramebuffer
-   | Framebuffer
-
-marshalFramebufferTarget :: FramebufferTarget -> GLenum
-marshalFramebufferTarget xs = case xs of
-   DrawFramebuffer -> gl_DRAW_FRAMEBUFFER
-   ReadFramebuffer -> gl_READ_FRAMEBUFFER
-   Framebuffer -> gl_FRAMEBUFFER
-
-marshalFramebufferTargetBinding :: FramebufferTarget -> GetPName
-marshalFramebufferTargetBinding x = case x of
-   DrawFramebuffer -> GetDrawFramebufferBinding
-   ReadFramebuffer -> GetReadFramebufferBinding
-   Framebuffer -> GetFramebufferBinding
 
 -----------------------------------------------------------------------------
 
@@ -72,12 +33,19 @@ bindFramebuffer :: FramebufferTarget -> StateVar FramebufferObject
 bindFramebuffer fbt =
     makeStateVar (getBoundFramebuffer fbt) (setFramebuffer fbt)
 
+marshalFramebufferTargetBinding :: FramebufferTarget -> PName1I
+marshalFramebufferTargetBinding x = case x of
+   DrawFramebuffer -> GetDrawFramebufferBinding
+   ReadFramebuffer -> GetReadFramebufferBinding
+   Framebuffer -> GetFramebufferBinding
+
 getBoundFramebuffer :: FramebufferTarget -> IO FramebufferObject
-getBoundFramebuffer = getInteger1 (FramebufferObject . fromIntegral)
-   . marshalFramebufferTargetBinding
+getBoundFramebuffer =
+   getInteger1 (FramebufferObject . fromIntegral) . marshalFramebufferTargetBinding
 
 setFramebuffer :: FramebufferTarget -> FramebufferObject -> IO ()
-setFramebuffer fbt = glBindFramebuffer (marshalFramebufferTarget fbt) . fbufferID
+setFramebuffer fbt =
+   glBindFramebuffer (marshalFramebufferTarget fbt) . framebufferID
 
 -----------------------------------------------------------------------------
 
@@ -89,6 +57,7 @@ data FramebufferStatus =
    | IncompleteReadBuffer
    | IncompleteMultiSample
    | Unsupported
+   deriving ( Eq, Ord, Show )
 
 unmarshalFramebufferStatus :: GLenum -> FramebufferStatus
 unmarshalFramebufferStatus x
@@ -102,6 +71,7 @@ unmarshalFramebufferStatus x
    | x == gl_FRAMEBUFFER_UNSUPPORTED = Unsupported
    | otherwise = error $ "unmarshalFramebufferStatus: unknown value: "
       ++ show x
+
 -----------------------------------------------------------------------------
 
 framebufferStatus :: FramebufferTarget -> GettableStateVar FramebufferStatus

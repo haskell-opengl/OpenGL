@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.ReadCopyPixels
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -21,18 +21,17 @@ module Graphics.Rendering.OpenGL.GL.ReadCopyPixels (
    PixelCopyType(..), copyPixels,
 
    -- * Copying Pixels for framebuffers
-   BlitFramebufferMask(..), blitFramebuffer
+   BlitBuffer(..), blitFramebuffer
 ) where
 
-import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.Texturing.Parameters
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Texturing.Filter
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glCopyPixels )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -70,23 +69,35 @@ copyPixels (Position x y) (Size w h) t =
 
 --------------------------------------------------------------------------------
 
-data BlitFramebufferMask
-   = BlitColorBuffer
-   | BlitStencilBuffer
-   | BlitDepthBuffer
+-- | The buffers which can be copied with 'blitFramebuffer'.
 
-marshalBlitFramebufferMask :: [BlitFramebufferMask] -> GLbitfield
-marshalBlitFramebufferMask = fromIntegral . sum . map marshal
-    where marshal x = case x of
-             BlitColorBuffer -> gl_COLOR_BUFFER_BIT
-             BlitStencilBuffer -> gl_STENCIL_BUFFER_BIT
-             BlitDepthBuffer -> gl_DEPTH_BUFFER_BIT
+data BlitBuffer =
+     ColorBuffer'
+   | StencilBuffer'
+   | DepthBuffer'
+   deriving ( Eq, Ord, Show )
 
-blitFramebuffer :: Position -> Position -> Position -> Position -> [BlitFramebufferMask]
-   -> TextureFilter -> IO ()
-blitFramebuffer (Position sx0 sy0) (Position sx1 sy1) (Position dx0 dy0) (Position dx1 dy1)
-   bfbm filt = glBlitFramebuffer sx0 sy0 sx1 sy1 dx0 dy0 dx1 dy1
-      (marshalBlitFramebufferMask bfbm) (marshalTextureFilter filt)
-      where marshalTextureFilter x = case x of
-                Nearest -> gl_NEAREST
-                Linear' -> gl_LINEAR
+marshalBlitBuffer :: BlitBuffer -> GLbitfield
+marshalBlitBuffer x = case x of
+   ColorBuffer' -> gl_COLOR_BUFFER_BIT
+   StencilBuffer' -> gl_STENCIL_BUFFER_BIT
+   DepthBuffer' -> gl_DEPTH_BUFFER_BIT
+
+--------------------------------------------------------------------------------
+
+blitFramebuffer :: Position
+                -> Position
+                -> Position
+                -> Position
+                -> [BlitBuffer]
+                -> TextureFilter
+                -> IO ()
+blitFramebuffer (Position sx0 sy0)
+                (Position sx1 sy1)
+                (Position dx0 dy0)
+                (Position dx1 dy1)
+                buffers
+                filt =
+   glBlitFramebuffer sx0 sy0 sx1 sy1 dx0 dy0 dx1 dy1
+                     (sum (map marshalBlitBuffer buffers))
+                     (fromIntegral (marshalMagnificationFilter filt))

@@ -1,14 +1,12 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.TransformFeedback
--- Copyright   :
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2011-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
---
--- |
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
 -----------------------------------------------------------------------------
 
@@ -21,9 +19,10 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
    unmarshalTransformFeedbackBufferMode,
 
    -- * Shader related
-   transformFeedbackBufferMode, getTransformFeedbackVaryings,
-   setTransformFeedbackVaryings, getTransformFeedbackVarying,
-   getTransformFeedbackVaryingMaxLength,
+   transformFeedbackBufferMode,
+   VaryingIndex, MaxLength,
+   getTransformFeedbackVaryings, setTransformFeedbackVaryings,
+   getTransformFeedbackVarying, getTransformFeedbackVaryingMaxLength,
 
    -- * limits
    maxTransformFeedbackSeparateAttribs,
@@ -31,17 +30,18 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
    maxTransformFeedbackSeparateComponents
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Storable
-
-import Graphics.Rendering.OpenGL.Raw.Core32
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.DataType
-import Graphics.Rendering.OpenGL.GL.GLstring
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
+
+--------------------------------------------------------------------------------
 
 beginTransformFeedback :: PrimitiveMode -> IO ()
 beginTransformFeedback = glBeginTransformFeedback . marshalPrimitiveMode
@@ -95,7 +95,7 @@ type MaxLength = GLsizei
 setTransformFeedbackVaryings :: Program -> [String]
    -> TransformFeedbackBufferMode -> IO ()
 setTransformFeedbackVaryings (Program program) sts tfbm = do
-   ptSts <- mapM (\x -> withGLString x return) sts
+   ptSts <- mapM (\x -> withGLstring x return) sts
    stsPtrs <- newArray ptSts
    glTransformFeedbackVaryings program (fromIntegral . length $ sts)  stsPtrs
       (marshalTransformFeedbackBufferMode tfbm)
@@ -103,7 +103,7 @@ setTransformFeedbackVaryings (Program program) sts tfbm = do
 -- | Get the currently used transformFeedbackBufferMode
 transformFeedbackBufferMode
    :: Program -> GettableStateVar TransformFeedbackBufferMode
-transformFeedbackBufferMode = programVar
+transformFeedbackBufferMode = programVar1
    (unmarshalTransformFeedbackBufferMode . fromIntegral)
    TransformFeedbackBufferMode
 
@@ -111,12 +111,12 @@ transformFeedbackBufferMode = programVar
 -- transform feedback mode
 getTransformFeedbackVaryings :: Program -> GettableStateVar GLuint
 getTransformFeedbackVaryings
-    = programVar fromIntegral TransformFeedbackVaryings
+    = programVar1 fromIntegral TransformFeedbackVaryings
 
 -- | The maximum length of a varying's name for transform feedback mode
 getTransformFeedbackVaryingMaxLength :: Program -> GettableStateVar GLuint
 getTransformFeedbackVaryingMaxLength
-   = programVar fromIntegral TransformFeedbackVaryingMaxLength
+   = programVar1 fromIntegral TransformFeedbackVaryingMaxLength
 
 -- | Get the name, datatype and size of a single transform feedback
 -- varying.
@@ -127,14 +127,12 @@ getTransformFeedbackVarying :: Program
    -> IO (String, DataType, GLsizei) -- ^ The name of the varying, it's type
                                      -- and size
 getTransformFeedbackVarying (Program program) vi ml = do
-   alloca $ \nlength -> do
-      alloca $ \size -> do
-          alloca $ \dtype -> do
-             allocaArray (fromIntegral ml) $ \name -> do
-                glGetTransformFeedbackVarying program vi ml nlength size
-                   dtype name
-                l <- peek nlength
-                s <- peek size
-                d <- peek dtype
-                n <- peekGLstringLen (name, l)
-                return (n,unmarshalDataType d, s)
+   alloca $ \nameLengthBuf ->
+      alloca $ \sizeBuf ->
+          alloca $ \typeBuf -> do
+             n <- createAndTrimByteString ml $ \nameBuf -> do
+                glGetTransformFeedbackVarying program vi ml nameLengthBuf sizeBuf typeBuf nameBuf
+                peek nameLengthBuf
+             s <- peek sizeBuf
+             d <- peek typeBuf
+             return (unpackUtf8 n, unmarshalDataType d, s)

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -18,14 +18,12 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
 ) where
 
 import Control.Monad
-import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelFormat
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glDrawPixels, glPixelZoom )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

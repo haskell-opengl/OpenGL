@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Framebuffer
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -35,19 +35,16 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
 import Control.Monad
 import Data.List
 import Data.Maybe
-import Data.StateVar
 import Foreign.Marshal.Array
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glAccum, glClearAccum, glClearIndex, glIndexMask, gl_ACCUM,
-   gl_ACCUM_BUFFER_BIT, gl_ADD, gl_LOAD, gl_MULT, gl_RETURN )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -225,11 +222,11 @@ colorMask =
 -- | 'colorMaski' is a version of 'colorMask' that only applies to the specified drawbuffer
 colorMaski :: DrawBufferIndex -> StateVar (Color4 Capability)
 colorMaski x = makeStateVar
-      (getBoolean4i x (\r g b a -> Color4 (unmarshalCapability r)
+      (getBoolean4i (\r g b a -> Color4 (unmarshalCapability r)
                                        (unmarshalCapability g)
                                        (unmarshalCapability b)
                                        (unmarshalCapability a))
-                                      GetColorWritemask)
+                    GetColorWritemask x)
       (\(Color4 r g b a) -> glColorMaski (x) (marshalCapability r)
                                         (marshalCapability g)
                                         (marshalCapability b)
@@ -274,7 +271,7 @@ data ClearBuffer =
    deriving ( Eq, Ord, Show )
 
 marshalClearBuffer :: ClearBuffer -> GLbitfield
-marshalClearBuffer x = fromIntegral $ case x of
+marshalClearBuffer x = case x of
    ColorBuffer -> gl_COLOR_BUFFER_BIT
    AccumBuffer -> gl_ACCUM_BUFFER_BIT
    StencilBuffer -> gl_STENCIL_BUFFER_BIT

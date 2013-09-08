@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Colors
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -44,31 +44,20 @@ module Graphics.Rendering.OpenGL.GL.Colors (
 ) where
 
 import Control.Monad
-import Data.StateVar
-import Data.Tensor
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glColorMaterial, glGetLightfv, glGetMaterialfv, glGetMaterialiv,
-   glLightModelfv, glLightModeli, glLightfv, glMaterialfv, glMaterialiv,
-   glShadeModel, gl_AMBIENT, gl_AMBIENT_AND_DIFFUSE, gl_COLOR_INDEXES,
-   gl_CONSTANT_ATTENUATION, gl_DIFFUSE, gl_EMISSION, gl_FLAT,
-   gl_LIGHT_MODEL_AMBIENT, gl_LIGHT_MODEL_COLOR_CONTROL,
-   gl_LIGHT_MODEL_LOCAL_VIEWER, gl_LIGHT_MODEL_TWO_SIDE, gl_LINEAR_ATTENUATION,
-   gl_POSITION, gl_QUADRATIC_ATTENUATION, gl_SEPARATE_SPECULAR_COLOR,
-   gl_SHININESS, gl_SINGLE_COLOR, gl_SMOOTH, gl_SPECULAR, gl_SPOT_CUTOFF,
-   gl_SPOT_DIRECTION, gl_SPOT_EXPONENT,
-   gl_CLAMP_FRAGMENT_COLOR, gl_CLAMP_VERTEX_COLOR )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -364,7 +353,7 @@ lightModelLocalViewer :: StateVar Capability
 lightModelLocalViewer =
    makeLightModelCapVar GetLightModelLocalViewer LightModelLocalViewer
 
-makeLightModelCapVar :: GetPName -> LightModelParameter -> StateVar Capability
+makeLightModelCapVar :: PName1I -> LightModelParameter -> StateVar Capability
 makeLightModelCapVar pname lightModelParameter =
    makeStateVar
       (getBoolean1 unmarshalCapability pname)
@@ -485,7 +474,7 @@ marshalClampTarget x = case x of
    ClampFragmentColor -> gl_CLAMP_FRAGMENT_COLOR
    ClampReadColor -> gl_CLAMP_READ_COLOR
 
-marshalClampTargetToPName :: ClampTarget -> GetPName
+marshalClampTargetToPName :: ClampTarget -> PName1I
 marshalClampTargetToPName x = case x of
    ClampFragmentColor -> GetFragmentColorClamp
    ClampVertexColor -> GetVertexColorClamp

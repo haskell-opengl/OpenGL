@@ -1,10 +1,10 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -14,14 +14,25 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL (
-   -- * OpenGL Operation
-   module Graphics.Rendering.OpenGL.Raw.Core31,
+   -- * OpenGL Fundamentals
+   module Graphics.Rendering.OpenGL.Raw.Core31.Types,
+   module Graphics.Rendering.OpenGL.GL.FlushFinish,
+   module Graphics.Rendering.OpenGL.GL.ObjectName,
+
+   -- * Event Model
+   module Graphics.Rendering.OpenGL.GL.SyncObjects,
+   module Graphics.Rendering.OpenGL.GL.QueryObjects,
+
+   -- * Vertex Specification and Drawing Commands
    module Graphics.Rendering.OpenGL.GL.BeginEnd,
+   module Graphics.Rendering.OpenGL.GL.Rectangles,
+   module Graphics.Rendering.OpenGL.GL.ConditionalRendering,
+
+   -- * OpenGL Operation
    module Graphics.Rendering.OpenGL.GL.VertexSpec,
    module Graphics.Rendering.OpenGL.GL.VertexArrays,
    module Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
    module Graphics.Rendering.OpenGL.GL.BufferObjects,
-   module Graphics.Rendering.OpenGL.GL.Rectangles,
    module Graphics.Rendering.OpenGL.GL.CoordTrans,
    module Graphics.Rendering.OpenGL.GL.Clipping,
    module Graphics.Rendering.OpenGL.GL.RasterPos,
@@ -50,30 +61,32 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Selection,
    module Graphics.Rendering.OpenGL.GL.Feedback,
    module Graphics.Rendering.OpenGL.GL.DisplayLists,
-   module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Graphics.Rendering.OpenGL.GL.Hints,
    module Graphics.Rendering.OpenGL.GL.PixellikeObject,
    module Graphics.Rendering.OpenGL.GL.TransformFeedback,
--- is exported through PerFragment for backwards compatibility reasons
---   module Graphics.Rendering.OpenGL.GL.QueryObjects,
 
    -- * State and State Requests
-   module Data.StateVar,
-   module Data.Tensor,
+   module Graphics.Rendering.OpenGL.GL.StateVar,
+   module Graphics.Rendering.OpenGL.GL.Tensor,
    module Graphics.Rendering.OpenGL.GL.StringQueries,
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31 (
-   GLbitfield,  GLboolean,  GLbyte,  GLchar,  GLclampd,  GLclampf,  GLdouble,
-   GLenum,  GLfloat,  GLhalf,  GLint,  GLintptr,  GLshort,  GLsizei,
-   GLsizeiptr,  GLubyte,  GLuint,  GLushort )
+import Graphics.Rendering.OpenGL.Raw.Core31.Types
+import Graphics.Rendering.OpenGL.GL.FlushFinish
+import Graphics.Rendering.OpenGL.GL.ObjectName
+
+import Graphics.Rendering.OpenGL.GL.SyncObjects
+import Graphics.Rendering.OpenGL.GL.QueryObjects
+
 import Graphics.Rendering.OpenGL.GL.BeginEnd
+import Graphics.Rendering.OpenGL.GL.Rectangles
+import Graphics.Rendering.OpenGL.GL.ConditionalRendering
+
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GL.VertexArrayObjects
 import Graphics.Rendering.OpenGL.GL.BufferObjects
-import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Clipping
 import Graphics.Rendering.OpenGL.GL.RasterPos
@@ -99,14 +112,11 @@ import Graphics.Rendering.OpenGL.GL.Evaluators
 import Graphics.Rendering.OpenGL.GL.Selection
 import Graphics.Rendering.OpenGL.GL.Feedback
 import Graphics.Rendering.OpenGL.GL.DisplayLists
-import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.Hints
 import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
--- is exported through PerFragment for backwards compatibility reasons
---import Graphics.Rendering.OpenGL.GL.QueryObjects
 
-import Data.StateVar
-import Data.Tensor
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.StringQueries
 import Graphics.Rendering.OpenGL.GL.SavingState

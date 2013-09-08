@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.CoordTrans
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -12,6 +12,8 @@
 -- OpenGL 2.1 specs.
 --
 --------------------------------------------------------------------------------
+
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Graphics.Rendering.OpenGL.GL.CoordTrans (
    -- * Controlling the Viewport
@@ -21,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    -- * Matrices
    MatrixMode(..), matrixMode,
    MatrixOrder(..), MatrixComponent(rotate,translate,scale), Matrix(..),
-   currentMatrix, matrix, multMatrix, GLmatrix, loadIdentity,
+   matrix, multMatrix, GLmatrix, loadIdentity,
    ortho, frustum, depthClamp,
    activeTexture,
    preservingMatrix, unsafePreservingMatrix,
@@ -34,31 +36,21 @@ module Graphics.Rendering.OpenGL.GL.CoordTrans (
    Plane(..), TextureCoordName(..), TextureGenMode(..), textureGenMode
 ) where
 
-import Data.StateVar
-import Data.Tensor
 import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glFrustum, glGetTexGendv, glGetTexGeniv, glLoadIdentity, glLoadMatrixd,
-   glLoadMatrixf, glLoadTransposeMatrixd, glLoadTransposeMatrixf, glMatrixMode,
-   glMultMatrixd, glMultMatrixf, glMultTransposeMatrixd, glMultTransposeMatrixf,
-   glOrtho, glPopMatrix, glPushMatrix, glRotated, glRotatef, glScaled, glScalef,
-   glTexGendv, glTexGeni, glTranslated, glTranslatef, gl_EYE_LINEAR,
-   gl_EYE_PLANE, gl_NORMAL_MAP, gl_OBJECT_LINEAR, gl_OBJECT_PLANE,
-   gl_PROJECTION, gl_Q, gl_R, gl_REFLECTION_MAP, gl_S, gl_SPHERE_MAP, gl_T,
-   gl_TEXTURE_GEN_MODE )
-import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette ( gl_MATRIX_PALETTE )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -147,7 +139,7 @@ unmarshalMatrixMode x
            Just i -> Modelview i
            Nothing -> error ("unmarshalMatrixMode: illegal value " ++ show x)
 
-matrixModeToGetMatrix :: MatrixMode -> GetPName
+matrixModeToGetMatrix :: MatrixMode -> PNameMatrix
 matrixModeToGetMatrix x = case x of
    Modelview _   -> GetModelviewMatrix -- ???
    Projection    -> GetProjectionMatrix
@@ -155,7 +147,7 @@ matrixModeToGetMatrix x = case x of
    Color         -> GetColorMatrix
    MatrixPalette -> GetMatrixPalette
 
-matrixModeToGetStackDepth :: MatrixMode -> GetPName
+matrixModeToGetStackDepth :: MatrixMode -> PName1I
 matrixModeToGetStackDepth x =  case x of
    Modelview _   -> GetModelviewStackDepth
    Projection    -> GetProjectionStackDepth
@@ -163,7 +155,7 @@ matrixModeToGetStackDepth x =  case x of
    Color         -> GetColorMatrixStackDepth
    MatrixPalette -> error "matrixModeToGetStackDepth: impossible"
 
-matrixModeToGetMaxStackDepth :: MatrixMode -> GetPName
+matrixModeToGetMaxStackDepth :: MatrixMode -> PName1I
 matrixModeToGetMaxStackDepth x = case x of
    Modelview _    -> GetMaxModelviewStackDepth
    Projection     -> GetMaxProjectionStackDepth
@@ -189,7 +181,7 @@ data MatrixOrder = ColumnMajor | RowMajor
 --------------------------------------------------------------------------------
 
 class Storable c => MatrixComponent c where
-   getMatrix :: GetPName -> Ptr c -> IO ()
+   getMatrix :: GetPNameMatrix p => p -> Ptr c -> IO ()
    loadMatrix :: Ptr c -> IO ()
    loadTransposeMatrix :: Ptr c -> IO ()
    multMatrix_ :: Ptr c -> IO ()
@@ -199,7 +191,7 @@ class Storable c => MatrixComponent c where
    scale :: c -> c -> c -> IO ()
 
 instance MatrixComponent GLfloat where
-   getMatrix = getFloatv
+   getMatrix = getMatrixf
    loadMatrix = glLoadMatrixf
    loadTransposeMatrix = glLoadTransposeMatrixf
    multMatrix_ = glMultMatrixf
@@ -209,7 +201,7 @@ instance MatrixComponent GLfloat where
    scale = glScalef
 
 instance MatrixComponent GLdouble where
-   getMatrix = getDoublev
+   getMatrix = getMatrixd
    loadMatrix = glLoadMatrixd
    loadTransposeMatrix = glLoadTransposeMatrixd
    multMatrix_ = glMultMatrixd
@@ -258,10 +250,6 @@ class Matrix m where
 
 --------------------------------------------------------------------------------
 
-{-# DEPRECATED currentMatrix "use `matrix' instead" #-}
-currentMatrix :: (Matrix m, MatrixComponent c) => StateVar (m c)
-currentMatrix = matrix Nothing
-
 matrix :: (Matrix m, MatrixComponent c) => Maybe MatrixMode -> StateVar (m c)
 matrix maybeMode =
    makeStateVar
@@ -274,7 +262,7 @@ withMatrixMode mode act =
       matrixMode $= mode
       act
 
-getMatrix' :: (Matrix m, MatrixComponent c) => GetPName -> IO (m c)
+getMatrix' :: (Matrix m, MatrixComponent c) => PNameMatrix -> IO (m c)
 getMatrix' = withNewMatrix ColumnMajor . getMatrix
 
 setMatrix :: (Matrix m, MatrixComponent c) => m c -> IO ()

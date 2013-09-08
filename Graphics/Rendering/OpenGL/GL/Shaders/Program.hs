@@ -1,46 +1,32 @@
------------------------------------------------------------------------------
+{-# OPTIONS_HADDOCK hide #-}
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Program
--- Copyright   :
+-- Copyright   :  (c) Sven Panne 2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
--- This module correspons with section 2.20.2 (Program Objects) of the OpenGL
--- 3.1 spec.
+-- This is a purely internal module for handling program objects and related
+-- queries.
 --
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Program (
-
-   -- * Program Objects
-   Program(..), programDeleteStatus, attachedShaders, linkProgram, linkStatus,
-   programInfoLog, validateProgram, validateStatus, currentProgram,
-
-   bindFragDataLocation, getFragDataLocation,
-
-   -- * internals
-   GetProgramPName(..), programVar, getCurrentProgram
+   Program(..),
+   GetProgramPName(..), marshalGetProgramPName,
+   programVar1, programVar3
 ) where
 
-import Control.Monad
-import Data.List
-import Data.Maybe (fromMaybe)
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
 import Foreign.Ptr
-import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.GLstring
+import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
-
-import Graphics.Rendering.OpenGL.GL.Shaders.Shaders
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -48,90 +34,8 @@ newtype Program = Program { programID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName Program where
-   genObjectNames n = replicateM n $ fmap Program glCreateProgram
-   deleteObjectNames = mapM_ (glDeleteProgram . programID)
    isObjectName = fmap unmarshalGLboolean . glIsProgram . programID
-
---------------------------------------------------------------------------------
-
-attachedShaders :: Program -> StateVar ([VertexShader],[FragmentShader])
-attachedShaders program =
-   makeStateVar (getAttachedShaders program) (setAttachedShaders program)
-
-getAttachedShaders :: Program -> IO ([VertexShader],[FragmentShader])
-getAttachedShaders program = getAttachedShaderIDs program >>= splitShaderIDs
-
-getAttachedShaderIDs :: Program -> IO [GLuint]
-getAttachedShaderIDs program = do
-   numShaders <- get (numAttachedShaders program)
-   allocaArray (fromIntegral numShaders) $ \buf -> do
-      glGetAttachedShaders (programID program) numShaders nullPtr buf
-      peekArray (fromIntegral numShaders) buf
-
-splitShaderIDs :: [GLuint] -> IO ([VertexShader],[FragmentShader])
-splitShaderIDs ids = do
-   (vs, fs) <- partitionM isVertexShaderID ids
-   return (map VertexShader vs, map FragmentShader fs)
-
-isVertexShaderID :: GLuint -> IO Bool
-isVertexShaderID x = do
-   t <- get (shaderTypeEnum (VertexShader x))
-   return $ t == shaderType (undefined :: VertexShader)
-
-partitionM :: (a -> IO Bool) -> [a] -> IO ([a],[a])
-partitionM p = foldM select ([],[])
-   where select (ts, fs) x = do
-            b <- p x
-            return $ if b then (x:ts, fs) else (ts, x:fs)
-
-setAttachedShaders :: Program -> ([VertexShader],[FragmentShader]) -> IO ()
-setAttachedShaders p@(Program program) (vs, fs) = do
-   currentIDs <- getAttachedShaderIDs p
-   let newIDs = map shaderID vs ++ map shaderID fs
-   mapM_ (glAttachShader program) (newIDs \\ currentIDs)
-   mapM_ (glDetachShader program) (currentIDs \\ newIDs)
-
---------------------------------------------------------------------------------
-
-linkProgram :: Program -> IO ()
-linkProgram (Program program) = glLinkProgram program
-
-currentProgram :: StateVar (Maybe Program)
-currentProgram =
-   makeStateVar
-      (do p <- getCurrentProgram
-          return $ if p == noProgram then Nothing else Just p)
-      ((\(Program p) -> glUseProgram p) . fromMaybe noProgram)
-
-getCurrentProgram :: IO Program
-getCurrentProgram = fmap Program $ getInteger1 fromIntegral GetCurrentProgram
-
-noProgram :: Program
-noProgram = Program 0
-
-validateProgram :: Program -> IO ()
-validateProgram (Program program) = glValidateProgram program
-
-programInfoLog :: Program -> GettableStateVar String
-programInfoLog p =
-   stringQuery (programInfoLogLength p) (glGetProgramInfoLog (programID p))
-
---------------------------------------------------------------------------------
-
-programDeleteStatus :: Program -> GettableStateVar Bool
-programDeleteStatus = programVar unmarshalGLboolean ProgramDeleteStatus
-
-linkStatus :: Program -> GettableStateVar Bool
-linkStatus = programVar unmarshalGLboolean LinkStatus
-
-validateStatus :: Program -> GettableStateVar Bool
-validateStatus = programVar unmarshalGLboolean ValidateStatus
-
-programInfoLogLength :: Program -> GettableStateVar GLsizei
-programInfoLogLength = programVar fromIntegral ProgramInfoLogLength
-
-numAttachedShaders :: Program -> GettableStateVar GLsizei
-numAttachedShaders = programVar fromIntegral AttachedShaders
+   deleteObjectName = glDeleteProgram . programID
 
 --------------------------------------------------------------------------------
 
@@ -148,6 +52,22 @@ data GetProgramPName =
    | TransformFeedbackBufferMode
    | TransformFeedbackVaryings
    | TransformFeedbackVaryingMaxLength
+   | ActiveUniformBlocks
+   | ActiveUniformBlockMaxNameLength
+   | GeometryVerticesOut
+   | GeometryInputType
+   | GeometryOutputType
+   | GeometryShaderInvocations
+   | TessControlOutputVertices
+   | TessGenMode
+   | TessGenSpacing
+   | TessGenVertexOrder
+   | TessGenPointMode
+   | ComputeLocalWorkSize  -- 3 integers!
+   | ProgramSeparable
+   | ProgramBinaryRetrievableHint
+   | ActiveAtomicCounterBuffers
+   | ProgramBinaryLength
 
 marshalGetProgramPName :: GetProgramPName -> GLenum
 marshalGetProgramPName x = case x of
@@ -163,35 +83,32 @@ marshalGetProgramPName x = case x of
    TransformFeedbackBufferMode -> gl_TRANSFORM_FEEDBACK_BUFFER_MODE
    TransformFeedbackVaryings -> gl_TRANSFORM_FEEDBACK_VARYINGS
    TransformFeedbackVaryingMaxLength -> gl_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH
+   ActiveUniformBlocks -> gl_ACTIVE_UNIFORM_BLOCKS
+   ActiveUniformBlockMaxNameLength -> gl_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH
+   GeometryVerticesOut -> gl_GEOMETRY_VERTICES_OUT
+   GeometryInputType -> gl_GEOMETRY_INPUT_TYPE
+   GeometryOutputType -> gl_GEOMETRY_OUTPUT_TYPE
+   GeometryShaderInvocations -> gl_GEOMETRY_SHADER_INVOCATIONS
+   TessControlOutputVertices -> gl_TESS_CONTROL_OUTPUT_VERTICES
+   TessGenMode -> gl_TESS_GEN_MODE
+   TessGenSpacing -> gl_TESS_GEN_SPACING
+   TessGenVertexOrder -> gl_TESS_GEN_VERTEX_ORDER
+   TessGenPointMode -> gl_TESS_GEN_POINT_MODE
+   ComputeLocalWorkSize -> gl_COMPUTE_LOCAL_WORK_SIZE
+   ProgramSeparable -> gl_PROGRAM_SEPARABLE
+   ProgramBinaryRetrievableHint -> gl_PROGRAM_BINARY_RETRIEVABLE_HINT
+   ActiveAtomicCounterBuffers -> gl_ACTIVE_ATOMIC_COUNTER_BUFFERS
+   ProgramBinaryLength -> gl_PROGRAM_BINARY_LENGTH
 
-programVar :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
-programVar f p program =
+programVar1 :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
+programVar1 = programVarN . peek1
+
+programVar3 :: (GLint -> GLint -> GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
+programVar3 = programVarN . peek3
+
+programVarN :: (Ptr GLint -> IO a) -> GetProgramPName -> Program -> GettableStateVar a
+programVarN f p program =
    makeGettableStateVar $
       alloca $ \buf -> do
          glGetProgramiv (programID program) (marshalGetProgramPName p) buf
-         peek1 f buf
-
---------------------------------------------------------------------------------
-
--- | 'bindFragDataLocation' binds a varying variable, specified by program and name, to a
--- drawbuffer. The effects only take place after succesfull linking of the program.
--- invalid arguments and conditions are
--- - an index larger than maxDrawBufferIndex
--- - names starting with 'gl_'
--- linking failure will ocure when
--- - one of the arguments was invalid
--- - more than one varying varuable name is bound to the same index
--- It's not an error to specify unused variables, those will be ingored.
-bindFragDataLocation :: Program -> String -> SettableStateVar DrawBufferIndex
-bindFragDataLocation (Program program) varName = makeSettableStateVar $ \ind ->
-   withGLString varName $ glBindFragDataLocation program ind
-
--- | query the binding of a given variable, specified by program and name. The program has to be
--- linked. The result is Nothing if an error occures or the name is not a name of a varying
--- variable. If the program hasn't been linked an 'InvalidOperation' error is generated.
-getFragDataLocation :: Program -> String -> IO (Maybe DrawBufferIndex)
-getFragDataLocation (Program program) varName = do
-   r <- withGLString varName $ glGetFragDataLocation program
-   if r < 0
-    then return Nothing
-    else return . Just $ fromIntegral r
+         f buf

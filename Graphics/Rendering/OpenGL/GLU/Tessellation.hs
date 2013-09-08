@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Tessellation
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -38,14 +38,13 @@ module Graphics.Rendering.OpenGL.GLU.Tessellation (
 import Control.Monad ( foldM_, unless )
 import Data.IORef ( newIORef, readIORef, writeIORef, modifyIORef )
 import Data.Maybe ( fromJust, fromMaybe )
-import Data.Tensor
 import Foreign.Marshal.Alloc ( allocaBytes )
 import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
 import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
@@ -55,6 +54,7 @@ import Graphics.Rendering.OpenGL.GL.BeginEnd (
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

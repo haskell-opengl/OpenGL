@@ -1,14 +1,12 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
--- Copyright   :
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2011-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
---
--- |
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
 -----------------------------------------------------------------------------
 
@@ -17,90 +15,21 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments (
 
    fboaToBufferMode, fboaFromBufferMode,
 
-   maxColorAttachments,
-
    FramebufferAttachment(..),
 
    framebufferRenderbuffer, framebufferTexture1D, framebufferTexture2D,
-   framebufferTexture3D, framebufferTextureLayer,
-
-   getFBAParameteriv,
+   framebufferTexture3D, framebufferTextureLayer
 ) where
 
-import Data.Maybe (fromMaybe)
-import Foreign.Marshal
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
-
-import Graphics.Rendering.OpenGL.GL.BufferMode
-import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.Texturing.Objects
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureObject
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
------------------------------------------------------------------------------
-
-data FramebufferObjectAttachment =
-     ColorAttachment !GLuint
-   | DepthAttachment
-   | StencilAttachment
-   | DepthStencilAttachment
-   deriving (Eq, Show)
-
-marshalFramebufferObjectAttachment :: FramebufferObjectAttachment -> Maybe GLenum
-marshalFramebufferObjectAttachment x = case x of
-   ColorAttachment c -> let ec = fromIntegral c in if ec >= maxColorAttachments
-      then Nothing
-      else Just $ gl_COLOR_ATTACHMENT0 + ec
-   DepthAttachment -> Just gl_DEPTH_ATTACHMENT
-   StencilAttachment -> Just gl_STENCIL_ATTACHMENT
-   DepthStencilAttachment -> Just gl_DEPTH_STENCIL_ATTACHMENT
-
-fboaToBufferMode :: FramebufferObjectAttachment -> Maybe BufferMode
-fboaToBufferMode (ColorAttachment i) = Just . FBOColorAttachment $ fromIntegral i
-fboaToBufferMode _                   = Nothing
-
-fboaFromBufferMode :: BufferMode -> Maybe FramebufferObjectAttachment
-fboaFromBufferMode (FBOColorAttachment i) = Just . ColorAttachment $ fromIntegral i
-fboaFromBufferMode _                      = Nothing
-
-unmarshalFramebufferObjectAttachment :: GLenum -> FramebufferObjectAttachment
-unmarshalFramebufferObjectAttachment x = maybe
-   (error $ "unmarshalFramebufferObjectAttachment: unknown enum value " ++ show x) id $
-      unmarshalFramebufferObjectAttachmentSafe x
---unmarshalFramebufferObjectAttachment x
---   | x == gl_DEPTH_ATTACHMENT = DepthAttachment
---   | x == gl_STENCIL_ATTACHMENT = StencilAttachment
---   | x == gl_DEPTH_STENCIL_ATTACHMENT = DepthStencilAttachment
---   | x >= gl_COLOR_ATTACHMENT0 && x <= gl_COLOR_ATTACHMENT15
---      = ColorAttachment . fromIntegral $ x - gl_COLOR_ATTACHMENT0
---   | otherwise = error $ "unmarshalFramebufferObjectAttachment: unknown enum value " ++ show x
-
-unmarshalFramebufferObjectAttachmentSafe :: GLenum -> Maybe FramebufferObjectAttachment
-unmarshalFramebufferObjectAttachmentSafe x
-   | x == gl_DEPTH_ATTACHMENT = Just DepthAttachment
-   | x == gl_STENCIL_ATTACHMENT = Just StencilAttachment
-   | x == gl_DEPTH_STENCIL_ATTACHMENT = Just DepthStencilAttachment
-   | x >= gl_COLOR_ATTACHMENT0 && x <= gl_COLOR_ATTACHMENT0 + maxColorAttachments
-      = Just . ColorAttachment . fromIntegral $ x - gl_COLOR_ATTACHMENT0
-   | otherwise = Nothing
-
------------------------------------------------------------------------------
-
-class Show a => FramebufferAttachment a where
-   marshalAttachment :: a -> Maybe GLenum
-   unmarshalAttachment :: GLenum -> a
-   unmarshalAttachmentSafe :: GLenum -> Maybe a
-instance FramebufferAttachment FramebufferObjectAttachment where
-   marshalAttachment = marshalFramebufferObjectAttachment
-   unmarshalAttachment = unmarshalFramebufferObjectAttachment
-   unmarshalAttachmentSafe = unmarshalFramebufferObjectAttachmentSafe
-instance FramebufferAttachment BufferMode where
-   marshalAttachment = marshalBufferMode
-   unmarshalAttachment = unmarshalBufferMode
-   unmarshalAttachmentSafe = unmarshalBufferModeSafe
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw
 
 -----------------------------------------------------------------------------
 
@@ -134,14 +63,3 @@ framebufferTextureLayer :: FramebufferTarget -> FramebufferObjectAttachment
 framebufferTextureLayer fbt fba (TextureObject t) le la = maybe recordInvalidValue
    (\mfba -> glFramebufferTextureLayer (marshalFramebufferTarget fbt)
       mfba t le la) $ marshalFramebufferObjectAttachment fba
-
-
------------------------------------------------------------------------------
-
-getFBAParameteriv :: FramebufferAttachment fba => FramebufferTarget -> fba
-    -> (GLint -> a) -> GLenum -> IO a
-getFBAParameteriv fbt fba f p = alloca $ \buf -> do
-   glGetFramebufferAttachmentParameteriv (marshalFramebufferTarget fbt)
-      mfba p buf
-   peek1 f buf
-      where mfba = fromMaybe (error $ "invalid value" ++ show fba) (marshalAttachment fba)

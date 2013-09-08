@@ -1,14 +1,13 @@
 -----------------------------------------------------------------------------
---
--- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects
--- Copyright   :
+-- |
+-- Copyright   :  (c) Sven Panne 2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
--- |
+-- Framebuffer objects.
 --
 -----------------------------------------------------------------------------
 
@@ -16,20 +15,11 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects (
    module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments,
    module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects,
    module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries,
-   module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects,
+   module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
 ) where
 
 
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
-    hiding (getFBAParameteriv)
--- import FramebufferObjects, hiding the constructor for FramebufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
-   hiding ( FramebufferObject, marshalFramebufferTarget )
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
-   (FramebufferObject)
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries
--- import RenderbufferObjects, hiding the constructor for RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
-   hiding ( RenderbufferObject, marshalRenderbufferTarget, getRBParameteriv )
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
-   (RenderbufferObject)

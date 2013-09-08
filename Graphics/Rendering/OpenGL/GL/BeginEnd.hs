@@ -1,15 +1,15 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.BeginEnd
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to section 2.6 (Begin\/End Paradigm) of the
--- OpenGL 2.1 specs.
+-- This module corresponds to section 10.8 (Drawing Commands Using Begin and
+-- End) of the OpenGL 4.4 specs.
 --
 --------------------------------------------------------------------------------
 
@@ -23,13 +23,12 @@ module Graphics.Rendering.OpenGL.GL.BeginEnd (
    edgeFlag
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.EdgeFlag
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glBegin, glEnd, glEdgeFlag )
-import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

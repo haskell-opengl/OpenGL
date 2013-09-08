@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.NURBS
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -31,14 +31,13 @@ module Graphics.Rendering.OpenGL.GLU.NURBS (
 ) where
 
 import Control.Monad
-import Data.Tensor
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.GLU.Raw hiding (
    NURBSBeginCallback, NURBSVertexCallback, NURBSNormalCallback,
    NURBSColorCallback, NURBSEndCallback )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ControlPoint
 import Graphics.Rendering.OpenGL.GL.CoordTrans
@@ -47,6 +46,7 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 -- chapter 7.1: The NURBS Object

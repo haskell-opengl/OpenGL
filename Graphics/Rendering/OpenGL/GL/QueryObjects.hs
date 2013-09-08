@@ -1,78 +1,86 @@
 -----------------------------------------------------------------------------
---
--- Module      :  Graphics.Rendering.OpenGL.GL.QueryObject
--- Copyright   :
+-- |
+-- Module      :  Graphics.Rendering.OpenGL.GL.QueryObjects
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2004-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
--- |
+-- This module corresponds to section 4.2 (Query Objects and Asynchronous
+-- Queries) of the OpenGL 4.4 specs.
 --
 -----------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.QueryObjects (
-QueryObject, QueryTarget(..), marshalQueryTarget,
+   -- * Creating and Delimiting Queries
+   QueryObject, QueryIndex, maxVertexStreams, QueryTarget(..),
+   beginQuery, endQuery, withQuery,
 
-beginQuery, endQuery, withQuery,
+   -- * Query Target Queries
+   currentQuery, queryCounterBits,
 
-queryCounterBits, currentQuery,
+   -- * Query Object Queries
+   queryResultAvailable, QueryResult, queryResult,
 
-queryResult, queryResultAvailable,
--- * Conditional rendering
-ConditionalRenderMode(..),
-
-beginConditionalRender, endConditionalRender, withConditionalRender
+   -- * Time Queries
+   timestampQuery, timestamp
 ) where
 
-import Data.ObjectName
-import Data.StateVar
 import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
+import Foreign.Ptr
+import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.Raw.Core31
-
-newtype QueryObject = QueryObject { queryID :: GLuint }
-   deriving ( Eq, Ord, Show )
+import Graphics.Rendering.OpenGL.GL.QueryObject
+import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
-instance ObjectName QueryObject where
-   genObjectNames n =
-      allocaArray n $ \buf -> do
-        glGenQueries (fromIntegral n) buf
-        fmap (map QueryObject) $ peekArray n buf
+type QueryIndex = GLuint
 
-   deleteObjectNames queryObjects =
-      withArrayLen (map queryID queryObjects) $
-         glDeleteQueries . fromIntegral
-
-   isObjectName = fmap unmarshalGLboolean . glIsQuery . queryID
+maxVertexStreams :: GettableStateVar QueryIndex
+maxVertexStreams =
+   makeGettableStateVar (getInteger1 fromIntegral GetMaxVertexStreams)
 
 --------------------------------------------------------------------------------
 
 data QueryTarget =
      SamplesPassed
-   | TransformFeedbackPrimitivesWritten
-   | PrimitivesGenerated
+   | AnySamplesPassed
+   | AnySamplesPassedConservative
+   | TimeElapsed
+   | PrimitivesGenerated QueryIndex
+   | TransformFeedbackPrimitivesWritten QueryIndex
    deriving ( Eq, Ord, Show )
 
-marshalQueryTarget :: QueryTarget -> GLenum
+marshalQueryTarget :: QueryTarget -> (GLenum, QueryIndex)
 marshalQueryTarget x = case x of
-   SamplesPassed -> gl_SAMPLES_PASSED
-   TransformFeedbackPrimitivesWritten -> gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN
-   PrimitivesGenerated -> gl_PRIMITIVES_GENERATED
+   SamplesPassed -> (gl_SAMPLES_PASSED, 0)
+   AnySamplesPassed -> (gl_ANY_SAMPLES_PASSED, 0)
+   AnySamplesPassedConservative -> (gl_ANY_SAMPLES_PASSED_CONSERVATIVE, 0)
+   TimeElapsed -> (gl_TIME_ELAPSED, 0)
+   PrimitivesGenerated n -> (gl_PRIMITIVES_GENERATED, n)
+   TransformFeedbackPrimitivesWritten n ->
+      (gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, n)
 
 --------------------------------------------------------------------------------
 
 beginQuery :: QueryTarget -> QueryObject -> IO ()
-beginQuery t = glBeginQuery (marshalQueryTarget t) . queryID
+beginQuery target = case marshalQueryTarget target of
+   (t, 0) -> glBeginQuery t . queryID
+   (t, n) -> glBeginQueryIndexed t n . queryID
 
 endQuery :: QueryTarget -> IO ()
-endQuery = glEndQuery . marshalQueryTarget
+endQuery target = case marshalQueryTarget target of
+   (t, 0) -> glEndQuery t
+   (t, n) -> glEndQueryIndexed t n
 
 -- | Convenience function for an exception-safe combination of 'beginQuery' and
 -- 'endQuery'.
@@ -92,75 +100,75 @@ marshalGetQueryPName x = case x of
 
 --------------------------------------------------------------------------------
 
+currentQuery :: QueryTarget -> GettableStateVar (Maybe QueryObject)
+currentQuery = getQueryi (toMaybeQueryObject . toQueryObject) CurrentQuery
+   where toQueryObject = QueryObject . fromIntegral
+         toMaybeQueryObject q = if q == noQueryObject then Nothing else Just q
+
 queryCounterBits :: QueryTarget -> GettableStateVar GLsizei
 queryCounterBits = getQueryi fromIntegral QueryCounterBits
-
-currentQuery :: QueryTarget -> GettableStateVar (Maybe QueryObject)
-currentQuery =
-   getQueryi
-      (\q -> if q == 0 then Nothing else Just (QueryObject (fromIntegral q)))
-      CurrentQuery
 
 getQueryi :: (GLint -> a) -> GetQueryPName -> QueryTarget -> GettableStateVar a
 getQueryi f p t =
    makeGettableStateVar $
       alloca $ \buf -> do
-         glGetQueryiv (marshalQueryTarget t) (marshalGetQueryPName p) buf
+         getQueryiv' t p buf
          peek1 f buf
+
+getQueryiv' :: QueryTarget -> GetQueryPName -> Ptr GLint -> IO ()
+getQueryiv' target = case marshalQueryTarget target of
+   (t, 0) -> glGetQueryiv t . marshalGetQueryPName
+   (t, n) -> glGetQueryIndexediv t n . marshalGetQueryPName
 
 --------------------------------------------------------------------------------
 
 data GetQueryObjectPName =
-     QueryResult
-   | QueryResultAvailable
+     QueryResultAvailable
+   | QueryResult
 
 marshalGetQueryObjectPName :: GetQueryObjectPName -> GLenum
 marshalGetQueryObjectPName x = case x of
-   QueryResult -> gl_QUERY_RESULT
    QueryResultAvailable -> gl_QUERY_RESULT_AVAILABLE
+   QueryResult -> gl_QUERY_RESULT
 
 --------------------------------------------------------------------------------
 
-queryResult :: QueryObject -> GettableStateVar GLuint
-queryResult = getQueryObjectui id QueryResult
-
 queryResultAvailable :: QueryObject -> GettableStateVar Bool
-queryResultAvailable = getQueryObjectui unmarshalGLboolean QueryResultAvailable
+queryResultAvailable =
+   getQueryObject (unmarshalGLboolean :: GLuint -> Bool) QueryResultAvailable
 
-getQueryObjectui ::
-   (GLuint -> a) -> GetQueryObjectPName -> QueryObject -> GettableStateVar a
-getQueryObjectui f p q =
+queryResult :: QueryResult a => QueryObject -> GettableStateVar a
+queryResult = getQueryObject id QueryResult
+
+class Storable a => QueryResult a where
+   getQueryObjectv :: GLuint -> GLenum -> Ptr a -> IO ()
+
+instance QueryResult GLint where getQueryObjectv = glGetQueryObjectiv
+instance QueryResult GLuint where getQueryObjectv = glGetQueryObjectuiv
+instance QueryResult GLint64 where getQueryObjectv = glGetQueryObjecti64v
+instance QueryResult GLuint64 where getQueryObjectv = glGetQueryObjectui64v
+
+getQueryObject :: (QueryResult a)
+               => (a -> b)
+               -> GetQueryObjectPName
+               -> QueryObject
+               -> GettableStateVar b
+getQueryObject f p q =
    makeGettableStateVar $
       alloca $ \buf -> do
-         glGetQueryObjectuiv (queryID q) (marshalGetQueryObjectPName p) buf
+         getQueryObjectv (queryID q) (marshalGetQueryObjectPName p) buf
          peek1 f buf
 
 --------------------------------------------------------------------------------
 
-data ConditionalRenderMode =
-     QueryWait
-   | QueryNoWait
-   | QueryByRegionWait
-   | QueryByRegionNoWait
+-- | Record the time after all previous commands on the GL client and server
+-- state and the framebuffer have been fully realized
 
-marshalConditionalRenderMode :: ConditionalRenderMode -> GLenum
-marshalConditionalRenderMode x = case x of
-   QueryWait -> gl_QUERY_WAIT
-   QueryNoWait -> gl_QUERY_NO_WAIT
-   QueryByRegionWait -> gl_QUERY_BY_REGION_WAIT
-   QueryByRegionNoWait -> gl_QUERY_BY_REGION_NO_WAIT
+timestampQuery :: QueryObject -> IO ()
+timestampQuery q = glQueryCounter (queryID q) gl_TIMESTAMP
 
---------------------------------------------------------------------------------
+-- | Contains the GL time after all previous commands have reached the GL server
+-- but have not yet necessarily executed.
 
-beginConditionalRender :: QueryObject -> ConditionalRenderMode -> IO ()
-beginConditionalRender q m = glBeginConditionalRender (queryID q) (marshalConditionalRenderMode m)
-
-endConditionalRender :: IO ()
-endConditionalRender = glEndConditionalRender
-
-withConditionalRender :: QueryObject -> ConditionalRenderMode -> IO a -> IO a
-withConditionalRender q m = bracket_ (beginConditionalRender q m) endConditionalRender
-
-
-
-
+timestamp :: GettableStateVar GLuint64
+timestamp = makeGettableStateVar (getInteger64 fromIntegral GetTimestamp)

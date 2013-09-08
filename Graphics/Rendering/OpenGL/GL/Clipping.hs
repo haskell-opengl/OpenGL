@@ -1,14 +1,15 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Clipping
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+--
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to section 2.12 (Clipping) of the OpenGL 2.1 specs.
+-- This module corresponds to section 13.5 (Primitive Clipping) of the OpenGL
+-- 4.4 specs.
 --
 --------------------------------------------------------------------------------
 
@@ -16,17 +17,16 @@ module Graphics.Rendering.OpenGL.GL.Clipping (
    ClipPlaneName(..), clipPlane, maxClipPlanes
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
+import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.CoordTrans
-import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( glClipPlane )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -36,17 +36,20 @@ newtype ClipPlaneName = ClipPlaneName GLsizei
 --------------------------------------------------------------------------------
 
 clipPlane :: ClipPlaneName -> StateVar (Maybe (Plane GLdouble))
-clipPlane (ClipPlaneName i) =
+clipPlane name =
    makeStateVarMaybe
-      (return (CapClipPlane i))
+      (return $ nameToCap name)
       (alloca $ \buf -> do
-          getDoublev (GetClipPlane i) (castPtr buf)
-          peek1 id (buf :: Ptr (Plane GLdouble)))
-      (\plane -> maybe recordInvalidEnum (with plane . glClipPlane_)
-                       (clipPlaneIndexToEnum i))
+          clipPlaneAction name $ flip glGetClipPlane $ castPtr buf
+          peek buf)
+      (\plane -> with plane $ clipPlaneAction name . flip glClipPlane . castPtr)
 
-glClipPlane_ :: GLenum -> Ptr (Plane GLdouble) -> IO ()
-glClipPlane_ plane ptr = glClipPlane plane (castPtr ptr)
+nameToCap :: ClipPlaneName -> EnableCap
+nameToCap (ClipPlaneName i) = CapClipPlane i
+
+clipPlaneAction :: ClipPlaneName -> (GLenum -> IO ()) -> IO ()
+clipPlaneAction (ClipPlaneName i) act =
+   maybe recordInvalidEnum act (clipPlaneIndexToEnum i)
 
 --------------------------------------------------------------------------------
 

@@ -1,11 +1,11 @@
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.DataType
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -18,9 +18,7 @@ module Graphics.Rendering.OpenGL.GL.DataType (
    DataTypeType(..), marshalDataTypeType, unmarshalDataTypeType
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_2_BYTES, gl_3_BYTES, gl_4_BYTES, gl_BITMAP )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -1,14 +1,14 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Limits
--- Copyright   :
+-- Copyright   :  (c) Sven Panne 2006-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
--- |
+-- This module contains functions related to shader limits.
 --
 -----------------------------------------------------------------------------
 
@@ -18,10 +18,11 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Limits (
    maxFragmentUniformComponents, maxVertexAttribs, maxVaryingFloats
 ) where
 
-import Data.StateVar
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
+-----------------------------------------------------------------------------
 
 -- | Contains the number of hardware units that can be used to access texture
 -- maps from the vertex processor. The minimum legal value is 0.
@@ -75,5 +76,5 @@ maxVertexAttribs = getLimit GetMaxVertexAttribs
 maxVaryingFloats :: GettableStateVar GLsizei
 maxVaryingFloats = getLimit GetMaxVaryingFloats
 
-getLimit :: GetPName -> GettableStateVar GLsizei
+getLimit :: PName1I -> GettableStateVar GLsizei
 getLimit = makeGettableStateVar . getSizei1 id

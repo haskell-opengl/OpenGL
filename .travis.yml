@@ -1,0 +1,21 @@
+language: haskell
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq haskell-platform-doc
+  - ghc-pkg list
+  - pushd ..
+  - git clone --depth=100 --quiet https://github.com/haskell-opengl/OpenGLRaw.git
+  - cd OpenGLRaw
+  - git checkout
+  - cabal install --enable-documentation
+  - popd
+  - ghc-pkg list
+  - pushd ..
+  - git clone --depth=100 --quiet https://github.com/haskell-opengl/GLURaw.git
+  - cd GLURaw
+  - git checkout
+  - cabal install --enable-documentation
+  - popd
+  - ghc-pkg list
+script:
+  - cabal install --enable-documentation

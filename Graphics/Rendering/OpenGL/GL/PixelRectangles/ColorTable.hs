@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -21,7 +21,6 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (
    colorTableRGBASizes, colorTableLuminanceSize, colorTableIntesitySize,
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
@@ -30,23 +29,11 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glColorSubTable, glColorTable, glColorTableParameterfv, glCopyColorSubTable,
-   glCopyColorTable, glGetColorTable, glGetColorTableParameterfv,
-   glGetColorTableParameteriv, gl_COLOR_TABLE, gl_COLOR_TABLE_ALPHA_SIZE,
-   gl_COLOR_TABLE_BIAS, gl_COLOR_TABLE_BLUE_SIZE, gl_COLOR_TABLE_FORMAT,
-   gl_COLOR_TABLE_GREEN_SIZE, gl_COLOR_TABLE_INTENSITY_SIZE,
-   gl_COLOR_TABLE_LUMINANCE_SIZE, gl_COLOR_TABLE_RED_SIZE, gl_COLOR_TABLE_SCALE,
-   gl_COLOR_TABLE_WIDTH, gl_POST_COLOR_MATRIX_COLOR_TABLE,
-   gl_POST_CONVOLUTION_COLOR_TABLE, gl_PROXY_COLOR_TABLE,
-   gl_PROXY_POST_COLOR_MATRIX_COLOR_TABLE,
-   gl_PROXY_POST_CONVOLUTION_COLOR_TABLE )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.SharedTexturePalette (
-   gl_SHARED_TEXTURE_PALETTE )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

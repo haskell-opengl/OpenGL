@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -fno-cse #-}
 
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.ErrorsInternal
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -21,13 +21,12 @@ module Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordInvalidEnum, recordInvalidValue, recordOutOfMemory
 ) where
 
-import Foreign.Ptr ( castPtr )
-import Foreign.C.String ( peekCString )
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
-import System.IO.Unsafe ( unsafePerformIO )
+import Foreign.C.String ( peekCString )
+import Foreign.Ptr ( castPtr )
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
+import System.IO.Unsafe ( unsafePerformIO )
 
 --------------------------------------------------------------------------------
 
@@ -148,6 +147,7 @@ getErrors = do
 
 recordErrorCode :: GLenum -> IO ()
 recordErrorCode e = do
+   -- We don't need the return value because this calls setRecordedErrors
    _ <- getErrorCodesAux (\es -> (if null es then [e] else [], False))
    return ()
 

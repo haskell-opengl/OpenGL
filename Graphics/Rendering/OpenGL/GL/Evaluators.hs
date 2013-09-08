@@ -1,10 +1,11 @@
+{-# LANGUAGE KindSignatures #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Evaluators
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -45,7 +46,6 @@ module Graphics.Rendering.OpenGL.GL.Evaluators (
 
 import Control.Monad
 import Data.List
-import Data.StateVar
 import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
@@ -57,11 +57,9 @@ import Graphics.Rendering.OpenGL.GL.Domain
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PolygonMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexArrays
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glEvalMesh1, glEvalMesh2, glEvalPoint1, glEvalPoint2, glGetMapiv, gl_COEFF,
-   gl_DOMAIN, gl_ORDER )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -72,7 +70,7 @@ maxOrder = makeGettableStateVar (getInteger1 id GetMaxEvalOrder)
 
 --------------------------------------------------------------------------------
 
-data Domain d => MapDescriptor d =
+data MapDescriptor d =
    MapDescriptor (d, d) Stride Order NumComponents
    deriving ( Eq, Ord, Show )
 
@@ -166,7 +164,7 @@ class Map1 m where
 
 --------------------------------------------------------------------------------
 
-data (ControlPoint c, Domain d) => GLmap1 c d =
+data GLmap1 (c :: * -> *) d =
    GLmap1 (MapDescriptor d) (ForeignPtr d)
    deriving ( Eq, Ord, Show )
 
@@ -266,7 +264,7 @@ class Map2 m where
 
 --------------------------------------------------------------------------------
 
-data (ControlPoint c, Domain d) => GLmap2 c d =
+data GLmap2 (c :: * -> *) d =
    GLmap2 (MapDescriptor d)  (MapDescriptor d) (ForeignPtr d)
    deriving ( Eq, Ord, Show )
 

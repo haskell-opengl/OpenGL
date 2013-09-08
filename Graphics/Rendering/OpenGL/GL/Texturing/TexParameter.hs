@@ -1,11 +1,11 @@
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
---
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+-- 
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -19,23 +19,16 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
 ) where
 
 import Control.Monad
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_DEPTH_TEXTURE_MODE, gl_GENERATE_MIPMAP, gl_TEXTURE_PRIORITY,
-   gl_TEXTURE_RESIDENT )
-import Graphics.Rendering.OpenGL.Raw.ARB.ShadowAmbient (
-   gl_TEXTURE_COMPARE_FAIL_VALUE )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.TextureFilterAnisotropic (
-   gl_TEXTURE_MAX_ANISOTROPY )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.StringQueries
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -15,16 +15,16 @@
 
 module Graphics.Rendering.OpenGL.GL.StringQueries (
    vendor, renderer, glVersion, glExtensions, shadingLanguageVersion,
-   majorMinor, contextProfile
+   majorMinor, ContextProfile'(..), contextProfile
 ) where
 
 import Data.Bits
 import Data.Char
-import Data.StateVar
 import Foreign.C.String
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core32
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -50,18 +50,18 @@ data ContextProfile'
    | CompatibilityProfile'
    deriving ( Eq, Ord, Show )
 
-marshalContextProfile' :: ContextProfile' -> GLenum
+marshalContextProfile' :: ContextProfile' -> GLbitfield
 marshalContextProfile' x = case x of
    CoreProfile' -> gl_CONTEXT_CORE_PROFILE_BIT
    CompatibilityProfile' -> gl_CONTEXT_COMPATIBILITY_PROFILE_BIT
 
 contextProfile :: GettableStateVar [ContextProfile']
-contextProfile = makeGettableStateVar (getEnum1 i2cps GetContextProfileMask)
+contextProfile = makeGettableStateVar (getInteger1 i2cps GetContextProfileMask)
 
-i2cps :: GLenum -> [ContextProfile']
+i2cps :: GLint -> [ContextProfile']
 i2cps bitfield =
    [ c | c <- [ CoreProfile', CompatibilityProfile' ]
-       , (bitfield .&. marshalContextProfile' c) /= 0 ]
+       , (fromIntegral bitfield .&. marshalContextProfile' c) /= 0 ]
 
 --------------------------------------------------------------------------------
 

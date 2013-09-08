@@ -1,33 +1,33 @@
+{-# OPTIONS_HADDOCK hide #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Variables
--- Copyright   :
+-- Copyright   :  (c) Sven Panne 2006-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
--- This internal module contains the functions and datatypes used by the
+-- This internal module contains the functions and data types used by the
 -- Uniform and Attribs modules.
 --
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Variables (
-    VariableType(..), activeVars,
+    VariableType(..), activeVars
 ) where
 
-import Graphics.Rendering.OpenGL.GL.GLstring
-
 import Control.Monad
-import Data.StateVar
 import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.Raw.Core31
-
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
+
+--------------------------------------------------------------------------------
 
 -- Table 2.9 of the OpenGL 3.1 spec: OpenGL Shading Language type tokens
 data VariableType =
@@ -147,14 +147,14 @@ activeVars numVars maxLength getter p@(Program program) =
    makeGettableStateVar $ do
       numActiveVars <- get (numVars p)
       maxLen <- get (maxLength p)
-      allocaArray (fromIntegral maxLen) $ \nameBuf ->
-         alloca $ \nameLengthBuf ->
-            alloca $ \sizeBuf ->
-               alloca $ \typeBuf ->
-                  forM [0 .. numActiveVars - 1] $ \i -> do
-                    getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
-                    l <- peek nameLengthBuf
-                    s <- peek sizeBuf
-                    t <- peek typeBuf
-                    n <- peekGLstringLen (nameBuf, l)
-                    return (s, unmarshalVariableType t, n)
+      alloca $ \nameLengthBuf ->
+         alloca $ \sizeBuf ->
+            alloca $ \typeBuf ->
+               let ixs = if numActiveVars > 0 then [0 .. numActiveVars-1] else []
+               in forM ixs $ \i -> do
+                  n <- createAndTrimByteString maxLen $ \nameBuf -> do
+                     getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
+                     peek nameLengthBuf
+                  s <- peek sizeBuf
+                  t <- peek typeBuf
+                  return (s, unmarshalVariableType t, unpackUtf8 n)

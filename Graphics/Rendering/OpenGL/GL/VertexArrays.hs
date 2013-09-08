@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.VertexArrays
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -35,7 +35,6 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    vertexAttribPointer, vertexAttribArray,
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
@@ -44,29 +43,11 @@ import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glArrayElement, glClientActiveTexture, glColorPointer, glDisableClientState,
-   glEdgeFlagPointer, glEnableClientState, glFogCoordPointer, glIndexPointer,
-   glInterleavedArrays, glNormalPointer, glSecondaryColorPointer,
-   glTexCoordPointer, glVertexPointer, gl_C3F_V3F, gl_C4F_N3F_V3F, gl_C4UB_V2F,
-   gl_C4UB_V3F, gl_COLOR_ARRAY, gl_COLOR_ARRAY_POINTER, gl_EDGE_FLAG_ARRAY,
-   gl_EDGE_FLAG_ARRAY_POINTER, gl_FEEDBACK_BUFFER_POINTER, gl_FOG_COORD_ARRAY,
-   gl_FOG_COORD_ARRAY_POINTER, gl_INDEX_ARRAY, gl_INDEX_ARRAY_POINTER,
-   gl_N3F_V3F, gl_NORMAL_ARRAY, gl_NORMAL_ARRAY_POINTER,
-   gl_SECONDARY_COLOR_ARRAY, gl_SECONDARY_COLOR_ARRAY_POINTER,
-   gl_SELECTION_BUFFER_POINTER, gl_T2F_C3F_V3F, gl_T2F_C4F_N3F_V3F,
-   gl_T2F_C4UB_V3F, gl_T2F_N3F_V3F, gl_T2F_V3F, gl_T4F_C4F_N3F_V4F, gl_T4F_V4F,
-   gl_TEXTURE_COORD_ARRAY, gl_TEXTURE_COORD_ARRAY_POINTER, gl_V2F, gl_V3F,
-   gl_VERTEX_ARRAY, gl_VERTEX_ARRAY_POINTER )
-import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette (
-   gl_MATRIX_INDEX_ARRAY, gl_MATRIX_INDEX_ARRAY_POINTER )
-import Graphics.Rendering.OpenGL.Raw.ARB.VertexBlend ( gl_WEIGHT_ARRAY_POINTER )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray
-import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

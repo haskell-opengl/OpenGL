@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Feedback
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -18,20 +18,15 @@ module Graphics.Rendering.OpenGL.GL.Feedback (
 ) where
 
 import Control.Monad
-import Data.StateVar
-import Data.Tensor
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.IOState
 import Graphics.Rendering.OpenGL.GL.RenderMode
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glFeedbackBuffer, glPassThrough, gl_2D, gl_3D, gl_3D_COLOR,
-   gl_3D_COLOR_TEXTURE, gl_4D_COLOR_TEXTURE, gl_BITMAP_TOKEN,
-   gl_COPY_PIXEL_TOKEN, gl_DRAW_PIXEL_TOKEN, gl_LINE_RESET_TOKEN, gl_LINE_TOKEN,
-   gl_PASS_THROUGH_TOKEN, gl_POINT_TOKEN, gl_POLYGON_TOKEN )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

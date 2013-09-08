@@ -1,11 +1,11 @@
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.IOState
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -19,7 +19,6 @@ module Graphics.Rendering.OpenGL.GL.IOState (
 ) where
 
 import Control.Monad(replicateM)
-
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf,peek) )
 

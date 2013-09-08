@@ -1,14 +1,12 @@
 -----------------------------------------------------------------------------
---
+-- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixellikeObject
--- Copyright   :
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2011-2013
 -- License     :  BSD3
 --
--- Maintainer  :  Sven Panne <sven.panne@aedion.de>
--- Stability   :
--- Portability :
---
--- |
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
+-- Stability   :  stable
+-- Portability :  portable
 --
 -----------------------------------------------------------------------------
 
@@ -17,17 +15,17 @@ module Graphics.Rendering.OpenGL.GL.PixellikeObject (
   PixellikeObjectTarget(pixellikeObjTarParam),
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.Raw.Core31
-
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
+import Graphics.Rendering.OpenGL.Raw
 
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
-import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
+-----------------------------------------------------------------------------
 
 data PixellikeObjectGetPName =
      RedSize

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Polygons
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -20,7 +20,6 @@ module Graphics.Rendering.OpenGL.GL.Polygons (
 ) where
 
 import Control.Monad
-import Data.StateVar
 import Foreign.ForeignPtr
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -30,9 +29,8 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.PolygonMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.SavingState
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glPolygonStipple, glGetPolygonStipple )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -115,9 +113,11 @@ getPolygonMode = getInteger2 (\front back -> (un front, un back)) GetPolygonMode
    where un = unmarshalPolygonMode . fromIntegral
 
 setPolygonMode :: (PolygonMode, PolygonMode) -> IO ()
-setPolygonMode (front, back) = do
-   glPolygonMode (marshalFace Front) (marshalPolygonMode front)
-   glPolygonMode (marshalFace Back ) (marshalPolygonMode back )
+setPolygonMode (front, back)
+   -- OpenGL 3 deprecated separate polygon draw modes, so try to avoid them.
+   | front == back = setPM FrontAndBack front
+   | otherwise = do setPM Front front; setPM Back back
+   where setPM f m = glPolygonMode (marshalFace f) (marshalPolygonMode m)
 
 --------------------------------------------------------------------------------
 

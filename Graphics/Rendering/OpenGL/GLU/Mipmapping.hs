@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Mipmapping
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -17,13 +17,13 @@ module Graphics.Rendering.OpenGL.GLU.Mipmapping (
 ) where
 
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    PixelInternalFormat, marshalPixelInternalFormat )
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 -- Section 3.1 (Image Scaling)

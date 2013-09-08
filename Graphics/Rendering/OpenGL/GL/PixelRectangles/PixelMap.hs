@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+--
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -13,26 +13,22 @@
 --
 --------------------------------------------------------------------------------
 
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap (
    PixelMapTarget(..), PixelMapComponent, PixelMap(..), GLpixelmap,
    maxPixelMapTable, pixelMap, pixelMapIToRGBA, pixelMapRGBAToRGBA,
 ) where
 
 import Data.List
-import Data.StateVar
 import Foreign.ForeignPtr
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glGetPixelMapfv, glGetPixelMapuiv, glGetPixelMapusv, glPixelMapfv,
-   glPixelMapuiv, glPixelMapusv, gl_PIXEL_MAP_A_TO_A, gl_PIXEL_MAP_B_TO_B,
-   gl_PIXEL_MAP_G_TO_G, gl_PIXEL_MAP_I_TO_A, gl_PIXEL_MAP_I_TO_B,
-   gl_PIXEL_MAP_I_TO_G, gl_PIXEL_MAP_I_TO_I, gl_PIXEL_MAP_I_TO_R,
-   gl_PIXEL_MAP_R_TO_R, gl_PIXEL_MAP_S_TO_S )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -61,7 +57,7 @@ marshalPixelMapTarget x = case x of
    BToB -> gl_PIXEL_MAP_B_TO_B
    AToA -> gl_PIXEL_MAP_A_TO_A
 
-pixelMapTargetToGetPName :: PixelMapTarget -> GetPName
+pixelMapTargetToGetPName :: PixelMapTarget -> PName1I
 pixelMapTargetToGetPName x = case x of
    IToI -> GetPixelMapIToISize
    SToS -> GetPixelMapSToSSize

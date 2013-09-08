@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.Convolution
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -25,7 +25,6 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Convolution (
    convolutionFilterScale, convolutionFilterBias,
 ) where
 
-import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
@@ -34,21 +33,11 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glConvolutionFilter1D, glConvolutionFilter2D, glConvolutionParameterfv,
-   glConvolutionParameteri, glCopyConvolutionFilter1D,
-   glCopyConvolutionFilter2D, glGetConvolutionFilter,
-   glGetConvolutionParameterfv, glGetConvolutionParameteriv,
-   glGetSeparableFilter, glSeparableFilter2D, gl_CONSTANT_BORDER,
-   gl_CONVOLUTION_1D, gl_CONVOLUTION_2D, gl_CONVOLUTION_BORDER_COLOR,
-   gl_CONVOLUTION_BORDER_MODE, gl_CONVOLUTION_FILTER_BIAS,
-   gl_CONVOLUTION_FILTER_SCALE, gl_CONVOLUTION_FORMAT, gl_CONVOLUTION_HEIGHT,
-   gl_CONVOLUTION_WIDTH, gl_MAX_CONVOLUTION_HEIGHT, gl_MAX_CONVOLUTION_WIDTH,
-   gl_REDUCE, gl_REPLICATE_BORDER, gl_SEPARABLE_2D )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

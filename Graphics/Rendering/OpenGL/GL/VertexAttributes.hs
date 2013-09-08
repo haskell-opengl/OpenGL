@@ -1,11 +1,12 @@
--- #hide
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.VertexAttributes
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -35,7 +36,7 @@ import Foreign.Storable
 
 -- | Texture coordinates with /t/=0, /r/=0, and /q/=1.
 newtype TexCoord1 a = TexCoord1 a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor TexCoord1 where
    fmap f (TexCoord1 x) = TexCoord1 (f x)
@@ -56,12 +57,6 @@ instance Traversable TexCoord1 where
    mapM f (TexCoord1 x) = return TexCoord1 `ap` f x
    sequence (TexCoord1 x) = return TexCoord1 `ap` x
 
-instance Typeable1 TexCoord1 where
-   typeOf1 _ = mkTyConApp (mkTyCon "TexCoord1") []
-
-instance Typeable a => Typeable (TexCoord1 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (TexCoord1 a) where
    sizeOf    ~(TexCoord1 s) = sizeOf s
    alignment ~(TexCoord1 s) = alignment s
@@ -72,7 +67,7 @@ instance Storable a => Storable (TexCoord1 a) where
 
 -- | Texture coordinates with /r/=0 and /q/=1.
 data TexCoord2 a = TexCoord2 !a !a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor TexCoord2 where
    fmap f (TexCoord2 x y) = TexCoord2 (f x) (f y)
@@ -93,12 +88,6 @@ instance Traversable TexCoord2 where
    mapM f (TexCoord2 x y) = return TexCoord2 `ap` f x `ap` f y
    sequence (TexCoord2 x y) = return TexCoord2 `ap` x `ap` y
 
-instance Typeable1 TexCoord2 where
-   typeOf1 _ = mkTyConApp (mkTyCon "TexCoord2") []
-
-instance Typeable a => Typeable (TexCoord2 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (TexCoord2 a) where
    sizeOf ~(TexCoord2 x _) = 2 * sizeOf x
    alignment ~(TexCoord2 x _) = alignment x
@@ -109,7 +98,7 @@ instance Storable a => Storable (TexCoord2 a) where
 
 -- | Texture coordinates with /q/=1.
 data TexCoord3 a = TexCoord3 !a !a !a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor TexCoord3 where
    fmap f (TexCoord3 x y z) = TexCoord3 (f x) (f y) (f z)
@@ -130,12 +119,6 @@ instance Traversable TexCoord3 where
    mapM f (TexCoord3 x y z) = return TexCoord3 `ap` f x `ap` f y `ap` f z
    sequence (TexCoord3 x y z) = return TexCoord3 `ap` x `ap` y `ap` z
 
-instance Typeable1 TexCoord3 where
-   typeOf1 _ = mkTyConApp (mkTyCon "TexCoord3") []
-
-instance Typeable a => Typeable (TexCoord3 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (TexCoord3 a) where
    sizeOf ~(TexCoord3 x _ _) = 3 * sizeOf x
    alignment ~(TexCoord3 x _ _) = alignment x
@@ -146,7 +129,7 @@ instance Storable a => Storable (TexCoord3 a) where
 
 -- | Fully-fledged four-dimensional texture coordinates.
 data TexCoord4 a = TexCoord4 !a !a !a !a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor TexCoord4 where
    fmap f (TexCoord4 x y z w) = TexCoord4 (f x) (f y) (f z) (f w)
@@ -167,12 +150,6 @@ instance Traversable TexCoord4 where
    mapM f (TexCoord4 x y z w) = return TexCoord4 `ap` f x `ap` f y `ap` f z `ap` f w
    sequence (TexCoord4 x y z w) = return TexCoord4 `ap` x `ap` y `ap` z `ap` w
 
-instance Typeable1 TexCoord4 where
-   typeOf1 _ = mkTyConApp (mkTyCon "TexCoord4") []
-
-instance Typeable a => Typeable (TexCoord4 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (TexCoord4 a) where
    sizeOf ~(TexCoord4 x _ _ _) = 4 * sizeOf x
    alignment ~(TexCoord4 x _ _ _) = alignment x
@@ -183,7 +160,7 @@ instance Storable a => Storable (TexCoord4 a) where
 
 -- A three-dimensional normal.
 data Normal3 a = Normal3 !a !a !a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read) 
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable) 
 instance Functor Normal3 where
    fmap f (Normal3 x y z) = Normal3 (f x) (f y) (f z)
 
@@ -203,12 +180,6 @@ instance Traversable Normal3 where
    mapM f (Normal3 x y z) = return Normal3 `ap` f x `ap` f y `ap` f z
    sequence (Normal3 x y z) = return Normal3 `ap` x `ap` y `ap` z
 
-instance Typeable1 Normal3 where
-   typeOf1 _ = mkTyConApp (mkTyCon "Normal3") []
-
-instance Typeable a => Typeable (Normal3 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (Normal3 a) where
    sizeOf ~(Normal3 x _ _) = 3 * sizeOf x
    alignment ~(Normal3 x _ _) = alignment x
@@ -219,7 +190,7 @@ instance Storable a => Storable (Normal3 a) where
 
 -- | A fog coordinate.
 newtype FogCoord1 a = FogCoord1 a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor FogCoord1 where
    fmap f (FogCoord1 x) = FogCoord1 (f x)
@@ -240,12 +211,6 @@ instance Traversable FogCoord1 where
    mapM f (FogCoord1 x) = return FogCoord1 `ap` f x
    sequence (FogCoord1 x) = return FogCoord1 `ap` x
 
-instance Typeable1 FogCoord1 where
-   typeOf1 _ = mkTyConApp (mkTyCon "FogCoord1") []
-
-instance Typeable a => Typeable (FogCoord1 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (FogCoord1 a) where
    sizeOf    ~(FogCoord1 s) = sizeOf s
    alignment ~(FogCoord1 s) = alignment s
@@ -256,7 +221,7 @@ instance Storable a => Storable (FogCoord1 a) where
 
 -- An RGBA color with /A/=1.
 data Color3 a = Color3 !a !a !a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor Color3 where
    fmap f (Color3 x y z) = Color3 (f x) (f y) (f z)
@@ -277,12 +242,6 @@ instance Traversable Color3 where
    mapM f (Color3 x y z) = return Color3 `ap` f x `ap` f y `ap` f z
    sequence (Color3 x y z) = return Color3 `ap` x `ap` y `ap` z
 
-instance Typeable1 Color3 where
-   typeOf1 _ = mkTyConApp (mkTyCon "Color3") []
-
-instance Typeable a => Typeable (Color3 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (Color3 a) where
    sizeOf ~(Color3 x _ _) = 3 * sizeOf x
    alignment ~(Color3 x _ _) = alignment x
@@ -293,7 +252,7 @@ instance Storable a => Storable (Color3 a) where
 
 -- | A fully-fledged RGBA color.
 data Color4 a = Color4 !a !a !a !a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor Color4 where
    fmap f (Color4 x y z w) = Color4 (f x) (f y) (f z) (f w)
@@ -314,12 +273,6 @@ instance Traversable Color4 where
    mapM f (Color4 x y z w) = return Color4 `ap` f x `ap` f y `ap` f z `ap` f w
    sequence (Color4 x y z w) = return Color4 `ap` x `ap` y `ap` z `ap` w
 
-instance Typeable1 Color4 where
-   typeOf1 _ = mkTyConApp (mkTyCon "Color4") []
-
-instance Typeable a => Typeable (Color4 a) where
-   typeOf = typeOfDefault
-
 instance Storable a => Storable (Color4 a) where
    sizeOf ~(Color4 x _ _ _) = 4 * sizeOf x
    alignment ~(Color4 x _ _ _) = alignment x
@@ -330,7 +283,7 @@ instance Storable a => Storable (Color4 a) where
 
 -- | A color index.
 newtype Index1 a = Index1 a
-   deriving (Eq, Ord, Ix, Bounded, Show, Read)
+   deriving (Eq, Ord, Ix, Bounded, Show, Read, Typeable)
 
 instance Functor Index1 where
    fmap f (Index1 x) = Index1 (f x)
@@ -350,12 +303,6 @@ instance Traversable Index1 where
    sequenceA (Index1 x) =  pure Index1 <*> x
    mapM f (Index1 x) = return Index1 `ap` f x
    sequence (Index1 x) = return Index1 `ap` x
-
-instance Typeable1 Index1 where
-   typeOf1 _ = mkTyConApp (mkTyCon "Index1") []
-
-instance Typeable a => Typeable (Index1 a) where
-   typeOf = typeOfDefault
 
 instance Storable a => Storable (Index1 a) where
    sizeOf    ~(Index1 s) = sizeOf s

@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+--
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -18,10 +18,10 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage (
    skipPixels, rowAlignment, imageHeight, skipImages
 ) where
 
-import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -105,13 +105,13 @@ skipImages Unpack = pixelStorei GetUnpackSkipImages UnpackSkipImages
 
 --------------------------------------------------------------------------------
 
-pixelStoreb :: GetPName -> PixelStore -> StateVar Bool
+pixelStoreb :: PName1I -> PixelStore -> StateVar Bool
 pixelStoreb pn ps =
    makeStateVar
       (getBoolean1 unmarshalGLboolean pn)
       (glPixelStorei (marshalPixelStore ps) . marshalGLboolean)
 
-pixelStorei :: GetPName -> PixelStore -> StateVar GLint
+pixelStorei :: PName1I -> PixelStore -> StateVar GLint
 pixelStorei pn ps =
    makeStateVar
       (getInteger1 id pn)

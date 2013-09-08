@@ -1,11 +1,11 @@
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.ControlPoint
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -17,20 +17,14 @@ module Graphics.Rendering.OpenGL.GL.ControlPoint (
    ControlPoint(..)
 ) where
 
-import Data.Tensor
 import Foreign.Ptr
 import Foreign.Storable
+import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Domain
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_MAP1_COLOR_4, gl_MAP1_INDEX, gl_MAP1_NORMAL, gl_MAP1_TEXTURE_COORD_1,
-   gl_MAP1_TEXTURE_COORD_2, gl_MAP1_TEXTURE_COORD_3, gl_MAP1_TEXTURE_COORD_4,
-   gl_MAP1_VERTEX_3, gl_MAP2_COLOR_4, gl_MAP2_INDEX, gl_MAP2_NORMAL,
-   gl_MAP2_TEXTURE_COORD_1, gl_MAP2_TEXTURE_COORD_2, gl_MAP2_TEXTURE_COORD_3,
-   gl_MAP2_TEXTURE_COORD_4, gl_MAP2_VERTEX_3, gl_MAP2_VERTEX_4 )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -156,7 +150,7 @@ marshalMapTarget x = case x of
    Map1TextureCoord3 -> gl_MAP1_TEXTURE_COORD_3
    Map1TextureCoord4 -> gl_MAP1_TEXTURE_COORD_4
    Map1Vertex3 -> gl_MAP1_VERTEX_3
-   Map1Vertex4 -> gl_MAP1_VERTEX_3
+   Map1Vertex4 -> gl_MAP1_VERTEX_4
    Map2Color4 -> gl_MAP2_COLOR_4
    Map2Index -> gl_MAP2_INDEX
    Map2Normal -> gl_MAP2_NORMAL

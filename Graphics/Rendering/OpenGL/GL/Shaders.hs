@@ -1,49 +1,32 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 --
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This module corresponds to sections 2.15 (Vertex Shaders) and section 3.11
--- (Fragment Shaders) of the OpenGL 2.1 specs.
+-- This module corresponds to section 7 (Programs and Shaders) of the OpenGL 4.4
+-- specs.
 --
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders (
-   -- * Shader Objects
-   Shader, VertexShader, FragmentShader, shaderDeleteStatus, shaderSource,
-   compileShader, compileStatus, shaderInfoLog,
-
-   -- * Program Objects
-   Program, programDeleteStatus, attachedShaders, linkProgram, linkStatus,
-   programInfoLog, validateProgram, validateStatus, currentProgram,
-
-
-   -- * FragmentData
-   bindFragDataLocation,
-   getFragDataLocation,
-
-   -- * Vertex attributes
-   attribLocation, VariableType(..), activeAttribs,
-
-   -- * Uniform variables
-   UniformLocation, uniformLocation, activeUniforms, Uniform(..),
-   UniformComponent,
-
-   -- * Implementation limits related to GLSL
-   maxVertexTextureImageUnits, maxTextureImageUnits,
-   maxCombinedTextureImageUnits, maxTextureCoords, maxVertexUniformComponents,
-   maxFragmentUniformComponents, maxVertexAttribs, maxVaryingFloats
+   module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,
+   module Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries,
+   module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects,
+   module Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries,
+   module Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
+   module Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
+   module Graphics.Rendering.OpenGL.GL.Shaders.Limits
 ) where
 
-import Graphics.Rendering.OpenGL.GL.Shaders.Shaders
+import Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects
+import Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries
+import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
+import Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries
 import Graphics.Rendering.OpenGL.GL.Shaders.Attribs
-import Graphics.Rendering.OpenGL.GL.Shaders.Limits
-import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.Uniform
-import Graphics.Rendering.OpenGL.GL.Shaders.Variables
-
+import Graphics.Rendering.OpenGL.GL.Shaders.Limits

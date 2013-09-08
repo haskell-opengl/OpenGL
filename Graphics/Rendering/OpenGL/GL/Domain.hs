@@ -1,17 +1,19 @@
--- #hide
+{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Domain
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
--- 
--- Maintainer  :  sven.panne@aedion.de
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
+--
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
 -- This is a purely internal module for handling evaluator domains.
 --
 --------------------------------------------------------------------------------
+
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Graphics.Rendering.OpenGL.GL.Domain (
    Domain(..)
@@ -20,12 +22,7 @@ module Graphics.Rendering.OpenGL.GL.Domain (
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glEvalCoord1d, glEvalCoord1dv, glEvalCoord1f, glEvalCoord1fv, glEvalCoord2d,
-   glEvalCoord2dv, glEvalCoord2f, glEvalCoord2fv, glGetMapdv, glGetMapfv,
-   glMap1d, glMap1f, glMap2d, glMap2f, glMapGrid1d, glMapGrid1f, glMapGrid2d,
-   glMapGrid2f )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -39,8 +36,8 @@ class Storable d => Domain d where
    evalCoord2v :: Ptr d -> IO ()
    glMapGrid1  :: GLint -> d -> d -> IO ()
    glMapGrid2  :: GLint -> d -> d -> GLint -> d -> d -> IO ()
-   get2        :: (d -> d -> a) -> GetPName -> IO a
-   get4        :: (d -> d -> d -> d -> a) -> GetPName -> IO a
+   get2        :: GetPName2F p => (d -> d -> a) -> p -> IO a
+   get4        :: GetPName4F p => (d -> d -> d -> d -> a) -> p -> IO a
 
 --------------------------------------------------------------------------------
 

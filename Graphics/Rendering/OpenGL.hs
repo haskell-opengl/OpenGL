@@ -1,10 +1,10 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL
--- Copyright   :  (c) Sven Panne 2002-2009
--- License     :  BSD-style (see the file libraries/OpenGL/LICENSE)
+-- Copyright   :  (c) Sven Panne 2002-2013
+-- License     :  BSD3
 -- 
--- Maintainer  :  sven.panne@aedion.de
+-- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
@@ -30,7 +30,7 @@ import Graphics.Rendering.OpenGL.GLU
 
 --------------------------------------------------------------------------------
 -- $SupportedExtensions
--- There is support for full OpenGL 2.1, including the imaging subset, plus some
+-- There is support for full OpenGL 4.4 (compatibility profile), plus some
 -- extensions:
 --
 -- @
