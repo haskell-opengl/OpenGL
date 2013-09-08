@@ -519,6 +519,8 @@ data PName1I
     | GetTextureBinding3D           -- ^ int\/enum
     | GetTextureBindingCubeMap      -- ^ int\/enum
     | GetTextureBindingRectangle    -- ^ int\/enum
+    | GetTextureBinding1DArray      -- ^ int\/enum
+    | GetTextureBinding2DArray      -- ^ int\/enum
     -- Antialiasing
     | GetSubpixelBits               -- ^ sizei
     | GetSamples                    -- ^ sizei
@@ -769,6 +771,8 @@ instance GetPName PName1I where
         GetTextureBinding3D -> Just gl_TEXTURE_BINDING_3D
         GetTextureBindingCubeMap -> Just gl_TEXTURE_BINDING_CUBE_MAP
         GetTextureBindingRectangle -> Just gl_TEXTURE_BINDING_RECTANGLE
+        GetTextureBinding1DArray -> Just gl_TEXTURE_BINDING_1D_ARRAY
+        GetTextureBinding2DArray -> Just gl_TEXTURE_BINDING_2D_ARRAY
         -- Antialiasing
         GetSubpixelBits -> Just gl_SUBPIXEL_BITS
         GetSampleBuffers -> Just gl_SAMPLE_BUFFERS
