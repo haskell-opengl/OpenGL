@@ -116,7 +116,6 @@ library
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject,
    Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget,
    Graphics.Rendering.OpenGL.GL.GLboolean,
-   Graphics.Rendering.OpenGL.GL.GLstring,
    Graphics.Rendering.OpenGL.GL.IOState,
    Graphics.Rendering.OpenGL.GL.PeekPoke,
    Graphics.Rendering.OpenGL.GL.PixelData,

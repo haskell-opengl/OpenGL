@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Attribs (
    attribLocation, VariableType(..), activeAttribs,
 ) where
 
-import Graphics.Rendering.OpenGL.GL.GLstring
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables

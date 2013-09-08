@@ -14,7 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.ByteString (
-   B.ByteString, stringQuery, createAndTrimByteString, withByteString,
+   B.ByteString, stringQuery, createAndTrimByteString,
+   withByteString, withGLstring,
    packUtf8, unpackUtf8
 ) where
 
@@ -50,6 +51,9 @@ withByteString :: B.ByteString -> (Ptr GLchar -> GLsizei -> IO b) -> IO b
 withByteString bs act =
    BU.unsafeUseAsCStringLen bs $ \(ptr, size) ->
       act (castPtr ptr) (fromIntegral size)
+
+withGLstring :: String -> (Ptr GLchar -> IO a) -> IO a
+withGLstring s act = withByteString (packUtf8 (s ++ "\0")) (const . act)
 
 packUtf8 :: String -> B.ByteString
 packUtf8 = TE.encodeUtf8 . T.pack
