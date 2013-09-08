@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -54,12 +54,7 @@ import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
-import Graphics.Rendering.OpenGL.Raw.ARB.DrawIndirect
-import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderStorageBufferObject
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -26,14 +26,7 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.StateVar
-import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
-import Graphics.Rendering.OpenGL.Raw.ARB.GeometryShader4
-import Graphics.Rendering.OpenGL.Raw.ARB.GetProgramBinary
-import Graphics.Rendering.OpenGL.Raw.ARB.GpuShader5
-import Graphics.Rendering.OpenGL.Raw.ARB.SeparateShaderObjects
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
-import Graphics.Rendering.OpenGL.Raw.ARB.TessellationShader
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

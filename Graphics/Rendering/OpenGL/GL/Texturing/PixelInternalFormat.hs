@@ -18,18 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    marshalPixelInternalFormat', unmarshalPixelInternalFormat,
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_ALPHA12, gl_ALPHA16, gl_ALPHA4, gl_ALPHA8, gl_COMPRESSED_ALPHA,
-   gl_COMPRESSED_INTENSITY, gl_COMPRESSED_LUMINANCE,
-   gl_COMPRESSED_LUMINANCE_ALPHA, gl_COMPRESSED_SLUMINANCE,
-   gl_COMPRESSED_SLUMINANCE_ALPHA, gl_INTENSITY, gl_INTENSITY12, gl_INTENSITY16,
-   gl_INTENSITY4, gl_INTENSITY8, gl_LUMINANCE, gl_LUMINANCE12,
-   gl_LUMINANCE12_ALPHA12, gl_LUMINANCE12_ALPHA4, gl_LUMINANCE16,
-   gl_LUMINANCE16_ALPHA16, gl_LUMINANCE4, gl_LUMINANCE4_ALPHA4,
-   gl_LUMINANCE6_ALPHA2, gl_LUMINANCE8, gl_LUMINANCE8_ALPHA8,
-   gl_LUMINANCE_ALPHA, gl_SLUMINANCE, gl_SLUMINANCE8, gl_SLUMINANCE8_ALPHA8,
-   gl_SLUMINANCE_ALPHA )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

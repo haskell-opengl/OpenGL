@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject (
 import Foreign.Marshal
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
        
 --------------------------------------------------------------------------------
 

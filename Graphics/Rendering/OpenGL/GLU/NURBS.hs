@@ -37,7 +37,6 @@ import Foreign.Storable
 import Graphics.Rendering.GLU.Raw hiding (
    NURBSBeginCallback, NURBSVertexCallback, NURBSNormalCallback,
    NURBSColorCallback, NURBSEndCallback )
-import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.ControlPoint
@@ -47,6 +46,7 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 -- chapter 7.1: The NURBS Object

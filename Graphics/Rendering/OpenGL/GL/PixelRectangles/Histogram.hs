@@ -19,22 +19,16 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram (
 ) where
 
 import Foreign.Marshal.Alloc
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glGetHistogram, glGetHistogramParameteriv, glHistogram, glResetHistogram,
-   gl_HISTOGRAM, gl_HISTOGRAM_ALPHA_SIZE, gl_HISTOGRAM_BLUE_SIZE,
-   gl_HISTOGRAM_FORMAT, gl_HISTOGRAM_GREEN_SIZE, gl_HISTOGRAM_LUMINANCE_SIZE,
-   gl_HISTOGRAM_RED_SIZE, gl_HISTOGRAM_SINK, gl_HISTOGRAM_WIDTH,
-   gl_PROXY_HISTOGRAM )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

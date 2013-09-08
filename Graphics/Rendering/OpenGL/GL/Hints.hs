@@ -16,14 +16,9 @@ module Graphics.Rendering.OpenGL.GL.Hints (
    HintTarget(..), HintMode(..), hint
 ) where
 
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_FOG_HINT, gl_GENERATE_MIPMAP_HINT, gl_PERSPECTIVE_CORRECTION_HINT,
-   gl_POINT_SMOOTH_HINT )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka (
-   gl_PACK_CMYK_HINT, gl_UNPACK_CMYK_HINT )
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

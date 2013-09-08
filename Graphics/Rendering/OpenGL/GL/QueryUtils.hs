@@ -26,9 +26,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
 import Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.Raw.ARB.VertexBlend
-import Graphics.Rendering.OpenGL.Raw.Core32
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

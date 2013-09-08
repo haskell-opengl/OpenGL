@@ -22,12 +22,7 @@ module Graphics.Rendering.OpenGL.GL.Domain (
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glEvalCoord1d, glEvalCoord1dv, glEvalCoord1f, glEvalCoord1fv, glEvalCoord2d,
-   glEvalCoord2dv, glEvalCoord2f, glEvalCoord2fv, glGetMapdv, glGetMapfv,
-   glMap1d, glMap1f, glMap2d, glMap2f, glMapGrid1d, glMapGrid1f, glMapGrid2d,
-   glMapGrid2f )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

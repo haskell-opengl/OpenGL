@@ -23,19 +23,12 @@ import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_DEPTH_TEXTURE_MODE, gl_GENERATE_MIPMAP, gl_TEXTURE_PRIORITY,
-   gl_TEXTURE_RESIDENT )
-import Graphics.Rendering.OpenGL.Raw.ARB.ShadowAmbient (
-   gl_TEXTURE_COMPARE_FAIL_VALUE )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.TextureFilterAnisotropic (
-   gl_TEXTURE_MAX_ANISOTROPY )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

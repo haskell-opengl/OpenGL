@@ -23,16 +23,14 @@ import Control.Monad
 import Foreign.ForeignPtr
 import Foreign.Marshal.Array
 import Foreign.Ptr
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.PolygonMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.SavingState
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glPolygonStipple, glGetPolygonStipple )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

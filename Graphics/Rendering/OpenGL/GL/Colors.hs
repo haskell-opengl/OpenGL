@@ -57,18 +57,7 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glColorMaterial, glGetLightfv, glGetMaterialfv, glGetMaterialiv,
-   glLightModelfv, glLightModeli, glLightfv, glMaterialfv, glMaterialiv,
-   glShadeModel, gl_AMBIENT, gl_AMBIENT_AND_DIFFUSE, gl_COLOR_INDEXES,
-   gl_CONSTANT_ATTENUATION, gl_DIFFUSE, gl_EMISSION, gl_FLAT,
-   gl_LIGHT_MODEL_AMBIENT, gl_LIGHT_MODEL_COLOR_CONTROL,
-   gl_LIGHT_MODEL_LOCAL_VIEWER, gl_LIGHT_MODEL_TWO_SIDE, gl_LINEAR_ATTENUATION,
-   gl_POSITION, gl_QUADRATIC_ATTENUATION, gl_SEPARATE_SPECULAR_COLOR,
-   gl_SHININESS, gl_SINGLE_COLOR, gl_SMOOTH, gl_SPECULAR, gl_SPOT_CUTOFF,
-   gl_SPOT_DIRECTION, gl_SPOT_EXPONENT,
-   gl_CLAMP_FRAGMENT_COLOR, gl_CLAMP_VERTEX_COLOR )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

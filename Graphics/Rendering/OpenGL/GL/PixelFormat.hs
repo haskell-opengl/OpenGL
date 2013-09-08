@@ -17,13 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PixelFormat (
    PixelFormat(..), marshalPixelFormat, unmarshalPixelFormat
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_COLOR_INDEX, gl_LUMINANCE, gl_LUMINANCE_ALPHA, gl_ALPHA_INTEGER )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.Abgr ( gl_ABGR )
-import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka ( gl_CMYK, gl_CMYKA )
-import Graphics.Rendering.OpenGL.Raw.EXT.FourTwoTwoPixels (
-   gl_422, gl_422_AVERAGE, gl_422_REV, gl_422_REV_AVERAGE )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

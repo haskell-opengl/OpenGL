@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.QueryObject (
 import Foreign.Marshal.Array
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

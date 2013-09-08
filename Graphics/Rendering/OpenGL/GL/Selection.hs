@@ -20,14 +20,12 @@ module Graphics.Rendering.OpenGL.GL.Selection (
 
 import Foreign.Marshal.Array
 import Foreign.Ptr
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.IOState
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.RenderMode
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glSelectBuffer, glInitNames, glPushName, glPopName, glLoadName )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

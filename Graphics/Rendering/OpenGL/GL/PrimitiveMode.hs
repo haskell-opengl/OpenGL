@@ -17,9 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PrimitiveMode (
    PrimitiveMode(..), marshalPrimitiveMode, unmarshalPrimitiveMode
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_QUADS, gl_QUAD_STRIP, gl_POLYGON )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -17,7 +17,6 @@ module Graphics.Rendering.OpenGL.GLU.Mipmapping (
 ) where
 
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.Raw.Core31
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
@@ -25,6 +24,7 @@ import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
    TextureTarget, marshalTextureTarget )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 -- Section 3.1 (Image Scaling)

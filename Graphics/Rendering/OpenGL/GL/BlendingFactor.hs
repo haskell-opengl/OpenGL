@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.BlendingFactor (
    BlendingFactor(..), marshalBlendingFactor, unmarshalBlendingFactor
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

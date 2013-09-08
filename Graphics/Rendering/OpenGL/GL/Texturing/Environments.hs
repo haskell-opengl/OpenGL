@@ -26,26 +26,13 @@ import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.BlendingFactor
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.Parameters
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glGetTexEnvfv, glGetTexEnviv, glTexEnvf, glTexEnvfv, glTexEnvi, gl_ADD,
-   gl_ADD_SIGNED, gl_ALPHA_SCALE, gl_COMBINE, gl_COMBINE_ALPHA, gl_COMBINE_RGB,
-   gl_CONSTANT, gl_DECAL, gl_DOT3_RGB, gl_DOT3_RGBA, gl_INTERPOLATE,
-   gl_MODULATE, gl_OPERAND0_ALPHA, gl_OPERAND0_RGB, gl_OPERAND1_ALPHA,
-   gl_OPERAND1_RGB, gl_OPERAND2_ALPHA, gl_OPERAND2_RGB, gl_POINT_SPRITE,
-   gl_PREVIOUS, gl_PRIMARY_COLOR, gl_RGB_SCALE, gl_SRC0_ALPHA, gl_SRC0_RGB,
-   gl_SRC1_ALPHA, gl_SRC1_RGB, gl_SRC2_ALPHA, gl_SRC2_RGB, gl_SUBTRACT,
-   gl_TEXTURE_ENV, gl_TEXTURE_ENV_COLOR, gl_TEXTURE_ENV_MODE,
-   gl_TEXTURE_FILTER_CONTROL )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.NV.TextureEnvCombine4 (
-   gl_COMBINE4, gl_OPERAND3_ALPHA, gl_OPERAND3_RGB, gl_SOURCE3_ALPHA,
-   gl_SOURCE3_RGB )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

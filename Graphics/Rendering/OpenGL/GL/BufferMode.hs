@@ -14,12 +14,12 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.BufferMode (
-   BufferMode(..), marshalBufferMode, unmarshalBufferMode, unmarshalBufferModeSafe,
+   BufferMode(..), marshalBufferMode, unmarshalBufferMode,
+   unmarshalBufferModeSafe,
    maxColorAttachments,
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility ( gl_AUX0 )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
@@ -88,19 +88,6 @@ marshalBufferMode x = case x of
 unmarshalBufferMode :: GLenum -> BufferMode
 unmarshalBufferMode x = maybe
    (error ("unmarshalBufferMode: illegal value " ++ show x)) id $ unmarshalBufferModeSafe x
---unmarshalBufferMode x
---   | x == gl_NONE = NoBuffers
---   | x == gl_FRONT_LEFT = FrontLeftBuffer
---   | x == gl_FRONT_RIGHT = FrontRightBuffer
---   | x == gl_BACK_LEFT = BackLeftBuffer
---   | x == gl_BACK_RIGHT = BackRightBuffer
---   | x == gl_FRONT = FrontBuffers
---   | x == gl_BACK = BackBuffers
---   | x == gl_LEFT = LeftBuffers
---   | x == gl_RIGHT = RightBuffers
---   | x == gl_FRONT_AND_BACK = FrontAndBackBuffers
---   | gl_AUX0 <= x && x <= gl_AUX0 + maxAuxBuffer = AuxBuffer (fromIntegral (x - gl_AUX0))
---   | otherwise = error ("unmarshalBufferMode: illegal value " ++ show x)
 
 unmarshalBufferModeSafe :: GLenum -> Maybe BufferMode
 unmarshalBufferModeSafe x

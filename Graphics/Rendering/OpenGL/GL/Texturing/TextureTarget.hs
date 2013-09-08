@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

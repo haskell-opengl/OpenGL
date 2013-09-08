@@ -19,9 +19,9 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
 import Foreign.C.String
 import Foreign.Ptr
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

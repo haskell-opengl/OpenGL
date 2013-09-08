@@ -37,28 +37,7 @@ import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.Raw.ARB.ComputeShader
-import Graphics.Rendering.OpenGL.Raw.ARB.DrawIndirect
-import Graphics.Rendering.OpenGL.Raw.ARB.ES2Compatibility
-import Graphics.Rendering.OpenGL.Raw.ARB.FragmentProgram
-import Graphics.Rendering.OpenGL.Raw.ARB.GetProgramBinary
-import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette
-import Graphics.Rendering.OpenGL.Raw.ARB.QueryBufferObject
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderAtomicCounters
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderStorageBufferObject
-import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery
-import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3
-import Graphics.Rendering.OpenGL.Raw.Core32
-import Graphics.Rendering.OpenGL.Raw.EXT.Cmyka
-import Graphics.Rendering.OpenGL.Raw.EXT.CompiledVertexArray
-import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest
-import Graphics.Rendering.OpenGL.Raw.EXT.PackedFloat
-import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide
-import Graphics.Rendering.OpenGL.Raw.EXT.TextureFilterAnisotropic
-import Graphics.Rendering.OpenGL.Raw.NV.FogDistance
-import Graphics.Rendering.OpenGL.Raw.NV.LightMaxExponent
-import Graphics.Rendering.OpenGL.Raw.NV.PrimitiveRestart
+import Graphics.Rendering.OpenGL.Raw
 
 -----------------------------------------------------------------------------
 

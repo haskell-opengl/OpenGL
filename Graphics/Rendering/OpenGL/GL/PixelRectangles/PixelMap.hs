@@ -25,16 +25,10 @@ import Foreign.ForeignPtr
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glGetPixelMapfv, glGetPixelMapuiv, glGetPixelMapusv, glPixelMapfv,
-   glPixelMapuiv, glPixelMapusv, gl_PIXEL_MAP_A_TO_A, gl_PIXEL_MAP_B_TO_B,
-   gl_PIXEL_MAP_G_TO_G, gl_PIXEL_MAP_I_TO_A, gl_PIXEL_MAP_I_TO_B,
-   gl_PIXEL_MAP_I_TO_G, gl_PIXEL_MAP_I_TO_I, gl_PIXEL_MAP_I_TO_R,
-   gl_PIXEL_MAP_R_TO_R, gl_PIXEL_MAP_S_TO_S )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

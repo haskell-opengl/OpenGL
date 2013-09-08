@@ -18,17 +18,14 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Minmax (
 ) where
 
 import Foreign.Marshal.Alloc
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glGetMinmax, glGetMinmaxParameteriv, glMinmax, glResetMinmax, gl_MINMAX,
-   gl_MINMAX_FORMAT, gl_MINMAX_SINK )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

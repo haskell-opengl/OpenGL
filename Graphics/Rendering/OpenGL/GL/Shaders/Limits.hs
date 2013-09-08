@@ -20,8 +20,9 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Limits (
 
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
+-----------------------------------------------------------------------------
 
 -- | Contains the number of hardware units that can be used to access texture
 -- maps from the vertex processor. The minimum legal value is 0.

@@ -18,9 +18,7 @@ module Graphics.Rendering.OpenGL.GL.DataType (
    DataTypeType(..), marshalDataTypeType, unmarshalDataTypeType
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_2_BYTES, gl_3_BYTES, gl_4_BYTES, gl_BITMAP )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

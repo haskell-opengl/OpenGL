@@ -25,29 +25,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_ALPHA_TEST, gl_AUTO_NORMAL, gl_COLOR_ARRAY, gl_COLOR_MATERIAL,
-   gl_COLOR_SUM, gl_COLOR_TABLE, gl_CONVOLUTION_1D, gl_CONVOLUTION_2D,
-   gl_EDGE_FLAG_ARRAY, gl_FOG, gl_FOG_COORD_ARRAY, gl_HISTOGRAM, gl_INDEX_ARRAY,
-   gl_INDEX_LOGIC_OP, gl_LIGHTING, gl_LINE_STIPPLE, gl_MAP1_COLOR_4,
-   gl_MAP1_INDEX, gl_MAP1_NORMAL, gl_MAP1_TEXTURE_COORD_1,
-   gl_MAP1_TEXTURE_COORD_2, gl_MAP1_TEXTURE_COORD_3, gl_MAP1_TEXTURE_COORD_4,
-   gl_MAP1_VERTEX_3, gl_MAP1_VERTEX_4, gl_MAP2_COLOR_4, gl_MAP2_INDEX,
-   gl_MAP2_NORMAL, gl_MAP2_TEXTURE_COORD_1, gl_MAP2_TEXTURE_COORD_2,
-   gl_MAP2_TEXTURE_COORD_3, gl_MAP2_TEXTURE_COORD_4, gl_MAP2_VERTEX_3,
-   gl_MAP2_VERTEX_4, gl_MINMAX, gl_NORMALIZE, gl_NORMAL_ARRAY, gl_POINT_SMOOTH,
-   gl_POINT_SPRITE, gl_POLYGON_STIPPLE, gl_POST_COLOR_MATRIX_COLOR_TABLE,
-   gl_POST_CONVOLUTION_COLOR_TABLE, gl_RESCALE_NORMAL, gl_SECONDARY_COLOR_ARRAY,
-   gl_SEPARABLE_2D, gl_TEXTURE_COORD_ARRAY, gl_TEXTURE_GEN_Q, gl_TEXTURE_GEN_R,
-   gl_TEXTURE_GEN_S, gl_TEXTURE_GEN_T, gl_VERTEX_ARRAY,
-   gl_VERTEX_PROGRAM_TWO_SIDE )
-import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette ( gl_MATRIX_INDEX_ARRAY, gl_MATRIX_PALETTE )
-import Graphics.Rendering.OpenGL.Raw.ARB.VertexBlend ( gl_WEIGHT_SUM_UNITY, gl_VERTEX_BLEND, gl_WEIGHT_ARRAY )
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.EXT.DepthBoundsTest ( gl_DEPTH_BOUNDS_TEST )
-import Graphics.Rendering.OpenGL.Raw.EXT.SharedTexturePalette ( gl_SHARED_TEXTURE_PALETTE )
-import Graphics.Rendering.OpenGL.Raw.EXT.StencilTwoSide ( gl_STENCIL_TEST_TWO_SIDE )
-import Graphics.Rendering.OpenGL.Raw.NV.DepthClamp ( gl_DEPTH_CLAMP )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

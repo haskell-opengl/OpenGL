@@ -50,17 +50,7 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glFrustum, glGetTexGendv, glGetTexGeniv, glLoadIdentity, glLoadMatrixd,
-   glLoadMatrixf, glLoadTransposeMatrixd, glLoadTransposeMatrixf, glMatrixMode,
-   glMultMatrixd, glMultMatrixf, glMultTransposeMatrixd, glMultTransposeMatrixf,
-   glOrtho, glPopMatrix, glPushMatrix, glRotated, glRotatef, glScaled, glScalef,
-   glTexGendv, glTexGeni, glTranslated, glTranslatef, gl_EYE_LINEAR,
-   gl_EYE_PLANE, gl_NORMAL_MAP, gl_OBJECT_LINEAR, gl_OBJECT_PLANE,
-   gl_PROJECTION, gl_Q, gl_R, gl_REFLECTION_MAP, gl_S, gl_SPHERE_MAP, gl_T,
-   gl_TEXTURE_GEN_MODE )
-import Graphics.Rendering.OpenGL.Raw.ARB.MatrixPalette ( gl_MATRIX_PALETTE )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

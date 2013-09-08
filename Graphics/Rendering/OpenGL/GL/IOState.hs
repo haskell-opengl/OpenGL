@@ -19,7 +19,6 @@ module Graphics.Rendering.OpenGL.GL.IOState (
 ) where
 
 import Control.Monad(replicateM)
-
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf,peek) )
 

@@ -24,14 +24,7 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Domain
 import Graphics.Rendering.OpenGL.GL.VertexArrays
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.Core31
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   gl_MAP1_COLOR_4, gl_MAP1_INDEX, gl_MAP1_NORMAL, gl_MAP1_TEXTURE_COORD_1,
-   gl_MAP1_TEXTURE_COORD_2, gl_MAP1_TEXTURE_COORD_3, gl_MAP1_TEXTURE_COORD_4,
-   gl_MAP1_VERTEX_3, gl_MAP2_COLOR_4, gl_MAP2_INDEX, gl_MAP2_NORMAL,
-   gl_MAP2_TEXTURE_COORD_1, gl_MAP2_TEXTURE_COORD_2, gl_MAP2_TEXTURE_COORD_3,
-   gl_MAP2_TEXTURE_COORD_4, gl_MAP2_VERTEX_3, gl_MAP2_VERTEX_4,
-   gl_MAP1_VERTEX_4 )
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

@@ -39,12 +39,7 @@ import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryObject
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.StateVar
-import Graphics.Rendering.OpenGL.Raw.ARB.ES3Compatibility
-import Graphics.Rendering.OpenGL.Raw.ARB.OcclusionQuery2
-import Graphics.Rendering.OpenGL.Raw.ARB.Sync
-import Graphics.Rendering.OpenGL.Raw.ARB.TimerQuery
-import Graphics.Rendering.OpenGL.Raw.ARB.TransformFeedback3
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

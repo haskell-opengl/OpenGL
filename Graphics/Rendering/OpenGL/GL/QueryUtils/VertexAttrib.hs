@@ -22,7 +22,9 @@ import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.Raw.Core32
+import Graphics.Rendering.OpenGL.Raw
+
+--------------------------------------------------------------------------------
 
 newtype AttribLocation = AttribLocation GLuint
    deriving ( Eq, Ord, Show )

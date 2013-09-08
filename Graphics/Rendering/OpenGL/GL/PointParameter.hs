@@ -18,9 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PointParameter (
 ) where
 
 import Foreign.Ptr
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
- gl_POINT_DISTANCE_ATTENUATION, gl_POINT_SIZE_MAX, gl_POINT_SIZE_MIN )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 

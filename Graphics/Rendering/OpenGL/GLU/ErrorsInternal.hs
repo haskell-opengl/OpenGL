@@ -21,13 +21,12 @@ module Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordInvalidEnum, recordInvalidValue, recordOutOfMemory
 ) where
 
-import Foreign.Ptr ( castPtr )
-import Foreign.C.String ( peekCString )
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
-import System.IO.Unsafe ( unsafePerformIO )
+import Foreign.C.String ( peekCString )
+import Foreign.Ptr ( castPtr )
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
+import System.IO.Unsafe ( unsafePerformIO )
 
 --------------------------------------------------------------------------------
 

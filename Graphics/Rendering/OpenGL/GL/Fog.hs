@@ -26,11 +26,7 @@ import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw.ARB.Compatibility (
-   glFogf, glFogfv, glFogi, gl_EXP, gl_EXP2, gl_EYE_PLANE, gl_FOG_COLOR,
-   gl_FOG_COORD, gl_FOG_COORD_SRC, gl_FOG_DENSITY, gl_FOG_END, gl_FOG_INDEX,
-   gl_FOG_MODE, gl_FOG_START, gl_FRAGMENT_DEPTH )
-import Graphics.Rendering.OpenGL.Raw.Core31
+import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
