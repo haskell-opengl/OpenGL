@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL (
    -- * OpenGL Fundamentals
-   module Graphics.Rendering.OpenGL.Raw.Core31.Types,
+   module Graphics.Rendering.OpenGL.Raw.Types,
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Graphics.Rendering.OpenGL.GL.ObjectName,
 
@@ -72,7 +72,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Core31.Types
+import Graphics.Rendering.OpenGL.Raw.Types
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Graphics.Rendering.OpenGL.GL.ObjectName
 
