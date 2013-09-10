@@ -152,6 +152,30 @@ textureProxyOK t level =
    makeGettableStateVar $
       getTexLevelParameteri unmarshalGLboolean Proxy t level TextureWidth
 
+{-
+  Allowed targets:
+
+  TEXTURE_1D                       PROXY_TEXTURE_1D
+  ------------------------------------------------------------------------------
+  TEXTURE_2D                       PROXY_TEXTURE_2D
+  TEXTURE_2D_MULTISAMPLE           PROXY_TEXTURE_2D_MULTISAMPLE
+  TEXTURE_1D_ARRAY                 PROXY_TEXTURE_1D_ARRAY
+  TEXTURE_RECTANGLE                PROXY_TEXTURE_RECTANGLE
+                                   PROXY_TEXTURE_CUBE_MAP
+  TEXTURE_CUBE_MAP_POSITIVE_X
+  TEXTURE_CUBE_MAP_NEGATIVE_X
+  TEXTURE_CUBE_MAP_POSITIVE_Y
+  TEXTURE_CUBE_MAP_NEGATIVE_Y
+  TEXTURE_CUBE_MAP_POSITIVE_Z
+  TEXTURE_CUBE_MAP_NEGATIVE_Z
+  ------------------------------------------------------------------------------
+  TEXTURE_3D                       PROXY_TEXTURE_3D
+  TEXTURE_2D_ARRAY                 PROXY_TEXTURE_2D_ARRAY
+  TEXTURE_2D_MULTISAMPLE_ARRAY     PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY
+  TEXTURE_CUBE_MAP_ARRAY           PROXY_TEXTURE_CUBE_MAP_ARRAY
+
+  In a nutshell: Basically all targets are allowed, only cube maps are special.
+-}
 getTexLevelParameteri :: TextureTarget t => (GLint -> a) -> Proxy -> t -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteri f proxy t level p =
    alloca $ \buf -> do
