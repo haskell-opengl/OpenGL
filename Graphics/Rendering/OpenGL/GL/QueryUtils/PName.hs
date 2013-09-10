@@ -413,7 +413,6 @@ data PName1I
     | GetPixelUnpackBufferBinding   -- ^ int
     | GetQueryBufferBinding         -- ^ int
     | GetShaderStorageBufferBinding -- ^ int
-    | GetTextureBindingBuffer       -- ^ int
     | GetTransformFeedbackBufferBinding -- ^ int
     | GetUniformBufferBinding       -- ^ int
 
@@ -517,8 +516,14 @@ data PName1I
     | GetTextureBinding1D           -- ^ int\/enum
     | GetTextureBinding2D           -- ^ int\/enum
     | GetTextureBinding3D           -- ^ int\/enum
-    | GetTextureBindingCubeMap      -- ^ int\/enum
+    | GetTextureBinding1DArray      -- ^ int\/enum
+    | GetTextureBinding2DArray      -- ^ int\/enum
+    | GetTextureBindingCubeMapArray -- ^ int\/enum
     | GetTextureBindingRectangle    -- ^ int\/enum
+    | GetTextureBindingBuffer       -- ^ int\/enum
+    | GetTextureBindingCubeMap      -- ^ int\/enum
+    | GetTextureBinding2DMultisample -- ^ int\/enum
+    | GetTextureBinding2DMultisampleArray -- ^ int\/enum
     -- Antialiasing
     | GetSubpixelBits               -- ^ sizei
     | GetSamples                    -- ^ sizei
@@ -662,7 +667,6 @@ instance GetPName PName1I where
         GetPixelUnpackBufferBinding -> Just gl_PIXEL_UNPACK_BUFFER_BINDING
         GetQueryBufferBinding -> Just gl_QUERY_BUFFER_BINDING
         GetShaderStorageBufferBinding -> Just gl_SHADER_STORAGE_BUFFER_BINDING
-        GetTextureBindingBuffer -> Just gl_TEXTURE_BINDING_BUFFER
         GetTransformFeedbackBufferBinding -> Just gl_TRANSFORM_FEEDBACK_BUFFER_BINDING
         GetUniformBufferBinding -> Just gl_UNIFORM_BUFFER_BINDING
 
@@ -767,8 +771,14 @@ instance GetPName PName1I where
         GetTextureBinding1D -> Just gl_TEXTURE_BINDING_1D
         GetTextureBinding2D -> Just gl_TEXTURE_BINDING_2D
         GetTextureBinding3D -> Just gl_TEXTURE_BINDING_3D
-        GetTextureBindingCubeMap -> Just gl_TEXTURE_BINDING_CUBE_MAP
+        GetTextureBinding1DArray -> Just gl_TEXTURE_BINDING_1D_ARRAY
+        GetTextureBinding2DArray -> Just gl_TEXTURE_BINDING_2D_ARRAY
+        GetTextureBindingCubeMapArray -> Just gl_TEXTURE_BINDING_CUBE_MAP_ARRAY
         GetTextureBindingRectangle -> Just gl_TEXTURE_BINDING_RECTANGLE
+        GetTextureBindingBuffer -> Just gl_TEXTURE_BINDING_BUFFER
+        GetTextureBindingCubeMap -> Just gl_TEXTURE_BINDING_CUBE_MAP
+        GetTextureBinding2DMultisample -> Just gl_TEXTURE_BINDING_2D_MULTISAMPLE
+        GetTextureBinding2DMultisampleArray -> Just gl_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY
         -- Antialiasing
         GetSubpixelBits -> Just gl_SUBPIXEL_BITS
         GetSampleBuffers -> Just gl_SAMPLE_BUFFERS
