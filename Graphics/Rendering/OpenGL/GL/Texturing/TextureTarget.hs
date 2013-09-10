@@ -65,6 +65,35 @@ instance TextureTarget TextureTarget1D where
 
 --------------------------------------------------------------------------------
 
+{- TODO: TextureTarget2D in its current state is broken. Depending on the GL
+   function, different things are accepted regarding cube maps:
+
+      * functions expecting TextureCubeMap:
+           CopyImageSubData
+           TexParameter{if}(etc.)
+           GetTexParameter{if}(etc.)
+           GenerateMipmap
+           TextureView
+           GetInternalFormat
+
+      * functions expecting TextureCubeMap, but only as a proxy:
+           TexImage2D
+           GetTexLevelParameter
+           TexStorage2D
+
+      * functions expecting separate cube map faces:
+           TexImage2D
+           CopyTexImage2D
+           TexSubImage2D
+           CopyTexSubImage2d
+           GetTexLevelParameter{if}v
+           FramebufferTexture2D
+           GetFramebufferAttachmentParameteriv
+
+      * functions expecting both TextureCubeMap *and* separate cube map faces:
+           GetTexImage
+-}
+
 data TextureTarget2D =
      Texture2D
    | Texture1DArray
