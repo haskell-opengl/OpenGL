@@ -32,27 +32,19 @@ import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
-textureBinding :: TextureTarget -> StateVar (Maybe TextureObject)
+textureBinding :: TextureTarget t => t -> StateVar (Maybe TextureObject)
 textureBinding t =
    makeStateVar
-      (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToGetPName t)
+      (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToBinding t)
           return $ if o == defaultTextureObject then Nothing else Just o)
       (glBindTexture (marshalTextureTarget t) . textureID . (fromMaybe defaultTextureObject))
 
 defaultTextureObject :: TextureObject
 defaultTextureObject = TextureObject 0
 
-textureTargetToGetPName :: TextureTarget -> PName1I
-textureTargetToGetPName x = case x of
-    Texture1D -> GetTextureBinding1D
-    Texture2D -> GetTextureBinding2D
-    Texture3D -> GetTextureBinding3D
-    TextureCubeMap -> GetTextureBindingCubeMap
-    TextureRectangle -> GetTextureBindingRectangle
-
 --------------------------------------------------------------------------------
 
-textureResident :: TextureTarget -> GettableStateVar Bool
+textureResident :: TextureTarget t => t -> GettableStateVar Bool
 textureResident t =
    makeGettableStateVar $
       getTexParameteri unmarshalGLboolean t TextureResident
@@ -74,7 +66,7 @@ areTexturesResident texObjs = do
 
 type TexturePriority = GLclampf
 
-texturePriority :: TextureTarget -> StateVar TexturePriority
+texturePriority :: TextureTarget t => t -> StateVar TexturePriority
 texturePriority = texParamf realToFrac realToFrac TexturePriority
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()

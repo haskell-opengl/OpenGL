@@ -19,18 +19,9 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Application (
 
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
-import Graphics.Rendering.OpenGL.GL.Texturing.Specification
+import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 
 --------------------------------------------------------------------------------
 
--- ToDo: cube maps
-texture :: TextureTarget -> StateVar Capability
+texture :: TextureTarget t => t -> StateVar Capability
 texture = makeCapability . textureTargetToEnableCap
-
-textureTargetToEnableCap :: TextureTarget -> EnableCap
-textureTargetToEnableCap x = case x of
-    Texture1D -> CapTexture1D
-    Texture2D -> CapTexture2D
-    Texture3D -> CapTexture3D
-    TextureCubeMap -> CapTextureCubeMap
-    TextureRectangle -> CapTextureRectangle

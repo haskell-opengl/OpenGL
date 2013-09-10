@@ -510,6 +510,7 @@ data PName1I
     | GetMax3DTextureSize               -- ^ int
     | GetMaxCubeMapTextureSize          -- ^ int
     | GetMaxRectangleTextureSize        -- ^ int
+    | GetMaxArrayTextureLayers          -- ^ int
     -- ReadCopyPixels
     | GetReadBuffer                 -- ^ enum
     -- Texture Objects
@@ -765,6 +766,7 @@ instance GetPName PName1I where
         GetMax3DTextureSize -> Just gl_MAX_3D_TEXTURE_SIZE
         GetMaxCubeMapTextureSize -> Just gl_MAX_CUBE_MAP_TEXTURE_SIZE
         GetMaxRectangleTextureSize -> Just gl_MAX_RECTANGLE_TEXTURE_SIZE
+        GetMaxArrayTextureLayers -> Just gl_MAX_ARRAY_TEXTURE_LAYERS
         -- ReadCopyPixels
         GetReadBuffer -> Just gl_READ_BUFFER
         -- Texture Objects
