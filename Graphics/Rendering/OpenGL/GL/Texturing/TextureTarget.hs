@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
-   TextureTarget(..), marshalProxyTextureTarget, marshalProxyTextureTargetBind,
+   TextureTarget(..), marshalProxyTextureTarget,
    TextureTarget1D(..), TextureTarget2D(..), TextureTarget3D(..),
    CubeMapTarget(..), unmarshalCubeMapTarget
 ) where
@@ -26,35 +26,25 @@ import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
-class TextureTarget tt where
+class TextureTarget t where
    -- | The marshaling function for texture targets when updating, querying etc.
-   marshalTextureTarget :: tt -> GLenum
-
-   -- | The marshaling function for texture targets when binding, this is
-   -- different for some targets, e.g. TextureCubeMap.
-   marshalTextureTargetBind :: tt -> GLenum
-   marshalTextureTargetBind = marshalTextureTarget
+   marshalTextureTarget :: t -> GLenum
 
    -- | The marshaling function for texture targets to there proxy targets.
-   marshalTextureTargetProxy :: tt -> GLenum
+   marshalTextureTargetProxy :: t -> GLenum
 
    -- | The GetPName to query it's maximum size.
-   textureTargetToMaxQuery  :: tt -> PName1I
+   textureTargetToMaxQuery :: t -> PName1I
 
-   textureTargetToEnableCap :: tt -> EnableCap
+   textureTargetToEnableCap :: t -> EnableCap
 
-   textureTargetToBinding   :: tt -> PName1I
+   textureTargetToBinding :: t -> PName1I
 
 
 -- | Marshal a Proxy and Texture Target to their normal enum.
-marshalProxyTextureTarget :: TextureTarget tt => Proxy -> tt -> GLenum
+marshalProxyTextureTarget :: TextureTarget t => Proxy -> t -> GLenum
 marshalProxyTextureTarget NoProxy = marshalTextureTarget
 marshalProxyTextureTarget Proxy = marshalTextureTargetProxy
-
--- | Marshal a Proxy and Texture Target to their Bind enum.
-marshalProxyTextureTargetBind :: TextureTarget tt => Proxy -> tt -> GLenum
-marshalProxyTextureTargetBind NoProxy = marshalTextureTargetBind
-marshalProxyTextureTargetBind Proxy = marshalTextureTargetProxy
 
 --------------------------------------------------------------------------------
 
@@ -89,9 +79,6 @@ instance TextureTarget TextureTarget2D where
       Texture1DArray -> gl_TEXTURE_1D_ARRAY
       TextureRectangle -> gl_TEXTURE_RECTANGLE
       TextureCubeMap c -> marshalCubeMapTarget c
-   marshalTextureTargetBind t = case t of
-      TextureCubeMap _ -> gl_TEXTURE_CUBE_MAP
-      _ -> marshalTextureTarget t
    marshalTextureTargetProxy t = case t of
       Texture2D -> gl_PROXY_TEXTURE_2D
       Texture1DArray -> gl_PROXY_TEXTURE_1D_ARRAY
@@ -131,9 +118,6 @@ instance TextureTarget TextureTarget3D where
       Texture3D -> gl_TEXTURE_3D
       Texture2DArray -> gl_TEXTURE_2D_ARRAY
       TextureCubeMapArray c -> marshalCubeMapTarget c
-   marshalTextureTargetBind t = case t of
-      TextureCubeMapArray _ -> gl_TEXTURE_CUBE_MAP_ARRAY
-      _ -> marshalTextureTarget t
    marshalTextureTargetProxy t = case t of
       Texture3D -> gl_PROXY_TEXTURE_3D
       Texture2DArray -> gl_PROXY_TEXTURE_2D_ARRAY
