@@ -78,6 +78,13 @@ data TextureSize3D = TextureSize3D !GLsizei !GLsizei !GLsizei
 
 --------------------------------------------------------------------------------
 
+{-
+  Allowed targets:
+
+  TEXTURE_1D
+  PROXY_TEXTURE_1D
+-}
+
 texImage1D :: TextureTarget1D -> Proxy -> Level -> PixelInternalFormat -> TextureSize1D -> Border -> PixelData a -> IO ()
 texImage1D target proxy level int (TextureSize1D w) border pd =
    withPixelData pd $
@@ -86,6 +93,26 @@ texImage1D target proxy level int (TextureSize1D w) border pd =
          level (marshalPixelInternalFormat int) w border
 
 --------------------------------------------------------------------------------
+{-
+  Allowed targets:
+
+  TEXTURE_2D
+  TEXTURE_1D_ARRAY
+  TEXTURE_RECTANGLE
+  TEXTURE_CUBE_MAP_POSITIVE_X
+  TEXTURE_CUBE_MAP_NEGATIVE_X
+  TEXTURE_CUBE_MAP_POSITIVE_Y
+  TEXTURE_CUBE_MAP_NEGATIVE_Y
+  TEXTURE_CUBE_MAP_POSITIVE_Z
+  TEXTURE_CUBE_MAP_NEGATIVE_Z
+  PROXY_TEXTURE_2D
+  PROXY_TEXTURE_1D_ARRAY
+  PROXY_TEXTURE_RECTANGLE
+  PROXY_TEXTURE_CUBE_MAP
+
+  Note: No TEXTURE_2D_MULTISAMPLE or PROXY_TEXTURE_2D_MULTISAMPLE targets! For
+  these use glTexImage2DMultisample.
+-}
 
 texImage2D :: TextureTarget2D -> Proxy -> Level -> PixelInternalFormat -> TextureSize2D -> Border -> PixelData a -> IO ()
 texImage2D target proxy level int (TextureSize2D w h) border pd =
@@ -96,6 +123,20 @@ texImage2D target proxy level int (TextureSize2D w h) border pd =
 
 --------------------------------------------------------------------------------
 
+{-
+  Allowed targets:
+
+  TEXTURE_3D
+  TEXTURE_2D_ARRAY
+  TEXTURE_CUBE_MAP_ARRAY ???????
+  PROXY_TEXTURE_3D
+  PROXY_TEXTURE_2D_ARRAY
+  PROXY_TEXTURE_CUBE_MAP_ARRAY ???????
+
+  Note: No TEXTURE_2D_MULTISAMPLE_ARRAY or PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY
+  targets! For these use glTexImage3DMultisample.
+-}
+
 texImage3D :: TextureTarget3D -> Proxy -> Level -> PixelInternalFormat -> TextureSize3D -> Border -> PixelData a -> IO ()
 texImage3D target proxy level int (TextureSize3D w h d) border pd =
    withPixelData pd $
@@ -105,6 +146,26 @@ texImage3D target proxy level int (TextureSize3D w h d) border pd =
 
 --------------------------------------------------------------------------------
 
+{-
+  Allowed targets:
+
+  TEXTURE_1D
+  ------------------------------------------------------------------------------
+  TEXTURE_2D
+  TEXTURE_1D_ARRAY
+  TEXTURE_RECTANGLE
+  TEXTURE_CUBE_MAP_POSITIVE_X
+  TEXTURE_CUBE_MAP_NEGATIVE_X
+  TEXTURE_CUBE_MAP_POSITIVE_Y
+  TEXTURE_CUBE_MAP_NEGATIVE_Y
+  TEXTURE_CUBE_MAP_POSITIVE_Z
+  TEXTURE_CUBE_MAP_NEGATIVE_Z
+  ------------------------------------------------------------------------------
+  TEXTURE_3D
+  TEXTURE_2D_ARRAY
+  TEXTURE_CUBE_MAP_ARRAY
+-}
+
 getTexImage :: TextureTarget t => t -> Level -> PixelData a -> IO ()
 getTexImage target level pd =
    withPixelData pd $
@@ -112,6 +173,7 @@ getTexImage target level pd =
 
 --------------------------------------------------------------------------------
 
+-- see texImage1D, but no proxies
 copyTexImage1D :: TextureTarget1D -> Level -> PixelInternalFormat -> Position -> TextureSize1D -> Border -> IO ()
 copyTexImage1D target level int (Position x y) (TextureSize1D w) border =
    glCopyTexImage1D
@@ -120,6 +182,7 @@ copyTexImage1D target level int (Position x y) (TextureSize1D w) border =
 
 --------------------------------------------------------------------------------
 
+-- see texImage2D, but no proxies
 copyTexImage2D :: TextureTarget2D -> Level -> PixelInternalFormat -> Position -> TextureSize2D -> Border -> IO ()
 copyTexImage2D target level int (Position x y) (TextureSize2D w h) border =
    glCopyTexImage2D
@@ -128,6 +191,7 @@ copyTexImage2D target level int (Position x y) (TextureSize2D w h) border =
 
 --------------------------------------------------------------------------------
 
+-- see texImage1D, but no proxies
 texSubImage1D :: TextureTarget1D -> Level -> TexturePosition1D -> TextureSize1D -> PixelData a -> IO ()
 texSubImage1D target level (TexturePosition1D xOff) (TextureSize1D w) pd =
    withPixelData pd $
@@ -135,6 +199,7 @@ texSubImage1D target level (TexturePosition1D xOff) (TextureSize1D w) pd =
 
 --------------------------------------------------------------------------------
 
+-- see texImage2D, but no proxies
 texSubImage2D :: TextureTarget2D -> Level -> TexturePosition2D -> TextureSize2D -> PixelData a -> IO ()
 texSubImage2D target level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd =
    withPixelData pd $
@@ -142,6 +207,7 @@ texSubImage2D target level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd 
 
 --------------------------------------------------------------------------------
 
+-- see texImage3D, but no proxies
 texSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> TextureSize3D -> PixelData a -> IO ()
 texSubImage3D target level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) pd =
    withPixelData pd $
@@ -149,18 +215,21 @@ texSubImage3D target level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h
 
 --------------------------------------------------------------------------------
 
+-- see texImage1D, but no proxies
 copyTexSubImage1D :: TextureTarget1D -> Level -> TexturePosition1D -> Position -> TextureSize1D -> IO ()
 copyTexSubImage1D target level (TexturePosition1D xOff) (Position x y) (TextureSize1D w) =
    glCopyTexSubImage1D (marshalTextureTarget target) level xOff x y w
 
 --------------------------------------------------------------------------------
 
+-- see texImage2D, but no proxies
 copyTexSubImage2D :: TextureTarget2D -> Level -> TexturePosition2D -> Position -> TextureSize2D -> IO ()
 copyTexSubImage2D target level (TexturePosition2D xOff yOff) (Position x y) (TextureSize2D w h) =
    glCopyTexSubImage2D (marshalTextureTarget target) level xOff yOff x y w h
 
 --------------------------------------------------------------------------------
 
+-- see texImage3D, but no proxies
 copyTexSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> Position -> TextureSize2D -> IO ()
 copyTexSubImage3D target level (TexturePosition3D xOff yOff zOff) (Position x y) (TextureSize2D w h) =
    glCopyTexSubImage3D (marshalTextureTarget target) level xOff yOff zOff x y w h
@@ -190,6 +259,7 @@ withCompressedPixelData
 
 --------------------------------------------------------------------------------
 
+-- see texImage1D
 compressedTexImage1D :: TextureTarget1D -> Proxy -> Level -> TextureSize1D -> Border -> CompressedPixelData a -> IO ()
 compressedTexImage1D target proxy level (TextureSize1D w) border cpd =
    withCompressedPixelData cpd $ \fmt ->
@@ -198,6 +268,7 @@ compressedTexImage1D target proxy level (TextureSize1D w) border cpd =
 
 --------------------------------------------------------------------------------
 
+-- see texImage2D (but no rectangle texture formats)
 compressedTexImage2D :: TextureTarget2D -> Proxy -> Level -> TextureSize2D -> Border -> CompressedPixelData a -> IO ()
 compressedTexImage2D target proxy level (TextureSize2D w h) border cpd =
    withCompressedPixelData cpd $ \fmt ->
@@ -207,6 +278,7 @@ compressedTexImage2D target proxy level (TextureSize2D w h) border cpd =
 
 --------------------------------------------------------------------------------
 
+-- see texImage3D
 compressedTexImage3D :: TextureTarget3D -> Proxy -> Level -> TextureSize3D -> Border -> CompressedPixelData a -> IO ()
 compressedTexImage3D target proxy level (TextureSize3D w h d) border cpd =
    withCompressedPixelData cpd $ \fmt ->
@@ -220,6 +292,7 @@ getCompressedTexImage = glGetCompressedTexImage . marshalTextureTarget
 
 --------------------------------------------------------------------------------
 
+-- see texImage1D, but no proxies
 compressedTexSubImage1D :: TextureTarget1D -> Level -> TexturePosition1D -> TextureSize1D -> CompressedPixelData a -> IO ()
 compressedTexSubImage1D target level (TexturePosition1D xOff) (TextureSize1D w) cpd =
    withCompressedPixelData cpd $
@@ -227,6 +300,7 @@ compressedTexSubImage1D target level (TexturePosition1D xOff) (TextureSize1D w) 
 
 --------------------------------------------------------------------------------
 
+-- see texImage2D, but no proxies
 compressedTexSubImage2D :: TextureTarget2D -> Level -> TexturePosition2D -> TextureSize2D -> CompressedPixelData a -> IO ()
 compressedTexSubImage2D target  level (TexturePosition2D xOff yOff) (TextureSize2D w h) cpd =
    withCompressedPixelData cpd $
@@ -234,6 +308,7 @@ compressedTexSubImage2D target  level (TexturePosition2D xOff yOff) (TextureSize
 
 --------------------------------------------------------------------------------
 
+-- see texImage3D, but no proxies
 compressedTexSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> TextureSize3D -> CompressedPixelData a -> IO ()
 compressedTexSubImage3D target level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) cpd =
    withCompressedPixelData cpd $

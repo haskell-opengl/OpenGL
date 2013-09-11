@@ -81,6 +81,25 @@ marshalTexParameter x = case x of
 
 --------------------------------------------------------------------------------
 
+{-
+  Allowed targets:
+
+  TEXTURE_1D
+  ------------------------------------------------------------------------------
+  TEXTURE_2D
+  TEXTURE_2D_MULTISAMPLE
+  TEXTURE_1D_ARRAY
+  TEXTURE_RECTANGLE
+  TEXTURE_CUBE_MAP
+  ------------------------------------------------------------------------------
+  TEXTURE_3D
+  TEXTURE_2D_ARRAY
+  TEXTURE_2D_MULTISAMPLE_ARRAY
+  TEXTURE_CUBE_MAP_ARRAY
+
+  In a nutshell: All non-proxy targets are allowed.
+-}
+
 texParameter :: TextureTarget t
              => (GLenum -> GLenum -> b -> IO ())
              -> (a -> (b -> IO ()) -> IO ())
@@ -90,6 +109,25 @@ texParameter glTexParameter marshalAct t p x =
       glTexParameter (marshalTextureTarget t) (marshalTexParameter p)
 
 --------------------------------------------------------------------------------
+
+{-
+  Allowed targets:
+
+  TEXTURE_1D
+  ------------------------------------------------------------------------------
+  TEXTURE_2D
+  TEXTURE_2D_MULTISAMPLE
+  TEXTURE_1D_ARRAY
+  TEXTURE_RECTANGLE
+  TEXTURE_CUBE_MAP
+  ------------------------------------------------------------------------------
+  TEXTURE_3D
+  TEXTURE_2D_ARRAY
+  TEXTURE_2D_MULTISAMPLE_ARRAY
+  TEXTURE_CUBE_MAP_ARRAY
+
+  In a nutshell: All non-proxy targets are allowed.
+-}
 
 getTexParameter :: (Storable b, TextureTarget t)
                 => (GLenum -> GLenum -> Ptr b -> IO ())

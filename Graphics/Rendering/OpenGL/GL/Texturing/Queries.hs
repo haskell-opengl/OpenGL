@@ -174,7 +174,13 @@ textureProxyOK t level =
   TEXTURE_2D_MULTISAMPLE_ARRAY     PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY
   TEXTURE_CUBE_MAP_ARRAY           PROXY_TEXTURE_CUBE_MAP_ARRAY
 
-  In a nutshell: Basically all targets are allowed, only cube maps are special.
+  In a nutshell: Basically all targets are allowed, only cube maps are special:
+  For non-proxy targets one has to specify the exact face of a cube map, for
+  proxy targets only the whole cube map is interesting.
+
+  Note that proxy targets are only interesting when specifiying textures via
+  gl[Compressed]TexImage{123}D and when querying the width via
+  glGetTexLevelParameteriv.
 -}
 getTexLevelParameteri :: TextureTarget t => (GLint -> a) -> Proxy -> t -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteri f proxy t level p =

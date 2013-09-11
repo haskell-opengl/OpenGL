@@ -23,5 +23,28 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 
 --------------------------------------------------------------------------------
 
+{-
+  Allowed targets:
+
+  TEXTURE_1D
+  ------------------------------------------------------------------------------
+  TEXTURE_2D
+  TEXTURE_1D_ARRAY       -- MESA_texture_array only
+  TEXTURE_RECTANGLE
+  TEXTURE_CUBE_MAP
+  ------------------------------------------------------------------------------
+  TEXTURE_3D
+  TEXTURE_2D_ARRAY       -- MESA_texture_array only
+
+  In a nutshell: All non-proxy targets, but no
+
+  TEXTURE_2D_MULTISAMPLE
+  TEXTURE_2D_MULTISAMPLE_ARRAY
+  TEXTURE_CUBE_MAP_ARRAY
+
+  although there is no principal reason why these might not be allowed in some
+  extension in the future.
+-}
+
 texture :: TextureTarget t => t -> StateVar Capability
 texture = makeCapability . textureTargetToEnableCap
