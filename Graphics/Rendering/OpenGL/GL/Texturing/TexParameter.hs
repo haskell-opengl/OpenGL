@@ -22,7 +22,6 @@ import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GL.VertexSpec
@@ -98,13 +97,13 @@ marshalTexParameter x = case x of
   In a nutshell: All non-proxy targets are allowed.
 -}
 
-texParameter :: TextureTargetCompleteWithMultisample t
+texParameter :: ParameterizedTextureTarget t
              => (GLenum -> GLenum -> b -> IO ())
              -> (a -> (b -> IO ()) -> IO ())
              -> t -> TexParameter -> a -> IO ()
 texParameter glTexParameter marshalAct t p x =
    marshalAct x $
-      glTexParameter (marshalTextureTargetCompleteWithMultisample NoProxy t) (marshalTexParameter p)
+      glTexParameter (marshalParameterizedTextureTarget t) (marshalTexParameter p)
 
 --------------------------------------------------------------------------------
 
@@ -127,13 +126,13 @@ texParameter glTexParameter marshalAct t p x =
   In a nutshell: All non-proxy targets are allowed.
 -}
 
-getTexParameter :: (Storable b, TextureTargetCompleteWithMultisample t)
+getTexParameter :: (Storable b, ParameterizedTextureTarget t)
                 => (GLenum -> GLenum -> Ptr b -> IO ())
                 -> (b -> a)
                 -> t -> TexParameter -> IO a
 getTexParameter glGetTexParameter unmarshal t p =
    alloca $ \buf -> do
-     glGetTexParameter (marshalTextureTargetCompleteWithMultisample NoProxy t) (marshalTexParameter p) buf
+     glGetTexParameter (marshalParameterizedTextureTarget t) (marshalTexParameter p) buf
      peek1 unmarshal buf
 
 --------------------------------------------------------------------------------
@@ -141,21 +140,21 @@ getTexParameter glGetTexParameter unmarshal t p =
 m2a :: (a -> b) -> a -> (b -> IO ()) -> IO ()
 m2a marshal x act = act (marshal x)
 
-texParami :: TextureTargetCompleteWithMultisample t =>
+texParami :: ParameterizedTextureTarget t =>
    (GLint -> a) -> (a -> GLint) -> TexParameter -> t -> StateVar a
 texParami unmarshal marshal p t =
    makeStateVar
       (getTexParameter glGetTexParameteriv unmarshal     t p)
       (texParameter    glTexParameteri     (m2a marshal) t p)
 
-texParamf :: TextureTargetCompleteWithMultisample t =>
+texParamf :: ParameterizedTextureTarget t =>
    (GLfloat -> a) -> (a -> GLfloat) -> TexParameter -> t -> StateVar a
 texParamf unmarshal marshal p t =
    makeStateVar
       (getTexParameter glGetTexParameterfv unmarshal     t p)
       (texParameter    glTexParameterf     (m2a marshal) t p)
 
-texParamC4f :: TextureTargetCompleteWithMultisample t => TexParameter -> t -> StateVar (Color4 GLfloat)
+texParamC4f :: ParameterizedTextureTarget t => TexParameter -> t -> StateVar (Color4 GLfloat)
 texParamC4f p t =
    makeStateVar
       (getTexParameter glGetTexParameterC4f id   t p)
@@ -167,5 +166,5 @@ glTexParameterC4f target pname ptr = glTexParameterfv target pname (castPtr ptr)
 glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 glGetTexParameterC4f target pname ptr = glGetTexParameterfv target pname (castPtr ptr)
 
-getTexParameteri :: TextureTargetCompleteWithMultisample t => (GLint -> a) -> t -> TexParameter -> IO a
+getTexParameteri :: ParameterizedTextureTarget t => (GLint -> a) -> t -> TexParameter -> IO a
 getTexParameteri = getTexParameter glGetTexParameteriv

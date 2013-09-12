@@ -39,7 +39,7 @@ import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
-textureFilter :: TextureTargetCompleteWithMultisample t => t -> StateVar (MinificationFilter, MagnificationFilter)
+textureFilter :: ParameterizedTextureTarget t => t -> StateVar (MinificationFilter, MagnificationFilter)
 textureFilter =
    combineTexParams
       (texParami unmarshalMinificationFilter  marshalMinificationFilter  TextureMinFilter)
@@ -85,7 +85,7 @@ unmarshalTextureWrapMode x
 
 --------------------------------------------------------------------------------
 
-textureWrapMode :: TextureTargetCompleteWithMultisample t => t -> TextureCoordName -> StateVar (Repetition,Clamping)
+textureWrapMode :: ParameterizedTextureTarget t => t -> TextureCoordName -> StateVar (Repetition,Clamping)
 textureWrapMode t coord = case coord of
    S -> wrap TextureWrapS
    T -> wrap TextureWrapT
@@ -101,21 +101,21 @@ invalidTextureCoord =
 
 --------------------------------------------------------------------------------
 
-textureBorderColor :: TextureTargetCompleteWithMultisample t => t -> StateVar (Color4 GLfloat)
+textureBorderColor :: ParameterizedTextureTarget t => t -> StateVar (Color4 GLfloat)
 textureBorderColor = texParamC4f TextureBorderColor
 
 --------------------------------------------------------------------------------
 
 type LOD = GLfloat
 
-textureObjectLODBias :: TextureTargetCompleteWithMultisample t => t -> StateVar LOD
+textureObjectLODBias :: ParameterizedTextureTarget t => t -> StateVar LOD
 textureObjectLODBias = texParamf id id TextureLODBias
 
 maxTextureLODBias :: GettableStateVar LOD
 maxTextureLODBias =
    makeGettableStateVar (getFloat1 id GetMaxTextureLODBias)
 
-textureLODRange :: TextureTargetCompleteWithMultisample t => t -> StateVar (LOD,LOD)
+textureLODRange :: ParameterizedTextureTarget t => t -> StateVar (LOD,LOD)
 textureLODRange =
    combineTexParams
       (texParamf id id TextureMinLOD)
@@ -123,7 +123,7 @@ textureLODRange =
 
 --------------------------------------------------------------------------------
 
-textureMaxAnisotropy :: TextureTargetCompleteWithMultisample t => t -> StateVar GLfloat
+textureMaxAnisotropy :: ParameterizedTextureTarget t => t -> StateVar GLfloat
 textureMaxAnisotropy = texParamf id id TextureMaxAnisotropy
 
 maxTextureMaxAnisotropy :: GettableStateVar GLfloat
@@ -132,7 +132,7 @@ maxTextureMaxAnisotropy =
 
 --------------------------------------------------------------------------------
 
-textureLevelRange :: TextureTargetCompleteWithMultisample t => t -> StateVar (Level,Level)
+textureLevelRange :: ParameterizedTextureTarget t => t -> StateVar (Level,Level)
 textureLevelRange =
    combineTexParams
       (texParami id id TextureBaseLevel)
@@ -140,7 +140,7 @@ textureLevelRange =
 
 --------------------------------------------------------------------------------
 
-generateMipmap :: TextureTargetCompleteWithMultisample t => t -> StateVar Capability
+generateMipmap :: ParameterizedTextureTarget t => t -> StateVar Capability
 generateMipmap = texParami unmarshal marshal GenerateMipmap
    where unmarshal = unmarshalCapability . fromIntegral
          marshal = fromIntegral . marshalCapability
@@ -148,7 +148,7 @@ generateMipmap = texParami unmarshal marshal GenerateMipmap
 --------------------------------------------------------------------------------
 
 -- Only Luminance', Intensity, and Alpha' allowed
-depthTextureMode :: TextureTargetCompleteWithMultisample t => t -> StateVar PixelInternalFormat
+depthTextureMode :: ParameterizedTextureTarget t => t -> StateVar PixelInternalFormat
 depthTextureMode =
    texParami unmarshalPixelInternalFormat marshalPixelInternalFormat DepthTextureMode
 
@@ -168,7 +168,7 @@ unmarshalTextureCompareMode x
 
 --------------------------------------------------------------------------------
 
-textureCompareMode :: TextureTargetCompleteWithMultisample t => t -> StateVar (Maybe ComparisonFunction)
+textureCompareMode :: ParameterizedTextureTarget t => t -> StateVar (Maybe ComparisonFunction)
 textureCompareMode =
    combineTexParamsMaybe
       (texParami unmarshalTextureCompareMode marshalTextureCompareMode TextureCompareMode)
@@ -178,7 +178,7 @@ textureCompareMode =
 
 --------------------------------------------------------------------------------
 
-textureCompareFailValue :: TextureTargetCompleteWithMultisample t => t -> StateVar GLclampf
+textureCompareFailValue :: ParameterizedTextureTarget t => t -> StateVar GLclampf
 textureCompareFailValue = texParamf realToFrac realToFrac TextureCompareFailValue
 
 --------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ unmarshalTextureCompareOperator x
 
 --------------------------------------------------------------------------------
 
-textureCompareOperator :: TextureTargetCompleteWithMultisample t => t -> StateVar (Maybe TextureCompareOperator)
+textureCompareOperator :: ParameterizedTextureTarget t => t -> StateVar (Maybe TextureCompareOperator)
 textureCompareOperator =
    combineTexParamsMaybe
       (texParami (unmarshalCapability . fromIntegral) (fromIntegral. marshalCapability) TextureCompare)
@@ -209,7 +209,7 @@ textureCompareOperator =
 
 --------------------------------------------------------------------------------
 
-combineTexParams :: TextureTargetCompleteWithMultisample t
+combineTexParams :: ParameterizedTextureTarget t
                  => (t -> StateVar a)
                  -> (t -> StateVar b)
                  -> (t -> StateVar (a,b))
@@ -218,7 +218,7 @@ combineTexParams v w t =
       (liftM2 (,) (get (v t)) (get (w t)))
       (\(x,y) -> do v t $= x; w t $= y)
 
-combineTexParamsMaybe :: TextureTargetCompleteWithMultisample t
+combineTexParamsMaybe :: ParameterizedTextureTarget t
                       => (t -> StateVar Capability)
                       -> (t -> StateVar a)
                       -> (t -> StateVar (Maybe a))

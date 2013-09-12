@@ -65,7 +65,7 @@ defaultTextureObject = TextureObject 0
 
 --------------------------------------------------------------------------------
 
-textureResident :: TextureTargetCompleteWithMultisample t => t -> GettableStateVar Bool
+textureResident :: ParameterizedTextureTarget t => t -> GettableStateVar Bool
 textureResident t =
    makeGettableStateVar $
       getTexParameteri unmarshalGLboolean t TextureResident
@@ -87,7 +87,7 @@ areTexturesResident texObjs = do
 
 type TexturePriority = GLclampf
 
-texturePriority :: TextureTargetCompleteWithMultisample t => t -> StateVar TexturePriority
+texturePriority :: ParameterizedTextureTarget t => t -> StateVar TexturePriority
 texturePriority = texParamf realToFrac realToFrac TexturePriority
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()

@@ -68,7 +68,7 @@ instance PixellikeObjectTarget FramebufferTargetAttachment where
 
 data TextureTargetFull t = TextureTargetFull t Level
 
-instance TextureTargetSingleWithMultisample t => PixellikeObjectTarget (TextureTargetFull t) where
+instance QueryableTextureTarget t => PixellikeObjectTarget (TextureTargetFull t) where
    marshalPixellikeOT _ x = case x of
       RedSize -> gl_TEXTURE_RED_SIZE
       BlueSize -> gl_TEXTURE_BLUE_SIZE
@@ -78,5 +78,5 @@ instance TextureTargetSingleWithMultisample t => PixellikeObjectTarget (TextureT
       StencilSize -> gl_TEXTURE_STENCIL_SIZE
    pixObjTarQueryFunc (TextureTargetFull t level) p =
       alloca $ \buf -> do
-      glGetTexLevelParameteriv (marshalTextureTargetSingleWithMultisample t) level p buf
+      glGetTexLevelParameteriv (marshalQueryableTextureTarget t) level p buf
       peek1 id buf

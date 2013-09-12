@@ -20,7 +20,6 @@ import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.GL.CoordTrans ( Size(..) )
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.PixelData ( PixelData, withPixelData )
-import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal ( recordInvalidValue )
 import Graphics.Rendering.OpenGL.Raw
@@ -47,7 +46,7 @@ build1DMipmaps ::
 build1DMipmaps target internalFormat height pd = do
    _ <- withPixelData pd $
       gluBuild1DMipmaps
-         (marshalTextureTargetSingleWithoutMultisample NoProxy target)
+         (marshalGettableTextureTarget target)
          (marshalPixelInternalFormat internalFormat)
          height
    return ()   -- TODO: Should we use the return value?
@@ -59,7 +58,7 @@ build2DMipmaps :: TextureTarget2D -> PixelInternalFormat -> GLsizei -> GLsizei
 build2DMipmaps target internalFormat width height pd = do
    _ <- withPixelData pd $
       gluBuild2DMipmaps
-         (marshalTextureTargetSingleWithoutMultisample NoProxy target)
+         (marshalGettableTextureTarget target)
          (marshalPixelInternalFormat internalFormat)
          width height
    return ()   -- TODO: Should we use the return value?

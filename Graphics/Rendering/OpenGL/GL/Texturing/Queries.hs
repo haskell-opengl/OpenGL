@@ -74,7 +74,7 @@ marshalTexLevelParameter x = case x of
 
 type TextureQuery t a = t -> Level -> GettableStateVar a
 
-textureInternalFormat :: TextureTargetSingleWithMultisample t => TextureQuery t PixelInternalFormat
+textureInternalFormat :: QueryableTextureTarget t => TextureQuery t PixelInternalFormat
 textureInternalFormat t level =
    makeGettableStateVar $
       getTexLevelParameteriNoProxy unmarshalPixelInternalFormat t level TextureInternalFormat
@@ -100,12 +100,12 @@ textureSize3D t level =
              (getTexLevelParameteriNoProxy fromIntegral t level TextureHeight)
              (getTexLevelParameteriNoProxy fromIntegral t level TextureDepth )
 
-textureBorder :: TextureTargetSingleWithMultisample t => TextureQuery t Border
+textureBorder :: QueryableTextureTarget t => TextureQuery t Border
 textureBorder t level =
    makeGettableStateVar $
       getTexLevelParameteriNoProxy fromIntegral t level TextureBorder
 
-textureRGBASizes :: TextureTargetSingleWithMultisample t =>  TextureQuery t (Color4 GLsizei)
+textureRGBASizes :: QueryableTextureTarget t =>  TextureQuery t (Color4 GLsizei)
 textureRGBASizes t level =
    makeGettableStateVar $
       liftM4 Color4
@@ -114,32 +114,32 @@ textureRGBASizes t level =
              (getTexLevelParameteriNoProxy fromIntegral t level TextureBlueSize )
              (getTexLevelParameteriNoProxy fromIntegral t level TextureAlphaSize)
 
-textureSharedSize :: TextureTargetSingleWithMultisample t =>  TextureQuery t GLsizei
+textureSharedSize :: QueryableTextureTarget t =>  TextureQuery t GLsizei
 textureSharedSize t level =
    makeGettableStateVar $
       getTexLevelParameteriNoProxy fromIntegral t level TextureSharedSize
 
-textureIntensitySize :: TextureTargetSingleWithMultisample t => TextureQuery t GLsizei
+textureIntensitySize :: QueryableTextureTarget t => TextureQuery t GLsizei
 textureIntensitySize t level =
    makeGettableStateVar $
       getTexLevelParameteriNoProxy fromIntegral t level TextureIntensitySize
 
-textureLuminanceSize :: TextureTargetSingleWithMultisample t =>  TextureQuery t GLsizei
+textureLuminanceSize :: QueryableTextureTarget t =>  TextureQuery t GLsizei
 textureLuminanceSize t level =
    makeGettableStateVar $
       getTexLevelParameteriNoProxy fromIntegral t level TextureLuminanceSize
 
-textureIndexSize :: TextureTargetSingleWithMultisample t => TextureQuery t GLsizei
+textureIndexSize :: QueryableTextureTarget t => TextureQuery t GLsizei
 textureIndexSize t level =
    makeGettableStateVar $
       getTexLevelParameteriNoProxy fromIntegral t level TextureIndexSize
 
-textureDepthBits :: TextureTargetSingleWithMultisample t => TextureQuery t GLsizei
+textureDepthBits :: QueryableTextureTarget t => TextureQuery t GLsizei
 textureDepthBits t level =
    makeGettableStateVar $
       getTexLevelParameteriNoProxy fromIntegral t level DepthBits
 
-textureCompressedImageSize :: TextureTargetSingleWithMultisample t => TextureQuery t (Maybe GLsizei)
+textureCompressedImageSize :: QueryableTextureTarget t => TextureQuery t (Maybe GLsizei)
 textureCompressedImageSize t level =
    makeGettableStateVar $ do
       isCompressed <- getTexLevelParameteriNoProxy unmarshalGLboolean t level TextureCompressed
@@ -147,7 +147,7 @@ textureCompressedImageSize t level =
          then getTexLevelParameteriNoProxy (Just . fromIntegral) t level TextureCompressedImageSize
          else return Nothing
 
-textureProxyOK :: TextureTargetCompleteWithMultisample t => TextureQuery t Bool
+textureProxyOK :: ParameterizedTextureTarget t => TextureQuery t Bool
 textureProxyOK t level =
    makeGettableStateVar $
       getTexLevelParameteriProxy unmarshalGLboolean t level TextureWidth
@@ -182,14 +182,14 @@ textureProxyOK t level =
   gl[Compressed]TexImage{123}D and when querying the width via
   glGetTexLevelParameteriv.
 -}
-getTexLevelParameteriProxy :: TextureTargetCompleteWithMultisample t => (GLint -> a) -> t -> Level -> TexLevelParameter -> IO a
-getTexLevelParameteriProxy f t level p = getTexLevelParameterix f (marshalTextureTargetCompleteWithMultisample Proxy t) level p
+getTexLevelParameteriProxy :: ParameterizedTextureTarget t => (GLint -> a) -> t -> Level -> TexLevelParameter -> IO a
+getTexLevelParameteriProxy f t level p = getTexLevelParameteri f (marshalParameterizedTextureTargetProxy t) level p
 
-getTexLevelParameteriNoProxy :: TextureTargetSingleWithMultisample t => (GLint -> a) -> t -> Level -> TexLevelParameter -> IO a
-getTexLevelParameteriNoProxy f t level p = getTexLevelParameterix f (marshalTextureTargetSingleWithMultisample t) level p
+getTexLevelParameteriNoProxy :: QueryableTextureTarget t => (GLint -> a) -> t -> Level -> TexLevelParameter -> IO a
+getTexLevelParameteriNoProxy f t level p = getTexLevelParameteri f (marshalQueryableTextureTarget t) level p
 
-getTexLevelParameterix :: (GLint -> a) -> GLenum -> Level -> TexLevelParameter -> IO a
-getTexLevelParameterix f t level p =
+getTexLevelParameteri :: (GLint -> a) -> GLenum -> Level -> TexLevelParameter -> IO a
+getTexLevelParameteri f t level p =
    alloca $ \buf -> do
       glGetTexLevelParameteriv t level (marshalTexLevelParameter p) buf
       peek1 f buf
