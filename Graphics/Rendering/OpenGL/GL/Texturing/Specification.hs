@@ -232,10 +232,10 @@ texSubImage2D target level (TexturePosition2D xOff yOff) (TextureSize2D w h) pd 
 --------------------------------------------------------------------------------
 
 -- see texImage3D, but no proxies
-texSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> TextureSize3D -> PixelData a -> IO ()
+texSubImage3D :: ThreeDimensionalTextureTarget t => t -> Level -> TexturePosition3D -> TextureSize3D -> PixelData a -> IO ()
 texSubImage3D target level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) pd =
    withPixelData pd $
-      glTexSubImage3D (marshalGettableTextureTarget target) level xOff yOff zOff w h d
+      glTexSubImage3D (marshalThreeDimensionalTextureTarget NoProxy target) level xOff yOff zOff w h d
 
 --------------------------------------------------------------------------------
 
@@ -254,9 +254,9 @@ copyTexSubImage2D target level (TexturePosition2D xOff yOff) (Position x y) (Tex
 --------------------------------------------------------------------------------
 
 -- see texImage3D, but no proxies
-copyTexSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> Position -> TextureSize2D -> IO ()
+copyTexSubImage3D :: ThreeDimensionalTextureTarget t => t -> Level -> TexturePosition3D -> Position -> TextureSize2D -> IO ()
 copyTexSubImage3D target level (TexturePosition3D xOff yOff zOff) (Position x y) (TextureSize2D w h) =
-   glCopyTexSubImage3D (marshalGettableTextureTarget target) level xOff yOff zOff x y w h
+   glCopyTexSubImage3D (marshalThreeDimensionalTextureTarget NoProxy target) level xOff yOff zOff x y w h
 
 --------------------------------------------------------------------------------
 
@@ -331,10 +331,10 @@ compressedTexSubImage2D target  level (TexturePosition2D xOff yOff) (TextureSize
 --------------------------------------------------------------------------------
 
 -- see texImage3D, but no proxies
-compressedTexSubImage3D :: TextureTarget3D -> Level -> TexturePosition3D -> TextureSize3D -> CompressedPixelData a -> IO ()
+compressedTexSubImage3D :: ThreeDimensionalTextureTarget t => t -> Level -> TexturePosition3D -> TextureSize3D -> CompressedPixelData a -> IO ()
 compressedTexSubImage3D target level (TexturePosition3D xOff yOff zOff) (TextureSize3D w h d) cpd =
    withCompressedPixelData cpd $
-      glCompressedTexSubImage3D (marshalGettableTextureTarget target) level xOff yOff zOff w h d
+      glCompressedTexSubImage3D (marshalThreeDimensionalTextureTarget NoProxy target) level xOff yOff zOff w h d
 
 --------------------------------------------------------------------------------
 
