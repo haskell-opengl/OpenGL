@@ -14,17 +14,15 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
-   TexParameter(..), texParami, texParamf, texParamC4f, getTexParameteri,
-   combineTexParams, combineTexParamsMaybe
+   TexParameter(..), texParami, texParamf, texParamC4f, getTexParameteri
 ) where
 
-import Control.Monad
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
+import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GL.VertexSpec
@@ -100,13 +98,13 @@ marshalTexParameter x = case x of
   In a nutshell: All non-proxy targets are allowed.
 -}
 
-texParameter :: TextureTarget t
+texParameter :: TextureTargetCompleteWithMultisample t
              => (GLenum -> GLenum -> b -> IO ())
              -> (a -> (b -> IO ()) -> IO ())
              -> t -> TexParameter -> a -> IO ()
 texParameter glTexParameter marshalAct t p x =
    marshalAct x $
-      glTexParameter (marshalTextureTarget t) (marshalTexParameter p)
+      glTexParameter (marshalTextureTargetCompleteWithMultisample NoProxy t) (marshalTexParameter p)
 
 --------------------------------------------------------------------------------
 
@@ -129,13 +127,13 @@ texParameter glTexParameter marshalAct t p x =
   In a nutshell: All non-proxy targets are allowed.
 -}
 
-getTexParameter :: (Storable b, TextureTarget t)
+getTexParameter :: (Storable b, TextureTargetCompleteWithMultisample t)
                 => (GLenum -> GLenum -> Ptr b -> IO ())
                 -> (b -> a)
                 -> t -> TexParameter -> IO a
 getTexParameter glGetTexParameter unmarshal t p =
    alloca $ \buf -> do
-     glGetTexParameter (marshalTextureTarget t) (marshalTexParameter p) buf
+     glGetTexParameter (marshalTextureTargetCompleteWithMultisample NoProxy t) (marshalTexParameter p) buf
      peek1 unmarshal buf
 
 --------------------------------------------------------------------------------
@@ -143,21 +141,21 @@ getTexParameter glGetTexParameter unmarshal t p =
 m2a :: (a -> b) -> a -> (b -> IO ()) -> IO ()
 m2a marshal x act = act (marshal x)
 
-texParami :: TextureTarget t =>
+texParami :: TextureTargetCompleteWithMultisample t =>
    (GLint -> a) -> (a -> GLint) -> TexParameter -> t -> StateVar a
 texParami unmarshal marshal p t =
    makeStateVar
       (getTexParameter glGetTexParameteriv unmarshal     t p)
       (texParameter    glTexParameteri     (m2a marshal) t p)
 
-texParamf :: TextureTarget t =>
+texParamf :: TextureTargetCompleteWithMultisample t =>
    (GLfloat -> a) -> (a -> GLfloat) -> TexParameter -> t -> StateVar a
 texParamf unmarshal marshal p t =
    makeStateVar
       (getTexParameter glGetTexParameterfv unmarshal     t p)
       (texParameter    glTexParameterf     (m2a marshal) t p)
 
-texParamC4f :: TextureTarget t => TexParameter -> t -> StateVar (Color4 GLfloat)
+texParamC4f :: TextureTargetCompleteWithMultisample t => TexParameter -> t -> StateVar (Color4 GLfloat)
 texParamC4f p t =
    makeStateVar
       (getTexParameter glGetTexParameterC4f id   t p)
@@ -169,30 +167,5 @@ glTexParameterC4f target pname ptr = glTexParameterfv target pname (castPtr ptr)
 glGetTexParameterC4f :: GLenum -> GLenum -> Ptr (Color4 GLfloat) -> IO ()
 glGetTexParameterC4f target pname ptr = glGetTexParameterfv target pname (castPtr ptr)
 
-getTexParameteri :: TextureTarget t => (GLint -> a) -> t -> TexParameter -> IO a
+getTexParameteri :: TextureTargetCompleteWithMultisample t => (GLint -> a) -> t -> TexParameter -> IO a
 getTexParameteri = getTexParameter glGetTexParameteriv
-
---------------------------------------------------------------------------------
-
-combineTexParams :: TextureTarget t
-                 => (t -> StateVar a)
-                 -> (t -> StateVar b)
-                 -> (t -> StateVar (a,b))
-combineTexParams v w t =
-   makeStateVar
-      (liftM2 (,) (get (v t)) (get (w t)))
-      (\(x,y) -> do v t $= x; w t $= y)
-
-combineTexParamsMaybe :: TextureTarget t
-                      => (t -> StateVar Capability)
-                      -> (t -> StateVar a)
-                      -> (t -> StateVar (Maybe a))
-combineTexParamsMaybe enab val t =
-   makeStateVar
-      (do tcm <- get (enab t)
-          case tcm of
-             Disabled -> return Nothing
-             Enabled -> fmap Just $ get (val t))
-      (maybe (enab t $= Disabled)
-             (\tcf -> do val t $= tcf
-                         enab t $= Enabled))

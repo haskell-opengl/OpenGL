@@ -46,5 +46,5 @@ import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
   extension in the future.
 -}
 
-texture :: TextureTarget t => t -> StateVar Capability
-texture = makeCapability . textureTargetToEnableCap
+texture :: TextureTargetCompleteWithMultisample t => t -> StateVar Capability
+texture = makeCapability . marshalTextureTargetCompleteWithMultisampleEnableCap

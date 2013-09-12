@@ -13,7 +13,7 @@
 module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
    AttachmentObjectType(..), attachmentObjectType, attachmentObject,
    attachmentTextureLayer, attachmentTextureLevel,
-   attachmentTextureCubeMapTarget,
+   attachmentTextureTextureTargetCubeMapFace,
 
    attachmentRedSize, attachmentBlueSize, attachmentGreenSize,
    attachmentAlphaSize, attachmentDepthSize, attachmentStencilSize,
@@ -120,10 +120,10 @@ attachmentTextureLevel :: FramebufferAttachment fba => FramebufferTarget -> fba
 attachmentTextureLevel fbt fba = makeGettableStateVar $
    getFBAPName fbt fba id AttachmentTextureLevel
 
-attachmentTextureCubeMapTarget :: FramebufferAttachment fba => FramebufferTarget -> fba
-   -> GettableStateVar CubeMapTarget
-attachmentTextureCubeMapTarget fbt fba = makeGettableStateVar $
-   getFBAPName fbt fba (unmarshalCubeMapTarget . fromIntegral) AttachmentTextureLevel
+attachmentTextureTextureTargetCubeMapFace :: FramebufferAttachment fba => FramebufferTarget -> fba
+   -> GettableStateVar TextureTargetCubeMapFace
+attachmentTextureTextureTargetCubeMapFace fbt fba = makeGettableStateVar $
+   getFBAPName fbt fba (unmarshalTextureTargetCubeMapFace . fromIntegral) AttachmentTextureLevel
 
 -----------------------------------------------------------------------------
 

@@ -53,19 +53,19 @@ import Graphics.Rendering.OpenGL.Raw
   In a nutshell: All non-proxy targets are allowed plus TEXTURE_BUFFER.
 -}
 
-textureBinding :: TextureTarget t => t -> StateVar (Maybe TextureObject)
+textureBinding :: BindableTextureTarget t => t -> StateVar (Maybe TextureObject)
 textureBinding t =
    makeStateVar
-      (do o <- getEnum1 (TextureObject . fromIntegral) (textureTargetToBinding t)
+      (do o <- getEnum1 (TextureObject . fromIntegral) (marshalBindableTextureTargetPName1I t)
           return $ if o == defaultTextureObject then Nothing else Just o)
-      (glBindTexture (marshalTextureTarget t) . textureID . (fromMaybe defaultTextureObject))
+      (glBindTexture (marshalBindableTextureTarget t) . textureID . (fromMaybe defaultTextureObject))
 
 defaultTextureObject :: TextureObject
 defaultTextureObject = TextureObject 0
 
 --------------------------------------------------------------------------------
 
-textureResident :: TextureTarget t => t -> GettableStateVar Bool
+textureResident :: TextureTargetCompleteWithMultisample t => t -> GettableStateVar Bool
 textureResident t =
    makeGettableStateVar $
       getTexParameteri unmarshalGLboolean t TextureResident
@@ -87,7 +87,7 @@ areTexturesResident texObjs = do
 
 type TexturePriority = GLclampf
 
-texturePriority :: TextureTarget t => t -> StateVar TexturePriority
+texturePriority :: TextureTargetCompleteWithMultisample t => t -> StateVar TexturePriority
 texturePriority = texParamf realToFrac realToFrac TexturePriority
 
 prioritizeTextures :: [(TextureObject,TexturePriority)] -> IO ()
