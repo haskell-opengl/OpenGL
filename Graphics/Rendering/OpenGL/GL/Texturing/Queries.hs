@@ -150,13 +150,10 @@ textureCompressedImageSize t level =
 textureProxyOK :: ParameterizedTextureTarget t => TextureQuery t Bool
 textureProxyOK t level =
    makeGettableStateVar $
-      getTexLevelParameteriProxy unmarshalGLboolean t level TextureWidth
-
-getTexLevelParameteriProxy :: ParameterizedTextureTarget t => (GLint -> a) -> t -> Level -> TexLevelParameter -> IO a
-getTexLevelParameteriProxy f t level p = getTexLevelParameteri f (marshalParameterizedTextureTargetProxy t) level p
+      getTexLevelParameteri unmarshalGLboolean (marshalParameterizedTextureTargetProxy t) level TextureWidth
 
 getTexLevelParameteriNoProxy :: QueryableTextureTarget t => (GLint -> a) -> t -> Level -> TexLevelParameter -> IO a
-getTexLevelParameteriNoProxy f t level p = getTexLevelParameteri f (marshalQueryableTextureTarget t) level p
+getTexLevelParameteriNoProxy f = getTexLevelParameteri f . marshalQueryableTextureTarget
 
 getTexLevelParameteri :: (GLint -> a) -> GLenum -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteri f t level p =
