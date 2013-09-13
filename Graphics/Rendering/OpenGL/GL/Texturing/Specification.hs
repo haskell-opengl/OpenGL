@@ -152,10 +152,10 @@ texImage2D target proxy level int (TextureSize2D w h) border pd =
 
   TEXTURE_3D
   TEXTURE_2D_ARRAY
-  TEXTURE_CUBE_MAP_ARRAY ???????
+  TEXTURE_CUBE_MAP_ARRAY
   PROXY_TEXTURE_3D
   PROXY_TEXTURE_2D_ARRAY
-  PROXY_TEXTURE_CUBE_MAP_ARRAY ???????
+  PROXY_TEXTURE_CUBE_MAP_ARRAY
 
   Note: No TEXTURE_2D_MULTISAMPLE_ARRAY or PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY
   targets! For these use glTexImage3DMultisample.
@@ -292,7 +292,8 @@ compressedTexImage1D target proxy level (TextureSize1D w) border cpd =
 
 --------------------------------------------------------------------------------
 
--- see texImage2D (but no rectangle texture formats!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
+-- see texImage2D, but note that the spec currently disallows TextureRectangle,
+-- but then again the extension explicitly allows a relaxation in the future.
 compressedTexImage2D :: TwoDimensionalTextureTarget t => t -> Proxy -> Level -> TextureSize2D -> Border -> CompressedPixelData a -> IO ()
 compressedTexImage2D target proxy level (TextureSize2D w h) border cpd =
    withCompressedPixelData cpd $ \fmt ->
