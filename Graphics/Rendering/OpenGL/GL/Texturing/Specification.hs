@@ -63,13 +63,19 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    compressedTexSubImage1D, compressedTexSubImage2D, compressedTexSubImage3D,
    getCompressedTexImage,
 
-  -- * Implementation-Dependent Limits
-  maxTextureSize, maxCubeMapTextureSize, maxRectangleTextureSize,
-  max3DTextureSize, maxArrayTextureLayers
+   -- * Multisample Texture Images
+   SampleLocations(..), texImage2DMultisample, texImage3DMultisample,
+
+   -- * Implementation-Dependent Limits
+   maxTextureSize, maxCubeMapTextureSize, maxRectangleTextureSize,
+   max3DTextureSize, maxArrayTextureLayers, maxSampleMaskWords,
+   maxColorTextureSamples, maxDepthTextureSamples, maxIntegerSamples
 ) where
 
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
+import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
 import Graphics.Rendering.OpenGL.GL.QueryUtils
@@ -339,6 +345,54 @@ compressedTexSubImage3D target level (TexturePosition3D xOff yOff zOff) (Texture
 
 --------------------------------------------------------------------------------
 
+data SampleLocations =
+     FlexibleSampleLocations
+   | FixedSampleLocations
+   deriving ( Eq, Ord, Show )
+
+marshalSampleLocations :: SampleLocations -> GLboolean
+marshalSampleLocations = marshalGLboolean . (FixedSampleLocations ==)
+
+{-
+unmarshalSampleLocations :: GLboolean -> SampleLocations
+unmarshalSampleLocations x =
+   if unmarshalGLboolean x
+      then FixedSampleLocations
+      else FlexibleSampleLocations
+-}
+
+--------------------------------------------------------------------------------
+
+texImage2DMultisample :: TextureTarget2DMultisample
+                      -> Proxy
+                      -> Samples
+                      -> PixelInternalFormat
+                      -> TextureSize2D
+                      -> SampleLocations
+                      -> IO ()
+texImage2DMultisample target proxy (Samples s) int (TextureSize2D w h) loc =
+   glTexImage2DMultisample
+      (marshalMultisample proxy target) s (marshalPixelInternalFormat int)
+      w h (marshalSampleLocations loc)
+
+marshalMultisample :: ParameterizedTextureTarget t => Proxy -> t -> GLenum
+marshalMultisample proxy = case proxy of
+   NoProxy -> marshalParameterizedTextureTarget
+   Proxy -> marshalParameterizedTextureTargetProxy
+
+texImage3DMultisample :: TextureTarget2DMultisampleArray
+                      -> Proxy
+                      -> Samples
+                      -> PixelInternalFormat
+                      -> TextureSize3D
+                      -> SampleLocations
+                      -> IO ()
+texImage3DMultisample target proxy (Samples s) int (TextureSize3D w h d) loc =
+   glTexImage3DMultisample
+      (marshalMultisample proxy target) s (marshalPixelInternalFormat int)
+      w h d (marshalSampleLocations loc)
+
+--------------------------------------------------------------------------------
 maxTextureSize :: GettableStateVar GLsizei
 maxTextureSize = maxTextureSizeWith GetMaxTextureSize
 
@@ -353,6 +407,18 @@ max3DTextureSize = maxTextureSizeWith GetMax3DTextureSize
 
 maxArrayTextureLayers :: GettableStateVar GLsizei
 maxArrayTextureLayers = maxTextureSizeWith GetMaxArrayTextureLayers
+
+maxSampleMaskWords :: GettableStateVar GLsizei
+maxSampleMaskWords = maxTextureSizeWith GetMaxSampleMaskWords
+
+maxColorTextureSamples :: GettableStateVar GLsizei
+maxColorTextureSamples = maxTextureSizeWith GetMaxColorTextureSamples
+
+maxDepthTextureSamples :: GettableStateVar GLsizei
+maxDepthTextureSamples = maxTextureSizeWith GetMaxDepthTextureSamples
+
+maxIntegerSamples :: GettableStateVar GLsizei
+maxIntegerSamples = maxTextureSizeWith GetMaxIntegerSamples
 
 maxTextureSizeWith :: PName1I -> GettableStateVar GLsizei
 maxTextureSizeWith = makeGettableStateVar . getInteger1 fromIntegral
