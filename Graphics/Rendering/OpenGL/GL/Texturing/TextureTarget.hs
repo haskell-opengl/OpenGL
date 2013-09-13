@@ -48,143 +48,27 @@ import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
-{-
-  TEXTURE_1D
-  ------------------------------------------------------------------------------
-  TEXTURE_2D
-  TEXTURE_2D_MULTISAMPLE
-  TEXTURE_1D_ARRAY
-  TEXTURE_RECTANGLE
-  TEXTURE_CUBE_MAP
-  ------------------------------------------------------------------------------
-  TEXTURE_3D
-  TEXTURE_2D_ARRAY
-  TEXTURE_2D_MULTISAMPLE_ARRAY
-  TEXTURE_CUBE_MAP_ARRAY
-  ------------------------------------------------------------------------------
-  TEXTURE_BUFFER
--}
 class BindableTextureTarget t where
-   marshalBindableTextureTarget :: t -> GLenum          -- only used for 'glBindTexture'
-   marshalBindableTextureTargetPName1I :: t -> PName1I  -- only used for 'get textureBinding'
+   marshalBindableTextureTarget :: t -> GLenum
+   marshalBindableTextureTargetPName1I :: t -> PName1I
 
---------------------------------------------------------------------------------
-
-{-
-  Allowed targets:
-
-  TEXTURE_1D
-  ------------------------------------------------------------------------------
-  TEXTURE_2D
-  TEXTURE_2D_MULTISAMPLE
-  TEXTURE_1D_ARRAY
-  TEXTURE_RECTANGLE
-  TEXTURE_CUBE_MAP
-  ------------------------------------------------------------------------------
-  TEXTURE_3D
-  TEXTURE_2D_ARRAY
-  TEXTURE_2D_MULTISAMPLE_ARRAY
-  TEXTURE_CUBE_MAP_ARRAY
--}
 class ParameterizedTextureTarget t where
    marshalParameterizedTextureTarget :: t -> GLenum
    marshalParameterizedTextureTargetProxy :: t -> GLenum
    marshalParameterizedTextureTargetEnableCap :: t -> EnableCap
 
---------------------------------------------------------------------------------
-
-{-
-  Allowed targets:
-
-  TEXTURE_1D
-  PROXY_TEXTURE_1D
--}
 class OneDimensionalTextureTarget t where
    marshalOneDimensionalTextureTarget :: Proxy -> t -> GLenum
 
---------------------------------------------------------------------------------
-
-{-
-  Allowed targets:
-
-  TEXTURE_2D
-  TEXTURE_1D_ARRAY
-  TEXTURE_RECTANGLE
-  TEXTURE_CUBE_MAP_POSITIVE_X
-  TEXTURE_CUBE_MAP_NEGATIVE_X
-  TEXTURE_CUBE_MAP_POSITIVE_Y
-  TEXTURE_CUBE_MAP_NEGATIVE_Y
-  TEXTURE_CUBE_MAP_POSITIVE_Z
-  TEXTURE_CUBE_MAP_NEGATIVE_Z
-  PROXY_TEXTURE_2D
-  PROXY_TEXTURE_1D_ARRAY
-  PROXY_TEXTURE_RECTANGLE
-  PROXY_TEXTURE_CUBE_MAP
-
-  Note: No TEXTURE_2D_MULTISAMPLE or PROXY_TEXTURE_2D_MULTISAMPLE targets! For
-  these use glTexImage2DMultisample.
-
-  Note: We technically allow non-proxy cube map and proxy cube map faces, which is wrong.
--}
 class TwoDimensionalTextureTarget t where
    marshalTwoDimensionalTextureTarget :: Proxy -> t -> GLenum
-
---------------------------------------------------------------------------------
-
-{-
-  Allowed targets:
-
-  TEXTURE_3D
-  TEXTURE_2D_ARRAY
-  TEXTURE_CUBE_MAP_ARRAY
--}
 
 class ThreeDimensionalTextureTarget t where
    marshalThreeDimensionalTextureTarget :: Proxy -> t -> GLenum
 
---------------------------------------------------------------------------------
-
-{-
-  TEXTURE_1D
-  ------------------------------------------------------------------------------
-  TEXTURE_2D
-  TEXTURE_2D_MULTISAMPLE
-  TEXTURE_1D_ARRAY
-  TEXTURE_RECTANGLE
-  TEXTURE_CUBE_MAP_POSITIVE_X
-  TEXTURE_CUBE_MAP_NEGATIVE_X
-  TEXTURE_CUBE_MAP_POSITIVE_Y
-  TEXTURE_CUBE_MAP_NEGATIVE_Y
-  TEXTURE_CUBE_MAP_POSITIVE_Z
-  TEXTURE_CUBE_MAP_NEGATIVE_Z
-  ------------------------------------------------------------------------------
-  TEXTURE_3D
-  TEXTURE_2D_ARRAY
-  TEXTURE_2D_MULTISAMPLE_ARRAY
-  TEXTURE_CUBE_MAP_ARRAY
--}
 class QueryableTextureTarget t where
    marshalQueryableTextureTarget :: t -> GLenum
 
---------------------------------------------------------------------------------
-
-{-
-  TEXTURE_1D
-  ------------------------------------------------------------------------------
-  TEXTURE_2D
-  TEXTURE_1D_ARRAY
-  TEXTURE_RECTANGLE
-  TEXTURE_CUBE_MAP_POSITIVE_X
-  TEXTURE_CUBE_MAP_NEGATIVE_X
-  TEXTURE_CUBE_MAP_POSITIVE_Y
-  TEXTURE_CUBE_MAP_NEGATIVE_Y
-  TEXTURE_CUBE_MAP_POSITIVE_Z
-  TEXTURE_CUBE_MAP_NEGATIVE_Z
-  ------------------------------------------------------------------------------
-  TEXTURE_3D
-  TEXTURE_2D_ARRAY
-  TEXTURE_CUBE_MAP_ARRAY
--}
 class GettableTextureTarget t where
    marshalGettableTextureTarget :: t -> GLenum
 
@@ -315,6 +199,7 @@ data TextureTargetCubeMapFace =
 instance TwoDimensionalTextureTarget TextureTargetCubeMapFace where
    marshalTwoDimensionalTextureTarget p = case p of
       NoProxy -> marshalQueryableTextureTarget
+      -- We could silently map this to TextureCubeMap if we wanted.
       Proxy -> \t -> error ("No proxy target for " ++ show t)
 
 instance QueryableTextureTarget TextureTargetCubeMapFace where

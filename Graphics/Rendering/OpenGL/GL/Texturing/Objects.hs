@@ -32,27 +32,6 @@ import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
-{-
-  Allowed targets:
-
-  TEXTURE_1D
-  ------------------------------------------------------------------------------
-  TEXTURE_2D
-  TEXTURE_2D_MULTISAMPLE
-  TEXTURE_1D_ARRAY
-  TEXTURE_RECTANGLE
-  TEXTURE_CUBE_MAP
-  ------------------------------------------------------------------------------
-  TEXTURE_3D
-  TEXTURE_2D_ARRAY
-  TEXTURE_2D_MULTISAMPLE_ARRAY
-  TEXTURE_CUBE_MAP_ARRAY
-  ------------------------------------------------------------------------------
-  TEXTURE_BUFFER
-
-  In a nutshell: All non-proxy targets are allowed plus TEXTURE_BUFFER.
--}
-
 textureBinding :: BindableTextureTarget t => t -> StateVar (Maybe TextureObject)
 textureBinding t =
    makeStateVar
