@@ -15,7 +15,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Shaders.Variables (
-    VariableType(..), activeVars
+    VariableType(..), unmarshalVariableType, activeVars
 ) where
 
 import Control.Monad
@@ -23,6 +23,7 @@ import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.ByteString
+import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
@@ -142,8 +143,10 @@ unmarshalVariableType x
 activeVars :: (Program -> GettableStateVar GLuint)
            -> (Program -> GettableStateVar GLsizei)
            -> (GLuint -> GLuint -> GLsizei -> Ptr GLsizei -> Ptr GLint -> Ptr GLenum -> Ptr GLchar -> IO ())
-           -> Program -> GettableStateVar [(GLint,VariableType,String)]
-activeVars numVars maxLength getter p@(Program program) =
+           -> (GLenum -> a)
+           -> Program
+           -> GettableStateVar [(GLint,a,String)]
+activeVars numVars maxLength getter unmarshalType p@(Program program) =
    makeGettableStateVar $ do
       numActiveVars <- get (numVars p)
       maxLen <- get (maxLength p)
@@ -155,6 +158,6 @@ activeVars numVars maxLength getter p@(Program program) =
                   n <- createAndTrimByteString maxLen $ \nameBuf -> do
                      getter program i maxLen nameLengthBuf sizeBuf typeBuf nameBuf
                      peek nameLengthBuf
-                  s <- peek sizeBuf
-                  t <- peek typeBuf
-                  return (s, unmarshalVariableType t, unpackUtf8 n)
+                  s <- peek1 fromIntegral sizeBuf
+                  t <- peek1 unmarshalType typeBuf
+                  return (s, t, unpackUtf8 n)

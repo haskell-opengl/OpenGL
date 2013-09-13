@@ -53,4 +53,9 @@ bindAttribLocation (Program program) (AttribLocation location) name =
 --------------------------------------------------------------------------------
 
 activeAttribs :: Program -> GettableStateVar [(GLint,VariableType,String)]
-activeAttribs = activeVars activeAttributes activeAttributeMaxLength glGetActiveAttrib
+activeAttribs =
+   activeVars
+      activeAttributes
+      activeAttributeMaxLength
+      glGetActiveAttrib
+      unmarshalVariableType

@@ -20,9 +20,8 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
 
    -- * Shader related
    transformFeedbackBufferMode,
-   VaryingIndex, MaxLength,
-   getTransformFeedbackVaryings, setTransformFeedbackVaryings,
-   getTransformFeedbackVarying, getTransformFeedbackVaryingMaxLength,
+   transformFeedbackVaryings,
+   setTransformFeedbackVaryings,
 
    -- * limits
    maxTransformFeedbackSeparateAttribs,
@@ -30,14 +29,13 @@ module Graphics.Rendering.OpenGL.GL.TransformFeedback (
    maxTransformFeedbackSeparateComponents
 ) where
 
-import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
-import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
+import Graphics.Rendering.OpenGL.GL.Shaders.Variables
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
@@ -49,9 +47,12 @@ beginTransformFeedback = glBeginTransformFeedback . marshalPrimitiveMode
 endTransformFeedback :: IO ()
 endTransformFeedback = glEndTransformFeedback
 
+--------------------------------------------------------------------------------
 
---TranformFeedbackBuffer mode
-data TransformFeedbackBufferMode = InterleavedAttribs | SeperateAttribs
+data TransformFeedbackBufferMode =
+     InterleavedAttribs
+   | SeperateAttribs
+   deriving ( Eq, Ord, Show )
 
 marshalTransformFeedbackBufferMode :: TransformFeedbackBufferMode -> GLenum
 marshalTransformFeedbackBufferMode x = case x of
@@ -83,11 +84,6 @@ maxTransformFeedbackSeparateComponents :: GettableStateVar GLint
 maxTransformFeedbackSeparateComponents = makeGettableStateVar $
    getInteger1 fromIntegral GetMaxTransformFeedbackSeparateComponents
 
------------------------------------------------------------------------------
-
-type VaryingIndex = GLuint
-type MaxLength = GLsizei
-
 --------------------------------------------------------------------------------
 
 -- | Set all the transform feedbacks varyings for this program
@@ -109,30 +105,20 @@ transformFeedbackBufferMode = programVar1
 
 -- | The number of varyings that are currently recorded when in
 -- transform feedback mode
-getTransformFeedbackVaryings :: Program -> GettableStateVar GLuint
-getTransformFeedbackVaryings
-    = programVar1 fromIntegral TransformFeedbackVaryings
+numTransformFeedbackVaryings :: Program -> GettableStateVar GLuint
+numTransformFeedbackVaryings =
+   programVar1 fromIntegral TransformFeedbackVaryings
 
 -- | The maximum length of a varying's name for transform feedback mode
-getTransformFeedbackVaryingMaxLength :: Program -> GettableStateVar GLuint
-getTransformFeedbackVaryingMaxLength
+transformFeedbackVaryingMaxLength :: Program -> GettableStateVar GLsizei
+transformFeedbackVaryingMaxLength
    = programVar1 fromIntegral TransformFeedbackVaryingMaxLength
 
--- | Get the name, datatype and size of a single transform feedback
--- varying.
-getTransformFeedbackVarying :: Program
-   -> VaryingIndex -- ^ the index in a previous array of names of
-                   -- setTransformFeedbackVaryings
-   -> MaxLength -- ^ the maximum length of the returned string
-   -> IO (String, DataType, GLsizei) -- ^ The name of the varying, it's type
-                                     -- and size
-getTransformFeedbackVarying (Program program) vi ml = do
-   alloca $ \nameLengthBuf ->
-      alloca $ \sizeBuf ->
-          alloca $ \typeBuf -> do
-             n <- createAndTrimByteString ml $ \nameBuf -> do
-                glGetTransformFeedbackVarying program vi ml nameLengthBuf sizeBuf typeBuf nameBuf
-                peek nameLengthBuf
-             s <- peek sizeBuf
-             d <- peek typeBuf
-             return (unpackUtf8 n, unmarshalDataType d, s)
+-- | The name, datatype and size of the transform feedback varyings.
+transformFeedbackVaryings :: Program -> GettableStateVar [(GLint, DataType, String)]
+transformFeedbackVaryings =
+   activeVars
+      numTransformFeedbackVaryings
+      transformFeedbackVaryingMaxLength
+      glGetTransformFeedbackVarying
+      unmarshalDataType

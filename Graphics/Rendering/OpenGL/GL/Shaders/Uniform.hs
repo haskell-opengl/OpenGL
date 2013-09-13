@@ -59,7 +59,12 @@ uniformLocation (Program program) name =
 --------------------------------------------------------------------------------
 
 activeUniforms :: Program -> GettableStateVar [(GLint,VariableType,String)]
-activeUniforms = activeVars numActiveUniforms activeUniformMaxLength glGetActiveUniform
+activeUniforms =
+   activeVars
+      numActiveUniforms
+      activeUniformMaxLength
+      glGetActiveUniform
+      unmarshalVariableType
 
 --------------------------------------------------------------------------------
 
