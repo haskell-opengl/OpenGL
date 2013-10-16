@@ -14,7 +14,7 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
-   TextureObject, textureBinding,
+   TextureObject(TextureObject), textureBinding,
    textureResident, areTexturesResident,
    TexturePriority, texturePriority, prioritizeTextures
 ) where
