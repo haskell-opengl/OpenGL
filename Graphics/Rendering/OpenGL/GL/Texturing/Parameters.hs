@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Parameters (
    Repetition(..), Clamping(..), textureWrapMode,
    textureBorderColor, LOD, textureObjectLODBias, maxTextureLODBias,
    textureLODRange, textureMaxAnisotropy, maxTextureMaxAnisotropy,
-   textureLevelRange, generateMipmap, depthTextureMode, textureCompareMode,
+   textureLevelRange, textureGenerateMipmap, depthTextureMode, textureCompareMode,
    textureCompareFailValue, TextureCompareOperator(..), textureCompareOperator
 ) where
 
@@ -140,8 +140,10 @@ textureLevelRange =
 
 --------------------------------------------------------------------------------
 
-generateMipmap :: ParameterizedTextureTarget t => t -> StateVar Capability
-generateMipmap = texParami unmarshal marshal GenerateMipmap
+-- Refers to the generate mipmap parameter introduced in OpenGL 1.4 and
+-- deprecated in OpenGL 3.0
+textureGenerateMipmap :: ParameterizedTextureTarget t => t -> StateVar Capability
+textureGenerateMipmap = texParami unmarshal marshal GenerateMipmap
    where unmarshal = unmarshalCapability . fromIntegral
          marshal = fromIntegral . marshalCapability
 
