@@ -140,6 +140,9 @@ textureLevelRange =
 
 --------------------------------------------------------------------------------
 
+-- | Note: OpenGL 3.1 deprecated this texture parameter, use
+-- 'Graphics.Rendering.OpenGL.GL.Texturing.Objects.generateMipmap'' instead.
+
 generateMipmap :: ParameterizedTextureTarget t => t -> StateVar Capability
 generateMipmap = texParami unmarshal marshal GenerateMipmap
    where unmarshal = unmarshalCapability . fromIntegral

@@ -16,7 +16,8 @@
 module Graphics.Rendering.OpenGL.GL.Texturing.Objects (
    TextureObject(TextureObject), textureBinding,
    textureResident, areTexturesResident,
-   TexturePriority, texturePriority, prioritizeTextures
+   TexturePriority, texturePriority, prioritizeTextures,
+   generateMipmap'
 ) where
 
 import Data.List
@@ -74,3 +75,12 @@ prioritizeTextures tps =
    withArrayLen (map (textureID . fst) tps) $ \len texObjsBuf ->
       withArray (map snd tps) $
          glPrioritizeTextures (fromIntegral len) texObjsBuf
+
+--------------------------------------------------------------------------------
+
+-- | Generate mipmaps for the specified texture target. Note that from OpenGL
+-- 3.1 onwards you should use this function instead of the texture parameter
+-- 'Graphics.Rendering.OpenGL.GL.Texturing.Parameters.generateMipmap'.
+
+generateMipmap' :: ParameterizedTextureTarget t => t -> IO ()
+generateMipmap' = glGenerateMipmap . marshalParameterizedTextureTarget
