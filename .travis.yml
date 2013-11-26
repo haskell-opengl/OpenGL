@@ -23,7 +23,7 @@ install:
  - ghc-pkg list
  - pushd ..
  - git clone --depth=100 --quiet https://github.com/haskell-opengl/GLURaw.git
- - cd OpenGLRaw
+ - cd GLURaw
  - cabal-1.18 install --enable-documentation
  - popd
  - ghc-pkg list
