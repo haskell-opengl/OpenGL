@@ -69,6 +69,9 @@ getBooleaniv p i = makeGetter (\e -> glGetBooleani_v e i) p
 getIntegeriv :: GetPName p => p -> GLuint -> Ptr GLint -> IO ()
 getIntegeriv p i =  makeGetter (\e -> glGetIntegeri_v e i) p
 
+getInteger64iv :: GetPName p => p -> GLuint -> Ptr GLint64 -> IO ()
+getInteger64iv p i =  makeGetter (\e -> glGetInteger64i_v e i) p
+
 -----------------------------------------------------------------------------
 
 {-# INLINE makeGetter #-}
@@ -127,6 +130,9 @@ class GetPName p => GetIPName1I p where
 
     getSizei1i :: (GLsizei -> a) -> p -> GLuint -> IO a
     getSizei1i = get1i getIntegeriv
+
+    getInteger641i :: (GLint64 -> a) -> p -> GLuint -> IO a
+    getInteger641i = get1i getInteger64iv
 
 -- Indexed helper
 get1i :: (Storable b, Storable c, GetPName p)
@@ -948,18 +954,36 @@ instance GetPName PName1F where
 
 -----------------------------------------------------------------------------
 
-data IPName1I
-    =  GetTransformFeedbackBuffer
+data IPName1I =
+      GetAtomicCounterBuffer
+    | GetAtomicCounterBufferStart
+    | GetAtomicCounterBufferSize
+    | GetShaderStorageBuffer
+    | GetShaderStorageBufferStart
+    | GetShaderStorageBufferSize
+    | GetTransformFeedbackBuffer
     | GetTransformFeedbackBufferStart
     | GetTransformFeedbackBufferSize
+    | GetUniformBuffer
+    | GetUniformBufferStart
+    | GetUniformBufferSize
 
 instance GetIPName1I IPName1I where
 
 instance GetPName IPName1I where
     marshalGetPName pn = case pn of
+        GetAtomicCounterBuffer -> Just gl_ATOMIC_COUNTER_BUFFER
+        GetAtomicCounterBufferStart -> Just gl_ATOMIC_COUNTER_BUFFER_START
+        GetAtomicCounterBufferSize -> Just gl_ATOMIC_COUNTER_BUFFER_SIZE
+        GetShaderStorageBuffer -> Just gl_SHADER_STORAGE_BUFFER
+        GetShaderStorageBufferStart -> Just gl_SHADER_STORAGE_BUFFER_START
+        GetShaderStorageBufferSize -> Just gl_SHADER_STORAGE_BUFFER_SIZE
         GetTransformFeedbackBuffer -> Just gl_TRANSFORM_FEEDBACK_BUFFER
-        GetTransformFeedbackBufferSize -> Just gl_TRANSFORM_FEEDBACK_BUFFER_SIZE
         GetTransformFeedbackBufferStart -> Just gl_TRANSFORM_FEEDBACK_BUFFER_START
+        GetTransformFeedbackBufferSize -> Just gl_TRANSFORM_FEEDBACK_BUFFER_SIZE
+        GetUniformBuffer -> Just gl_UNIFORM_BUFFER
+        GetUniformBufferStart -> Just gl_UNIFORM_BUFFER_START
+        GetUniformBufferSize -> Just gl_UNIFORM_BUFFER_SIZE
 
 -----------------------------------------------------------------------------
 
@@ -1058,6 +1082,7 @@ data PName4ISemiIndexed
     = GetColorWritemask         -- ^ bool
 
 instance GetPName4I  PName4ISemiIndexed where
+
 instance GetIPName4I PName4ISemiIndexed where
 
 instance GetPName PName4ISemiIndexed where
@@ -1129,6 +1154,7 @@ data PNameNI
     | GetProgramBinaryFormats
 
 instance GetPNameNI PNameNI where
+
 instance GetPName   PNameNI where
    marshalGetPName pn = case pn of
       GetCompressedTextureFormats -> Just gl_COMPRESSED_TEXTURE_FORMATS
