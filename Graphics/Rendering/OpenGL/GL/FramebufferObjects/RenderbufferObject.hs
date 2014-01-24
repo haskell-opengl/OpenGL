@@ -25,6 +25,7 @@ import Graphics.Rendering.OpenGL.Raw
 --------------------------------------------------------------------------------
 
 data RenderbufferObject = RenderbufferObject { renderbufferID :: GLuint}
+   deriving ( Eq, Ord, Show )
 
 instance ObjectName RenderbufferObject where
    isObjectName = fmap unmarshalGLboolean . glIsRenderbuffer . renderbufferID

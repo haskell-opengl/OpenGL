@@ -1,7 +1,7 @@
 {-# OPTIONS_HADDOCK hide #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.RendebufferObjects
+-- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
 -- Copyright   :  (c) Sven Panne, Lars Corbijn 2011-2013
 -- License     :  BSD3
 --

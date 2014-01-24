@@ -467,6 +467,7 @@ data ClampTarget =
      ClampVertexColor
    | ClampFragmentColor
    | ClampReadColor
+   deriving ( Eq, Ord, Show )
 
 marshalClampTarget :: ClampTarget -> GLenum
 marshalClampTarget x = case x of
@@ -480,13 +481,13 @@ marshalClampTargetToPName x = case x of
    ClampVertexColor -> GetVertexColorClamp
    ClampReadColor -> GetReadColorClamp
 
-
 --------------------------------------------------------------------------------
 
 data ClampMode =
      ClampOn
    | FixedOnly
    | ClampOff
+   deriving ( Eq, Ord, Show )
 
 marshalClampMode :: ClampMode -> GLenum
 marshalClampMode x = case x of
@@ -505,5 +506,5 @@ unmarshalClampMode x
 
 clampColor :: ClampTarget -> StateVar ClampMode
 clampColor ct = makeStateVar (getClampColor ct) (setClampColor ct)
-   where setClampColor t = glClampColor (marshalClampTarget t) . marshalClampMode
-         getClampColor = getEnum1 unmarshalClampMode . marshalClampTargetToPName
+   where getClampColor = getEnum1 unmarshalClampMode . marshalClampTargetToPName
+         setClampColor t = glClampColor (marshalClampTarget t) . marshalClampMode

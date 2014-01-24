@@ -43,6 +43,7 @@ data PixelMapTarget =
    | GToG
    | BToB
    | AToA
+   deriving ( Eq, Ord, Show )
 
 marshalPixelMapTarget :: PixelMapTarget -> GLenum
 marshalPixelMapTarget x = case x of
