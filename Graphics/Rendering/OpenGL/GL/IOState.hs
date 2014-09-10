@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.IOState (
    IOState(..), getIOState, peekIOState, evalIOState, nTimes
 ) where
 
-import Control.Applicative (Applicative(..))
+import Control.Applicative ( Applicative(..) )
 import Control.Monad ( ap, liftM, replicateM )
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf,peek) )
