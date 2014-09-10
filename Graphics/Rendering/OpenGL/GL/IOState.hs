@@ -18,7 +18,8 @@ module Graphics.Rendering.OpenGL.GL.IOState (
    IOState(..), getIOState, peekIOState, evalIOState, nTimes
 ) where
 
-import Control.Monad(replicateM)
+import Control.Applicative (Applicative(..))
+import Control.Monad ( ap, liftM, replicateM )
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf,peek) )
 
@@ -26,8 +27,12 @@ import Foreign.Storable ( Storable(sizeOf,peek) )
 
 newtype IOState s a = IOState { runIOState :: Ptr s -> IO (a, Ptr s) }
 
+instance Applicative (IOState s) where
+   pure  = return
+   (<*>) = ap
+
 instance Functor (IOState s) where
-   fmap f m = IOState $ \s -> do (x, s') <- runIOState m s ; return (f x, s')
+   fmap = liftM
 
 instance Monad (IOState s) where
    return a = IOState $ \s -> return (a, s)
