@@ -47,12 +47,12 @@
 module Graphics.Rendering.OpenGL.GL.StateVar (
    -- * Readable State Variables
    HasGetter(..),
-   GettableStateVar, makeGettableStateVar,
+   GettableStateVar(..), makeGettableStateVar,
    -- * Writable State Variables
    HasSetter(..),
-   SettableStateVar, makeSettableStateVar,
+   SettableStateVar(..), makeSettableStateVar,
    -- * General State Variables
-   StateVar, makeStateVar,
+   StateVar(..), makeStateVar,
    -- * Utility Functions
    ($~), ($=!), ($~!)
 ) where
@@ -79,6 +79,9 @@ newtype GettableStateVar a = GettableStateVar (IO a)
 
 instance HasGetter GettableStateVar where
    get (GettableStateVar g) = g
+
+instance Functor GettableStateVar where
+  fmap f (GettableStateVar g) = GettableStateVar (fmap f g)
 
 -- | Construct a 'GettableStateVar' from an IO action.
 makeGettableStateVar :: IO a -> GettableStateVar a
