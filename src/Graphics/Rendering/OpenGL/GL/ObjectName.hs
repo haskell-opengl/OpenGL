@@ -14,7 +14,7 @@
 --
 -- Object names are explicitly handled identifiers for API objects, e.g. a
 -- texture object name in OpenGL or a buffer object name in OpenAL. They come in
--- two flavors: If a name can exists on its own without an associated object, we
+-- two flavors: If a name can exist on its own without an associated object, we
 -- have a 'GeneratableObjectName', otherwise we have an 'ObjectName'.
 --
 --------------------------------------------------------------------------------
