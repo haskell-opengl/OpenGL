@@ -141,7 +141,7 @@ library
    Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit,
    Graphics.Rendering.OpenGL.GL.VertexAttributes,
    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-  hs-Source-Dirs: src
+  hs-source-dirs: src
   ghc-options: -Wall -O2
   build-depends:
    base >= 3 && < 5, bytestring, text, OpenGLRaw >= 1.4.1.0, GLURaw >= 1.3.0.0
