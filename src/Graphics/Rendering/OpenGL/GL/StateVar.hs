@@ -57,6 +57,7 @@ module Graphics.Rendering.OpenGL.GL.StateVar (
    ($~), ($=!), ($~!)
 ) where
 
+import Control.Applicative ( Applicative(..) )
 import Data.IORef ( IORef, readIORef, writeIORef )
 
 --------------------------------------------------------------------------------
@@ -83,6 +84,14 @@ instance HasGetter GettableStateVar where
 instance Functor GettableStateVar where
   fmap f (GettableStateVar g) = GettableStateVar (fmap f g)
 
+instance Applicative GettableStateVar where
+  pure = GettableStateVar . pure
+  GettableStateVar g <*> GettableStateVar h = GettableStateVar (g <*> h)
+
+instance Monad GettableStateVar where
+  return = pure
+  GettableStateVar g >>= h = GettableStateVar (g >>= get . h)
+
 -- | Construct a 'GettableStateVar' from an IO action.
 makeGettableStateVar :: IO a -> GettableStateVar a
 makeGettableStateVar = GettableStateVar
@@ -103,6 +112,9 @@ newtype SettableStateVar a = SettableStateVar (a -> IO ())
 
 instance HasSetter SettableStateVar where
    ($=) (SettableStateVar s) a = s a
+
+-- instance Contravariant SettableStateVar where
+--    contramap f (SettableStateVar s) = SettableStateVar (s . f)
 
 -- | Construct a 'SettableStateVar' from an IO action.
 makeSettableStateVar :: (a -> IO ()) -> SettableStateVar a
