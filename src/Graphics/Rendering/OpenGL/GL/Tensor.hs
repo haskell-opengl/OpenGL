@@ -19,15 +19,15 @@ module Graphics.Rendering.OpenGL.GL.Tensor (
    Vector1(..), Vector2(..), Vector3(..), Vector4(..)
 ) where
 
-import Control.Applicative
-import Control.Monad
-import Data.Foldable
-import Data.Ix
-import Data.Traversable
-import Data.Typeable
-import Foreign.Marshal.Array
-import Foreign.Ptr
-import Foreign.Storable
+import Control.Applicative ( Applicative(..) )
+import Control.Monad ( ap )
+import Data.Foldable ( Foldable(..), foldlM )
+import Data.Ix ( Ix )
+import Data.Traversable ( Traversable(..), mapAccumL )
+import Data.Typeable ( Typeable )
+import Foreign.Marshal.Array ( advancePtr )
+import Foreign.Ptr ( Ptr, plusPtr, castPtr )
+import Foreign.Storable ( Storable(..) )
 
 --------------------------------------------------------------------------------
 
