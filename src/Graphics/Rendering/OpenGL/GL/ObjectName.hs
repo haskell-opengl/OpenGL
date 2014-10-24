@@ -52,9 +52,10 @@ class ObjectName a where
    deleteObjectNames = mapM_ deleteObjectName
 
 -- | A 'GeneratableObjectName' is an 'ObjectName' which can be generated without
--- creating an associated object at the same time, e.g. a buffer object name.
--- Note that e.g. program object names do not fall into this category, because
--- you can only create such a name together with a program object itself.
+-- creating an associated object at the same time, e.g. an OpenGL buffer object
+-- name. Note that e.g. OpenGL program object names do not fall into this
+-- category, because you can only create such a name together with a program
+-- object itself.
 #if __GLASGOW_HASKELL__ < 708
 --
 -- Minimal complete definition: One of 'genObjectName' or 'genObjectNames'.
