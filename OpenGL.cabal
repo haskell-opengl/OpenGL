@@ -1,151 +1,153 @@
 name: OpenGL
 version: 2.9.3.0
-license: BSD3
-license-file: LICENSE
-maintainer: Sven Panne <svenpanne@gmail.com>, Jason Dagit <dagitj@gmail.com>
-bug-reports: https://github.com/haskell-opengl/OpenGL/issues
-homepage: http://www.haskell.org/haskellwiki/Opengl
-category: Graphics
 synopsis: A binding for the OpenGL graphics system
 description:
-   A Haskell binding for the OpenGL graphics system (GL, version 4.4) and its
-   accompanying utility library (GLU, version 1.3).
-   .
-   OpenGL is the industry's most widely used and supported 2D and 3D graphics
-   application programming interface (API), incorporating a broad set of
-   rendering, texture mapping, special effects, and other powerful visualization
-   functions. For more information about OpenGL and its various extensions,
-   please see <http://www.opengl.org/>
-   and <http://www.opengl.org/registry/>.
+  A Haskell binding for the OpenGL graphics system (GL, version 4.4) and its
+  accompanying utility library (GLU, version 1.3).
+  .
+  OpenGL is the industry's most widely used and supported 2D and 3D graphics
+  application programming interface (API), incorporating a broad set of
+  rendering, texture mapping, special effects, and other powerful visualization
+  functions. For more information about OpenGL and its various extensions,
+  please see <http://www.opengl.org/>
+  and <http://www.opengl.org/registry/>.
+homepage: http://www.haskell.org/haskellwiki/Opengl
+bug-reports: https://github.com/haskell-opengl/OpenGL/issues
+license: BSD3
+license-file: LICENSE
+author: Sven Panne
+maintainer: Sven Panne <svenpanne@gmail.com>, Jason Dagit <dagitj@gmail.com>
+category: Graphics
 build-type: Simple
-cabal-version: >= 1.6
+cabal-version: >= 1.10
 extra-source-files:
    README.md
+
 library
   exposed-modules:
-   Graphics.Rendering.OpenGL,
-   Graphics.Rendering.OpenGL.GL,
-   Graphics.Rendering.OpenGL.GL.Antialiasing,
-   Graphics.Rendering.OpenGL.GL.BeginEnd,
-   Graphics.Rendering.OpenGL.GL.Bitmaps,
-   Graphics.Rendering.OpenGL.GL.BufferObjects,
-   Graphics.Rendering.OpenGL.GL.ByteString,
-   Graphics.Rendering.OpenGL.GL.Clipping,
-   Graphics.Rendering.OpenGL.GL.ColorSum,
-   Graphics.Rendering.OpenGL.GL.Colors,
-   Graphics.Rendering.OpenGL.GL.ConditionalRendering,
-   Graphics.Rendering.OpenGL.GL.CoordTrans,
-   Graphics.Rendering.OpenGL.GL.DisplayLists,
-   Graphics.Rendering.OpenGL.GL.Evaluators,
-   Graphics.Rendering.OpenGL.GL.Feedback,
-   Graphics.Rendering.OpenGL.GL.FlushFinish,
-   Graphics.Rendering.OpenGL.GL.Fog,
-   Graphics.Rendering.OpenGL.GL.Framebuffer,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects,
-   Graphics.Rendering.OpenGL.GL.Hints,
-   Graphics.Rendering.OpenGL.GL.LineSegments,
-   Graphics.Rendering.OpenGL.GL.ObjectName,
-   Graphics.Rendering.OpenGL.GL.PerFragment,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.Convolution,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.Minmax,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelTransfer,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization,
-   Graphics.Rendering.OpenGL.GL.PixellikeObject,
-   Graphics.Rendering.OpenGL.GL.Points,
-   Graphics.Rendering.OpenGL.GL.Polygons,
-   Graphics.Rendering.OpenGL.GL.QueryObjects,
-   Graphics.Rendering.OpenGL.GL.RasterPos,
-   Graphics.Rendering.OpenGL.GL.ReadCopyPixels,
-   Graphics.Rendering.OpenGL.GL.Rectangles,
-   Graphics.Rendering.OpenGL.GL.SavingState,
-   Graphics.Rendering.OpenGL.GL.Selection,
-   Graphics.Rendering.OpenGL.GL.Shaders,
-   Graphics.Rendering.OpenGL.GL.Shaders.Attribs,
-   Graphics.Rendering.OpenGL.GL.Shaders.Limits,
-   Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries,
-   Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects,
-   Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries,
-   Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects,
-   Graphics.Rendering.OpenGL.GL.Shaders.Uniform,
-   Graphics.Rendering.OpenGL.GL.StateVar,
-   Graphics.Rendering.OpenGL.GL.StringQueries,
-   Graphics.Rendering.OpenGL.GL.SyncObjects,
-   Graphics.Rendering.OpenGL.GL.Tensor,
-   Graphics.Rendering.OpenGL.GL.Texturing,
-   Graphics.Rendering.OpenGL.GL.Texturing.Application,
-   Graphics.Rendering.OpenGL.GL.Texturing.Environments,
-   Graphics.Rendering.OpenGL.GL.Texturing.Objects,
-   Graphics.Rendering.OpenGL.GL.Texturing.Parameters,
-   Graphics.Rendering.OpenGL.GL.Texturing.Queries,
-   Graphics.Rendering.OpenGL.GL.Texturing.Specification,
-   Graphics.Rendering.OpenGL.GL.TransformFeedback,
-   Graphics.Rendering.OpenGL.GL.VertexArrayObjects,
-   Graphics.Rendering.OpenGL.GL.VertexArrays,
-   Graphics.Rendering.OpenGL.GL.VertexSpec,
-   Graphics.Rendering.OpenGL.GLU,
-   Graphics.Rendering.OpenGL.GLU.Errors,
-   Graphics.Rendering.OpenGL.GLU.Initialization,
-   Graphics.Rendering.OpenGL.GLU.Matrix,
-   Graphics.Rendering.OpenGL.GLU.Mipmapping,
-   Graphics.Rendering.OpenGL.GLU.NURBS,
-   Graphics.Rendering.OpenGL.GLU.Quadrics,
-   Graphics.Rendering.OpenGL.GLU.Tessellation
+    Graphics.Rendering.OpenGL
+    Graphics.Rendering.OpenGL.GL
+    Graphics.Rendering.OpenGL.GL.Antialiasing
+    Graphics.Rendering.OpenGL.GL.BeginEnd
+    Graphics.Rendering.OpenGL.GL.Bitmaps
+    Graphics.Rendering.OpenGL.GL.BufferObjects
+    Graphics.Rendering.OpenGL.GL.ByteString
+    Graphics.Rendering.OpenGL.GL.Clipping
+    Graphics.Rendering.OpenGL.GL.ColorSum
+    Graphics.Rendering.OpenGL.GL.Colors
+    Graphics.Rendering.OpenGL.GL.ConditionalRendering
+    Graphics.Rendering.OpenGL.GL.CoordTrans
+    Graphics.Rendering.OpenGL.GL.DisplayLists
+    Graphics.Rendering.OpenGL.GL.Evaluators
+    Graphics.Rendering.OpenGL.GL.Feedback
+    Graphics.Rendering.OpenGL.GL.FlushFinish
+    Graphics.Rendering.OpenGL.GL.Fog
+    Graphics.Rendering.OpenGL.GL.Framebuffer
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Attachments
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects
+    Graphics.Rendering.OpenGL.GL.Hints
+    Graphics.Rendering.OpenGL.GL.LineSegments
+    Graphics.Rendering.OpenGL.GL.ObjectName
+    Graphics.Rendering.OpenGL.GL.PerFragment
+    Graphics.Rendering.OpenGL.GL.PixelRectangles
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.Convolution
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.Minmax
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelMap
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelTransfer
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization
+    Graphics.Rendering.OpenGL.GL.PixellikeObject
+    Graphics.Rendering.OpenGL.GL.Points
+    Graphics.Rendering.OpenGL.GL.Polygons
+    Graphics.Rendering.OpenGL.GL.QueryObjects
+    Graphics.Rendering.OpenGL.GL.RasterPos
+    Graphics.Rendering.OpenGL.GL.ReadCopyPixels
+    Graphics.Rendering.OpenGL.GL.Rectangles
+    Graphics.Rendering.OpenGL.GL.SavingState
+    Graphics.Rendering.OpenGL.GL.Selection
+    Graphics.Rendering.OpenGL.GL.Shaders
+    Graphics.Rendering.OpenGL.GL.Shaders.Attribs
+    Graphics.Rendering.OpenGL.GL.Shaders.Limits
+    Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries
+    Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
+    Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries
+    Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects
+    Graphics.Rendering.OpenGL.GL.Shaders.Uniform
+    Graphics.Rendering.OpenGL.GL.StateVar
+    Graphics.Rendering.OpenGL.GL.StringQueries
+    Graphics.Rendering.OpenGL.GL.SyncObjects
+    Graphics.Rendering.OpenGL.GL.Tensor
+    Graphics.Rendering.OpenGL.GL.Texturing
+    Graphics.Rendering.OpenGL.GL.Texturing.Application
+    Graphics.Rendering.OpenGL.GL.Texturing.Environments
+    Graphics.Rendering.OpenGL.GL.Texturing.Objects
+    Graphics.Rendering.OpenGL.GL.Texturing.Parameters
+    Graphics.Rendering.OpenGL.GL.Texturing.Queries
+    Graphics.Rendering.OpenGL.GL.Texturing.Specification
+    Graphics.Rendering.OpenGL.GL.TransformFeedback
+    Graphics.Rendering.OpenGL.GL.VertexArrayObjects
+    Graphics.Rendering.OpenGL.GL.VertexArrays
+    Graphics.Rendering.OpenGL.GL.VertexSpec
+    Graphics.Rendering.OpenGL.GLU
+    Graphics.Rendering.OpenGL.GLU.Errors
+    Graphics.Rendering.OpenGL.GLU.Initialization
+    Graphics.Rendering.OpenGL.GLU.Matrix
+    Graphics.Rendering.OpenGL.GLU.Mipmapping
+    Graphics.Rendering.OpenGL.GLU.NURBS
+    Graphics.Rendering.OpenGL.GLU.Quadrics
+    Graphics.Rendering.OpenGL.GLU.Tessellation
   other-modules:
-   Graphics.Rendering.OpenGL.GL.BlendingFactor,
-   Graphics.Rendering.OpenGL.GL.BufferMode,
-   Graphics.Rendering.OpenGL.GL.Capability,
-   Graphics.Rendering.OpenGL.GL.ComparisonFunction,
-   Graphics.Rendering.OpenGL.GL.ControlPoint,
-   Graphics.Rendering.OpenGL.GL.DataType,
-   Graphics.Rendering.OpenGL.GL.Domain,
-   Graphics.Rendering.OpenGL.GL.EdgeFlag,
-   Graphics.Rendering.OpenGL.GL.Exception,
-   Graphics.Rendering.OpenGL.GL.Face,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject,
-   Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget,
-   Graphics.Rendering.OpenGL.GL.GLboolean,
-   Graphics.Rendering.OpenGL.GL.IOState,
-   Graphics.Rendering.OpenGL.GL.PeekPoke,
-   Graphics.Rendering.OpenGL.GL.PixelData,
-   Graphics.Rendering.OpenGL.GL.PixelFormat,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset,
-   Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink,
-   Graphics.Rendering.OpenGL.GL.PointParameter,
-   Graphics.Rendering.OpenGL.GL.PolygonMode,
-   Graphics.Rendering.OpenGL.GL.PrimitiveMode,
-   Graphics.Rendering.OpenGL.GL.QueryObject,
-   Graphics.Rendering.OpenGL.GL.QueryUtils,
-   Graphics.Rendering.OpenGL.GL.QueryUtils.PName,
-   Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib,
-   Graphics.Rendering.OpenGL.GL.RenderMode,
-   Graphics.Rendering.OpenGL.GL.Shaders.Program,
-   Graphics.Rendering.OpenGL.GL.Shaders.Shader,
-   Graphics.Rendering.OpenGL.GL.Shaders.Variables,
-   Graphics.Rendering.OpenGL.GL.Texturing.Filter,
-   Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat,
-   Graphics.Rendering.OpenGL.GL.Texturing.TexParameter,
-   Graphics.Rendering.OpenGL.GL.Texturing.TextureObject,
-   Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget,
-   Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit,
-   Graphics.Rendering.OpenGL.GL.VertexAttributes,
-   Graphics.Rendering.OpenGL.GLU.ErrorsInternal
+    Graphics.Rendering.OpenGL.GL.BlendingFactor
+    Graphics.Rendering.OpenGL.GL.BufferMode
+    Graphics.Rendering.OpenGL.GL.Capability
+    Graphics.Rendering.OpenGL.GL.ComparisonFunction
+    Graphics.Rendering.OpenGL.GL.ControlPoint
+    Graphics.Rendering.OpenGL.GL.DataType
+    Graphics.Rendering.OpenGL.GL.Domain
+    Graphics.Rendering.OpenGL.GL.EdgeFlag
+    Graphics.Rendering.OpenGL.GL.Exception
+    Graphics.Rendering.OpenGL.GL.Face
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
+    Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
+    Graphics.Rendering.OpenGL.GL.GLboolean
+    Graphics.Rendering.OpenGL.GL.IOState
+    Graphics.Rendering.OpenGL.GL.PeekPoke
+    Graphics.Rendering.OpenGL.GL.PixelData
+    Graphics.Rendering.OpenGL.GL.PixelFormat
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
+    Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
+    Graphics.Rendering.OpenGL.GL.PointParameter
+    Graphics.Rendering.OpenGL.GL.PolygonMode
+    Graphics.Rendering.OpenGL.GL.PrimitiveMode
+    Graphics.Rendering.OpenGL.GL.QueryObject
+    Graphics.Rendering.OpenGL.GL.QueryUtils
+    Graphics.Rendering.OpenGL.GL.QueryUtils.PName
+    Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib
+    Graphics.Rendering.OpenGL.GL.RenderMode
+    Graphics.Rendering.OpenGL.GL.Shaders.Program
+    Graphics.Rendering.OpenGL.GL.Shaders.Shader
+    Graphics.Rendering.OpenGL.GL.Shaders.Variables
+    Graphics.Rendering.OpenGL.GL.Texturing.Filter
+    Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
+    Graphics.Rendering.OpenGL.GL.Texturing.TexParameter
+    Graphics.Rendering.OpenGL.GL.Texturing.TextureObject
+    Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
+    Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
+    Graphics.Rendering.OpenGL.GL.VertexAttributes
+    Graphics.Rendering.OpenGL.GLU.ErrorsInternal
   hs-source-dirs: src
   ghc-options: -Wall -O2
   build-depends:
-   base >= 3 && < 5, bytestring, text, OpenGLRaw >= 1.4.1.0, GLURaw >= 1.3.0.0
+    base >= 3 && < 5, bytestring, text, OpenGLRaw >= 1.4.1.0, GLURaw >= 1.3.0.0
 
 source-repository head
-  type:     git
-  location: https://github.com/haskell-opengl/OpenGL
+  type: git
+  location: https://github.com/haskell-opengl/OpenGL.git
