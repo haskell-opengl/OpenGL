@@ -147,6 +147,13 @@ library
   ghc-options: -Wall -O2
   build-depends:
     base >= 3 && < 5, bytestring, text, OpenGLRaw >= 1.4.1.0, GLURaw >= 1.3.0.0
+  default-language: Haskell2010
+  other-extensions:
+    CPP
+    DeriveDataTypeable
+    FlexibleInstances
+    KindSignatures
+    TypeSynonymInstances
 
 source-repository head
   type: git
