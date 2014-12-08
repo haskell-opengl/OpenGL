@@ -151,7 +151,6 @@ library
   other-extensions:
     CPP
     DeriveDataTypeable
-    FlexibleInstances
     KindSignatures
     TypeSynonymInstances
 
