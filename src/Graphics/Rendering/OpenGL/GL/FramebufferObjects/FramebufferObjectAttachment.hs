@@ -98,7 +98,7 @@ instance FramebufferAttachment BufferMode where
 
 getFBAParameteriv :: FramebufferAttachment fba => FramebufferTarget -> fba
     -> (GLint -> a) -> GLenum -> IO a
-getFBAParameteriv fbt fba f p = alloca $ \buf -> do
+getFBAParameteriv fbt fba f p = with 0 $ \buf -> do
    glGetFramebufferAttachmentParameteriv (marshalFramebufferTarget fbt)
       mfba p buf
    peek1 f buf

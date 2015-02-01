@@ -35,7 +35,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    vertexAttribPointer, vertexAttribArray,
 ) where
 
-import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Capability
@@ -438,7 +438,7 @@ marshalGetPointervPName x = case x of
 --------------------------------------------------------------------------------
 
 getPointer :: GetPointervPName -> IO (Ptr a)
-getPointer n = alloca $ \buf -> do
+getPointer n = with nullPtr $ \buf -> do
    glGetPointerv (marshalGetPointervPName n) buf
    peek buf
 

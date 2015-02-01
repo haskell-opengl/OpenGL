@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Histogram (
    histogramRGBASizes, histogramLuminanceSize
 ) where
 
-import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData
@@ -63,7 +63,7 @@ getHistogram' proxy = do
 getHistogramParameteri ::
    (GLint -> a) -> Proxy -> GetHistogramParameterPName -> IO a
 getHistogramParameteri f proxy p =
-   alloca $ \buf -> do
+   with 0 $ \buf -> do
       glGetHistogramParameteriv
          (marshalHistogramTarget (proxyToHistogramTarget proxy))
          (marshalGetHistogramParameterPName p)

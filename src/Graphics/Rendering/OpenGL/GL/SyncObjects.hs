@@ -25,7 +25,7 @@ module Graphics.Rendering.OpenGL.GL.SyncObjects (
    SyncStatus(..), syncStatus
 ) where
 
-import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
@@ -108,6 +108,6 @@ unmarshalSyncStatus x
 syncStatus :: SyncObject -> GettableStateVar SyncStatus
 syncStatus syncObject =
    makeGettableStateVar $
-      alloca $ \buf -> do
+      with 0 $ \buf -> do
          glGetSynciv (syncID syncObject) gl_SYNC_STATUS 1 nullPtr buf
          peek1 (unmarshalSyncStatus . fromIntegral) buf

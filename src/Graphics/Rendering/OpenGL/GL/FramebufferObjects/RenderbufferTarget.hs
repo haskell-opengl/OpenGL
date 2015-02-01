@@ -34,7 +34,7 @@ marshalRenderbufferTarget x = case x of
 
 getRBParameteriv :: RenderbufferTarget -> (GLint -> a) -> GLenum -> IO a
 getRBParameteriv rbt f p =
-   alloca $ \buf -> do
+   with 0 $ \buf -> do
       glGetRenderbufferParameteriv (marshalRenderbufferTarget rbt) p buf
       peek1 f buf
 -----------------------------------------------------------------------------

@@ -19,6 +19,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib (
 ) where
 
 import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
@@ -55,7 +56,7 @@ marshalGetVertexAttribPName x = case x of
 --------------------------------------------------------------------------------
 
 getVertexAttribInteger1 :: (GLint -> b) -> AttribLocation -> GetVertexAttribPName -> IO b
-getVertexAttribInteger1 f (AttribLocation location) n = alloca $ \buf -> do
+getVertexAttribInteger1 f (AttribLocation location) n = with 0 $ \buf -> do
    glGetVertexAttribiv location (marshalGetVertexAttribPName n) buf
    peek1 f buf
 
@@ -92,6 +93,6 @@ marshalGetVertexAttribPointerPName x = case x of
 --------------------------------------------------------------------------------
 
 getVertexAttribPointer :: AttribLocation -> GetVertexAttribPointerPName -> IO (Ptr a)
-getVertexAttribPointer (AttribLocation location) n = alloca $ \buf -> do
+getVertexAttribPointer (AttribLocation location) n = with nullPtr $ \buf -> do
    glGetVertexAttribPointerv location (marshalGetVertexAttribPointerPName n) buf
    peek buf

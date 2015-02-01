@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Minmax (
    minmax, getMinmax, resetMinmax
 ) where
 
-import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelData
@@ -81,7 +81,7 @@ marshalGetMinmaxParameterPName x = case x of
 
 getMinmaxParameteri :: (GLint -> a) -> GetMinmaxParameterPName -> IO a
 getMinmaxParameteri f p =
-   alloca $ \buf -> do
+   with 0 $ \buf -> do
       glGetMinmaxParameteriv
          (marshalMinmaxTarget Minmax)
          (marshalGetMinmaxParameterPName p)

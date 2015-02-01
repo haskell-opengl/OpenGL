@@ -31,6 +31,7 @@ module Graphics.Rendering.OpenGL.GL.QueryObjects (
 ) where
 
 import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Exception
@@ -111,7 +112,7 @@ queryCounterBits = getQueryi fromIntegral QueryCounterBits
 getQueryi :: (GLint -> a) -> GetQueryPName -> QueryTarget -> GettableStateVar a
 getQueryi f p t =
    makeGettableStateVar $
-      alloca $ \buf -> do
+      with 0 $ \buf -> do
          getQueryiv' t p buf
          peek1 f buf
 

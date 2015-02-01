@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
 ) where
 
 import Control.Monad
-import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
@@ -157,6 +157,6 @@ getTexLevelParameteriNoProxy f = getTexLevelParameteri f . marshalQueryableTextu
 
 getTexLevelParameteri :: (GLint -> a) -> GLenum -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteri f t level p =
-   alloca $ \buf -> do
+   with 0 $ \buf -> do
       glGetTexLevelParameteriv t level (marshalTexLevelParameter p) buf
       peek1 f buf

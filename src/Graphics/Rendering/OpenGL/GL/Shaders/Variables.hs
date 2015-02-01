@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Variables (
 ) where
 
 import Control.Monad
-import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.ByteString
@@ -150,9 +150,9 @@ activeVars numVars maxLength getter unmarshalType p@(Program program) =
    makeGettableStateVar $ do
       numActiveVars <- get (numVars p)
       maxLen <- get (maxLength p)
-      alloca $ \nameLengthBuf ->
-         alloca $ \sizeBuf ->
-            alloca $ \typeBuf ->
+      with 0 $ \nameLengthBuf ->
+         with 0 $ \sizeBuf ->
+            with 0 $ \typeBuf ->
                let ixs = if numActiveVars > 0 then [0 .. numActiveVars-1] else []
                in forM ixs $ \i -> do
                   n <- createAndTrimByteString maxLen $ \nameBuf -> do

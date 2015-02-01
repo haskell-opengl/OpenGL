@@ -213,7 +213,7 @@ colorTableFormat ct =
 
 getColorTableParameteri :: (GLint -> a) -> ColorTable -> ColorTablePName -> IO a
 getColorTableParameteri f ct p =
-   alloca $ \buf -> do
+   with 0 $ \buf -> do
       glGetColorTableParameteriv
          (marshalColorTable ct)
          (marshalColorTablePName p)

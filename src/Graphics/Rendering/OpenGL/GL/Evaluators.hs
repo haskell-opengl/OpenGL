@@ -47,8 +47,8 @@ module Graphics.Rendering.OpenGL.GL.Evaluators (
 import Control.Monad
 import Data.List
 import Foreign.ForeignPtr
-import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
+import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.Capability
@@ -198,7 +198,7 @@ getMap1 dummyControlPoint = do
    domain <- allocaArray 2 $ \ptr -> do
       glGetMapv target (marshalGetMapQuery Domain) ptr
       peek2 (,) ptr
-   order <- alloca $ \ptr -> do
+   order <- with 0 $ \ptr -> do
       glGetMapiv target (marshalGetMapQuery Order) ptr
       fmap fromIntegral $ peek ptr
    withNewMap1 (MapDescriptor domain (numComponents dummyControlPoint) order numComp) $
@@ -297,7 +297,7 @@ getMap2 dummyControlPoint = do
    (uDomain, vDomain) <- allocaArray 4 $ \ptr -> do
       glGetMapv target (marshalGetMapQuery Domain) ptr
       peek4 (\u1 u2 v1 v2 -> ((u1, u2), (v1, v2))) ptr
-   (uOrder, vOrder) <- allocaArray 2 $ \ptr -> do
+   (uOrder, vOrder) <- withArray [0,0] $ \ptr -> do
       glGetMapiv target (marshalGetMapQuery Order) ptr
       peek2 (,) ptr
    let vStride = numComponents dummyControlPoint
