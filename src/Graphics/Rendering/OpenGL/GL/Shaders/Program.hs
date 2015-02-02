@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Program (
    programVar1, programVar3
 ) where
 
-import Foreign.Marshal.Alloc
+import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
@@ -109,6 +109,6 @@ programVar3 = programVarN . peek3
 programVarN :: (Ptr GLint -> IO a) -> GetProgramPName -> Program -> GettableStateVar a
 programVarN f p program =
    makeGettableStateVar $
-      alloca $ \buf -> do
+      with 0 $ \buf -> do
          glGetProgramiv (programID program) (marshalGetProgramPName p) buf
          f buf

@@ -153,7 +153,7 @@ marshalGetShaderPName x = case x of
 shaderVar :: (GLint -> a) -> GetShaderPName -> Shader -> GettableStateVar a
 shaderVar f p shader =
    makeGettableStateVar $
-      alloca $ \buf -> do
+      with 0 $ \buf -> do
          glGetShaderiv (shaderID shader) (marshalGetShaderPName p) buf
          peek1 f buf
 

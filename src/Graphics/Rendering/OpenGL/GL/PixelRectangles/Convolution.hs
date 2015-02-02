@@ -184,7 +184,7 @@ convolutionParameteri t p =
 getConvolutionParameteri ::
    (GLint -> a) -> ConvolutionTarget -> ConvolutionParameter -> IO a
 getConvolutionParameteri f t p =
-   alloca $ \buf -> do
+   with 0 $ \buf -> do
       glGetConvolutionParameteriv
          (marshalConvolutionTarget t) (marshalConvolutionParameter p) buf
       peek1 f buf
