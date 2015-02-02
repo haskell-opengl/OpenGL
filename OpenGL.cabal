@@ -1,5 +1,5 @@
 name: OpenGL
-version: 2.10.0.0
+version: 2.10.0.1
 synopsis: A binding for the OpenGL graphics system
 description:
   A Haskell binding for the OpenGL graphics system (GL, version 4.4) and its
