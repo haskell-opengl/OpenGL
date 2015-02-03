@@ -299,7 +299,7 @@ texImage2DMultisample :: TextureTarget2DMultisample
                       -> IO ()
 texImage2DMultisample target proxy (Samples s) int (TextureSize2D w h) loc =
    glTexImage2DMultisample
-      (marshalMultisample proxy target) s (marshalPixelInternalFormat int)
+      (marshalMultisample proxy target) s (fromIntegral (marshalPixelInternalFormat int))
       w h (marshalSampleLocations loc)
 
 marshalMultisample :: ParameterizedTextureTarget t => Proxy -> t -> GLenum
@@ -316,7 +316,7 @@ texImage3DMultisample :: TextureTarget2DMultisampleArray
                       -> IO ()
 texImage3DMultisample target proxy (Samples s) int (TextureSize3D w h d) loc =
    glTexImage3DMultisample
-      (marshalMultisample proxy target) s (marshalPixelInternalFormat int)
+      (marshalMultisample proxy target) s (fromIntegral (marshalPixelInternalFormat int))
       w h d (marshalSampleLocations loc)
 
 --------------------------------------------------------------------------------
