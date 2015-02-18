@@ -104,7 +104,7 @@ depthBounds =
    makeStateVarMaybe
       (return CapDepthBoundsTest)
       (getClampd2 (,) GetDepthBounds)
-      (uncurry glDepthBounds)
+      (uncurry glDepthBoundsEXT)
 
 --------------------------------------------------------------------------------
 
@@ -200,7 +200,7 @@ activeStencilFace =
    makeStateVarMaybe
       (return CapStencilTestTwoSide)
       (getEnum1 unmarshalFace GetActiveStencilFace)
-      (glActiveStencilFace . marshalFace)
+      (glActiveStencilFaceEXT . marshalFace)
 
 --------------------------------------------------------------------------------
 

@@ -206,14 +206,14 @@ marshalEnableCap x = case x of
    CapEdgeFlagArray -> Just gl_EDGE_FLAG_ARRAY
    CapFogCoordArray -> Just gl_FOG_COORD_ARRAY
    CapSecondaryColorArray -> Just gl_SECONDARY_COLOR_ARRAY
-   CapMatrixIndexArray -> Just gl_MATRIX_INDEX_ARRAY
+   CapMatrixIndexArray -> Just gl_MATRIX_INDEX_ARRAY_ARB
    CapConvolution1D -> Just gl_CONVOLUTION_1D
    CapConvolution2D -> Just gl_CONVOLUTION_2D
    CapSeparable2D -> Just gl_SEPARABLE_2D
    CapHistogram -> Just gl_HISTOGRAM
    CapMinmax -> Just gl_MINMAX
    CapRescaleNormal -> Just gl_RESCALE_NORMAL
-   CapSharedTexturePalette -> Just gl_SHARED_TEXTURE_PALETTE
+   CapSharedTexturePalette -> Just gl_SHARED_TEXTURE_PALETTE_EXT
    CapMultisample -> Just gl_MULTISAMPLE
    CapSampleAlphaToCoverage -> Just gl_SAMPLE_ALPHA_TO_COVERAGE
    CapSampleAlphaToOne -> Just gl_SAMPLE_ALPHA_TO_ONE
@@ -222,20 +222,18 @@ marshalEnableCap x = case x of
    CapPostConvolutionColorTable -> Just gl_POST_CONVOLUTION_COLOR_TABLE
    CapPostColorMatrixColorTable -> Just gl_POST_COLOR_MATRIX_COLOR_TABLE
    CapColorSum -> Just gl_COLOR_SUM
-   CapWeightSumUnity -> Just gl_WEIGHT_SUM_UNITY
-   CapVertexBlend -> Just gl_VERTEX_BLEND
-   CapWeightArray -> Just gl_WEIGHT_ARRAY
-   CapMatrixPalette -> Just gl_MATRIX_PALETTE
+   CapWeightSumUnity -> Just gl_WEIGHT_SUM_UNITY_ARB
+   CapVertexBlend -> Just gl_VERTEX_BLEND_ARB
+   CapWeightArray -> Just gl_WEIGHT_ARRAY_ARB
+   CapMatrixPalette -> Just gl_MATRIX_PALETTE_ARB
    CapDepthClamp -> Just gl_DEPTH_CLAMP
-   CapDepthBoundsTest -> Just gl_DEPTH_BOUNDS_TEST
+   CapDepthBoundsTest -> Just gl_DEPTH_BOUNDS_TEST_EXT
    CapPrimitiveRestart -> Just gl_PRIMITIVE_RESTART
    CapPointSprite -> Just gl_POINT_SPRITE
-   CapStencilTestTwoSide -> Just gl_STENCIL_TEST_TWO_SIDE
-   -- TODO: use RASTER_POSITION_UNCLIPPED_IBM from IBM_rasterpos_clip extension
-   CapRasterPositionUnclipped -> Just 0x19262
+   CapStencilTestTwoSide -> Just gl_STENCIL_TEST_TWO_SIDE_EXT
+   CapRasterPositionUnclipped -> Just gl_RASTER_POSITION_UNCLIPPED_IBM
    CapRasterizerDiscard -> Just gl_RASTERIZER_DISCARD
-   -- TODO: use TEXTURE_COLOR_TABLE_SGI from SGI_texture_color_table extension
-   CapTextureColorTable -> Just 0x80bc
+   CapTextureColorTable -> Just gl_TEXTURE_COLOR_TABLE_SGI
    CapVertexProgramPointSize -> Just gl_VERTEX_PROGRAM_POINT_SIZE
    CapVertexProgramTwoSide -> Just gl_VERTEX_PROGRAM_TWO_SIDE
 

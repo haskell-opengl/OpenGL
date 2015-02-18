@@ -104,7 +104,7 @@ renderPrim brack_ beginMode =
 --------------------------------------------------------------------------------
 
 primitiveRestart :: IO ()
-primitiveRestart = glPrimitiveRestart
+primitiveRestart = glPrimitiveRestartNV
 
 --------------------------------------------------------------------------------
 

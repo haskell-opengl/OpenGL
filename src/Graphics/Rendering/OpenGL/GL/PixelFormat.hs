@@ -79,17 +79,16 @@ marshalPixelFormat x = case x of
    RGBAInteger -> gl_RGBA_INTEGER
    BGRInteger -> gl_BGR_INTEGER
    BGRAInteger -> gl_BGRA_INTEGER
-   ABGR -> gl_ABGR
+   ABGR -> gl_ABGR_EXT
    BGR -> gl_BGR
    BGRA -> gl_BGRA
-   CMYK -> gl_CMYK
-   CMYKA -> gl_CMYKA
-   FourTwoTwo -> gl_422
-   FourTwoTwoRev -> gl_422_REV
-   FourTwoTwoAverage -> gl_422_AVERAGE
-   FourTwoTwoRevAverage -> gl_422_REV_AVERAGE
-   -- TODO: Use YCBCR_422_APPLE from APPLE_ycbcr_422 extension
-   YCBCR422 -> 0x85B9
+   CMYK -> gl_CMYK_EXT
+   CMYKA -> gl_CMYKA_EXT
+   FourTwoTwo -> gl_422_EXT
+   FourTwoTwoRev -> gl_422_REV_EXT
+   FourTwoTwoAverage -> gl_422_AVERAGE_EXT
+   FourTwoTwoRevAverage -> gl_422_REV_AVERAGE_EXT
+   YCBCR422 -> gl_YCBCR_422_APPLE
    DepthStencil -> gl_DEPTH_STENCIL
 
 unmarshalPixelFormat :: GLenum -> PixelFormat
@@ -115,16 +114,15 @@ unmarshalPixelFormat x
    | x == gl_RGBA_INTEGER = RGBAInteger
    | x == gl_BGR_INTEGER = BGRInteger
    | x == gl_BGRA_INTEGER = BGRAInteger
-   | x == gl_ABGR = ABGR
+   | x == gl_ABGR_EXT = ABGR
    | x == gl_BGR = BGR
    | x == gl_BGRA = BGRA
-   | x == gl_CMYK = CMYK
-   | x == gl_CMYKA = CMYKA
-   | x == gl_422 = FourTwoTwo
-   | x == gl_422_REV = FourTwoTwoRev
-   | x == gl_422_AVERAGE = FourTwoTwoAverage
-   | x == gl_422_REV_AVERAGE = FourTwoTwoRevAverage
-   -- TODO: Use YCBCR_422_APPLE from APPLE_ycbcr_422 extension
-   | x == 0x85B9 = YCBCR422
+   | x == gl_CMYK_EXT = CMYK
+   | x == gl_CMYKA_EXT = CMYKA
+   | x == gl_422_EXT = FourTwoTwo
+   | x == gl_422_REV_EXT = FourTwoTwoRev
+   | x == gl_422_AVERAGE_EXT = FourTwoTwoAverage
+   | x == gl_422_REV_AVERAGE_EXT = FourTwoTwoRevAverage
+   | x == gl_YCBCR_422_APPLE = YCBCR422
    | x == gl_DEPTH_STENCIL = DepthStencil
    | otherwise = error ("unmarshalPixelFormat: illegal value " ++ show x)

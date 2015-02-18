@@ -54,8 +54,7 @@ marshalFogParameter x = case x of
    FogMode -> gl_FOG_MODE
    FogColor -> gl_FOG_COLOR
    FogCoordSrc -> gl_FOG_COORD_SRC
-   -- TODO: Use FOG_DISTANCE_MODE_NV from NV_fog_distance extension
-   FogDistanceMode -> 0x855a
+   FogDistanceMode -> gl_FOG_DISTANCE_MODE_NV
 
 --------------------------------------------------------------------------------
 
@@ -178,19 +177,15 @@ data FogDistanceMode =
 
 marshalFogDistanceMode :: FogDistanceMode -> GLint
 marshalFogDistanceMode x = fromIntegral $ case x of
-   -- TODO: Use EYE_RADIAL_NV from NV_fog_distance extension
-   EyeRadial -> 0x855b
+   EyeRadial -> gl_EYE_RADIAL_NV
    EyePlaneSigned ->gl_EYE_PLANE
-   -- TODO: Use EYE_PLANE_ABSOLUTE_NV from NV_fog_distance extension
-   EyePlaneAbsolute -> 0x855c
+   EyePlaneAbsolute -> gl_EYE_PLANE_ABSOLUTE_NV
 
 unmarshalFogDistanceMode :: GLint -> FogDistanceMode
 unmarshalFogDistanceMode x
-   -- TODO: Use EYE_RADIAL_NV from NV_fog_distance extension
-   | y == 0x855b = EyeRadial
+   | y == gl_EYE_RADIAL_NV = EyeRadial
    | y == gl_EYE_PLANE = EyePlaneSigned
-   -- TODO: Use EYE_PLANE_ABSOLUTE_NV from NV_fog_distance extension
-   | y == 0x855c = EyePlaneAbsolute
+   | y == gl_EYE_PLANE_ABSOLUTE_NV = EyePlaneAbsolute
    | otherwise = error ("unmarshalFogDistanceMode: illegal value " ++ show x)
    where y = fromIntegral x
 

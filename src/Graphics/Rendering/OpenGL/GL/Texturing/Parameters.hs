@@ -65,10 +65,10 @@ marshalTextureWrapMode x = fromIntegral $ case x of
    (Repeated, Repeat) -> gl_REPEAT
    (Repeated, ClampToEdge) -> gl_CLAMP_TO_EDGE
    (Repeated, ClampToBorder) -> gl_CLAMP_TO_BORDER
-   (Mirrored, Clamp) -> gl_MIRROR_CLAMP
+   (Mirrored, Clamp) -> gl_MIRROR_CLAMP_EXT
    (Mirrored, Repeat) -> gl_MIRRORED_REPEAT
    (Mirrored, ClampToEdge) -> gl_MIRROR_CLAMP_TO_EDGE
-   (Mirrored, ClampToBorder) -> gl_MIRROR_CLAMP_TO_BORDER
+   (Mirrored, ClampToBorder) -> gl_MIRROR_CLAMP_TO_BORDER_EXT
 
 unmarshalTextureWrapMode :: GLint -> (Repetition, Clamping)
 unmarshalTextureWrapMode x
@@ -76,10 +76,10 @@ unmarshalTextureWrapMode x
    | y == gl_REPEAT = (Repeated, Repeat)
    | y == gl_CLAMP_TO_EDGE = (Repeated, ClampToEdge)
    | y == gl_CLAMP_TO_BORDER = (Repeated, ClampToBorder)
-   | y == gl_MIRROR_CLAMP = (Mirrored, Clamp)
+   | y == gl_MIRROR_CLAMP_EXT = (Mirrored, Clamp)
    | y == gl_MIRRORED_REPEAT = (Mirrored, Repeat)
    | y == gl_MIRROR_CLAMP_TO_EDGE = (Mirrored, ClampToEdge)
-   | y == gl_MIRROR_CLAMP_TO_BORDER = (Mirrored, ClampToBorder)
+   | y == gl_MIRROR_CLAMP_TO_BORDER_EXT = (Mirrored, ClampToBorder)
    | otherwise = error ("unmarshalTextureWrapMode: illegal value " ++ show x)
    where y = fromIntegral x
 
@@ -191,15 +191,15 @@ data TextureCompareOperator =
    | GequalR
    deriving ( Eq, Ord, Show )
 
-marshalTextureCompareOperator :: TextureCompareOperator -> GLint
+marshalTextureCompareOperator :: TextureCompareOperator -> GLenum
 marshalTextureCompareOperator x = case x of
-   LequalR -> 0x819c
-   GequalR -> 0x819d
+   LequalR -> gl_TEXTURE_LEQUAL_R_SGIX
+   GequalR -> gl_TEXTURE_GEQUAL_R_SGIX
 
-unmarshalTextureCompareOperator :: GLint -> TextureCompareOperator
+unmarshalTextureCompareOperator :: GLenum -> TextureCompareOperator
 unmarshalTextureCompareOperator x
-   | x == 0x819c = LequalR
-   | x == 0x819d = GequalR
+   | x == gl_TEXTURE_LEQUAL_R_SGIX = LequalR
+   | x == gl_TEXTURE_GEQUAL_R_SGIX = GequalR
    | otherwise = error ("unmarshalTextureCompareOperator: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -208,7 +208,7 @@ textureCompareOperator :: ParameterizedTextureTarget t => t -> StateVar (Maybe T
 textureCompareOperator =
    combineTexParamsMaybe
       (texParami (unmarshalCapability . fromIntegral) (fromIntegral. marshalCapability) TextureCompare)
-      (texParami unmarshalTextureCompareOperator marshalTextureCompareOperator TextureCompareOperator)
+      (texParami (unmarshalTextureCompareOperator . fromIntegral) (fromIntegral . marshalTextureCompareOperator) TextureCompareOperator)
 
 --------------------------------------------------------------------------------
 

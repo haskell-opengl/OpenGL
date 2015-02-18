@@ -126,14 +126,14 @@ marshalMatrixMode x = case x of
    Projection -> Just gl_PROJECTION
    Texture -> Just gl_TEXTURE
    Color -> Just gl_COLOR
-   MatrixPalette -> Just gl_MATRIX_PALETTE
+   MatrixPalette -> Just gl_MATRIX_PALETTE_ARB
 
 unmarshalMatrixMode :: GLenum -> MatrixMode
 unmarshalMatrixMode x
    | x == gl_PROJECTION = Projection
    | x == gl_TEXTURE = Texture
    | x == gl_COLOR = Color
-   | x == gl_MATRIX_PALETTE = MatrixPalette
+   | x == gl_MATRIX_PALETTE_ARB = MatrixPalette
    | otherwise =
         case modelviewEnumToIndex x of
            Just i -> Modelview i

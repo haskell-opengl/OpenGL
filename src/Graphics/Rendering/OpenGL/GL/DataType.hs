@@ -84,10 +84,8 @@ marshalDataType x = case x of
    UnsignedInt5999Rev -> gl_UNSIGNED_INT_5_9_9_9_REV
    Float32UnsignedInt248Rev -> gl_FLOAT_32_UNSIGNED_INT_24_8_REV
    Bitmap -> gl_BITMAP
-   -- TODO: Use UNSIGNED_SHORT_8_8_APPLE from APPLE_ycbcr_422 extension
-   UnsignedShort88 -> 0x85ba
-   -- TODO: Use UNSIGNED_SHORT_8_8_REV_APPLE from APPLE_ycbcr_422 extension
-   UnsignedShort88Rev -> 0x85bb
+   UnsignedShort88 -> gl_UNSIGNED_SHORT_8_8_APPLE
+   UnsignedShort88Rev -> gl_UNSIGNED_SHORT_8_8_REV_APPLE
    Double -> gl_DOUBLE
    TwoBytes -> gl_2_BYTES
    ThreeBytes -> gl_3_BYTES
@@ -120,10 +118,8 @@ unmarshalDataType x
    | x == gl_UNSIGNED_INT_5_9_9_9_REV = UnsignedInt5999Rev
    | x == gl_FLOAT_32_UNSIGNED_INT_24_8_REV = Float32UnsignedInt248Rev
    | x == gl_BITMAP = Bitmap
-   -- TODO: Use UNSIGNED_SHORT_8_8_APPLE from APPLE_ycbcr_422 extension
-   | x == 0x85ba = UnsignedShort88
-   -- TODO: Use UNSIGNED_SHORT_8_8_REV_APPLE from APPLE_ycbcr_422 extension
-   | x == 0x85bb = UnsignedShort88Rev
+   | x == gl_UNSIGNED_SHORT_8_8_APPLE = UnsignedShort88
+   | x == gl_UNSIGNED_SHORT_8_8_REV_APPLE = UnsignedShort88Rev
    | x == gl_DOUBLE = Double
    | x == gl_2_BYTES = TwoBytes
    | x == gl_3_BYTES = ThreeBytes

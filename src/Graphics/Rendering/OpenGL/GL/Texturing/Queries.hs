@@ -64,7 +64,7 @@ marshalTexLevelParameter x = case x of
    TextureAlphaSize -> gl_TEXTURE_ALPHA_SIZE
    TextureIntensitySize -> gl_TEXTURE_INTENSITY_SIZE
    TextureLuminanceSize -> gl_TEXTURE_LUMINANCE_SIZE
-   TextureIndexSize -> gl_TEXTURE_INDEX_SIZE
+   TextureIndexSize -> gl_TEXTURE_INDEX_SIZE_EXT
    DepthBits -> gl_DEPTH_BITS
    TextureCompressedImageSize -> gl_TEXTURE_COMPRESSED_IMAGE_SIZE
    TextureCompressed -> gl_TEXTURE_COMPRESSED

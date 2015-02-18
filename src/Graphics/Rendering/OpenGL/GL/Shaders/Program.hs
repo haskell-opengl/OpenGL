@@ -94,7 +94,7 @@ marshalGetProgramPName x = case x of
    TessGenSpacing -> gl_TESS_GEN_SPACING
    TessGenVertexOrder -> gl_TESS_GEN_VERTEX_ORDER
    TessGenPointMode -> gl_TESS_GEN_POINT_MODE
-   ComputeWorkGroupSize ->  0x8267 -- gl_COMPUTE_WORK_GROUP_SIZE a.k.a. gl_COMPUTE_LOCAL_WORK_SIZE
+   ComputeWorkGroupSize ->  gl_COMPUTE_WORK_GROUP_SIZE
    ProgramSeparable -> gl_PROGRAM_SEPARABLE
    ProgramBinaryRetrievableHint -> gl_PROGRAM_BINARY_RETRIEVABLE_HINT
    ActiveAtomicCounterBuffers -> gl_ACTIVE_ATOMIC_COUNTER_BUFFERS

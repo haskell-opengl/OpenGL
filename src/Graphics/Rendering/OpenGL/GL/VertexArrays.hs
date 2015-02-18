@@ -86,7 +86,7 @@ marshalClientArrayType x = case x of
    EdgeFlagArray -> gl_EDGE_FLAG_ARRAY
    FogCoordArray -> gl_FOG_COORD_ARRAY
    SecondaryColorArray -> gl_SECONDARY_COLOR_ARRAY
-   MatrixIndexArray -> gl_MATRIX_INDEX_ARRAY
+   MatrixIndexArray -> gl_MATRIX_INDEX_ARRAY_ARB
 
 -- Hmmm...
 clientArrayTypeToEnableCap :: ClientArrayType -> EnableCap
@@ -372,7 +372,7 @@ getLockArrays = do
       else return Nothing
 
 setLockArrays :: Maybe (ArrayIndex, NumArrayIndices) -> IO ()
-setLockArrays = maybe glUnlockArrays (uncurry glLockArrays)
+setLockArrays = maybe glUnlockArraysEXT (uncurry glLockArraysEXT)
 
 --------------------------------------------------------------------------------
 
@@ -432,8 +432,8 @@ marshalGetPointervPName x = case x of
    SecondaryColorArrayPointer -> gl_SECONDARY_COLOR_ARRAY_POINTER
    FeedbackBufferPointer -> gl_FEEDBACK_BUFFER_POINTER
    SelectionBufferPointer -> gl_SELECTION_BUFFER_POINTER
-   WeightArrayPointer -> gl_WEIGHT_ARRAY_POINTER
-   MatrixIndexArrayPointer -> gl_MATRIX_INDEX_ARRAY_POINTER
+   WeightArrayPointer -> gl_WEIGHT_ARRAY_POINTER_ARB
+   MatrixIndexArrayPointer -> gl_MATRIX_INDEX_ARRAY_POINTER_ARB
 
 --------------------------------------------------------------------------------
 

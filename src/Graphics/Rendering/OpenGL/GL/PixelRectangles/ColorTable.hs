@@ -86,9 +86,8 @@ marshalColorTable x = case x of
    Texture2DColorTable -> gl_TEXTURE_2D
    Texture3DColorTable -> gl_TEXTURE_3D
    TextureCubeMapColorTable -> gl_TEXTURE_CUBE_MAP
-   -- TODO: Use TEXTURE_COLOR_TABLE_SGI from SGI_texture_color_table extension
-   TextureColorTable -> 0x80bc
-   SharedTexturePalette -> gl_SHARED_TEXTURE_PALETTE
+   TextureColorTable -> gl_TEXTURE_COLOR_TABLE_SGI
+   SharedTexturePalette -> gl_SHARED_TEXTURE_PALETTE_EXT
 
 --------------------------------------------------------------------------------
 
@@ -109,8 +108,7 @@ marshalProxyColorTable Proxy   x = case x of
    Texture2DColorTable -> Just gl_PROXY_TEXTURE_2D
    Texture3DColorTable -> Just gl_PROXY_TEXTURE_3D
    TextureCubeMapColorTable -> Just gl_PROXY_TEXTURE_CUBE_MAP
-   -- TODO: Use PROXY_TEXTURE_COLOR_TABLE_SGI from SGI_texture_color_table extension
-   TextureColorTable -> Just 0x80bd
+   TextureColorTable -> Just gl_TEXTURE_COLOR_TABLE_SGI
    SharedTexturePalette -> Nothing
 
 --------------------------------------------------------------------------------

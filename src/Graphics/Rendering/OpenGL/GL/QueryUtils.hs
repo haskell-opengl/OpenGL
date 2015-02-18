@@ -46,16 +46,16 @@ maxLightIndex = 0xFFF
 
 modelviewIndexToEnum :: GLsizei -> Maybe GLenum
 modelviewIndexToEnum 0 = Just gl_MODELVIEW
-modelviewIndexToEnum 1 = Just gl_MODELVIEW1
+modelviewIndexToEnum 1 = Just gl_MODELVIEW1_ARB
 modelviewIndexToEnum i
-   | 2 <= i && i <= 31 = Just (gl_MODELVIEW2 - 2 + fromIntegral i)
+   | 2 <= i && i <= 31 = Just (gl_MODELVIEW2_ARB - 2 + fromIntegral i)
    | otherwise = Nothing
 
 modelviewEnumToIndex :: GLenum -> Maybe GLsizei
 modelviewEnumToIndex x
    | x == gl_MODELVIEW = Just 0
-   | x == gl_MODELVIEW1 = Just 1
-   | gl_MODELVIEW2 <= x && x <= gl_MODELVIEW31 = Just (fromIntegral (x - (gl_MODELVIEW2 - 2)))
+   | x == gl_MODELVIEW1_ARB = Just 1
+   | gl_MODELVIEW2_ARB <= x && x <= gl_MODELVIEW31_ARB = Just (fromIntegral (x - (gl_MODELVIEW2_ARB - 2)))
    | otherwise = Nothing
 
 --------------------------------------------------------------------------------
