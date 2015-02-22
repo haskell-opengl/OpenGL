@@ -97,4 +97,5 @@ unmarshalPrimitiveMode x
    | x == gl_QUADS = Quads
    | x == gl_QUAD_STRIP = QuadStrip
    | x == gl_POLYGON = Polygon
+   | x == gl_PATCHES = Patches
    | otherwise = error ("unmarshalPrimitiveMode: illegal value " ++ show x)
