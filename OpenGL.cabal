@@ -64,6 +64,7 @@ library
     Graphics.Rendering.OpenGL.GL.PixellikeObject
     Graphics.Rendering.OpenGL.GL.Points
     Graphics.Rendering.OpenGL.GL.Polygons
+    Graphics.Rendering.OpenGL.GL.PrimitiveMode
     Graphics.Rendering.OpenGL.GL.QueryObjects
     Graphics.Rendering.OpenGL.GL.RasterPos
     Graphics.Rendering.OpenGL.GL.ReadCopyPixels
@@ -126,7 +127,7 @@ library
     Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
     Graphics.Rendering.OpenGL.GL.PointParameter
     Graphics.Rendering.OpenGL.GL.PolygonMode
-    Graphics.Rendering.OpenGL.GL.PrimitiveMode
+    Graphics.Rendering.OpenGL.GL.PrimitiveModeInternal
     Graphics.Rendering.OpenGL.GL.QueryObject
     Graphics.Rendering.OpenGL.GL.QueryUtils
     Graphics.Rendering.OpenGL.GL.QueryUtils.PName

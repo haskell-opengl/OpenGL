@@ -33,6 +33,7 @@ import Foreign.Marshal.Array
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
+import Graphics.Rendering.OpenGL.GL.PrimitiveModeInternal
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables
