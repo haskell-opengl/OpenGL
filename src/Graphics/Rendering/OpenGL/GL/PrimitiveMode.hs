@@ -66,6 +66,9 @@ data PrimitiveMode =
    | Polygon
      -- ^ Draws a single, convex polygon. Vertices 1 through /N/ define this
      -- polygon.
+   | Patches
+     -- ^ Only used in conjunction with tessellation. The number of vertices per
+     -- patch is configurable.
    deriving ( Eq, Ord, Show )
 
 marshalPrimitiveMode :: PrimitiveMode -> GLenum
@@ -80,6 +83,7 @@ marshalPrimitiveMode x = case x of
    Quads -> gl_QUADS
    QuadStrip -> gl_QUAD_STRIP
    Polygon -> gl_POLYGON
+   Patches -> gl_PATCHES
 
 unmarshalPrimitiveMode :: GLenum -> PrimitiveMode
 unmarshalPrimitiveMode x
