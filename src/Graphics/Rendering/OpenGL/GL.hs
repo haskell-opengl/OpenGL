@@ -80,7 +80,7 @@ import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.SyncObjects
 import Graphics.Rendering.OpenGL.GL.QueryObjects
 
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode,
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.BeginEnd
 import Graphics.Rendering.OpenGL.GL.Rectangles
 import Graphics.Rendering.OpenGL.GL.ConditionalRendering
