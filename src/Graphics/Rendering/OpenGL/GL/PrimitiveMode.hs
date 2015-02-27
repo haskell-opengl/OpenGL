@@ -1,22 +1,27 @@
-{-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PrimitiveMode
--- Copyright   :  (c) Sven Panne 2002-2013
+-- Copyright   :  (c) Sven Panne 2002-2013, Tobias Markus 2015
 -- License     :  BSD3
--- 
+--
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This is a purely internal module for (un-)marshaling PrimitiveMode.
+-- This module corresponds to section 10.1 (Primitive Types) of the OpenGL 4.4
+-- specs.
 --
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.PrimitiveMode (
-   PrimitiveMode(..), marshalPrimitiveMode, unmarshalPrimitiveMode
+   -- * Primitive Modes
+   PrimitiveMode(..),
+   -- * Patches (Tessellation)
+   patchVertices, maxPatchVertices
 ) where
 
+import Graphics.Rendering.OpenGL.GL.StateVar
+import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -66,31 +71,21 @@ data PrimitiveMode =
    | Polygon
      -- ^ Draws a single, convex polygon. Vertices 1 through /N/ define this
      -- polygon.
+   | Patches
+     -- ^ Only used in conjunction with tessellation. The number of vertices per
+     -- patch can be set with 'patchVertices'.
    deriving ( Eq, Ord, Show )
 
-marshalPrimitiveMode :: PrimitiveMode -> GLenum
-marshalPrimitiveMode x = case x of
-   Points -> gl_POINTS
-   Lines -> gl_LINES
-   LineLoop -> gl_LINE_LOOP
-   LineStrip -> gl_LINE_STRIP
-   Triangles -> gl_TRIANGLES
-   TriangleStrip -> gl_TRIANGLE_STRIP
-   TriangleFan -> gl_TRIANGLE_FAN
-   Quads -> gl_QUADS
-   QuadStrip -> gl_QUAD_STRIP
-   Polygon -> gl_POLYGON
+-- | 'patchVertices' is the number of vertices per patch primitive.
+--
+-- An 'Graphics.Rendering.OpenGL.GLU.Errors.InvalidValue' is generated if
+-- 'patchVertices' is set to a value less than or equal to zero or greater
+-- than the implementation-dependent maximum value 'maxPatchVertices'.
 
-unmarshalPrimitiveMode :: GLenum -> PrimitiveMode
-unmarshalPrimitiveMode x
-   | x == gl_POINTS = Points
-   | x == gl_LINES = Lines
-   | x == gl_LINE_LOOP = LineLoop
-   | x == gl_LINE_STRIP = LineStrip
-   | x == gl_TRIANGLES = Triangles
-   | x == gl_TRIANGLE_STRIP = TriangleStrip
-   | x == gl_TRIANGLE_FAN = TriangleFan
-   | x == gl_QUADS = Quads
-   | x == gl_QUAD_STRIP = QuadStrip
-   | x == gl_POLYGON = Polygon
-   | otherwise = error ("unmarshalPrimitiveMode: illegal value " ++ show x)
+patchVertices :: SettableStateVar GLint
+patchVertices = makeSettableStateVar $ glPatchParameteri gl_PATCH_VERTICES
+
+-- | Contains the maximumum number of vertices in a single patch.
+
+maxPatchVertices :: GettableStateVar GLint
+maxPatchVertices = makeGettableStateVar $ getInteger1 id GetMaxPatchVertices

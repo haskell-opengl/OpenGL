@@ -3,7 +3,7 @@
 -- Module      :  Graphics.Rendering.OpenGL.GLU.Tessellation
 -- Copyright   :  (c) Sven Panne 2002-2013
 -- License     :  BSD3
--- 
+--
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
@@ -48,9 +48,9 @@ import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
-import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( unmarshalPrimitiveMode )
-import Graphics.Rendering.OpenGL.GL.BeginEnd (
-   PrimitiveMode, EdgeFlag(BeginsInteriorEdge) )
+import Graphics.Rendering.OpenGL.GL.PrimitiveMode ( PrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.PrimitiveModeInternal ( unmarshalPrimitiveMode )
+import Graphics.Rendering.OpenGL.GL.BeginEnd ( EdgeFlag(BeginsInteriorEdge) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
