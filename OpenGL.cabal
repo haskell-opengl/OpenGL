@@ -1,8 +1,8 @@
 name: OpenGL
-version: 2.10.0.2
+version: 2.11.0.0
 synopsis: A binding for the OpenGL graphics system
 description:
-  A Haskell binding for the OpenGL graphics system (GL, version 4.4) and its
+  A Haskell binding for the OpenGL graphics system (GL, version 4.5) and its
   accompanying utility library (GLU, version 1.3).
   .
   OpenGL is the industry's most widely used and supported 2D and 3D graphics
@@ -31,7 +31,6 @@ library
     Graphics.Rendering.OpenGL.GL.BeginEnd
     Graphics.Rendering.OpenGL.GL.Bitmaps
     Graphics.Rendering.OpenGL.GL.BufferObjects
-    Graphics.Rendering.OpenGL.GL.ByteString
     Graphics.Rendering.OpenGL.GL.Clipping
     Graphics.Rendering.OpenGL.GL.ColorSum
     Graphics.Rendering.OpenGL.GL.Colors
@@ -105,6 +104,7 @@ library
   other-modules:
     Graphics.Rendering.OpenGL.GL.BlendingFactor
     Graphics.Rendering.OpenGL.GL.BufferMode
+    Graphics.Rendering.OpenGL.GL.ByteString
     Graphics.Rendering.OpenGL.GL.Capability
     Graphics.Rendering.OpenGL.GL.ComparisonFunction
     Graphics.Rendering.OpenGL.GL.ControlPoint
@@ -145,7 +145,7 @@ library
     Graphics.Rendering.OpenGL.GL.VertexAttributes
     Graphics.Rendering.OpenGL.GLU.ErrorsInternal
   hs-source-dirs: src
-  ghc-options: -Wall -O2
+  ghc-options: -Wall
   build-depends:
     base >= 3 && < 5, bytestring, text, OpenGLRaw >= 2.1, GLURaw >= 1.3.0.0
   default-language: Haskell2010

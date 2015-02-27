@@ -21,7 +21,10 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
 
    -- * Shader Queries
    shaderType, shaderDeleteStatus, compileStatus, shaderInfoLog,
-   PrecisionType, shaderPrecisionFormat
+   PrecisionType, shaderPrecisionFormat,
+
+   -- * Bytestring utilities
+   packUtf8, unpackUtf8
 ) where
 
 import Control.Monad
@@ -98,7 +101,7 @@ setShaderSource shader src =
          with srcLength $ \srcLengthBuf ->
             glShaderSource (shaderID shader) 1 srcPtrBuf srcLengthBuf
 
-{-# DEPRECATED shaderSource "Use 'shaderSourceBS' instead." #-}
+{-# DEPRECATED shaderSource "Use a combination of 'shaderSourceBS' and 'packUtf8' or 'unpackUtf8' instead." #-}
 shaderSource :: Shader -> StateVar [String]
 shaderSource shader =
    makeStateVar
