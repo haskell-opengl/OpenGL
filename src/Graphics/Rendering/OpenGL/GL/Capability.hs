@@ -139,6 +139,8 @@ data EnableCap =
    | CapTextureColorTable
    | CapVertexProgramPointSize
    | CapVertexProgramTwoSide
+   | CapDebugOutput
+   | CapDebugOutputSynchronous
 
 marshalEnableCap :: EnableCap -> Maybe GLenum
 marshalEnableCap x = case x of
@@ -236,6 +238,8 @@ marshalEnableCap x = case x of
    CapTextureColorTable -> Just gl_TEXTURE_COLOR_TABLE_SGI
    CapVertexProgramPointSize -> Just gl_VERTEX_PROGRAM_POINT_SIZE
    CapVertexProgramTwoSide -> Just gl_VERTEX_PROGRAM_TWO_SIDE
+   CapDebugOutput -> Just gl_DEBUG_OUTPUT
+   CapDebugOutputSynchronous -> Just gl_DEBUG_OUTPUT_SYNCHRONOUS
 
 --------------------------------------------------------------------------------
 

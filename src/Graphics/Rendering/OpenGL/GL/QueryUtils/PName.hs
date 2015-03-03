@@ -28,13 +28,16 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils.PName (
     GetPNameMatrix(..),
     PNameMatrix(..),
 
-    clipPlaneIndexToEnum
+    clipPlaneIndexToEnum,
+
+    GetPointervPName(..), getPointer
 ) where
 
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
-import Foreign.Ptr
-import Foreign.Storable
+import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( allocaArray, peekArray )
+import Foreign.Marshal.Utils ( with )
+import Foreign.Ptr ( Ptr, nullPtr, castPtr )
+import Foreign.Storable ( Storable(peek) )
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw
@@ -552,6 +555,12 @@ data PName1I
     | GetShaderCompiler             -- ^ bool
     | GetNumShaderBinaryFormats     -- ^ int
     | GetNumProgramBinaryFormats    -- ^ int
+    -- Debug Output
+    | GetMaxDebugMessageLength        -- ^ int
+    | GetMaxDebugLoggedMessages       -- ^ int
+    | GetDebugLoggedMessages          -- ^ int
+    | GetDebugNextLoggedMessageLength -- ^ int
+    | GetMaxDebugGroupStackDepth      -- ^ int
 
 instance GetPName1I PName1I where
 
@@ -815,6 +824,12 @@ instance GetPName PName1I where
         GetShaderCompiler -> Just gl_SHADER_COMPILER
         GetNumShaderBinaryFormats -> Just gl_NUM_SHADER_BINARY_FORMATS
         GetNumProgramBinaryFormats -> Just gl_NUM_PROGRAM_BINARY_FORMATS
+        -- Debug Output
+        GetMaxDebugMessageLength -> Just gl_MAX_DEBUG_MESSAGE_LENGTH
+        GetMaxDebugLoggedMessages -> Just gl_MAX_DEBUG_LOGGED_MESSAGES
+        GetDebugLoggedMessages -> Just gl_DEBUG_LOGGED_MESSAGES
+        GetDebugNextLoggedMessageLength -> Just gl_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH
+        GetMaxDebugGroupStackDepth -> Just gl_MAX_DEBUG_GROUP_STACK_DEPTH
 
 -- 0x8825 through 0x8834 are reserved for draw buffers
 
@@ -1187,3 +1202,49 @@ instance GetPName PNameMatrix where
         GetTextureMatrix -> Just gl_TEXTURE_MATRIX
         GetColorMatrix -> Just gl_COLOR_MATRIX
         GetMatrixPalette -> Just gl_MATRIX_PALETTE_ARB
+
+--------------------------------------------------------------------------------
+
+data GetPointervPName =
+   -- core profile
+     DebugCallbackFunction
+   | DebugCallbackUserParam
+   -- compatibility profile
+   | SelectionBufferPointer
+   | FeedbackBufferPointer
+   | VertexArrayPointer
+   | NormalArrayPointer
+   | ColorArrayPointer
+   | SecondaryColorArrayPointer
+   | IndexArrayPointer
+   | TextureCoordArrayPointer
+   | FogCoordArrayPointer
+   | EdgeFlagArrayPointer
+   -- GL_ARB_vertex_blend
+   | WeightArrayPointer
+   -- GL_ARB_matrix_palette
+   | MatrixIndexArrayPointer
+
+marshalGetPointervPName :: GetPointervPName -> GLenum
+marshalGetPointervPName x = case x of
+   DebugCallbackFunction -> gl_DEBUG_CALLBACK_FUNCTION
+   DebugCallbackUserParam -> gl_DEBUG_CALLBACK_USER_PARAM
+   SelectionBufferPointer -> gl_SELECTION_BUFFER_POINTER
+   FeedbackBufferPointer -> gl_FEEDBACK_BUFFER_POINTER
+   VertexArrayPointer -> gl_VERTEX_ARRAY_POINTER
+   NormalArrayPointer -> gl_NORMAL_ARRAY_POINTER
+   ColorArrayPointer -> gl_COLOR_ARRAY_POINTER
+   SecondaryColorArrayPointer -> gl_SECONDARY_COLOR_ARRAY_POINTER
+   IndexArrayPointer -> gl_INDEX_ARRAY_POINTER
+   TextureCoordArrayPointer -> gl_TEXTURE_COORD_ARRAY_POINTER
+   FogCoordArrayPointer -> gl_FOG_COORD_ARRAY_POINTER
+   EdgeFlagArrayPointer -> gl_EDGE_FLAG_ARRAY_POINTER
+   WeightArrayPointer -> gl_WEIGHT_ARRAY_POINTER_ARB
+   MatrixIndexArrayPointer -> gl_MATRIX_INDEX_ARRAY_POINTER_ARB
+
+--------------------------------------------------------------------------------
+
+getPointer :: GetPointervPName -> IO (Ptr a)
+getPointer n = with nullPtr $ \buf -> do
+   glGetPointerv (marshalGetPointervPName n) buf
+   peek buf

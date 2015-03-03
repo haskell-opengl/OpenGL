@@ -1,5 +1,5 @@
 name: OpenGL
-version: 2.11.0.0
+version: 2.11.1.0
 synopsis: A binding for the OpenGL graphics system
 description:
   A Haskell binding for the OpenGL graphics system (GL, version 4.5) and its
@@ -36,6 +36,7 @@ library
     Graphics.Rendering.OpenGL.GL.Colors
     Graphics.Rendering.OpenGL.GL.ConditionalRendering
     Graphics.Rendering.OpenGL.GL.CoordTrans
+    Graphics.Rendering.OpenGL.GL.DebugOutput
     Graphics.Rendering.OpenGL.GL.DisplayLists
     Graphics.Rendering.OpenGL.GL.Evaluators
     Graphics.Rendering.OpenGL.GL.Feedback
@@ -154,6 +155,13 @@ library
     DeriveDataTypeable
     KindSignatures
     TypeSynonymInstances
+  if os(windows)
+    if arch(i386)
+      cpp-options: "-DCALLCONV=stdcall"
+    else
+      cpp-options: "-DCALLCONV=ccall"
+  else
+    cpp-options: "-DCALLCONV=ccall"
 
 source-repository head
   type: git

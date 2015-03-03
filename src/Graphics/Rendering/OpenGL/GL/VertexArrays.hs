@@ -35,9 +35,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    vertexAttribPointer, vertexAttribArray,
 ) where
 
-import Foreign.Marshal.Utils
-import Foreign.Ptr
-import Foreign.Storable
+import Foreign.Ptr ( Ptr, nullPtr )
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLboolean
@@ -404,44 +402,6 @@ setPrimitiveRestartIndexNV maybeIdx = case maybeIdx of
    Nothing  -> glDisableClientState gl_PRIMITIVE_RESTART_NV
    Just idx -> do glEnableClientState gl_PRIMITIVE_RESTART_NV
                   glPrimitiveRestartIndexNV (fromIntegral idx)
-
---------------------------------------------------------------------------------
-
-data GetPointervPName =
-     VertexArrayPointer
-   | NormalArrayPointer
-   | ColorArrayPointer
-   | IndexArrayPointer
-   | TextureCoordArrayPointer
-   | EdgeFlagArrayPointer
-   | FogCoordArrayPointer
-   | SecondaryColorArrayPointer
-   | FeedbackBufferPointer
-   | SelectionBufferPointer
-   | WeightArrayPointer
-   | MatrixIndexArrayPointer
-
-marshalGetPointervPName :: GetPointervPName -> GLenum
-marshalGetPointervPName x = case x of
-   VertexArrayPointer -> gl_VERTEX_ARRAY_POINTER
-   NormalArrayPointer -> gl_NORMAL_ARRAY_POINTER
-   ColorArrayPointer -> gl_COLOR_ARRAY_POINTER
-   IndexArrayPointer -> gl_INDEX_ARRAY_POINTER
-   TextureCoordArrayPointer -> gl_TEXTURE_COORD_ARRAY_POINTER
-   EdgeFlagArrayPointer -> gl_EDGE_FLAG_ARRAY_POINTER
-   FogCoordArrayPointer -> gl_FOG_COORD_ARRAY_POINTER
-   SecondaryColorArrayPointer -> gl_SECONDARY_COLOR_ARRAY_POINTER
-   FeedbackBufferPointer -> gl_FEEDBACK_BUFFER_POINTER
-   SelectionBufferPointer -> gl_SELECTION_BUFFER_POINTER
-   WeightArrayPointer -> gl_WEIGHT_ARRAY_POINTER_ARB
-   MatrixIndexArrayPointer -> gl_MATRIX_INDEX_ARRAY_POINTER_ARB
-
---------------------------------------------------------------------------------
-
-getPointer :: GetPointervPName -> IO (Ptr a)
-getPointer n = with nullPtr $ \buf -> do
-   glGetPointerv (marshalGetPointervPName n) buf
-   peek buf
 
 --------------------------------------------------------------------------------
 

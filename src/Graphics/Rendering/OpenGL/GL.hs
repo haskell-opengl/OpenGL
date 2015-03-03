@@ -65,6 +65,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.Hints,
    module Graphics.Rendering.OpenGL.GL.PixellikeObject,
    module Graphics.Rendering.OpenGL.GL.TransformFeedback,
+   module Graphics.Rendering.OpenGL.GL.DebugOutput,
 
    -- * State and State Requests
    module Graphics.Rendering.OpenGL.GL.StateVar,
@@ -117,6 +118,7 @@ import Graphics.Rendering.OpenGL.GL.DisplayLists
 import Graphics.Rendering.OpenGL.GL.Hints
 import Graphics.Rendering.OpenGL.GL.PixellikeObject
 import Graphics.Rendering.OpenGL.GL.TransformFeedback
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Tensor
