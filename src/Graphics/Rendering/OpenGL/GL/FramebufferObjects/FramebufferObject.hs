@@ -26,7 +26,7 @@ import Graphics.Rendering.OpenGL.Raw
        
 --------------------------------------------------------------------------------
 
-data FramebufferObject = FramebufferObject { framebufferID :: GLuint }
+newtype FramebufferObject = FramebufferObject { framebufferID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName FramebufferObject where
