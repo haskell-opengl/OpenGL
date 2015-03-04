@@ -22,7 +22,8 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
    callList, callLists, listBase
 ) where
 
-import Foreign.Ptr
+import Foreign.Ptr ( Ptr )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.DataType
@@ -40,6 +41,9 @@ newtype DisplayList = DisplayList { displayListID :: GLuint }
 instance ObjectName DisplayList where
    isObjectName = fmap unmarshalGLboolean . glIsList . displayListID
    deleteObjectNames = mapM_ (uncurry glDeleteLists) . combineConsecutive
+
+instance CanBeLabeled DisplayList where
+   objectLabel = objectNameLabel gl_DISPLAY_LIST . displayListID
 
 combineConsecutive :: [DisplayList] -> [(GLuint, GLsizei)]
 combineConsecutive [] = []

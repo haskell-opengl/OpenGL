@@ -17,9 +17,11 @@ module Graphics.Rendering.OpenGL.GL.QueryObject (
    QueryObject(..), noQueryObject
 ) where
 
-import Foreign.Marshal.Array
+import Foreign.Marshal.Array ( allocaArray, peekArray, withArrayLen )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -44,3 +46,6 @@ instance GeneratableObjectName QueryObject where
       allocaArray n $ \buf -> do
         glGenQueries (fromIntegral n) buf
         fmap (map QueryObject) $ peekArray n buf
+
+instance CanBeLabeled QueryObject where
+   objectLabel = objectNameLabel gl_QUERY . queryID

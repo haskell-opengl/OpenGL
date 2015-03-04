@@ -20,12 +20,19 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    lightIndexToEnum,
    modelviewIndexToEnum, modelviewEnumToIndex,
 
-   maybeNullPtr
+   maybeNullPtr,
+
+   objectNameLabel, objectPtrLabel, maxLabelLength
 ) where
 
-import Foreign.Ptr
+import Foreign.C.String ( peekCStringLen, withCStringLen )
+import Foreign.Ptr ( Ptr, nullPtr )
+import Foreign.Marshal.Alloc ( alloca )
+import Foreign.Marshal.Array ( allocaArray )
+import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
 import Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib
+import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -63,3 +70,37 @@ modelviewEnumToIndex x
 maybeNullPtr :: b -> (Ptr a -> b) -> Ptr a -> b
 maybeNullPtr n f ptr | ptr == nullPtr = n
                      | otherwise      = f ptr
+
+--------------------------------------------------------------------------------
+
+objectNameLabel :: GLuint -> GLenum -> StateVar (Maybe String)
+objectNameLabel name ident =
+ makeStateVar
+   (getObjectLabelWith (glGetObjectLabel ident name))
+   (setObjectLabelWith (glObjectLabel ident name))
+
+objectPtrLabel :: Ptr () -> StateVar (Maybe String)
+objectPtrLabel ptr =
+  makeStateVar
+    (getObjectLabelWith (glGetObjectPtrLabel ptr))
+    (setObjectLabelWith (glObjectPtrLabel ptr))
+
+getObjectLabelWith :: (GLsizei -> Ptr GLsizei -> Ptr GLchar -> IO ())
+                   -> IO (Maybe String)
+getObjectLabelWith getLabel = do
+  maxLen <- get maxLabelLength
+  alloca $ \lenBuf ->
+    allocaArray (fromIntegral maxLen) $ \labelBuf -> do
+      getLabel maxLen lenBuf labelBuf
+      actualLen <- peek1 fromIntegral lenBuf
+      label <- peekCStringLen (labelBuf, actualLen)
+      return $ if label == "" then Nothing else Just label
+
+setObjectLabelWith :: (GLsizei -> Ptr GLchar -> IO ()) -> Maybe String -> IO ()
+setObjectLabelWith setLabel =
+  maybe (set (nullPtr, (0 :: Int))) (flip withCStringLen set)
+  where set (labelBuf, len) = setLabel (fromIntegral len) labelBuf
+
+maxLabelLength :: GettableStateVar GLsizei
+maxLabelLength =
+  makeGettableStateVar (getSizei1 id GetMaxLabelLength)

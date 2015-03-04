@@ -17,9 +17,11 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureObject (
    TextureObject(..)
 ) where
 
-import Foreign.Marshal.Array
+import Foreign.Marshal.Array ( allocaArray, peekArray, withArrayLen )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -41,3 +43,6 @@ instance GeneratableObjectName TextureObject where
       allocaArray n $ \buf -> do
         glGenTextures (fromIntegral n) buf
         fmap (map TextureObject) $ peekArray n buf
+
+instance CanBeLabeled TextureObject where
+   objectLabel = objectNameLabel gl_TEXTURE . textureID

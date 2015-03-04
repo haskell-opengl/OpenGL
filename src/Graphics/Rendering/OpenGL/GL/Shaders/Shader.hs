@@ -17,8 +17,10 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Shader (
    Shader(..)
 ) where
 
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -29,3 +31,6 @@ newtype Shader = Shader { shaderID :: GLuint }
 instance ObjectName Shader where
    isObjectName = fmap unmarshalGLboolean . glIsShader . shaderID
    deleteObjectName = glDeleteShader . shaderID
+
+instance CanBeLabeled Shader where
+   objectLabel = objectNameLabel gl_SHADER . shaderID

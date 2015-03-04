@@ -17,9 +17,11 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject (
    FramebufferObject(..)
 ) where
 
-import Foreign.Marshal
+import Foreign.Marshal.Array ( allocaArray, peekArray, withArrayLen )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
        
 --------------------------------------------------------------------------------
@@ -39,3 +41,6 @@ instance GeneratableObjectName FramebufferObject where
        allocaArray n $ \buf -> do
           glGenFramebuffers (fromIntegral n) buf
           fmap (map FramebufferObject) $ peekArray n buf
+
+instance CanBeLabeled FramebufferObject where
+   objectLabel = objectNameLabel gl_FRAMEBUFFER . framebufferID

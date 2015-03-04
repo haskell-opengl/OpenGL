@@ -25,8 +25,9 @@ module Graphics.Rendering.OpenGL.GL.SyncObjects (
    SyncStatus(..), syncStatus
 ) where
 
-import Foreign.Marshal.Utils
-import Foreign.Ptr
+import Foreign.Marshal.Utils ( with )
+import Foreign.Ptr ( nullPtr )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
@@ -42,6 +43,9 @@ newtype SyncObject = SyncObject { syncID :: GLsync }
 instance ObjectName SyncObject where
    isObjectName = fmap unmarshalGLboolean . glIsSync . syncID
    deleteObjectName = glDeleteSync . syncID
+
+instance CanBeLabeled SyncObject where
+   objectLabel = objectPtrLabel . syncID
 
 syncGpuCommandsComplete :: IO SyncObject
 syncGpuCommandsComplete =

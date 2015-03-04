@@ -17,9 +17,11 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject (
    RenderbufferObject(..)
 ) where
 
-import Foreign.Marshal
+import Foreign.Marshal ( allocaArray, peekArray, withArrayLen )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
        
 --------------------------------------------------------------------------------
@@ -39,3 +41,6 @@ instance GeneratableObjectName RenderbufferObject where
       allocaArray n $ \buf -> do
          glGenRenderbuffers (fromIntegral n) buf
          fmap (map RenderbufferObject) $ peekArray n buf
+
+instance CanBeLabeled RenderbufferObject where
+   objectLabel = objectNameLabel gl_RENDERBUFFER . renderbufferID

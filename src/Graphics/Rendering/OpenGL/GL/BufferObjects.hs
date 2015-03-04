@@ -41,11 +41,11 @@ module Graphics.Rendering.OpenGL.GL.BufferObjects (
    indexedBufferStart, indexedBufferSize
 ) where
 
-import Data.Maybe
-import Foreign.Marshal.Array
-import Foreign.Marshal.Utils
-import Foreign.Ptr
-import Foreign.Storable
+import Data.Maybe ( fromMaybe )
+import Foreign.Marshal.Array ( allocaArray, peekArray, withArrayLen )
+import Foreign.Marshal.Utils ( with )
+import Foreign.Ptr ( Ptr, nullPtr )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
@@ -75,6 +75,9 @@ instance GeneratableObjectName BufferObject where
       allocaArray n $ \buf -> do
         glGenBuffers (fromIntegral n) buf
         fmap (map BufferObject) $ peekArray n buf
+
+instance CanBeLabeled BufferObject where
+   objectLabel = objectNameLabel gl_BUFFER . bufferID
 
 --------------------------------------------------------------------------------
 
@@ -288,7 +291,7 @@ getBufferParameter t f p = with 0 $ \buf -> do
 getBufferPointer :: BufferTarget -> IO (Ptr a)
 getBufferPointer t = with nullPtr $ \buf -> do
    glGetBufferPointerv (marshalBufferTarget t) gl_BUFFER_MAP_POINTER buf
-   peek buf
+   peek1 id buf
 
 --------------------------------------------------------------------------------
 

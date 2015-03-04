@@ -15,8 +15,8 @@ module Graphics.Rendering.OpenGL.GL.VertexArrayObjects (
    bindVertexArrayObject
 ) where
 
-import Foreign.Marshal.Array
-
+import Foreign.Marshal.Array ( allocaArray, peekArray, withArrayLen )
+import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.QueryUtils
@@ -39,6 +39,9 @@ instance GeneratableObjectName VertexArrayObject where
    genObjectNames n = allocaArray n $ \buf -> do
       glGenVertexArrays (fromIntegral n) buf
       fmap (map VertexArrayObject) $ peekArray n buf
+
+instance CanBeLabeled VertexArrayObject where
+   objectLabel = objectNameLabel gl_VERTEX_ARRAY . vertexArrayID
 
 bindVertexArrayObject :: StateVar (Maybe VertexArrayObject)
 bindVertexArrayObject = makeStateVar getVAO bindVAO

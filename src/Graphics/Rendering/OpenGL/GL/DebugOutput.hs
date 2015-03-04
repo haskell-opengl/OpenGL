@@ -17,7 +17,7 @@
 module Graphics.Rendering.OpenGL.GL.DebugOutput (
   -- * Debug Messages
   debugOutput, DebugMessage(..), DebugSource(..), DebugType(..),
-  DebugMessageID(..), DebugSeverity(..), maxDebugMessageLength,
+  DebugMessageID(DebugMessageID), DebugSeverity(..), maxDebugMessageLength,
 
   -- * Debug Message Callback
   debugMessageCallback,
@@ -25,7 +25,8 @@ module Graphics.Rendering.OpenGL.GL.DebugOutput (
   -- * Debug Message Log
   maxDebugLoggedMessages, debugLoggedMessages,
 
-  -- * Controlling Debug Messages (TODO)
+  -- * Controlling Debug Messages
+  MessageGroup(..), debugMessageControl,
 
   -- * Externally Generated Messages
   debugMessageInsert,
@@ -34,7 +35,8 @@ module Graphics.Rendering.OpenGL.GL.DebugOutput (
   DebugGroup(..), pushDebugGroup, popDebugGroup, withDebugGroup,
   maxDebugGroupStackDepth,
 
-  -- * Debug Labels (TODO)
+  -- * Debug Labels
+  CanBeLabeled(..), maxLabelLength,
 
   -- * Asynchronous and Synchronous Debug Output
   debugOutputSynchronous
@@ -44,9 +46,9 @@ import Control.Monad ( unless, replicateM )
 import Foreign.C.String ( peekCStringLen, withCStringLen )
 import Foreign.C.Types
 import Foreign.Marshal.Alloc ( alloca )
-import Foreign.Marshal.Array ( allocaArray )
+import Foreign.Marshal.Array ( allocaArray, withArrayLen )
 import Foreign.Ptr (
-  Ptr, nullPtr, castPtrToFunPtr, FunPtr, nullFunPtr, freeHaskellFunPtr )
+  nullPtr, castPtrToFunPtr, FunPtr, nullFunPtr, freeHaskellFunPtr )
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.PeekPoke
@@ -177,7 +179,7 @@ debugMessageCallback =
 
 getDebugMessageCallback :: IO (Maybe (DebugMessage -> IO ()))
 getDebugMessageCallback = do
-  cb <- castPtrToFunPtr `fmap` getPointer DebugCallbackFunction
+  cb <- getDebugCallbackFunction
   return $ if (cb == nullFunPtr)
              then Nothing
              else Just . toDebugProc . dyn_debugProc $ cb
@@ -198,7 +200,7 @@ toDebugProc debugFunc (DebugMessage source typ msgID severity message) =
 
 setDebugMessageCallback :: Maybe (DebugMessage -> IO ()) -> IO ()
 setDebugMessageCallback maybeDebugProc = do
-  oldCB <- castPtrToFunPtr `fmap` getPointer DebugCallbackFunction
+  oldCB <- getDebugCallbackFunction
   unless (oldCB == nullFunPtr) $
     freeHaskellFunPtr oldCB
   newCB <-
@@ -213,6 +215,10 @@ fromDebugProc debugProc source typ msgID severity len message _userParam = do
                           (DebugMessageID msgID)
                           (unmarshalDebugSeverity severity)
                           msg)
+
+getDebugCallbackFunction :: IO (FunPtr GLDEBUGPROCFunc)
+getDebugCallbackFunction =
+  castPtrToFunPtr `fmap` getPointer DebugCallbackFunction
 
 --------------------------------------------------------------------------------
 
@@ -233,14 +239,43 @@ debugNextLoggedMessage = do
       alloca $ \idBuf ->
         alloca $ \severityBuf ->
           allocaArray (fromIntegral len) $ \messageBuf -> do
-            glGetDebugMessageLog 1 len sourceBuf typeBuf idBuf severityBuf
-                                 nullPtr messageBuf
+            _ <- glGetDebugMessageLog 1 len sourceBuf typeBuf idBuf
+                                      severityBuf nullPtr messageBuf
             source <- peek1 unmarshalDebugSource sourceBuf
             typ <- peek1 unmarshalDebugType typeBuf
             msgID <- peek1 DebugMessageID idBuf
             severity <- peek1 unmarshalDebugSeverity severityBuf
             message <- peekCStringLen (messageBuf, fromIntegral len)
             return $ DebugMessage source typ msgID severity message
+
+--------------------------------------------------------------------------------
+
+data MessageGroup =
+    MessageGroup (Maybe DebugSource) (Maybe DebugType) (Maybe DebugSeverity)
+  | MessageGroupWithIDs DebugSource DebugType [DebugMessageID]
+  deriving ( Eq, Ord, Show )
+
+debugMessageControl :: MessageGroup -> SettableStateVar Capability
+debugMessageControl x = case x of
+  MessageGroup maybeSource maybeType maybeSeverity ->
+    doDebugMessageControl maybeSource maybeType maybeSeverity []
+  MessageGroupWithIDs source typ messageIDs ->
+    doDebugMessageControl (Just source) (Just typ) Nothing messageIDs
+
+doDebugMessageControl :: Maybe DebugSource
+                      -> Maybe DebugType
+                      -> Maybe DebugSeverity
+                      -> [DebugMessageID]
+                      -> SettableStateVar Capability
+doDebugMessageControl maybeSource maybeType maybeSeverity messageIDs =
+  makeSettableStateVar $ \cap ->
+    withArrayLen (map debugMessageID messageIDs) $ \len idsBuf ->
+      glDebugMessageControl (maybe gl_DONT_CARE marshalDebugSource maybeSource)
+                            (maybe gl_DONT_CARE marshalDebugType maybeType)
+                            (maybe gl_DONT_CARE marshalDebugSeverity maybeSeverity)
+                            (fromIntegral len)
+                            idsBuf
+                            (marshalCapability cap)
 
 --------------------------------------------------------------------------------
 
@@ -276,6 +311,16 @@ withDebugGroup source msgID message =
 maxDebugGroupStackDepth :: GettableStateVar GLsizei
 maxDebugGroupStackDepth =
   makeGettableStateVar (getSizei1 id GetMaxDebugGroupStackDepth)
+
+--------------------------------------------------------------------------------
+
+-- TODO: Make instances for the following features when we have them:
+--   * PROGRAM_PIPELINE / glGenProgramPipelines
+--   * SAMPLER / glGenSamplers
+--   * TRANSFORM_FEEDBACK / glGenTransformFeedbacks
+
+class CanBeLabeled a where
+  objectLabel :: a -> StateVar (Maybe String)
 
 --------------------------------------------------------------------------------
 
