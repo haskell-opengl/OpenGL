@@ -370,8 +370,9 @@ data PName1I
     | GetMaxVertexAttribs               -- ^ sizei
     | GetMaxVaryingFloats               -- ^ sizei
     -- tessellation
-    | GetMaxPatchVertices               -- ^ int
-    | GetMaxTessellationLevel           -- ^ int
+    | GetPatchVertices                  -- ^ sizei
+    | GetMaxPatchVertices               -- ^ sizei
+    | GetMaxTessGenLevel                -- ^ sizei
     -- coordtrans
     | GetMatrixMode                 -- ^ enum
     | GetModelviewStackDepth        -- ^ sizei
@@ -639,8 +640,9 @@ instance GetPName PName1I where
         GetMaxVaryingFloats -> Just gl_MAX_VARYING_COMPONENTS
         GetMaxVertexAttribs -> Just gl_MAX_VERTEX_ATTRIBS
         -- tessellation
+        GetPatchVertices -> Just gl_PATCH_VERTICES
         GetMaxPatchVertices -> Just gl_MAX_PATCH_VERTICES
-        GetMaxTessellationLevel -> Just gl_MAX_TESS_GEN_LEVEL
+        GetMaxTessGenLevel -> Just gl_MAX_TESS_GEN_LEVEL
         -- coordtrans
         GetMatrixMode -> Just gl_MATRIX_MODE
         GetModelviewStackDepth -> Just gl_MODELVIEW_STACK_DEPTH

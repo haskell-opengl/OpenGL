@@ -82,10 +82,12 @@ data PrimitiveMode =
 -- 'patchVertices' is set to a value less than or equal to zero or greater
 -- than the implementation-dependent maximum value 'maxPatchVertices'.
 
-patchVertices :: SettableStateVar GLint
-patchVertices = makeSettableStateVar $ glPatchParameteri gl_PATCH_VERTICES
+patchVertices :: StateVar GLsizei
+patchVertices =
+  makeStateVar (getSizei1 id GetMaxPatchVertices)
+               (glPatchParameteri gl_PATCH_VERTICES . fromIntegral)
 
 -- | Contains the maximumum number of vertices in a single patch.
 
-maxPatchVertices :: GettableStateVar GLint
-maxPatchVertices = makeGettableStateVar $ getInteger1 id GetMaxPatchVertices
+maxPatchVertices :: GettableStateVar GLsizei
+maxPatchVertices = makeGettableStateVar $ getSizei1 id GetMaxPatchVertices

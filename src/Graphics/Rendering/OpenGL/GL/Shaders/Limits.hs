@@ -16,7 +16,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Limits (
    maxVertexTextureImageUnits, maxTextureImageUnits,
    maxCombinedTextureImageUnits, maxTextureCoords, maxVertexUniformComponents,
    maxFragmentUniformComponents, maxVertexAttribs, maxVaryingFloats,
-   maxTessellationLevel
+   maxTessGenLevel
 ) where
 
 import Graphics.Rendering.OpenGL.GL.StateVar
@@ -79,8 +79,8 @@ maxVaryingFloats = getLimit GetMaxVaryingFloats
 
 -- | Contains the maximum allowed tessellation level.
 
-maxTessellationLevel :: GettableStateVar GLint
-maxTessellationLevel = makeGettableStateVar $ getInteger1 id GetMaxTessellationLevel
+maxTessGenLevel :: GettableStateVar GLsizei
+maxTessGenLevel = makeGettableStateVar $ getSizei1 id GetMaxTessGenLevel
 
 getLimit :: PName1I -> GettableStateVar GLsizei
 getLimit = makeGettableStateVar . getSizei1 id
