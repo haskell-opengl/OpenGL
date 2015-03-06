@@ -80,7 +80,7 @@ maxVaryingFloats = getLimit GetMaxVaryingFloats
 -- | Contains the maximum allowed tessellation level.
 
 maxTessGenLevel :: GettableStateVar GLsizei
-maxTessGenLevel = makeGettableStateVar $ getSizei1 id GetMaxTessGenLevel
+maxTessGenLevel = getLimit GetMaxTessGenLevel
 
 getLimit :: PName1I -> GettableStateVar GLsizei
 getLimit = makeGettableStateVar . getSizei1 id
