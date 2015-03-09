@@ -39,6 +39,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects (
 
 import Data.List
 import Data.Maybe
+import Data.StateVar
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.ByteString
@@ -47,7 +48,6 @@ import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

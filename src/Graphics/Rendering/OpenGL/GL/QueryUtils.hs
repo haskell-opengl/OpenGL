@@ -25,6 +25,7 @@ module Graphics.Rendering.OpenGL.GL.QueryUtils (
    objectNameLabel, objectPtrLabel, maxLabelLength
 ) where
 
+import Data.StateVar
 import Foreign.C.String ( peekCStringLen, withCStringLen )
 import Foreign.Ptr ( Ptr, nullPtr )
 import Foreign.Marshal.Alloc ( alloca )
@@ -32,7 +33,6 @@ import Foreign.Marshal.Array ( allocaArray )
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
 import Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ module Graphics.Rendering.OpenGL.GL.Capability (
    IndexedEnableCap(..), makeIndexedCapability,
 ) where
 
-import Graphics.Rendering.OpenGL.GL.StateVar
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal

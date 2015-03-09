@@ -16,10 +16,10 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjects (
    FramebufferStatus(..), framebufferStatus,
 ) where
 
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 -----------------------------------------------------------------------------

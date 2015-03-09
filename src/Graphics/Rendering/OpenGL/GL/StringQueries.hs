@@ -20,10 +20,10 @@ module Graphics.Rendering.OpenGL.GL.StringQueries (
 
 import Data.Bits
 import Data.Char
+import Data.StateVar
 import Foreign.C.String
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

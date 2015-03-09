@@ -43,6 +43,7 @@ module Graphics.Rendering.OpenGL.GL.DebugOutput (
 ) where
 
 import Control.Monad ( unless, replicateM )
+import Data.StateVar
 import Foreign.C.String ( peekCStringLen, withCStringLen )
 import Foreign.C.Types
 import Foreign.Marshal.Alloc ( alloca )
@@ -53,7 +54,6 @@ import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

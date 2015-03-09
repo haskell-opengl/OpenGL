@@ -20,11 +20,11 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
 ) where
 
 import Control.Monad
+import Data.StateVar
 import Foreign.Marshal.Utils
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget

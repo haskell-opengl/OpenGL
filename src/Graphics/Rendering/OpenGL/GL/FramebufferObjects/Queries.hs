@@ -25,11 +25,11 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.Queries (
    renderbufferAlphaSize, renderbufferDepthSize, renderbufferStencilSize,
 ) where
 
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification(Level)
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureObject

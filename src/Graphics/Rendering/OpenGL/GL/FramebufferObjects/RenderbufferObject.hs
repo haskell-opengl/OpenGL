@@ -17,10 +17,12 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject (
    RenderbufferObject(..)
 ) where
 
+
+import Control.Monad.IO.Class
+import Data.ObjectName
 import Foreign.Marshal ( allocaArray, peekArray, withArrayLen )
 import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
        
@@ -30,15 +32,16 @@ newtype RenderbufferObject = RenderbufferObject { renderbufferID :: GLuint}
    deriving ( Eq, Ord, Show )
 
 instance ObjectName RenderbufferObject where
-   isObjectName = fmap unmarshalGLboolean . glIsRenderbuffer . renderbufferID
+   isObjectName =
+     liftIO . fmap unmarshalGLboolean . glIsRenderbuffer . renderbufferID
 
    deleteObjectNames objs =
-      withArrayLen (map renderbufferID objs) $
+      liftIO . withArrayLen (map renderbufferID objs) $
          glDeleteRenderbuffers . fromIntegral
 
 instance GeneratableObjectName RenderbufferObject where
    genObjectNames n =
-      allocaArray n $ \buf -> do
+      liftIO . allocaArray n $ \buf -> do
          glGenRenderbuffers (fromIntegral n) buf
          fmap (map RenderbufferObject) $ peekArray n buf
 

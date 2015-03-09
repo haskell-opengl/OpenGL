@@ -18,9 +18,9 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.PixelStorage (
    skipPixels, rowAlignment, imageHeight, skipImages
 ) where
 
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

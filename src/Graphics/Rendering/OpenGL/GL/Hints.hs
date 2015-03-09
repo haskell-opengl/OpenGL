@@ -16,8 +16,8 @@ module Graphics.Rendering.OpenGL.GL.Hints (
    HintTarget(..), HintMode(..), hint
 ) where
 
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

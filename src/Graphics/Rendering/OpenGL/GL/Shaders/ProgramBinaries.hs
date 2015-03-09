@@ -18,12 +18,12 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ProgramBinaries (
    ProgramBinary(..), programBinary
 ) where
 
+import Data.StateVar
 import Foreign.Marshal.Alloc
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

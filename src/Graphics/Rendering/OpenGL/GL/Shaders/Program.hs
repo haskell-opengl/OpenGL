@@ -20,14 +20,15 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Program (
    programVar1, programVar3
 ) where
 
+import Control.Monad.IO.Class
+import Data.ObjectName
+import Data.StateVar
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -36,8 +37,8 @@ newtype Program = Program { programID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName Program where
-   isObjectName = fmap unmarshalGLboolean . glIsProgram . programID
-   deleteObjectName = glDeleteProgram . programID
+   isObjectName = liftIO . fmap unmarshalGLboolean . glIsProgram . programID
+   deleteObjectName = liftIO . glDeleteProgram . programID
 
 instance CanBeLabeled Program where
    objectLabel = objectNameLabel gl_PROGRAM . programID

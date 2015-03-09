@@ -28,9 +28,9 @@ module Graphics.Rendering.OpenGL.GL.LineSegments (
 ) where
 
 import Control.Monad
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

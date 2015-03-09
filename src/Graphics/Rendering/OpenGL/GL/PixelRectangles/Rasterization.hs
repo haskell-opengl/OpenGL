@@ -18,11 +18,11 @@ module Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (
 ) where
 
 import Control.Monad
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.PixelData
 import Graphics.Rendering.OpenGL.GL.PixelFormat
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

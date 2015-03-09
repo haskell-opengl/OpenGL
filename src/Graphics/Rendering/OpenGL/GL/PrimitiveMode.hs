@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.PrimitiveMode (
    patchVertices, maxPatchVertices
 ) where
 
-import Graphics.Rendering.OpenGL.GL.StateVar
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
 import Graphics.Rendering.OpenGL.Raw
 

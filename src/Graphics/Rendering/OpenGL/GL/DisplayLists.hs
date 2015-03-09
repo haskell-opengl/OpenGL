@@ -22,10 +22,11 @@ module Graphics.Rendering.OpenGL.GL.DisplayLists (
    callList, callLists, listBase
 ) where
 
+import Control.Monad.IO.Class
+import Data.ObjectName
+import Data.StateVar
 import Foreign.Ptr ( Ptr )
 import Graphics.Rendering.OpenGL.GL.DebugOutput
-import Graphics.Rendering.OpenGL.GL.ObjectName
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.GLboolean
@@ -39,8 +40,9 @@ newtype DisplayList = DisplayList { displayListID :: GLuint }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName DisplayList where
-   isObjectName = fmap unmarshalGLboolean . glIsList . displayListID
-   deleteObjectNames = mapM_ (uncurry glDeleteLists) . combineConsecutive
+   isObjectName = liftIO . fmap unmarshalGLboolean . glIsList . displayListID
+   deleteObjectNames =
+     liftIO . mapM_ (uncurry glDeleteLists) . combineConsecutive
 
 instance CanBeLabeled DisplayList where
    objectLabel = objectNameLabel gl_DISPLAY_LIST . displayListID
@@ -57,12 +59,13 @@ combineConsecutive (z:zs) = (displayListID z, len) : combineConsecutive rest
          DisplayList x `isFollowedBy` DisplayList y = x + 1 == y
 
 instance GeneratableObjectName DisplayList where
-   genObjectNames n = do
+   genObjectNames n = liftIO $ do
       first <- glGenLists (fromIntegral n)
       if DisplayList first == noDisplayList
          then do recordOutOfMemory
                  return []
-         else return [ DisplayList l | l <- [ first .. first + fromIntegral n - 1 ] ]
+         else return [ DisplayList l
+                     | l <- [ first .. first + fromIntegral n - 1 ] ]
 
 --------------------------------------------------------------------------------
 

@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Limits (
    maxTessGenLevel
 ) where
 
-import Graphics.Rendering.OpenGL.GL.StateVar
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
 

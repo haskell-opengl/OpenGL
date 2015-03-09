@@ -17,10 +17,11 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureObject (
    TextureObject(..)
 ) where
 
+import Control.Monad.IO.Class
+import Data.ObjectName
 import Foreign.Marshal.Array ( allocaArray, peekArray, withArrayLen )
 import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
 
@@ -32,15 +33,15 @@ newtype TextureObject = TextureObject { textureID :: GLuint }
 --------------------------------------------------------------------------------
 
 instance ObjectName TextureObject where
-   isObjectName = fmap unmarshalGLboolean . glIsTexture . textureID
+   isObjectName = liftIO . fmap unmarshalGLboolean . glIsTexture . textureID
 
    deleteObjectNames textureObjects =
-      withArrayLen (map textureID textureObjects) $
+      liftIO . withArrayLen (map textureID textureObjects) $
          glDeleteTextures . fromIntegral
 
 instance GeneratableObjectName TextureObject where
    genObjectNames n =
-      allocaArray n $ \buf -> do
+      liftIO . allocaArray n $ \buf -> do
         glGenTextures (fromIntegral n) buf
         fmap (map TextureObject) $ peekArray n buf
 

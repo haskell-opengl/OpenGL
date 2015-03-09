@@ -18,11 +18,11 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderBinaries (
    ShaderBinary(..), shaderBinary,
 ) where
 
+import Data.StateVar
 import Foreign.Marshal.Array
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Shaders.Shader
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------

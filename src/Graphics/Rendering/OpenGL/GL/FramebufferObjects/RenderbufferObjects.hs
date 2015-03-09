@@ -22,10 +22,10 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObjects (
    renderbufferStorage, renderbufferStorageMultiSample,
 ) where
 
+import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.Raw
 

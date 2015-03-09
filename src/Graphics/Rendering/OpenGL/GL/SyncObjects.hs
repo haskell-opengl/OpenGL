@@ -25,14 +25,15 @@ module Graphics.Rendering.OpenGL.GL.SyncObjects (
    SyncStatus(..), syncStatus
 ) where
 
+import Control.Monad.IO.Class
+import Data.ObjectName
+import Data.StateVar
 import Foreign.Marshal.Utils ( with )
 import Foreign.Ptr ( nullPtr )
 import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.GL.ObjectName
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -41,8 +42,8 @@ newtype SyncObject = SyncObject { syncID :: GLsync }
    deriving ( Eq, Ord, Show )
 
 instance ObjectName SyncObject where
-   isObjectName = fmap unmarshalGLboolean . glIsSync . syncID
-   deleteObjectName = glDeleteSync . syncID
+   isObjectName = liftIO . fmap unmarshalGLboolean . glIsSync . syncID
+   deleteObjectName = liftIO . glDeleteSync . syncID
 
 instance CanBeLabeled SyncObject where
    objectLabel = objectPtrLabel . syncID

@@ -19,8 +19,8 @@ module Graphics.Rendering.OpenGL.GL.ByteString (
    packUtf8, unpackUtf8
 ) where
 
+import Data.StateVar
 import Foreign.Ptr
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.Raw
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as BI

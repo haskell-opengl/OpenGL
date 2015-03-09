@@ -17,12 +17,12 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TexParameter (
    TexParameter(..), texParami, texParamf, texParamC4f, getTexParameteri
 ) where
 
+import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.GL.StateVar
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.Raw
