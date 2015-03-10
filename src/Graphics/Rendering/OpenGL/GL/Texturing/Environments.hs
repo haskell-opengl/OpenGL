@@ -320,7 +320,8 @@ argAlpha n = arg (argNumToOperandAlpha n) (argNumToSrcAlpha n)
 
 arg :: TextureEnvParameter -> TextureEnvParameter -> StateVar Arg
 arg op src = combineArg (textureEnvOperand op) (textureEnvSrc src)
-   where combineArg v w = makeStateVar
+   where combineArg :: StateVar BlendingFactor -> StateVar Src -> StateVar Arg
+         combineArg v w = makeStateVar
                              (liftM2 Arg (get v) (get w))
                              (\(Arg x y) -> do v $= x; w $= y)
 
