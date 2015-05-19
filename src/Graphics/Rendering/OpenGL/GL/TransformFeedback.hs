@@ -52,18 +52,21 @@ endTransformFeedback = glEndTransformFeedback
 
 data TransformFeedbackBufferMode =
      InterleavedAttribs
+   | SeparateAttribs
    | SeperateAttribs
    deriving ( Eq, Ord, Show )
+{-# DEPRECATED SeperateAttribs "Use 'SeparateAttribs' instead." #-}
 
 marshalTransformFeedbackBufferMode :: TransformFeedbackBufferMode -> GLenum
 marshalTransformFeedbackBufferMode x = case x of
    InterleavedAttribs -> gl_INTERLEAVED_ATTRIBS
+   SeparateAttribs -> gl_SEPARATE_ATTRIBS
    SeperateAttribs -> gl_SEPARATE_ATTRIBS
 
 unmarshalTransformFeedbackBufferMode :: GLenum -> TransformFeedbackBufferMode
 unmarshalTransformFeedbackBufferMode x
    | x == gl_INTERLEAVED_ATTRIBS = InterleavedAttribs
-   | x == gl_SEPARATE_ATTRIBS = SeperateAttribs
+   | x == gl_SEPARATE_ATTRIBS = SeparateAttribs
    | otherwise = error $ "unmarshalTransformFeedbackBufferMode: illegal value " ++ show x
 
 -- limits
