@@ -22,7 +22,7 @@ import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
--- basically table 3.2 (pixel data type parameter) plus a few additions
+-- basically table 8.7 (pixel data type parameter) plus a few additions
 data DataType =
      UnsignedByte
    | Byte
