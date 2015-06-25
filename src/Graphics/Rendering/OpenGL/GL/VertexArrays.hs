@@ -27,8 +27,19 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
 
    -- * Dereferencing and Rendering
    ArrayIndex, NumArrayIndices, NumIndexBlocks,
-   arrayElement, drawArrays, multiDrawArrays, drawElements, multiDrawElements,
-   drawRangeElements, maxElementsVertices, maxElementsIndices, lockArrays,
+   arrayElement,
+
+   drawArrays, drawArraysInstancedBaseInstance, drawArraysInstanced,
+   multiDrawArrays,
+
+   drawElements, drawElementsInstancedBaseInstance, drawElementsInstanced,
+   multiDrawElements, drawRangeElements,
+
+   drawElementsBaseVertex, drawRangeElementsBaseVertex,
+   drawElementsInstancedBaseVertex, drawElementsInstancedBaseVertexBaseInstance,
+   multiDrawElementsBaseVertex,
+
+   maxElementsVertices, maxElementsIndices, lockArrays,
    primitiveRestartIndex, primitiveRestartIndexNV,
 
    -- * Generic Vertex Attribute Arrays
@@ -330,6 +341,12 @@ arrayElement = glArrayElement
 drawArrays :: PrimitiveMode -> ArrayIndex -> NumArrayIndices -> IO ()
 drawArrays = glDrawArrays . marshalPrimitiveMode
 
+drawArraysInstancedBaseInstance :: PrimitiveMode -> ArrayIndex -> NumArrayIndices -> GLsizei -> GLuint -> IO ()  -- TODO: type
+drawArraysInstancedBaseInstance = glDrawArraysInstancedBaseInstance . marshalPrimitiveMode
+
+drawArraysInstanced :: PrimitiveMode -> ArrayIndex -> NumArrayIndices -> GLsizei -> IO ()  -- TODO: type
+drawArraysInstanced = glDrawArraysInstanced . marshalPrimitiveMode
+
 multiDrawArrays ::
       PrimitiveMode -> Ptr ArrayIndex -> Ptr NumArrayIndices -> NumIndexBlocks
    -> IO ()
@@ -337,6 +354,12 @@ multiDrawArrays = glMultiDrawArrays . marshalPrimitiveMode
 
 drawElements :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> IO ()
 drawElements m c = glDrawElements (marshalPrimitiveMode m) c . marshalDataType
+
+drawElementsInstancedBaseInstance :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> GLsizei -> GLuint -> IO ()  -- TODO: type
+drawElementsInstancedBaseInstance m c = glDrawElementsInstancedBaseInstance (marshalPrimitiveMode m) c . marshalDataType
+
+drawElementsInstanced :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> GLsizei -> IO ()  -- TODO: type
+drawElementsInstanced m c = glDrawElementsInstanced (marshalPrimitiveMode m) c . marshalDataType
 
 multiDrawElements ::
       PrimitiveMode -> Ptr NumArrayIndices -> DataType -> Ptr (Ptr a)
@@ -350,6 +373,21 @@ drawRangeElements ::
 drawRangeElements m (s, e) c =
    glDrawRangeElements (marshalPrimitiveMode m) (fromIntegral s)
                        (fromIntegral e) c . marshalDataType
+
+drawElementsBaseVertex :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> GLint -> IO ()  -- TODO: type
+drawElementsBaseVertex m c = glDrawElementsBaseVertex (marshalPrimitiveMode m) c . marshalDataType
+
+drawRangeElementsBaseVertex :: PrimitiveMode -> (ArrayIndex, ArrayIndex) -> NumArrayIndices -> DataType -> Ptr a -> GLint -> IO ()  -- TODO: type
+drawRangeElementsBaseVertex m (s, e) c = glDrawRangeElementsBaseVertex (marshalPrimitiveMode m) (fromIntegral s) (fromIntegral e) c . marshalDataType
+
+drawElementsInstancedBaseVertex :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> GLsizei -> GLint -> IO ()  -- TODO: type
+drawElementsInstancedBaseVertex m c = glDrawElementsInstancedBaseVertex (marshalPrimitiveMode m) c . marshalDataType
+
+drawElementsInstancedBaseVertexBaseInstance :: PrimitiveMode -> NumArrayIndices -> DataType -> Ptr a -> GLsizei -> GLint -> GLuint -> IO ()  -- TODO: type
+drawElementsInstancedBaseVertexBaseInstance m c = glDrawElementsInstancedBaseVertexBaseInstance (marshalPrimitiveMode m) c . marshalDataType
+
+multiDrawElementsBaseVertex :: PrimitiveMode -> Ptr NumArrayIndices -> DataType -> Ptr (Ptr a) -> GLsizei -> Ptr GLint -> IO ()  -- TODO: type
+multiDrawElementsBaseVertex m c = glMultiDrawElementsBaseVertex (marshalPrimitiveMode m) c . marshalDataType
 
 maxElementsVertices :: GettableStateVar NumArrayIndices
 maxElementsVertices = makeGettableStateVar (getSizei1 id GetMaxElementsVertices)
