@@ -84,7 +84,7 @@ data PrimitiveMode =
 
 patchVertices :: StateVar GLsizei
 patchVertices =
-  makeStateVar (getSizei1 id GetMaxPatchVertices)
+  makeStateVar (getSizei1 id GetPatchVertices)
                (glPatchParameteri gl_PATCH_VERTICES . fromIntegral)
 
 -- | Contains the maximumum number of vertices in a single patch.
