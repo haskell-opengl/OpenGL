@@ -1046,6 +1046,8 @@ data PName2F
     | GetSmoothLineWidthRange   -- ^ float
     -- PerFragment
     | GetDepthBounds            -- ^ clampd
+    -- Tessellation
+    | GetPatchDefaultInnerLevel -- ^ float
 
 instance GetPName2F PName2F where
 
@@ -1063,6 +1065,8 @@ instance GetPName PName2F where
         GetSmoothLineWidthRange -> Just gl_SMOOTH_LINE_WIDTH_RANGE
         -- PerFragment
         GetDepthBounds -> Just gl_DEPTH_BOUNDS_EXT
+        -- Tessellation
+        GetPatchDefaultInnerLevel -> Just gl_PATCH_DEFAULT_INNER_LEVEL
 
 -----------------------------------------------------------------------------
 
@@ -1134,7 +1138,10 @@ data PName4F
     | GetCurrentRasterSecondaryColor    -- ^ float
     | GetCurrentRasterTextureCoords     -- ^ float
     | GetCurrentRasterPosition          -- ^ float
+    -- PerFragment
     | GetBlendColor                     -- ^ clampf
+    -- Tessellation
+    | GetPatchDefaultOuterLevel         -- ^ float
 
 instance GetPName4F PName4F where
 
@@ -1152,15 +1159,15 @@ instance GetPName PName4F where
         -- Framebuffer
         GetColorClearValue -> Just gl_COLOR_CLEAR_VALUE
         GetAccumClearValue -> Just gl_ACCUM_CLEAR_VALUE
-        -- Rasterpos
+        -- RasterPos
         GetCurrentRasterColor -> Just gl_CURRENT_RASTER_COLOR
         GetCurrentRasterSecondaryColor -> Just gl_CURRENT_RASTER_SECONDARY_COLOR
         GetCurrentRasterTextureCoords -> Just gl_CURRENT_RASTER_TEXTURE_COORDS
         GetCurrentRasterPosition -> Just gl_CURRENT_RASTER_POSITION
         -- PerFragment
         GetBlendColor -> Just gl_BLEND_COLOR
-
-
+        -- Tessellation
+        GetPatchDefaultOuterLevel -> Just gl_PATCH_DEFAULT_OUTER_LEVEL
 
 -- 0x3000 through 0x3FFF are reserved for clip planes
 clipPlaneIndexToEnum :: GLsizei -> Maybe GLenum

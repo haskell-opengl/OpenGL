@@ -17,10 +17,13 @@ module Graphics.Rendering.OpenGL.GL.PrimitiveMode (
    -- * Primitive Modes
    PrimitiveMode(..),
    -- * Patches (Tessellation)
-   patchVertices, maxPatchVertices
+   patchVertices, maxPatchVertices,
+   patchDefaultOuterLevel, patchDefaultInnerLevel, maxTessGenLevel
 ) where
 
 import Data.StateVar
+import Foreign.Marshal.Array
+import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
 import Graphics.Rendering.OpenGL.Raw
 
@@ -91,3 +94,30 @@ patchVertices =
 
 maxPatchVertices :: GettableStateVar GLsizei
 maxPatchVertices = makeGettableStateVar $ getSizei1 id GetMaxPatchVertices
+
+-- | Contains the four default outer tessellation levels to be used when no
+-- tessellation control shader is present.
+
+patchDefaultOuterLevel :: StateVar (GLfloat, GLfloat, GLfloat, GLfloat)
+patchDefaultOuterLevel =
+  makeStateVar
+    (getFloat4 (,,,) GetPatchDefaultOuterLevel)
+    (\(l0, l1, l2, l3) -> allocaArray 4 $ \ptr -> do
+                            poke4 ptr l0 l1 l2 l3
+                            glPatchParameterfv gl_PATCH_DEFAULT_OUTER_LEVEL ptr)
+
+-- | Contains the two default inner tessellation levels to be used when no
+-- tessellation control shader is present.
+
+patchDefaultInnerLevel :: StateVar (GLfloat, GLfloat)
+patchDefaultInnerLevel =
+  makeStateVar
+    (getFloat2 (,) GetPatchDefaultInnerLevel)
+    (\(l0, l1) -> allocaArray 2 $ \ptr -> do
+                    poke2 ptr l0 l1
+                    glPatchParameterfv gl_PATCH_DEFAULT_INNER_LEVEL ptr)
+
+-- | Contains the maximum allowed tessellation level.
+
+maxTessGenLevel :: GettableStateVar GLsizei
+maxTessGenLevel = makeGettableStateVar $ getSizei1 id GetMaxTessGenLevel
