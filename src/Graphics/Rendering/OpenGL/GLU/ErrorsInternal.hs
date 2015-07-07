@@ -1,5 +1,5 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-cse #-}
-
 {-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
@@ -22,8 +22,6 @@ module Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
 ) where
 
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
-import Foreign.C.String ( peekCString )
-import Foreign.Ptr ( castPtr )
 import Graphics.Rendering.GLU.Raw
 import Graphics.Rendering.OpenGL.Raw
 import System.IO.Unsafe ( unsafePerformIO )

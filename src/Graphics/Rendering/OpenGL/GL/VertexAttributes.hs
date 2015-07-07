@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
@@ -22,7 +22,9 @@ module Graphics.Rendering.OpenGL.GL.VertexAttributes (
    Index1(..)
 ) where
 
-import Control.Applicative
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ( Applicative(..) )
+#endif
 import Control.Monad
 import Data.Foldable
 import Data.Ix

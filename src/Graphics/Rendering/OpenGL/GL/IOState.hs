@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_HADDOCK hide #-}
 --------------------------------------------------------------------------------
 -- |
@@ -18,7 +19,9 @@ module Graphics.Rendering.OpenGL.GL.IOState (
    IOState(..), getIOState, peekIOState, evalIOState, nTimes
 ) where
 
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ( Applicative(..) )
+#endif
 import Control.Monad ( ap, liftM, replicateM )
 import Foreign.Ptr ( Ptr, plusPtr )
 import Foreign.Storable ( Storable(sizeOf,peek) )
