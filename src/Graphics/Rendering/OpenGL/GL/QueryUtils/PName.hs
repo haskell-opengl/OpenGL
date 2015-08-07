@@ -479,6 +479,7 @@ data PName1I
     | GetIndexWritemask     -- ^ int
     | GetDepthWritemask     -- ^ bool
     | GetStencilWritemask   -- ^ bool
+    | GetStencilBackWritemask   -- ^ bool
     | GetStencilClearValue  -- ^ int
     -- Program
     | GetCurrentProgram     -- ^ int
@@ -495,11 +496,17 @@ data PName1I
     | GetSampleCoverageInvert       -- ^ bool
     | GetAlphaTestFunc              -- ^ enum
     | GetStencilFunc                -- ^ enum
+    | GetStencilBackFunc            -- ^ enum
     | GetStencilValueMask           -- ^ int
+    | GetStencilBackValueMask       -- ^ int
     | GetStencilRef                 -- ^ int
+    | GetStencilBackRef             -- ^ int
     | GetStencilFail                -- ^ enum
+    | GetStencilBackFail            -- ^ enum
     | GetStencilPassDepthFail       -- ^ enum
+    | GetStencilBackPassDepthFail   -- ^ enum
     | GetStencilPassDepthPass       -- ^ enum
+    | GetStencilBackPassDepthPass   -- ^ enum
     | GetActiveStencilFace          -- ^ enum
     | GetLogicOpMode                -- ^ enum
     | GetBlendDst                   -- ^ enum
@@ -749,6 +756,7 @@ instance GetPName PName1I where
         GetIndexWritemask -> Just gl_INDEX_WRITEMASK
         GetDepthWritemask -> Just gl_DEPTH_WRITEMASK
         GetStencilWritemask -> Just gl_STENCIL_WRITEMASK
+        GetStencilBackWritemask -> Just gl_STENCIL_BACK_WRITEMASK
         GetStencilClearValue -> Just gl_STENCIL_CLEAR_VALUE
         -- Program
         GetCurrentProgram -> Just gl_CURRENT_PROGRAM
@@ -766,11 +774,17 @@ instance GetPName PName1I where
         GetSampleCoverageInvert -> Just gl_SAMPLE_COVERAGE_INVERT
         GetAlphaTestFunc -> Just gl_ALPHA_TEST_FUNC
         GetStencilFunc -> Just gl_STENCIL_FUNC
+        GetStencilBackFunc -> Just gl_STENCIL_BACK_FUNC
         GetStencilValueMask -> Just gl_STENCIL_VALUE_MASK
+        GetStencilBackValueMask -> Just gl_STENCIL_BACK_VALUE_MASK
         GetStencilRef -> Just gl_STENCIL_REF
+        GetStencilBackRef -> Just gl_STENCIL_BACK_REF
         GetStencilFail -> Just gl_STENCIL_FAIL
+        GetStencilBackFail -> Just gl_STENCIL_BACK_FAIL
         GetStencilPassDepthFail -> Just gl_STENCIL_PASS_DEPTH_FAIL
+        GetStencilBackPassDepthFail -> Just gl_STENCIL_BACK_PASS_DEPTH_FAIL
         GetStencilPassDepthPass -> Just gl_STENCIL_PASS_DEPTH_PASS
+        GetStencilBackPassDepthPass -> Just gl_STENCIL_BACK_PASS_DEPTH_PASS
         GetActiveStencilFace -> Just gl_ACTIVE_STENCIL_FACE_EXT
         GetLogicOpMode -> Just gl_LOGIC_OP_MODE
         GetBlendDst -> Just gl_BLEND_DST

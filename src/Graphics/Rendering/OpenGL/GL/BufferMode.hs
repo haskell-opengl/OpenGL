@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.BufferMode
--- Copyright   :  (c) Sven Panne 2002-2013
+-- Copyright   :  (c) Sven Panne 2002-2015
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>
@@ -23,7 +23,10 @@ import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
 
--- | The set of color buffers which are selected for reading and writing.
+-- | The set of color buffers which are selected for reading and writing. Note
+-- that 'FBOColorAttachment' can only be used with framebuffer objects, while
+-- the rest can only be used with the default framebuffer. Furthermore, OpenGL
+-- 3.0 deprecated auxiliary buffers, so avoid 'AuxBuffer' in modern code.
 
 data BufferMode =
      NoBuffers

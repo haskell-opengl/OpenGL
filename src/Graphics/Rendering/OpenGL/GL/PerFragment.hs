@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.PerFragment
--- Copyright   :  (c) Sven Panne 2002-2013
+-- Copyright   :  (c) Sven Panne 2002-2015
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>
@@ -59,6 +59,7 @@ import Graphics.Rendering.OpenGL.GL.Framebuffer
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
+import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -126,16 +127,28 @@ stencilTest = makeCapability CapStencilTest
 stencilFunc :: StateVar (ComparisonFunction, GLint, GLuint)
 stencilFunc =
    makeStateVar
-      (liftM3 (,,) (getEnum1 unmarshalComparisonFunction GetStencilFunc)
-                   (getInteger1 id GetStencilRef)
-                   (getInteger1 fromIntegral GetStencilValueMask))
+      (get (stencilFuncSeparate Front))
       (\(func, ref, mask) ->
          glStencilFunc (marshalComparisonFunction func) ref mask)
 
-stencilFuncSeparate :: Face -> SettableStateVar (ComparisonFunction, GLint, GLuint)
+stencilFuncSeparate :: Face -> StateVar (ComparisonFunction, GLint, GLuint)
 stencilFuncSeparate face =
-   makeSettableStateVar $ \(func, ref, mask) ->
-      glStencilFuncSeparate (marshalFace face) (marshalComparisonFunction func) ref mask
+   makeStateVar
+      (case face of
+          Front -> getStencilFunc GetStencilFunc
+                                  GetStencilRef
+                                  GetStencilValueMask
+          Back -> getStencilFunc GetStencilBackFunc
+                                 GetStencilBackRef
+                                 GetStencilBackValueMask
+          FrontAndBack -> do recordInvalidEnum; return (Never, 0, 0))
+      (\(func, ref, mask) ->
+         glStencilFuncSeparate (marshalFace face)
+                               (marshalComparisonFunction func) ref mask)
+   where getStencilFunc func ref mask =
+            liftM3 (,,) (getEnum1 unmarshalComparisonFunction func)
+                        (getInteger1 id ref)
+                        (getInteger1 fromIntegral mask)
 
 --------------------------------------------------------------------------------
 
@@ -178,20 +191,32 @@ unmarshalStencilOp x
 stencilOp :: StateVar (StencilOp, StencilOp, StencilOp)
 stencilOp =
    makeStateVar
-      (liftM3 (,,) (getEnum1 unmarshalStencilOp GetStencilFail)
-                   (getEnum1 unmarshalStencilOp GetStencilPassDepthFail)
-                   (getEnum1 unmarshalStencilOp GetStencilPassDepthPass))
+      (get (stencilOpSeparate Front))
       (\(sf, spdf, spdp) -> glStencilOp (marshalStencilOp sf)
                                         (marshalStencilOp spdf)
                                         (marshalStencilOp spdp))
 
-stencilOpSeparate :: Face -> SettableStateVar (StencilOp, StencilOp, StencilOp)
+stencilOpSeparate :: Face -> StateVar (StencilOp, StencilOp, StencilOp)
 stencilOpSeparate face =
-   makeSettableStateVar $ \(sf, spdf, spdp) ->
-      glStencilOpSeparate (marshalFace face)
-                          (marshalStencilOp sf)
-                          (marshalStencilOp spdf)
-                          (marshalStencilOp spdp)
+   makeStateVar
+      (case face of
+          Front -> getStencilOp GetStencilFail
+                                GetStencilPassDepthFail
+                                GetStencilPassDepthPass
+          Back ->  getStencilOp GetStencilBackFail
+                                GetStencilBackPassDepthFail
+                                GetStencilBackPassDepthPass
+          FrontAndBack -> do recordInvalidEnum
+                             return (OpZero, OpZero, OpZero))
+      (\(sf, spdf, spdp) -> glStencilOpSeparate (marshalFace face)
+                                                (marshalStencilOp sf)
+                                                (marshalStencilOp spdf)
+                                                (marshalStencilOp spdp))
+   where getStencilOp sf spdf spdp =
+            (liftM3 (,,) (getEnum1 unmarshalStencilOp sf)
+                         (getEnum1 unmarshalStencilOp spdf)
+                         (getEnum1 unmarshalStencilOp spdp))
+
 
 --------------------------------------------------------------------------------
 

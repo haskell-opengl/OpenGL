@@ -2,14 +2,14 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
--- Copyright   :  (c) Sven Panne 2013
+-- Copyright   :  (c) Sven Panne 2013-2015
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>
 -- Stability   :  stable
 -- Portability :  portable
 --
--- This is a purely internal module for marshaling FrameBufferTargets.
+-- This is a purely internal module for marshaling FramebufferTargets.
 --
 --------------------------------------------------------------------------------
 
