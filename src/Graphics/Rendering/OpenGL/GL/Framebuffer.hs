@@ -29,7 +29,21 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
    ClearBuffer(..), clear,
    clearColor, clearIndex, clearDepth, clearDepthf, clearStencil, clearAccum,
 
+   -- clearBufferiv,
+   -- clearBufferfv,
+   -- clearBufferuiv,
+   -- clearNamedFramebufferiv,
+   -- clearNamedFramebufferfv,
+   -- clearNamedFramebufferuiv,
+
+   -- clearBufferfi,
+   -- clearNamedFramebufferfi,
+
    -- * Invalidating Framebuffer Contents
+   -- invalidateSubFramebuffer,
+   -- invalidateNamedFramebufferSubData,
+   -- invalidateFramebuffer,
+   -- invalidateNamedFramebufferData,
 
    -- * The Accumulation Buffer
    AccumOp(..), accum,
@@ -43,6 +57,7 @@ import Control.Monad
 import Data.Maybe
 import Data.StateVar
 import Foreign.Marshal.Array
+import Foreign.Ptr -- REMOVE ME ----------------------------------------------------------------------------------------------------
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Face
@@ -329,6 +344,50 @@ clearAccum :: StateVar (Color4 GLfloat)
 clearAccum =
    makeStateVar (getFloat4 Color4 GetAccumClearValue)
                 (\(Color4 r g b a) -> glClearAccum r g b a)
+
+-- buffer = COLOR => drawbuffer i (= DRAW_BUFFERi, DrawBufferIndex), pointer to 4 elems
+-- buffer = DEPTH => drawbuffer must be 0, only "f" version allowed, 1 elem
+-- buffer = STENCIL => drawbuffer must be 0, only "i" version allowed, 1 elem
+
+clearBufferiv :: GLenum -> GLint -> Ptr GLint -> IO ()
+clearBufferiv = glClearBufferiv
+
+clearBufferfv :: GLenum -> GLint -> Ptr GLfloat -> IO ()
+clearBufferfv = glClearBufferfv
+
+clearBufferuiv :: GLenum -> GLint -> Ptr GLuint -> IO ()
+clearBufferuiv = glClearBufferuiv
+
+clearNamedFramebufferiv :: GLuint -> GLenum -> GLint -> Ptr GLint -> IO ()
+clearNamedFramebufferiv = glClearNamedFramebufferiv
+
+clearNamedFramebufferfv :: GLuint -> GLenum -> GLint -> Ptr GLfloat -> IO ()
+clearNamedFramebufferfv = glClearNamedFramebufferfv
+
+clearNamedFramebufferuiv :: GLuint -> GLenum -> GLint -> Ptr GLuint -> IO ()
+clearNamedFramebufferuiv = glClearNamedFramebufferuiv
+
+-- buffer must be DEPTH_STENCIL, drawbuffer must be 0, depth/stencil args
+
+clearBufferfi :: GLenum -> GLint -> GLfloat -> GLint -> IO ()
+clearBufferfi = glClearBufferfi
+
+clearNamedFramebufferfi :: GLuint -> GLenum -> GLfloat -> GLint -> IO ()
+clearNamedFramebufferfi = glClearNamedFramebufferfi
+
+--------------------------------------------------------------------------------
+
+invalidateSubFramebuffer :: GLenum -> GLsizei -> Ptr GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> IO ()
+invalidateSubFramebuffer = glInvalidateSubFramebuffer
+
+invalidateNamedFramebufferSubData :: GLuint -> GLsizei -> Ptr GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> IO ()
+invalidateNamedFramebufferSubData = glInvalidateNamedFramebufferSubData
+
+invalidateFramebuffer :: GLenum -> GLsizei -> Ptr GLenum -> IO ()
+invalidateFramebuffer = glInvalidateFramebuffer
+
+invalidateNamedFramebufferData :: GLuint -> GLsizei -> Ptr GLenum -> IO ()
+invalidateNamedFramebufferData = glInvalidateNamedFramebufferData
 
 --------------------------------------------------------------------------------
 
