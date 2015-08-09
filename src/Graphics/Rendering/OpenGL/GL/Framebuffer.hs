@@ -29,21 +29,11 @@ module Graphics.Rendering.OpenGL.GL.Framebuffer (
    ClearBuffer(..), clear,
    clearColor, clearIndex, clearDepth, clearDepthf, clearStencil, clearAccum,
 
-   -- clearBufferiv,
-   -- clearBufferfv,
-   -- clearBufferuiv,
-   -- clearNamedFramebufferiv,
-   -- clearNamedFramebufferfv,
-   -- clearNamedFramebufferuiv,
-
-   -- clearBufferfi,
-   -- clearNamedFramebufferfi,
+   ClearBufferCommand(..), clearBuffer, clearNamedFramebuffer,
 
    -- * Invalidating Framebuffer Contents
-   -- invalidateSubFramebuffer,
-   -- invalidateNamedFramebufferSubData,
-   -- invalidateFramebuffer,
-   -- invalidateNamedFramebufferData,
+   invalidateSubFramebuffer, invalidateNamedFramebufferSubData,
+   invalidateFramebuffer, invalidateNamedFramebufferData,
 
    -- * The Accumulation Buffer
    AccumOp(..), accum,
@@ -57,11 +47,15 @@ import Control.Monad
 import Data.Maybe
 import Data.StateVar
 import Foreign.Marshal.Array
-import Foreign.Ptr -- REMOVE ME ----------------------------------------------------------------------------------------------------
+import Foreign.Marshal.Utils
+import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.BufferMode
 import Graphics.Rendering.OpenGL.GL.Capability
+import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Face
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObject
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
+import Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferTarget
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.VertexSpec
@@ -345,49 +339,94 @@ clearAccum =
    makeStateVar (getFloat4 Color4 GetAccumClearValue)
                 (\(Color4 r g b a) -> glClearAccum r g b a)
 
--- buffer = COLOR => drawbuffer i (= DRAW_BUFFERi, DrawBufferIndex), pointer to 4 elems
--- buffer = DEPTH => drawbuffer must be 0, only "f" version allowed, 1 elem
--- buffer = STENCIL => drawbuffer must be 0, only "i" version allowed, 1 elem
+-- | Describes which buffer(s) to clear and the value to use.
 
-clearBufferiv :: GLenum -> GLint -> Ptr GLint -> IO ()
-clearBufferiv = glClearBufferiv
+data ClearBufferCommand
+   = ClearColorBufferInt DrawBufferIndex (Color4 GLint)
+   -- ^ Clear the signed integer color buffer(s) at the given index.
+   | ClearColorBufferFloat DrawBufferIndex (Color4 GLfloat)
+   -- ^ Clear the fixed- or floating-point color buffer(s) at the given index.
+   | ClearColorBufferUint DrawBufferIndex (Color4 GLuint)
+   -- ^ Clear the unsigned color buffer(s) at the given index.
+   | ClearDepthBuffer GLfloat
+   -- ^ Clear the depth buffer.
+   | ClearStencilBuffer GLint
+   -- ^ Clear the stencil buffer.
+   | ClearDepthAndStencilBuffers GLfloat GLint
+   -- ^ Clear the depth buffer and the stencil buffer.
+   deriving ( Eq, Ord, Show )
 
-clearBufferfv :: GLenum -> GLint -> Ptr GLfloat -> IO ()
-clearBufferfv = glClearBufferfv
+-- | Clear the given buffer(s).
 
-clearBufferuiv :: GLenum -> GLint -> Ptr GLuint -> IO ()
-clearBufferuiv = glClearBufferuiv
+clearBuffer :: ClearBufferCommand -> IO ()
+clearBuffer cmd = case cmd of
+   ClearColorBufferInt i c ->
+      with c $ glClearBufferiv gl_COLOR (fromIntegral i) . castPtr
+   ClearColorBufferFloat i c ->
+      with c $ glClearBufferfv gl_COLOR (fromIntegral i) . castPtr
+   ClearColorBufferUint i c ->
+      with c $ glClearBufferuiv gl_COLOR (fromIntegral i) . castPtr
+   ClearDepthBuffer d ->
+      with d $ glClearBufferfv gl_DEPTH 0
+   ClearStencilBuffer s ->
+      with s $ glClearBufferiv gl_STENCIL 0
+   ClearDepthAndStencilBuffers d s ->
+      glClearBufferfi gl_DEPTH_STENCIL 0 d s
 
-clearNamedFramebufferiv :: GLuint -> GLenum -> GLint -> Ptr GLint -> IO ()
-clearNamedFramebufferiv = glClearNamedFramebufferiv
+-- | The direct-state-access version of 'clearBuffer'.
 
-clearNamedFramebufferfv :: GLuint -> GLenum -> GLint -> Ptr GLfloat -> IO ()
-clearNamedFramebufferfv = glClearNamedFramebufferfv
-
-clearNamedFramebufferuiv :: GLuint -> GLenum -> GLint -> Ptr GLuint -> IO ()
-clearNamedFramebufferuiv = glClearNamedFramebufferuiv
-
--- buffer must be DEPTH_STENCIL, drawbuffer must be 0, depth/stencil args
-
-clearBufferfi :: GLenum -> GLint -> GLfloat -> GLint -> IO ()
-clearBufferfi = glClearBufferfi
-
-clearNamedFramebufferfi :: GLuint -> GLenum -> GLfloat -> GLint -> IO ()
-clearNamedFramebufferfi = glClearNamedFramebufferfi
+clearNamedFramebuffer :: FramebufferObject -> ClearBufferCommand -> IO ()
+clearNamedFramebuffer fbo cmd = case cmd of
+   ClearColorBufferInt i c ->
+      with c $ glClearNamedFramebufferiv f gl_COLOR (fromIntegral i) . castPtr
+   ClearColorBufferFloat i c ->
+      with c $ glClearNamedFramebufferfv f gl_COLOR (fromIntegral i) . castPtr
+   ClearColorBufferUint i c ->
+      with c $ glClearNamedFramebufferuiv f gl_COLOR (fromIntegral i) . castPtr
+   ClearDepthBuffer d ->
+      with d $ glClearNamedFramebufferfv f gl_DEPTH 0
+   ClearStencilBuffer s ->
+      with s $ glClearNamedFramebufferiv f gl_STENCIL 0
+   ClearDepthAndStencilBuffers d s ->
+      glClearNamedFramebufferfi f gl_DEPTH_STENCIL d s
+   where f = framebufferID fbo
 
 --------------------------------------------------------------------------------
 
-invalidateSubFramebuffer :: GLenum -> GLsizei -> Ptr GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> IO ()
-invalidateSubFramebuffer = glInvalidateSubFramebuffer
+-- | Invalidate a region of the attachments bound to the given target.
 
-invalidateNamedFramebufferSubData :: GLuint -> GLsizei -> Ptr GLenum -> GLint -> GLint -> GLsizei -> GLsizei -> IO ()
-invalidateNamedFramebufferSubData = glInvalidateNamedFramebufferSubData
+invalidateSubFramebuffer :: FramebufferTarget -> [FramebufferObjectAttachment] -> (Position, Size) -> IO ()
+invalidateSubFramebuffer target attachments (Position x y, Size w h) =
+   withAttachments attachments $ \numAttachments atts ->
+      glInvalidateSubFramebuffer (marshalFramebufferTarget target) numAttachments atts x y w h
 
-invalidateFramebuffer :: GLenum -> GLsizei -> Ptr GLenum -> IO ()
-invalidateFramebuffer = glInvalidateFramebuffer
+-- | The direct-state-access version of 'invalidateSubFramebuffer'.
 
-invalidateNamedFramebufferData :: GLuint -> GLsizei -> Ptr GLenum -> IO ()
-invalidateNamedFramebufferData = glInvalidateNamedFramebufferData
+invalidateNamedFramebufferSubData :: FramebufferObject -> [FramebufferObjectAttachment] -> (Position, Size) -> IO ()
+invalidateNamedFramebufferSubData fbo attachments (Position x y, Size w h) =
+   withAttachments attachments $ \numAttachments atts ->
+      glInvalidateNamedFramebufferSubData (framebufferID fbo) numAttachments atts x y w h
+
+-- | A version of 'invalidateSubFramebuffer' affecting the whole viewport.
+
+invalidateFramebuffer :: FramebufferTarget -> [FramebufferObjectAttachment] -> IO ()
+invalidateFramebuffer target attachments =
+   withAttachments attachments $
+      glInvalidateFramebuffer (marshalFramebufferTarget target)
+
+-- | The direct-state-access version of 'invalidateFramebuffer'.
+
+invalidateNamedFramebufferData :: FramebufferObject -> [FramebufferObjectAttachment] -> IO ()
+invalidateNamedFramebufferData fbo attachments =
+   withAttachments attachments $
+      glInvalidateNamedFramebufferData (framebufferID fbo)
+
+withAttachments :: [FramebufferObjectAttachment] -> (GLsizei -> Ptr GLenum -> IO ()) -> IO ()
+withAttachments attachments success
+   | all isJust atts = withArrayLen (catMaybes atts) $ \len buf ->
+                          success (fromIntegral len) buf
+   | otherwise = recordInvalidEnum
+   where atts = map marshalFramebufferObjectAttachment attachments
 
 --------------------------------------------------------------------------------
 
