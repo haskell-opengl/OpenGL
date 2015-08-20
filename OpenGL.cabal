@@ -1,5 +1,5 @@
 name: OpenGL
-version: 2.13.0.0
+version: 2.13.0.1
 synopsis: A binding for the OpenGL graphics system
 description:
   A Haskell binding for the OpenGL graphics system (GL, version 4.5) and its
@@ -22,6 +22,7 @@ category: Graphics
 build-type: Simple
 cabal-version: >= 1.10
 extra-source-files:
+   CHANGELOG.md
    README.md
 
 library

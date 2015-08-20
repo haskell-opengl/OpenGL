@@ -1,3 +1,7 @@
+2.13.0.1
+--------
+* Added CHANGELOG.md to distribution.
+
 2.13.0.0
 --------
 * Added missing drawing commands using vertex arrays and some related types.
