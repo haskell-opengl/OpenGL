@@ -1,22 +1,72 @@
-env:
- - CABALVER=1.16 GHCVER=7.0.4
- - CABALVER=1.16 GHCVER=7.2.2
- - CABALVER=1.16 GHCVER=7.4.2
- - CABALVER=1.16 GHCVER=7.6.3
- - CABALVER=1.20 GHCVER=7.8.4
- - CABALVER=1.22 GHCVER=7.10.2
- - CABALVER=head GHCVER=head
-
+# It seems that we can't use the CABALVER and GHCVER environment variables in a
+# toplevel addons.apt.packages section, so we have to duplicate things below.
+# Furthermore, GHC 7.10.2 is not on the whitelist yet.
+# TODO: Change 7.10.1 to 7.10.2 when it is whitelisted.
 matrix:
+  include:
+   - env: CABALVER=1.16 GHCVER=7.0.4
+     addons:
+       apt:
+         sources:
+          - hvr-ghc
+         packages:
+          - cabal-install-1.16
+          - ghc-7.0.4
+   - env: CABALVER=1.16 GHCVER=7.2.2
+     addons:
+       apt:
+         sources:
+          - hvr-ghc
+         packages:
+          - cabal-install-1.16
+          - ghc-7.2.2
+   - env: CABALVER=1.16 GHCVER=7.4.2
+     addons:
+       apt:
+         sources:
+          - hvr-ghc
+         packages:
+          - cabal-install-1.16
+          - ghc-7.4.2
+   - env: CABALVER=1.16 GHCVER=7.6.3
+     addons:
+       apt:
+         sources:
+          - hvr-ghc
+         packages:
+          - cabal-install-1.16
+          - ghc-7.6.3
+   - env: CABALVER=1.20 GHCVER=7.8.4
+     addons:
+       apt:
+         sources:
+          - hvr-ghc
+         packages:
+          - cabal-install-1.20
+          - ghc-7.8.4
+   - env: CABALVER=1.22 GHCVER=7.10.1
+     addons:
+       apt:
+         sources:
+          - hvr-ghc
+         packages:
+          - cabal-install-1.22
+          - ghc-7.10.1
+   - env: CABALVER=head GHCVER=head
+     addons:
+       apt:
+         sources:
+          - hvr-ghc
+         packages:
+          - cabal-install-head
+          - ghc-head
   allow_failures:
    - env: CABALVER=head GHCVER=head
 
-before_install:
- - sudo add-apt-repository -y ppa:hvr/ghc
- - sudo apt-get update -qq
+sudo: false
 
+# The packages from the PPA don't put this into the PATH automatically.
 install:
- - sudo apt-get install -qq cabal-install-$CABALVER ghc-$GHCVER
  - export PATH="/opt/cabal/$CABALVER/bin:/opt/ghc/$GHCVER/bin:$PATH"
 
 before_script:
