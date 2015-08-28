@@ -570,6 +570,8 @@ data PName1I
     | GetDebugNextLoggedMessageLength -- ^ int
     | GetMaxDebugGroupStackDepth      -- ^ int
     | GetMaxLabelLength               -- ^ int
+    -- Extensions
+    | GetNumExtensions     -- ^ uint
 
 instance GetPName1I PName1I where
 
@@ -848,6 +850,7 @@ instance GetPName PName1I where
         GetDebugNextLoggedMessageLength -> Just gl_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH
         GetMaxDebugGroupStackDepth -> Just gl_MAX_DEBUG_GROUP_STACK_DEPTH
         GetMaxLabelLength -> Just gl_MAX_LABEL_LENGTH
+        GetNumExtensions -> Just gl_NUM_EXTENSIONS
 
 -- 0x8825 through 0x8834 are reserved for draw buffers
 

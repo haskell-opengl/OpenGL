@@ -14,8 +14,8 @@
 --------------------------------------------------------------------------------
 
 module Graphics.Rendering.OpenGL.GL.StringQueries (
-   vendor, renderer, glVersion, glExtensions, shadingLanguageVersion,
-   majorMinor, ContextProfile'(..), contextProfile
+   vendor, renderer, glVersion, glExtensions, extensionSupported,
+   shadingLanguageVersion, majorMinor, ContextProfile'(..), contextProfile
 ) where
 
 import Data.Bits
@@ -38,6 +38,14 @@ glVersion = makeGettableStateVar (getString gl_VERSION)
 
 glExtensions :: GettableStateVar [String]
 glExtensions = makeGettableStateVar (fmap words $ getString gl_EXTENSIONS)
+
+extensionSupported :: String -> GettableStateVar Bool
+extensionSupported ext = makeGettableStateVar $ do
+   n <- getInteger1 fromIntegral GetNumExtensions
+   anyM $ map isExt [ 0 .. n - 1 ]
+   where anyM = foldr orM (return False)
+         x `orM` y = x >>= \q -> if q then return True else y
+         isExt = fmap (== ext) . getStringi gl_EXTENSIONS
 
 shadingLanguageVersion :: GettableStateVar String
 shadingLanguageVersion = makeGettableStateVar (getString gl_SHADING_LANGUAGE_VERSION)
@@ -66,6 +74,9 @@ i2cps bitfield =
 
 getString :: GLenum -> IO String
 getString = getStringWith . glGetString
+
+getStringi :: GLenum -> GLuint -> IO String
+getStringi n = getStringWith . glGetStringi n
 
 --------------------------------------------------------------------------------
 
