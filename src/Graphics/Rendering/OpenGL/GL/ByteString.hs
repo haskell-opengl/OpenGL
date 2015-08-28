@@ -16,11 +16,13 @@
 module Graphics.Rendering.OpenGL.GL.ByteString (
    B.ByteString, stringQuery, createAndTrimByteString,
    withByteString, withGLstring,
-   packUtf8, unpackUtf8
+   packUtf8, unpackUtf8,
+   getStringWith
 ) where
 
 import Data.StateVar
 import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as BI
@@ -60,3 +62,9 @@ packUtf8 = TE.encodeUtf8 . T.pack
 
 unpackUtf8 :: B.ByteString -> String
 unpackUtf8 = T.unpack . TE.decodeUtf8
+
+getStringWith :: IO (Ptr GLubyte) -> IO String
+getStringWith getStr = getStr >>= maybeNullPtr (return "") peekGLstring
+
+peekGLstring :: Ptr GLubyte -> IO String
+peekGLstring p = fmap unpackUtf8 $ BU.unsafePackCString (castPtr p)

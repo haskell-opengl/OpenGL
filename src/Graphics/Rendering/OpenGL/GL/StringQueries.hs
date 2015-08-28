@@ -21,8 +21,7 @@ module Graphics.Rendering.OpenGL.GL.StringQueries (
 import Data.Bits
 import Data.Char
 import Data.StateVar
-import Foreign.C.String
-import Foreign.Ptr
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
 
@@ -66,7 +65,7 @@ i2cps bitfield =
 --------------------------------------------------------------------------------
 
 getString :: GLenum -> IO String
-getString n = glGetString n >>= maybeNullPtr (return "") (peekCString . castPtr)
+getString = getStringWith . glGetString
 
 --------------------------------------------------------------------------------
 

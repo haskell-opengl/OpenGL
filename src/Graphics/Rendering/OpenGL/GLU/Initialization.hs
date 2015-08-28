@@ -17,10 +17,8 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
 ) where
 
 import Data.StateVar
-import Foreign.C.String
-import Foreign.Ptr
 import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.GL.QueryUtils
+import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.Raw
 
 --------------------------------------------------------------------------------
@@ -32,5 +30,4 @@ gluExtensions :: GettableStateVar [String]
 gluExtensions = makeGettableStateVar (fmap words $ getString glu_EXTENSIONS)
 
 getString :: GLenum -> IO String
-getString n = gluGetString n >>=
-              maybeNullPtr (return "") (peekCString . castPtr)
+getString = getStringWith . gluGetString
