@@ -20,35 +20,33 @@ module Graphics.Rendering.OpenGL.GL.StringQueries (
 
 import Data.Bits
 import Data.Char
-import Data.StateVar
+import Data.Set ( member, toList )
+import Data.StateVar as S
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.Raw
+import Text.ParserCombinators.ReadP as R
 
 --------------------------------------------------------------------------------
 
 vendor :: GettableStateVar String
-vendor = makeGettableStateVar (getString gl_VENDOR)
+vendor = makeStringVar gl_VENDOR
 
 renderer :: GettableStateVar String
-renderer = makeGettableStateVar (getString gl_RENDERER)
+renderer = makeStringVar gl_RENDERER
 
 glVersion :: GettableStateVar String
-glVersion = makeGettableStateVar (getString gl_VERSION)
+glVersion = makeStringVar gl_VERSION
 
 glExtensions :: GettableStateVar [String]
-glExtensions = makeGettableStateVar (fmap words $ getString gl_EXTENSIONS)
+glExtensions = makeGettableStateVar (toList `fmap` getExtensions)
 
 extensionSupported :: String -> GettableStateVar Bool
-extensionSupported ext = makeGettableStateVar $ do
-   n <- getInteger1 fromIntegral GetNumExtensions
-   anyM $ map isExt [ 0 .. n - 1 ]
-   where anyM = foldr orM (return False)
-         x `orM` y = x >>= \q -> if q then return True else y
-         isExt = fmap (== ext) . getStringi gl_EXTENSIONS
+extensionSupported ext =
+  makeGettableStateVar (getExtensions >>= (return . member ext))
 
 shadingLanguageVersion :: GettableStateVar String
-shadingLanguageVersion = makeGettableStateVar (getString gl_SHADING_LANGUAGE_VERSION)
+shadingLanguageVersion = makeStringVar gl_SHADING_LANGUAGE_VERSION
 
 --------------------------------------------------------------------------------
 
@@ -72,11 +70,8 @@ i2cps bitfield =
 
 --------------------------------------------------------------------------------
 
-getString :: GLenum -> IO String
-getString = getStringWith . glGetString
-
-getStringi :: GLenum -> GLuint -> IO String
-getStringi n = getStringWith . glGetStringi n
+makeStringVar :: GLenum -> GettableStateVar String
+makeStringVar = makeGettableStateVar . getStringWith . glGetString
 
 --------------------------------------------------------------------------------
 
@@ -87,12 +82,30 @@ getStringi n = getStringWith . glGetStringi n
 -- with a sane OpenGL implementation, it is transformed to @(-1,-1)@.
 
 majorMinor :: GettableStateVar String -> GettableStateVar (Int, Int)
-majorMinor = makeGettableStateVar . fmap parse . get
-   where defaultVersion = (-1, -1)
-         parse str =
-            case span isDigit str of
-               (major@(_:_), '.':rest) ->
-                  case span isDigit rest of
-                     (minor@(_:_), _) -> (read major, read minor)
-                     _ -> defaultVersion
-               _ -> defaultVersion
+majorMinor =
+  makeGettableStateVar . fmap (runParser parseVersion (-1, -1)) . S.get
+
+--------------------------------------------------------------------------------
+-- Copy from Graphics.Rendering.OpenGL.Raw.GetProcAddress... :-/
+
+runParser :: ReadP a -> a -> String -> a
+runParser parser failed str =
+  case readP_to_S parser str of
+    [(v, "")] -> v
+    _ -> failed
+
+-- This does quite a bit more than we need for "normal" OpenGL, but at least it
+-- documents the convoluted format of the version string in detail.
+parseVersion :: ReadP (Int, Int)
+parseVersion = do
+  _prefix <-
+    -- Too lazy to define a type for the API...
+    ("CL" <$ string "OpenGL ES-CL ") <++  -- OpenGL ES 1.x Common-Lite
+    ("CM" <$ string "OpenGL ES-CM ") <++  -- OpenGL ES 1.x Common
+    ("ES" <$ string "OpenGL ES "   ) <++  -- OpenGL ES 2.x or 3.x
+    ("GL" <$ string ""             )      -- OpenGL
+  major <- read <$> munch1 isDigit
+  minor <- char '.' >> read <$> munch1 isDigit
+  _release <- (char '.' >> munch1 (/= ' ')) <++ return ""
+  _vendorStuff <- (char ' ' >> R.get `manyTill` eof) <++ ("" <$ eof)
+  return (major, minor)

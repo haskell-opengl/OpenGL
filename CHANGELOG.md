@@ -1,5 +1,7 @@
-2.13.0.1
+2.13.1.0
 --------
+* Added `extensionSupported`.
+* Relaxed upper version bound for OpenGLRaw.
 * Added CHANGELOG.md to distribution.
 
 2.13.0.0
