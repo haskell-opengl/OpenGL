@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.StringQueries
@@ -20,6 +21,9 @@ module Graphics.Rendering.OpenGL.GL.StringQueries (
 
 import Data.Bits
 import Data.Char
+#if !MIN_VERSION_base(4,8,0)
+import Data.Functor( (<$>), (<$) )
+#endif
 import Data.Set ( member, toList )
 import Data.StateVar as S
 import Graphics.Rendering.OpenGL.GL.ByteString
@@ -39,7 +43,7 @@ glVersion :: GettableStateVar String
 glVersion = makeStringVar gl_VERSION
 
 glExtensions :: GettableStateVar [String]
-glExtensions = makeGettableStateVar (toList `fmap` getExtensions)
+glExtensions = makeGettableStateVar (toList <$> getExtensions)
 
 extensionSupported :: String -> GettableStateVar Bool
 extensionSupported ext =
@@ -83,7 +87,7 @@ makeStringVar = makeGettableStateVar . getStringWith . glGetString
 
 majorMinor :: GettableStateVar String -> GettableStateVar (Int, Int)
 majorMinor =
-  makeGettableStateVar . fmap (runParser parseVersion (-1, -1)) . S.get
+  makeGettableStateVar . (runParser parseVersion (-1, -1) <$>) . S.get
 
 --------------------------------------------------------------------------------
 -- Copy from Graphics.Rendering.OpenGL.Raw.GetProcAddress... :-/
