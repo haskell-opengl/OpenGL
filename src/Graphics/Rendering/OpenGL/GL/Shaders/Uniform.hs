@@ -120,6 +120,19 @@ instance UniformComponent GLfloat where
    uniform3v (UniformLocation ul) = glUniform3fv ul
    uniform4v (UniformLocation ul) = glUniform4fv ul
 
+instance UniformComponent GLdouble where
+   uniform1 (UniformLocation ul) = glUniform1d ul
+   uniform2 (UniformLocation ul) = glUniform2d ul
+   uniform3 (UniformLocation ul) = glUniform3d ul
+   uniform4 (UniformLocation ul) = glUniform4d ul
+
+   getUniform (Program p) (UniformLocation ul) = glGetUniformdv p ul . castPtr
+
+   uniform1v (UniformLocation ul) = glUniform1dv ul
+   uniform2v (UniformLocation ul) = glUniform2dv ul
+   uniform3v (UniformLocation ul) = glUniform3dv ul
+   uniform4v (UniformLocation ul) = glUniform4dv ul
+
 --------------------------------------------------------------------------------
 
 class Uniform a where
