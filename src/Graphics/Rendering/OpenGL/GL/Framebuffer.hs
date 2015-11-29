@@ -388,7 +388,7 @@ clearNamedFramebuffer fbo cmd = case cmd of
    ClearStencilBuffer s ->
       with s $ glClearNamedFramebufferiv f gl_STENCIL 0
    ClearDepthAndStencilBuffers d s ->
-      glClearNamedFramebufferfi f gl_DEPTH_STENCIL d s
+      glClearNamedFramebufferfi f gl_DEPTH_STENCIL 0 d s
    where f = framebufferID fbo
 
 --------------------------------------------------------------------------------
