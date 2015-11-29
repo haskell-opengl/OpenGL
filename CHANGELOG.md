@@ -1,3 +1,9 @@
+2.13.1.1
+--------
+* Aftermath for the `glClearNamedFramebufferfi` chaos in the OpenGL registry,
+  see the corresponding
+  [issue](https://www.khronos.org/bugzilla/show_bug.cgi?id=1394) on Khronos.
+
 2.13.1.0
 --------
 * Added `extensionSupported`.
