@@ -157,6 +157,33 @@ makeUniformVar setter location = makeStateVar getter (setter location)
                         getUniform program location buf
                         peek buf
 
+getSimpleUniform :: Storable a => Program -> UniformLocation -> Ptr a -> IO ()
+getSimpleUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
+
+makeSimpleUniformVar :: (UniformComponent a)
+               => UniformLocation -> StateVar a
+makeSimpleUniformVar location = makeStateVar getter (uniform1 location)
+   where getter = do program <- fmap fromJust $ get currentProgram
+                     allocaBytes maxUniformBufferSize $ \buf -> do
+                        getSimpleUniform program location buf
+                        peek buf
+
+instance Uniform GLfloat where
+   uniform = makeSimpleUniformVar
+   uniformv = uniform1v
+
+instance Uniform GLint where
+   uniform = makeSimpleUniformVar
+   uniformv = uniform1v
+
+instance Uniform GLuint where
+   uniform = makeSimpleUniformVar
+   uniformv = uniform1v
+
+instance Uniform GLdouble where
+   uniform = makeSimpleUniformVar
+   uniformv = uniform1v
+
 instance UniformComponent a => Uniform (Vertex2 a) where
    uniform = makeUniformVar $ \location (Vertex2 x y) -> uniform2 location x y
    uniformv location count = uniform2v location count . (castPtr :: Ptr (Vertex2 b) -> Ptr b)
