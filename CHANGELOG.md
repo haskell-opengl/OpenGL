@@ -1,3 +1,7 @@
+2.13.2.0
+--------
+* Implement Uniform instances for 'GLint', 'GLuint', 'GLfloat', and 'GLdouble'.
+
 2.13.1.1
 --------
 * Aftermath for the `glClearNamedFramebufferfi` chaos in the OpenGL registry,
