@@ -1,3 +1,7 @@
+2.13.2.1
+--------
+* Relaxed upper version bound for `transformers`.
+
 2.13.2.0
 --------
 * Implement Uniform instances for `GLint`, `GLuint`, `GLfloat`, and `GLdouble`.
