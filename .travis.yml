@@ -73,6 +73,12 @@ before_script:
  - ghc --version
  - ghc-pkg list
  - pushd ..
+ - git clone --depth=100 --quiet https://github.com/haskell-opengl/ObjectName.git
+ - cd ObjectName
+ - cabal install --enable-documentation
+ - popd
+ - ghc-pkg list
+ - pushd ..
  - git clone --depth=100 --quiet https://github.com/haskell-opengl/StateVar.git
  - cd StateVar
  - cabal install --enable-documentation
