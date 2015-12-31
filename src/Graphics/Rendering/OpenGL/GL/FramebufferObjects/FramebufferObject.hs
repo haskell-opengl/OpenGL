@@ -45,4 +45,4 @@ instance GeneratableObjectName FramebufferObject where
           fmap (map FramebufferObject) $ peekArray n buf
 
 instance CanBeLabeled FramebufferObject where
-   objectLabel = objectNameLabel gl_FRAMEBUFFER . framebufferID
+   objectLabel = objectNameLabel GL_FRAMEBUFFER . framebufferID

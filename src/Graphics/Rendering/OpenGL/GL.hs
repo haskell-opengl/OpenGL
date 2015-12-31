@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL (
    -- * OpenGL Fundamentals
-   module Graphics.Rendering.OpenGL.Raw.Types,
+   module Graphics.GL.Types,
    module Graphics.Rendering.OpenGL.GL.FlushFinish,
    module Data.ObjectName,
 

@@ -41,7 +41,7 @@ instance ObjectName Program where
    deleteObjectName = liftIO . glDeleteProgram . programID
 
 instance CanBeLabeled Program where
-   objectLabel = objectNameLabel gl_PROGRAM . programID
+   objectLabel = objectNameLabel GL_PROGRAM . programID
 
 --------------------------------------------------------------------------------
 
@@ -77,34 +77,34 @@ data GetProgramPName =
 
 marshalGetProgramPName :: GetProgramPName -> GLenum
 marshalGetProgramPName x = case x of
-   ProgramDeleteStatus -> gl_DELETE_STATUS
-   LinkStatus -> gl_LINK_STATUS
-   ValidateStatus -> gl_VALIDATE_STATUS
-   ProgramInfoLogLength -> gl_INFO_LOG_LENGTH
-   AttachedShaders -> gl_ATTACHED_SHADERS
-   ActiveAttributes -> gl_ACTIVE_ATTRIBUTES
-   ActiveAttributeMaxLength -> gl_ACTIVE_ATTRIBUTE_MAX_LENGTH
-   ActiveUniforms -> gl_ACTIVE_UNIFORMS
-   ActiveUniformMaxLength -> gl_ACTIVE_UNIFORM_MAX_LENGTH
-   TransformFeedbackBufferMode -> gl_TRANSFORM_FEEDBACK_BUFFER_MODE
-   TransformFeedbackVaryings -> gl_TRANSFORM_FEEDBACK_VARYINGS
-   TransformFeedbackVaryingMaxLength -> gl_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH
-   ActiveUniformBlocks -> gl_ACTIVE_UNIFORM_BLOCKS
-   ActiveUniformBlockMaxNameLength -> gl_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH
-   GeometryVerticesOut -> gl_GEOMETRY_VERTICES_OUT
-   GeometryInputType -> gl_GEOMETRY_INPUT_TYPE
-   GeometryOutputType -> gl_GEOMETRY_OUTPUT_TYPE
-   GeometryShaderInvocations -> gl_GEOMETRY_SHADER_INVOCATIONS
-   TessControlOutputVertices -> gl_TESS_CONTROL_OUTPUT_VERTICES
-   TessGenMode -> gl_TESS_GEN_MODE
-   TessGenSpacing -> gl_TESS_GEN_SPACING
-   TessGenVertexOrder -> gl_TESS_GEN_VERTEX_ORDER
-   TessGenPointMode -> gl_TESS_GEN_POINT_MODE
-   ComputeWorkGroupSize ->  gl_COMPUTE_WORK_GROUP_SIZE
-   ProgramSeparable -> gl_PROGRAM_SEPARABLE
-   ProgramBinaryRetrievableHint -> gl_PROGRAM_BINARY_RETRIEVABLE_HINT
-   ActiveAtomicCounterBuffers -> gl_ACTIVE_ATOMIC_COUNTER_BUFFERS
-   ProgramBinaryLength -> gl_PROGRAM_BINARY_LENGTH
+   ProgramDeleteStatus -> GL_DELETE_STATUS
+   LinkStatus -> GL_LINK_STATUS
+   ValidateStatus -> GL_VALIDATE_STATUS
+   ProgramInfoLogLength -> GL_INFO_LOG_LENGTH
+   AttachedShaders -> GL_ATTACHED_SHADERS
+   ActiveAttributes -> GL_ACTIVE_ATTRIBUTES
+   ActiveAttributeMaxLength -> GL_ACTIVE_ATTRIBUTE_MAX_LENGTH
+   ActiveUniforms -> GL_ACTIVE_UNIFORMS
+   ActiveUniformMaxLength -> GL_ACTIVE_UNIFORM_MAX_LENGTH
+   TransformFeedbackBufferMode -> GL_TRANSFORM_FEEDBACK_BUFFER_MODE
+   TransformFeedbackVaryings -> GL_TRANSFORM_FEEDBACK_VARYINGS
+   TransformFeedbackVaryingMaxLength -> GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH
+   ActiveUniformBlocks -> GL_ACTIVE_UNIFORM_BLOCKS
+   ActiveUniformBlockMaxNameLength -> GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH
+   GeometryVerticesOut -> GL_GEOMETRY_VERTICES_OUT
+   GeometryInputType -> GL_GEOMETRY_INPUT_TYPE
+   GeometryOutputType -> GL_GEOMETRY_OUTPUT_TYPE
+   GeometryShaderInvocations -> GL_GEOMETRY_SHADER_INVOCATIONS
+   TessControlOutputVertices -> GL_TESS_CONTROL_OUTPUT_VERTICES
+   TessGenMode -> GL_TESS_GEN_MODE
+   TessGenSpacing -> GL_TESS_GEN_SPACING
+   TessGenVertexOrder -> GL_TESS_GEN_VERTEX_ORDER
+   TessGenPointMode -> GL_TESS_GEN_POINT_MODE
+   ComputeWorkGroupSize -> GL_COMPUTE_WORK_GROUP_SIZE
+   ProgramSeparable -> GL_PROGRAM_SEPARABLE
+   ProgramBinaryRetrievableHint -> GL_PROGRAM_BINARY_RETRIEVABLE_HINT
+   ActiveAtomicCounterBuffers -> GL_ACTIVE_ATOMIC_COUNTER_BUFFERS
+   ProgramBinaryLength -> GL_PROGRAM_BINARY_LENGTH
 
 programVar1 :: (GLint -> a) -> GetProgramPName -> Program -> GettableStateVar a
 programVar1 = programVarN . peek1

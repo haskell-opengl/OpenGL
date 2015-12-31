@@ -23,8 +23,8 @@ import Graphics.GL
 
 marshalGLboolean :: Num a => Bool -> a
 marshalGLboolean x = fromIntegral $ case x of
-   False -> gl_FALSE
-   True -> gl_TRUE
+   False -> GL_FALSE
+   True -> GL_TRUE
 
 unmarshalGLboolean :: (Eq a, Num a) => a -> Bool
-unmarshalGLboolean = (/= fromIntegral gl_FALSE)
+unmarshalGLboolean = (/= fromIntegral GL_FALSE)

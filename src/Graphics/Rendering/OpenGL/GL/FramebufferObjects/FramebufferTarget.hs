@@ -29,6 +29,6 @@ data FramebufferTarget =
 
 marshalFramebufferTarget :: FramebufferTarget -> GLenum
 marshalFramebufferTarget xs = case xs of
-   DrawFramebuffer -> gl_DRAW_FRAMEBUFFER
-   ReadFramebuffer -> gl_READ_FRAMEBUFFER
-   Framebuffer -> gl_FRAMEBUFFER
+   DrawFramebuffer -> GL_DRAW_FRAMEBUFFER
+   ReadFramebuffer -> GL_READ_FRAMEBUFFER
+   Framebuffer -> GL_FRAMEBUFFER

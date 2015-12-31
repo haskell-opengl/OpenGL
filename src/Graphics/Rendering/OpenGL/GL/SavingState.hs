@@ -50,28 +50,28 @@ data ServerAttributeGroup =
 
 marshalServerAttributeGroup :: ServerAttributeGroup -> GLbitfield
 marshalServerAttributeGroup x = case x of
-   CurrentAttributes -> gl_CURRENT_BIT
-   PointAttributes -> gl_POINT_BIT
-   LineAttributes -> gl_LINE_BIT
-   PolygonAttributes -> gl_POLYGON_BIT
-   PolygonStippleAttributes -> gl_POLYGON_STIPPLE_BIT
-   PixelModeAttributes -> gl_PIXEL_MODE_BIT
-   LightingAttributes -> gl_LIGHTING_BIT
-   FogAttributes -> gl_FOG_BIT
-   DepthBufferAttributes -> gl_DEPTH_BUFFER_BIT
-   AccumBufferAttributes -> gl_ACCUM_BUFFER_BIT
-   StencilBufferAttributes -> gl_STENCIL_BUFFER_BIT
-   ViewportAttributes -> gl_VIEWPORT_BIT
-   TransformAttributes -> gl_TRANSFORM_BIT
-   EnableAttributes -> gl_ENABLE_BIT
-   ColorBufferAttributes -> gl_COLOR_BUFFER_BIT
-   HintAttributes -> gl_HINT_BIT
-   EvalAttributes -> gl_EVAL_BIT
-   ListAttributes -> gl_LIST_BIT
-   TextureAttributes -> gl_TEXTURE_BIT
-   ScissorAttributes -> gl_SCISSOR_BIT
-   MultisampleAttributes -> gl_MULTISAMPLE_BIT
-   AllServerAttributes -> gl_ALL_ATTRIB_BITS
+   CurrentAttributes -> GL_CURRENT_BIT
+   PointAttributes -> GL_POINT_BIT
+   LineAttributes -> GL_LINE_BIT
+   PolygonAttributes -> GL_POLYGON_BIT
+   PolygonStippleAttributes -> GL_POLYGON_STIPPLE_BIT
+   PixelModeAttributes -> GL_PIXEL_MODE_BIT
+   LightingAttributes -> GL_LIGHTING_BIT
+   FogAttributes -> GL_FOG_BIT
+   DepthBufferAttributes -> GL_DEPTH_BUFFER_BIT
+   AccumBufferAttributes -> GL_ACCUM_BUFFER_BIT
+   StencilBufferAttributes -> GL_STENCIL_BUFFER_BIT
+   ViewportAttributes -> GL_VIEWPORT_BIT
+   TransformAttributes -> GL_TRANSFORM_BIT
+   EnableAttributes -> GL_ENABLE_BIT
+   ColorBufferAttributes -> GL_COLOR_BUFFER_BIT
+   HintAttributes -> GL_HINT_BIT
+   EvalAttributes -> GL_EVAL_BIT
+   ListAttributes -> GL_LIST_BIT
+   TextureAttributes -> GL_TEXTURE_BIT
+   ScissorAttributes -> GL_SCISSOR_BIT
+   MultisampleAttributes -> GL_MULTISAMPLE_BIT
+   AllServerAttributes -> GL_ALL_ATTRIB_BITS
 
 --------------------------------------------------------------------------------
 
@@ -91,9 +91,9 @@ data ClientAttributeGroup =
 
 marshalClientAttributeGroup :: ClientAttributeGroup -> GLbitfield
 marshalClientAttributeGroup x = case x of
-   PixelStoreAttributes -> gl_CLIENT_PIXEL_STORE_BIT
-   VertexArrayAttributes -> gl_CLIENT_VERTEX_ARRAY_BIT
-   AllClientAttributes -> gl_CLIENT_ALL_ATTRIB_BITS
+   PixelStoreAttributes -> GL_CLIENT_PIXEL_STORE_BIT
+   VertexArrayAttributes -> GL_CLIENT_VERTEX_ARRAY_BIT
+   AllClientAttributes -> GL_CLIENT_ALL_ATTRIB_BITS
 
 --------------------------------------------------------------------------------
 

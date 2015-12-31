@@ -79,7 +79,7 @@ withNURBSBeginCallback :: NURBSObj -> NURBSBeginCallback -> IO a -> IO a
 withNURBSBeginCallback nurbsObj beginCallback action =
    bracket (makeNURBSBeginCallback (beginCallback . unmarshalPrimitiveMode))
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluNurbsCallback nurbsObj glu_NURBS_BEGIN callbackPtr
+      gluNurbsCallback nurbsObj GLU_NURBS_BEGIN callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ withNURBSVertexCallback :: NURBSObj -> NURBSVertexCallback -> IO a -> IO a
 withNURBSVertexCallback nurbsObj vertexCallback action =
    bracket (makeNURBSVertexCallback (\p -> peek (castPtr p) >>= vertexCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluNurbsCallback nurbsObj glu_NURBS_VERTEX callbackPtr
+      gluNurbsCallback nurbsObj GLU_NURBS_VERTEX callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ withNURBSNormalCallback :: NURBSObj -> NURBSNormalCallback -> IO a -> IO a
 withNURBSNormalCallback nurbsObj normalCallback action =
    bracket (makeNURBSNormalCallback (\p -> peek (castPtr p) >>= normalCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluNurbsCallback nurbsObj glu_NURBS_NORMAL callbackPtr
+      gluNurbsCallback nurbsObj GLU_NURBS_NORMAL callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ withNURBSColorCallback :: NURBSObj -> NURBSColorCallback -> IO a -> IO a
 withNURBSColorCallback nurbsObj colorCallback action =
    bracket (makeNURBSColorCallback (\p -> peek (castPtr p) >>= colorCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluNurbsCallback nurbsObj glu_NURBS_COLOR callbackPtr
+      gluNurbsCallback nurbsObj GLU_NURBS_COLOR callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ withNURBSEndCallback :: NURBSObj -> NURBSEndCallback -> IO a -> IO a
 withNURBSEndCallback nurbsObj endCallback action =
    bracket (makeNURBSEndCallback endCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluNurbsCallback nurbsObj glu_NURBS_END callbackPtr
+      gluNurbsCallback nurbsObj GLU_NURBS_END callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ withErrorCallback :: NURBSObj -> ErrorCallback -> IO a -> IO a
 withErrorCallback nurbsObj errorCallback action =
    bracket (makeNURBSErrorCallback errorCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluNurbsCallback nurbsObj glu_NURBS_ERROR callbackPtr
+      gluNurbsCallback nurbsObj GLU_NURBS_ERROR callbackPtr
       action
 
 checkForNURBSError :: NURBSObj -> IO a -> IO a
@@ -179,10 +179,10 @@ class TrimmingPoint p where
    trimmingTarget :: p GLfloat -> GLenum
 
 instance TrimmingPoint Vertex2 where
-   trimmingTarget = const glu_MAP1_TRIM_2
+   trimmingTarget = const GLU_MAP1_TRIM_2
 
 instance TrimmingPoint Vertex3 where
-   trimmingTarget = const glu_MAP1_TRIM_3
+   trimmingTarget = const GLU_MAP1_TRIM_3
 
 nurbsBeginEndTrim :: NURBSObj -> IO a -> IO a
 nurbsBeginEndTrim nurbsObj =
@@ -205,16 +205,16 @@ data NURBSMode =
 
 marshalNURBSMode :: NURBSMode -> GLfloat
 marshalNURBSMode x = fromIntegral $ case x of
-   NURBSTessellator -> glu_NURBS_TESSELLATOR
-   NURBSRenderer -> glu_NURBS_RENDERER
+   NURBSTessellator -> GLU_NURBS_TESSELLATOR
+   NURBSRenderer -> GLU_NURBS_RENDERER
 
 setNURBSMode :: NURBSObj -> NURBSMode -> IO ()
-setNURBSMode nurbsObj = gluNurbsProperty nurbsObj glu_NURBS_MODE . marshalNURBSMode
+setNURBSMode nurbsObj = gluNurbsProperty nurbsObj GLU_NURBS_MODE . marshalNURBSMode
 
 --------------------------------------------------------------------------------
 
 setNURBSCulling :: NURBSObj -> Capability -> IO ()
-setNURBSCulling nurbsObj = gluNurbsProperty nurbsObj glu_CULLING . fromIntegral . marshalCapability
+setNURBSCulling nurbsObj = gluNurbsProperty nurbsObj GLU_CULLING . fromIntegral . marshalCapability
 
 --------------------------------------------------------------------------------
 
@@ -227,14 +227,14 @@ data SamplingMethod' =
 
 marshalSamplingMethod' :: SamplingMethod' -> GLfloat
 marshalSamplingMethod' x = fromIntegral $ case x of
-   PathLength' -> glu_PATH_LENGTH
-   ParametricError' -> glu_PARAMETRIC_TOLERANCE
-   DomainDistance' -> glu_DOMAIN_DISTANCE
-   ObjectPathLength' -> glu_OBJECT_PATH_LENGTH
-   ObjectParametricError' -> glu_OBJECT_PARAMETRIC_ERROR
+   PathLength' -> GLU_PATH_LENGTH
+   ParametricError' -> GLU_PARAMETRIC_TOLERANCE
+   DomainDistance' -> GLU_DOMAIN_DISTANCE
+   ObjectPathLength' -> GLU_OBJECT_PATH_LENGTH
+   ObjectParametricError' -> GLU_OBJECT_PARAMETRIC_ERROR
 
 setSamplingMethod' :: NURBSObj -> SamplingMethod' -> IO ()
-setSamplingMethod' nurbsObj = gluNurbsProperty nurbsObj glu_SAMPLING_METHOD . marshalSamplingMethod'
+setSamplingMethod' nurbsObj = gluNurbsProperty nurbsObj GLU_SAMPLING_METHOD . marshalSamplingMethod'
 
 --------------------------------------------------------------------------------
 
@@ -249,26 +249,26 @@ data SamplingMethod =
 setSamplingMethod :: NURBSObj -> SamplingMethod -> IO ()
 setSamplingMethod nurbsObj x = case x of
    PathLength s -> do
-      gluNurbsProperty nurbsObj glu_SAMPLING_TOLERANCE s
+      gluNurbsProperty nurbsObj GLU_SAMPLING_TOLERANCE s
       setSamplingMethod' nurbsObj PathLength'
    ParametricError p -> do
-      gluNurbsProperty nurbsObj glu_PARAMETRIC_TOLERANCE p
+      gluNurbsProperty nurbsObj GLU_PARAMETRIC_TOLERANCE p
       setSamplingMethod' nurbsObj ParametricError'
    DomainDistance u v -> do
-      gluNurbsProperty nurbsObj glu_U_STEP u
-      gluNurbsProperty nurbsObj glu_V_STEP v
+      gluNurbsProperty nurbsObj GLU_U_STEP u
+      gluNurbsProperty nurbsObj GLU_V_STEP v
       setSamplingMethod' nurbsObj DomainDistance'
    ObjectPathLength s -> do
-      gluNurbsProperty nurbsObj glu_SAMPLING_TOLERANCE s
+      gluNurbsProperty nurbsObj GLU_SAMPLING_TOLERANCE s
       setSamplingMethod' nurbsObj ObjectPathLength'
    ObjectParametricError p -> do
-      gluNurbsProperty nurbsObj glu_PARAMETRIC_TOLERANCE p
+      gluNurbsProperty nurbsObj GLU_PARAMETRIC_TOLERANCE p
       setSamplingMethod' nurbsObj ObjectParametricError'
 
 --------------------------------------------------------------------------------
 
 setAutoLoadMatrix :: NURBSObj -> Bool -> IO ()
-setAutoLoadMatrix nurbsObj = gluNurbsProperty nurbsObj glu_AUTO_LOAD_MATRIX . marshalGLboolean
+setAutoLoadMatrix nurbsObj = gluNurbsProperty nurbsObj GLU_AUTO_LOAD_MATRIX . marshalGLboolean
 
 loadSamplingMatrices :: (Matrix m1, Matrix m2) => NURBSObj -> Maybe (m1 GLfloat, m2 GLfloat, (Position, Size)) -> IO ()
 loadSamplingMatrices nurbsObj =
@@ -303,9 +303,9 @@ data DisplayMode' =
 
 marshalDisplayMode' :: DisplayMode' -> GLfloat
 marshalDisplayMode' x = fromIntegral $ case x of
-   Fill' -> glu_FILL
-   OutlinePolygon -> glu_OUTLINE_POLYGON
-   OutlinePatch -> glu_OUTLINE_PATCH
+   Fill' -> GLU_FILL
+   OutlinePolygon -> GLU_OUTLINE_POLYGON
+   OutlinePatch -> GLU_OUTLINE_PATCH
 
 setDisplayMode' :: NURBSObj -> DisplayMode' -> IO ()
-setDisplayMode' nurbsObj = gluNurbsProperty nurbsObj glu_DISPLAY_MODE . marshalDisplayMode'
+setDisplayMode' nurbsObj = gluNurbsProperty nurbsObj GLU_DISPLAY_MODE . marshalDisplayMode'

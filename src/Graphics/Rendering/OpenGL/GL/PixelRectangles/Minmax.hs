@@ -34,7 +34,7 @@ data MinmaxTarget =
 
 marshalMinmaxTarget :: MinmaxTarget -> GLenum
 marshalMinmaxTarget x = case x of
-   Minmax -> gl_MINMAX
+   Minmax -> GL_MINMAX
 
 --------------------------------------------------------------------------------
 
@@ -74,8 +74,8 @@ data GetMinmaxParameterPName =
 
 marshalGetMinmaxParameterPName :: GetMinmaxParameterPName -> GLenum
 marshalGetMinmaxParameterPName x = case x of
-   MinmaxFormat -> gl_MINMAX_FORMAT
-   MinmaxSink -> gl_MINMAX_SINK
+   MinmaxFormat -> GL_MINMAX_FORMAT
+   MinmaxSink -> GL_MINMAX_SINK
 
 --------------------------------------------------------------------------------
 

@@ -44,12 +44,12 @@ class PixellikeObjectTarget t where
 
 instance PixellikeObjectTarget RenderbufferTarget where
    marshalPixellikeOT _ x = case x of
-      RedSize -> gl_RENDERBUFFER_RED_SIZE
-      BlueSize -> gl_RENDERBUFFER_BLUE_SIZE
-      GreenSize -> gl_RENDERBUFFER_GREEN_SIZE
-      AlphaSize -> gl_RENDERBUFFER_ALPHA_SIZE
-      DepthSize -> gl_RENDERBUFFER_DEPTH_SIZE
-      StencilSize -> gl_RENDERBUFFER_STENCIL_SIZE
+      RedSize -> GL_RENDERBUFFER_RED_SIZE
+      BlueSize -> GL_RENDERBUFFER_BLUE_SIZE
+      GreenSize -> GL_RENDERBUFFER_GREEN_SIZE
+      AlphaSize -> GL_RENDERBUFFER_ALPHA_SIZE
+      DepthSize -> GL_RENDERBUFFER_DEPTH_SIZE
+      StencilSize -> GL_RENDERBUFFER_STENCIL_SIZE
    pixObjTarQueryFunc t = getRBParameteriv t id
 
 data FramebufferTargetAttachment =
@@ -57,12 +57,12 @@ data FramebufferTargetAttachment =
 
 instance PixellikeObjectTarget FramebufferTargetAttachment where
    marshalPixellikeOT _ x = case x of
-      RedSize -> gl_FRAMEBUFFER_ATTACHMENT_RED_SIZE
-      BlueSize -> gl_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
-      GreenSize -> gl_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
-      AlphaSize -> gl_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
-      DepthSize -> gl_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
-      StencilSize -> gl_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
+      RedSize -> GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE
+      BlueSize -> GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
+      GreenSize -> GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
+      AlphaSize -> GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
+      DepthSize -> GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
+      StencilSize -> GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
    pixObjTarQueryFunc (FramebufferTargetAttachment fbt fba) =
       getFBAParameteriv fbt fba id
 
@@ -70,12 +70,12 @@ data TextureTargetFull t = TextureTargetFull t Level
 
 instance QueryableTextureTarget t => PixellikeObjectTarget (TextureTargetFull t) where
    marshalPixellikeOT _ x = case x of
-      RedSize -> gl_TEXTURE_RED_SIZE
-      BlueSize -> gl_TEXTURE_BLUE_SIZE
-      GreenSize -> gl_TEXTURE_GREEN_SIZE
-      AlphaSize -> gl_TEXTURE_ALPHA_SIZE
-      DepthSize -> gl_TEXTURE_DEPTH_SIZE
-      StencilSize -> gl_TEXTURE_STENCIL_SIZE
+      RedSize -> GL_TEXTURE_RED_SIZE
+      BlueSize -> GL_TEXTURE_BLUE_SIZE
+      GreenSize -> GL_TEXTURE_GREEN_SIZE
+      AlphaSize -> GL_TEXTURE_ALPHA_SIZE
+      DepthSize -> GL_TEXTURE_DEPTH_SIZE
+      StencilSize -> GL_TEXTURE_STENCIL_SIZE
    pixObjTarQueryFunc (TextureTargetFull t level) p =
       with 0 $ \buf -> do
       glGetTexLevelParameteriv (marshalQueryableTextureTarget t) level p buf

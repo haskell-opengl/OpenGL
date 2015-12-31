@@ -68,11 +68,11 @@ data TessWinding =
 
 marshalTessWinding :: TessWinding -> GLenum
 marshalTessWinding x = case x of
-   TessWindingOdd -> glu_TESS_WINDING_ODD
-   TessWindingNonzero -> glu_TESS_WINDING_NONZERO
-   TessWindingPositive -> glu_TESS_WINDING_POSITIVE
-   TessWindingNegative -> glu_TESS_WINDING_NEGATIVE
-   TessWindingAbsGeqTwo -> glu_TESS_WINDING_ABS_GEQ_TWO
+   TessWindingOdd -> GLU_TESS_WINDING_ODD
+   TessWindingNonzero -> GLU_TESS_WINDING_NONZERO
+   TessWindingPositive -> GLU_TESS_WINDING_POSITIVE
+   TessWindingNegative -> GLU_TESS_WINDING_NEGATIVE
+   TessWindingAbsGeqTwo -> GLU_TESS_WINDING_ABS_GEQ_TWO
 
 --------------------------------------------------------------------------------
 
@@ -397,7 +397,7 @@ withBeginCallback :: TessellatorObj -> BeginCallback -> IO a -> IO a
 withBeginCallback tessObj beginCallback action =
    bracket (makeTessBeginCallback (beginCallback . unmarshalPrimitiveMode))
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluTessCallback tessObj glu_TESS_BEGIN callbackPtr
+      gluTessCallback tessObj GLU_TESS_BEGIN callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -409,7 +409,7 @@ withEdgeFlagCallback :: TessellatorObj -> EdgeFlagCallback -> IO a -> IO a
 withEdgeFlagCallback tessObj edgeFlagCallback action =
    bracket (makeTessEdgeFlagCallback (edgeFlagCallback . unmarshalEdgeFlag))
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluTessCallback tessObj glu_TESS_EDGE_FLAG callbackPtr
+      gluTessCallback tessObj GLU_TESS_EDGE_FLAG callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ withVertexCallback ::
 withVertexCallback tessObj vertexCallback action =
    bracket (makeTessVertexCallback (\p -> peek p >>= vertexCallback))
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluTessCallback tessObj glu_TESS_VERTEX callbackPtr
+      gluTessCallback tessObj GLU_TESS_VERTEX callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -433,7 +433,7 @@ type EndCallback  = IO ()
 withEndCallback :: TessellatorObj -> EndCallback -> IO a -> IO a
 withEndCallback tessObj endCallback action =
    bracket (makeTessEndCallback endCallback) freeHaskellFunPtr $ \callbackPtr -> do
-      gluTessCallback tessObj glu_TESS_END callbackPtr
+      gluTessCallback tessObj GLU_TESS_END callbackPtr
       action
 
 --------------------------------------------------------------------------------
@@ -445,7 +445,7 @@ withErrorCallback :: TessellatorObj -> ErrorCallback -> IO a -> IO a
 withErrorCallback tessObj errorCallback action =
    bracket (makeTessErrorCallback errorCallback)
            freeHaskellFunPtr $ \callbackPtr -> do
-      gluTessCallback tessObj glu_TESS_ERROR callbackPtr
+      gluTessCallback tessObj GLU_TESS_ERROR callbackPtr
       action
 
 checkForError :: TessellatorObj -> IO a -> IO a
@@ -467,7 +467,7 @@ withCombineCallback tessObj combiner action =
    withPool $ \vertexPool ->
       bracket (makeTessCombineCallback (combineProperties vertexPool combiner))
               freeHaskellFunPtr $ \callbackPtr -> do
-         gluTessCallback tessObj glu_TESS_COMBINE callbackPtr
+         gluTessCallback tessObj GLU_TESS_COMBINE callbackPtr
          action
 
 -- NOTE: SGI's tesselator has a bug, sometimes passing NULL for the last two
@@ -508,14 +508,14 @@ setTessellatorProperties tessObj windingRule tolerance theNormal boundaryOnly = 
 
 setWindingRule :: TessellatorObj -> TessWinding -> IO ()
 setWindingRule tessObj =
-   gluTessProperty tessObj glu_TESS_WINDING_RULE . fromIntegral . marshalTessWinding
+   gluTessProperty tessObj GLU_TESS_WINDING_RULE . fromIntegral . marshalTessWinding
 
 setBoundaryOnly :: TessellatorObj -> Bool -> IO ()
 setBoundaryOnly tessObj =
-   gluTessProperty tessObj glu_TESS_BOUNDARY_ONLY . marshalGLboolean
+   gluTessProperty tessObj GLU_TESS_BOUNDARY_ONLY . marshalGLboolean
 
 setTolerance :: TessellatorObj -> Tolerance -> IO ()
-setTolerance tessObj = gluTessProperty tessObj glu_TESS_TOLERANCE
+setTolerance tessObj = gluTessProperty tessObj GLU_TESS_TOLERANCE
 
 setNormal :: TessellatorObj -> Normal3 GLdouble -> IO ()
 setNormal tessObj (Normal3 x y z) = gluTessNormal tessObj x y z

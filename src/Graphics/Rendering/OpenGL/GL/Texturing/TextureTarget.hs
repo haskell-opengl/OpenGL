@@ -84,9 +84,9 @@ instance BindableTextureTarget TextureTarget1D where
 
 instance ParameterizedTextureTarget TextureTarget1D where
    marshalParameterizedTextureTarget t = case t of
-      Texture1D -> gl_TEXTURE_1D
+      Texture1D -> GL_TEXTURE_1D
    marshalParameterizedTextureTargetProxy t = case t of
-      Texture1D -> gl_PROXY_TEXTURE_1D
+      Texture1D -> GL_PROXY_TEXTURE_1D
    marshalParameterizedTextureTargetEnableCap t = case t of
       Texture1D -> CapTexture1D
 
@@ -118,13 +118,13 @@ instance BindableTextureTarget TextureTarget2D where
 
 instance ParameterizedTextureTarget TextureTarget2D where
    marshalParameterizedTextureTarget t = case t of
-      Texture2D -> gl_TEXTURE_2D
-      Texture1DArray -> gl_TEXTURE_1D_ARRAY
-      TextureRectangle -> gl_TEXTURE_RECTANGLE
+      Texture2D -> GL_TEXTURE_2D
+      Texture1DArray -> GL_TEXTURE_1D_ARRAY
+      TextureRectangle -> GL_TEXTURE_RECTANGLE
    marshalParameterizedTextureTargetProxy t = case t of
-      Texture2D -> gl_PROXY_TEXTURE_2D
-      Texture1DArray -> gl_PROXY_TEXTURE_1D_ARRAY
-      TextureRectangle -> gl_PROXY_TEXTURE_RECTANGLE
+      Texture2D -> GL_PROXY_TEXTURE_2D
+      Texture1DArray -> GL_PROXY_TEXTURE_1D_ARRAY
+      TextureRectangle -> GL_PROXY_TEXTURE_RECTANGLE
    marshalParameterizedTextureTargetEnableCap t = case t of
       Texture2D -> CapTexture2D
       Texture1DArray -> CapTexture1DArray
@@ -153,9 +153,9 @@ instance BindableTextureTarget TextureTarget2DMultisample where
 
 instance ParameterizedTextureTarget TextureTarget2DMultisample where
    marshalParameterizedTextureTarget t = case t of
-      Texture2DMultisample -> gl_TEXTURE_2D_MULTISAMPLE
+      Texture2DMultisample -> GL_TEXTURE_2D_MULTISAMPLE
    marshalParameterizedTextureTargetProxy t = case t of
-      Texture2DMultisample -> gl_PROXY_TEXTURE_2D_MULTISAMPLE
+      Texture2DMultisample -> GL_PROXY_TEXTURE_2D_MULTISAMPLE
    marshalParameterizedTextureTargetEnableCap t = case t of
       Texture2DMultisample -> CapTexture2DMultisample
 
@@ -174,9 +174,9 @@ instance BindableTextureTarget TextureTargetCubeMap where
 
 instance ParameterizedTextureTarget TextureTargetCubeMap where
    marshalParameterizedTextureTarget t = case t of
-      TextureCubeMap -> gl_TEXTURE_CUBE_MAP
+      TextureCubeMap -> GL_TEXTURE_CUBE_MAP
    marshalParameterizedTextureTargetProxy t = case t of
-      TextureCubeMap -> gl_PROXY_TEXTURE_CUBE_MAP
+      TextureCubeMap -> GL_PROXY_TEXTURE_CUBE_MAP
    marshalParameterizedTextureTargetEnableCap t = case t of
       TextureCubeMap -> CapTextureCubeMap
 
@@ -204,24 +204,24 @@ instance TwoDimensionalTextureTarget TextureTargetCubeMapFace where
 
 instance QueryableTextureTarget TextureTargetCubeMapFace where
    marshalQueryableTextureTarget t = case t of
-      TextureCubeMapPositiveX -> gl_TEXTURE_CUBE_MAP_POSITIVE_X
-      TextureCubeMapNegativeX -> gl_TEXTURE_CUBE_MAP_NEGATIVE_X
-      TextureCubeMapPositiveY -> gl_TEXTURE_CUBE_MAP_POSITIVE_Y
-      TextureCubeMapNegativeY -> gl_TEXTURE_CUBE_MAP_NEGATIVE_Y
-      TextureCubeMapPositiveZ -> gl_TEXTURE_CUBE_MAP_POSITIVE_Z
-      TextureCubeMapNegativeZ -> gl_TEXTURE_CUBE_MAP_NEGATIVE_Z
+      TextureCubeMapPositiveX -> GL_TEXTURE_CUBE_MAP_POSITIVE_X
+      TextureCubeMapNegativeX -> GL_TEXTURE_CUBE_MAP_NEGATIVE_X
+      TextureCubeMapPositiveY -> GL_TEXTURE_CUBE_MAP_POSITIVE_Y
+      TextureCubeMapNegativeY -> GL_TEXTURE_CUBE_MAP_NEGATIVE_Y
+      TextureCubeMapPositiveZ -> GL_TEXTURE_CUBE_MAP_POSITIVE_Z
+      TextureCubeMapNegativeZ -> GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 
 instance GettableTextureTarget TextureTargetCubeMapFace where
    marshalGettableTextureTarget = marshalQueryableTextureTarget
 
 unmarshalTextureTargetCubeMapFace :: GLenum -> TextureTargetCubeMapFace
 unmarshalTextureTargetCubeMapFace x
-   | x == gl_TEXTURE_CUBE_MAP_POSITIVE_X = TextureCubeMapPositiveX
-   | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_X = TextureCubeMapNegativeX
-   | x == gl_TEXTURE_CUBE_MAP_POSITIVE_Y = TextureCubeMapPositiveY
-   | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_Y = TextureCubeMapNegativeY
-   | x == gl_TEXTURE_CUBE_MAP_POSITIVE_Z = TextureCubeMapPositiveZ
-   | x == gl_TEXTURE_CUBE_MAP_NEGATIVE_Z = TextureCubeMapNegativeZ
+   | x == GL_TEXTURE_CUBE_MAP_POSITIVE_X = TextureCubeMapPositiveX
+   | x == GL_TEXTURE_CUBE_MAP_NEGATIVE_X = TextureCubeMapNegativeX
+   | x == GL_TEXTURE_CUBE_MAP_POSITIVE_Y = TextureCubeMapPositiveY
+   | x == GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = TextureCubeMapNegativeY
+   | x == GL_TEXTURE_CUBE_MAP_POSITIVE_Z = TextureCubeMapPositiveZ
+   | x == GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = TextureCubeMapNegativeZ
    | otherwise = error $ "unmarshalTextureTargetCubeMapFace: unknown enum " ++ show x
 
 --------------------------------------------------------------------------------
@@ -241,13 +241,13 @@ instance BindableTextureTarget TextureTarget3D where
 
 instance ParameterizedTextureTarget TextureTarget3D where
    marshalParameterizedTextureTarget t = case t of
-      Texture3D -> gl_TEXTURE_3D
-      Texture2DArray -> gl_TEXTURE_2D_ARRAY
-      TextureCubeMapArray -> gl_TEXTURE_CUBE_MAP_ARRAY
+      Texture3D -> GL_TEXTURE_3D
+      Texture2DArray -> GL_TEXTURE_2D_ARRAY
+      TextureCubeMapArray -> GL_TEXTURE_CUBE_MAP_ARRAY
    marshalParameterizedTextureTargetProxy t = case t of
-      Texture3D -> gl_PROXY_TEXTURE_3D
-      Texture2DArray -> gl_PROXY_TEXTURE_2D_ARRAY
-      TextureCubeMapArray -> gl_PROXY_TEXTURE_CUBE_MAP_ARRAY
+      Texture3D -> GL_PROXY_TEXTURE_3D
+      Texture2DArray -> GL_PROXY_TEXTURE_2D_ARRAY
+      TextureCubeMapArray -> GL_PROXY_TEXTURE_CUBE_MAP_ARRAY
    marshalParameterizedTextureTargetEnableCap t = case t of
       Texture3D -> CapTexture3D
       Texture2DArray -> CapTexture2DArray
@@ -276,9 +276,9 @@ instance BindableTextureTarget TextureTarget2DMultisampleArray where
 
 instance ParameterizedTextureTarget TextureTarget2DMultisampleArray where
    marshalParameterizedTextureTarget t = case t of
-      Texture2DMultisampleArray -> gl_TEXTURE_2D_MULTISAMPLE_ARRAY
+      Texture2DMultisampleArray -> GL_TEXTURE_2D_MULTISAMPLE_ARRAY
    marshalParameterizedTextureTargetProxy t = case t of
-      Texture2DMultisampleArray -> gl_PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY
+      Texture2DMultisampleArray -> GL_PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY
    marshalParameterizedTextureTargetEnableCap t = case t of
       Texture2DMultisampleArray -> CapTexture2DMultisampleArray
 
@@ -292,6 +292,6 @@ data TextureTargetBuffer = TextureBuffer'
 
 instance BindableTextureTarget TextureTargetBuffer where
    marshalBindableTextureTarget t = case t of
-      TextureBuffer' -> gl_TEXTURE_BUFFER
+      TextureBuffer' -> GL_TEXTURE_BUFFER
    marshalBindableTextureTargetPName1I t = case t of
       TextureBuffer' -> GetTextureBindingBuffer

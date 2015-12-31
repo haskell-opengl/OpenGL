@@ -323,9 +323,9 @@ data GetMapQuery =
 
 marshalGetMapQuery :: GetMapQuery -> GLenum
 marshalGetMapQuery x = case x of
-   Coeff -> gl_COEFF
-   Order -> gl_ORDER
-   Domain -> gl_DOMAIN
+   Coeff -> GL_COEFF
+   Order -> GL_ORDER
+   Domain -> GL_DOMAIN
 
 --------------------------------------------------------------------------------
 

@@ -165,25 +165,25 @@ data StencilOp =
 
 marshalStencilOp :: StencilOp -> GLenum
 marshalStencilOp x = case x of
-   OpZero -> gl_ZERO
-   OpKeep -> gl_KEEP
-   OpReplace -> gl_REPLACE
-   OpIncr -> gl_INCR
-   OpIncrWrap -> gl_INCR_WRAP
-   OpDecr -> gl_DECR
-   OpDecrWrap -> gl_DECR_WRAP
-   OpInvert -> gl_INVERT
+   OpZero -> GL_ZERO
+   OpKeep -> GL_KEEP
+   OpReplace -> GL_REPLACE
+   OpIncr -> GL_INCR
+   OpIncrWrap -> GL_INCR_WRAP
+   OpDecr -> GL_DECR
+   OpDecrWrap -> GL_DECR_WRAP
+   OpInvert -> GL_INVERT
 
 unmarshalStencilOp :: GLenum -> StencilOp
 unmarshalStencilOp x
-   | x == gl_ZERO = OpZero
-   | x == gl_KEEP = OpKeep
-   | x == gl_REPLACE = OpReplace
-   | x == gl_INCR = OpIncr
-   | x == gl_INCR_WRAP = OpIncrWrap
-   | x == gl_DECR = OpDecr
-   | x == gl_DECR_WRAP = OpDecrWrap
-   | x == gl_INVERT = OpInvert
+   | x == GL_ZERO = OpZero
+   | x == GL_KEEP = OpKeep
+   | x == GL_REPLACE = OpReplace
+   | x == GL_INCR = OpIncr
+   | x == GL_INCR_WRAP = OpIncrWrap
+   | x == GL_DECR = OpDecr
+   | x == GL_DECR_WRAP = OpDecrWrap
+   | x == GL_INVERT = OpInvert
    | otherwise = error ("unmarshalStencilOp: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ blend = makeCapability CapBlend
 -- | enable or disable blending based on the buffer bound to the /i/'th drawBuffer
 -- that is the buffer fmap (!! i) (get drawBuffers)
 blendBuffer :: DrawBufferIndex -> StateVar Capability
-blendBuffer = makeIndexedCapability ((fromIntegral gl_DRAW_BUFFER0) +) BlendI
+blendBuffer = makeIndexedCapability ((fromIntegral GL_DRAW_BUFFER0) +) BlendI
 
 --------------------------------------------------------------------------------
 
@@ -259,21 +259,21 @@ data BlendEquation =
 
 marshalBlendEquation :: BlendEquation -> GLenum
 marshalBlendEquation x = case x of
-   FuncAdd -> gl_FUNC_ADD
-   FuncSubtract -> gl_FUNC_SUBTRACT
-   FuncReverseSubtract -> gl_FUNC_REVERSE_SUBTRACT
-   Min -> gl_MIN
-   Max -> gl_MAX
-   LogicOp -> gl_INDEX_LOGIC_OP
+   FuncAdd -> GL_FUNC_ADD
+   FuncSubtract -> GL_FUNC_SUBTRACT
+   FuncReverseSubtract -> GL_FUNC_REVERSE_SUBTRACT
+   Min -> GL_MIN
+   Max -> GL_MAX
+   LogicOp -> GL_INDEX_LOGIC_OP
 
 unmarshalBlendEquation :: GLenum -> BlendEquation
 unmarshalBlendEquation x
-   | x == gl_FUNC_ADD = FuncAdd
-   | x == gl_FUNC_SUBTRACT = FuncSubtract
-   | x == gl_FUNC_REVERSE_SUBTRACT = FuncReverseSubtract
-   | x == gl_MIN = Min
-   | x == gl_MAX = Max
-   | x == gl_INDEX_LOGIC_OP = LogicOp
+   | x == GL_FUNC_ADD = FuncAdd
+   | x == GL_FUNC_SUBTRACT = FuncSubtract
+   | x == GL_FUNC_REVERSE_SUBTRACT = FuncReverseSubtract
+   | x == GL_MIN = Min
+   | x == GL_MAX = Max
+   | x == GL_INDEX_LOGIC_OP = LogicOp
    | otherwise = error ("unmarshalBlendEquation: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -352,41 +352,41 @@ data LogicOp =
 
 marshalLogicOp :: LogicOp -> GLenum
 marshalLogicOp x = case x of
-   Clear -> gl_CLEAR
-   And -> gl_AND
-   AndReverse -> gl_AND_REVERSE
-   Copy -> gl_COPY
-   AndInverted -> gl_AND_INVERTED
-   Noop -> gl_NOOP
-   Xor -> gl_XOR
-   Or -> gl_OR
-   Nor -> gl_NOR
-   Equiv -> gl_EQUIV
-   Invert -> gl_INVERT
-   OrReverse -> gl_OR_REVERSE
-   CopyInverted -> gl_COPY_INVERTED
-   OrInverted -> gl_OR_INVERTED
-   Nand -> gl_NAND
-   Set -> gl_SET
+   Clear -> GL_CLEAR
+   And -> GL_AND
+   AndReverse -> GL_AND_REVERSE
+   Copy -> GL_COPY
+   AndInverted -> GL_AND_INVERTED
+   Noop -> GL_NOOP
+   Xor -> GL_XOR
+   Or -> GL_OR
+   Nor -> GL_NOR
+   Equiv -> GL_EQUIV
+   Invert -> GL_INVERT
+   OrReverse -> GL_OR_REVERSE
+   CopyInverted -> GL_COPY_INVERTED
+   OrInverted -> GL_OR_INVERTED
+   Nand -> GL_NAND
+   Set -> GL_SET
 
 unmarshalLogicOp :: GLenum -> LogicOp
 unmarshalLogicOp x
-   | x == gl_CLEAR = Clear
-   | x == gl_AND = And
-   | x == gl_AND_REVERSE = AndReverse
-   | x == gl_COPY = Copy
-   | x == gl_AND_INVERTED = AndInverted
-   | x == gl_NOOP = Noop
-   | x == gl_XOR = Xor
-   | x == gl_OR = Or
-   | x == gl_NOR = Nor
-   | x == gl_EQUIV = Equiv
-   | x == gl_INVERT = Invert
-   | x == gl_OR_REVERSE = OrReverse
-   | x == gl_COPY_INVERTED = CopyInverted
-   | x == gl_OR_INVERTED = OrInverted
-   | x == gl_NAND = Nand
-   | x == gl_SET = Set
+   | x == GL_CLEAR = Clear
+   | x == GL_AND = And
+   | x == GL_AND_REVERSE = AndReverse
+   | x == GL_COPY = Copy
+   | x == GL_AND_INVERTED = AndInverted
+   | x == GL_NOOP = Noop
+   | x == GL_XOR = Xor
+   | x == GL_OR = Or
+   | x == GL_NOR = Nor
+   | x == GL_EQUIV = Equiv
+   | x == GL_INVERT = Invert
+   | x == GL_OR_REVERSE = OrReverse
+   | x == GL_COPY_INVERTED = CopyInverted
+   | x == GL_OR_INVERTED = OrInverted
+   | x == GL_NAND = Nand
+   | x == GL_SET = Set
    | otherwise = error ("unmarshalLogicOp: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

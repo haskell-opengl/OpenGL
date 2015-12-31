@@ -46,4 +46,4 @@ instance GeneratableObjectName TextureObject where
         fmap (map TextureObject) $ peekArray n buf
 
 instance CanBeLabeled TextureObject where
-   objectLabel = objectNameLabel gl_TEXTURE . textureID
+   objectLabel = objectNameLabel GL_TEXTURE . textureID

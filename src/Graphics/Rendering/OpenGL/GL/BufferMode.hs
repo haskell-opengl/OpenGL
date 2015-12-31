@@ -71,21 +71,21 @@ data BufferMode =
 
 marshalBufferMode :: BufferMode -> Maybe GLenum
 marshalBufferMode x = case x of
-   NoBuffers -> Just gl_NONE
-   FrontLeftBuffer -> Just gl_FRONT_LEFT
-   FrontRightBuffer -> Just gl_FRONT_RIGHT
-   BackLeftBuffer -> Just gl_BACK_LEFT
-   BackRightBuffer -> Just gl_BACK_RIGHT
-   FrontBuffers -> Just gl_FRONT
-   BackBuffers -> Just gl_BACK
-   LeftBuffers -> Just gl_LEFT
-   RightBuffers -> Just gl_RIGHT
-   FrontAndBackBuffers -> Just gl_FRONT_AND_BACK
+   NoBuffers -> Just GL_NONE
+   FrontLeftBuffer -> Just GL_FRONT_LEFT
+   FrontRightBuffer -> Just GL_FRONT_RIGHT
+   BackLeftBuffer -> Just GL_BACK_LEFT
+   BackRightBuffer -> Just GL_BACK_RIGHT
+   FrontBuffers -> Just GL_FRONT
+   BackBuffers -> Just GL_BACK
+   LeftBuffers -> Just GL_LEFT
+   RightBuffers -> Just GL_RIGHT
+   FrontAndBackBuffers -> Just GL_FRONT_AND_BACK
    AuxBuffer i
-      | fromIntegral i <= maxAuxBuffer -> Just (gl_AUX0 + fromIntegral i)
+      | fromIntegral i <= maxAuxBuffer -> Just (GL_AUX0 + fromIntegral i)
       | otherwise -> Nothing
    FBOColorAttachment i
-      | fromIntegral i <= maxColorAttachments -> Just (gl_COLOR_ATTACHMENT0 + fromIntegral i)
+      | fromIntegral i <= maxColorAttachments -> Just (GL_COLOR_ATTACHMENT0 + fromIntegral i)
       | otherwise -> Nothing
 
 unmarshalBufferMode :: GLenum -> BufferMode
@@ -94,19 +94,19 @@ unmarshalBufferMode x = maybe
 
 unmarshalBufferModeSafe :: GLenum -> Maybe BufferMode
 unmarshalBufferModeSafe x
-   | x == gl_NONE = Just NoBuffers
-   | x == gl_FRONT_LEFT = Just FrontLeftBuffer
-   | x == gl_FRONT_RIGHT = Just FrontRightBuffer
-   | x == gl_BACK_LEFT = Just BackLeftBuffer
-   | x == gl_BACK_RIGHT = Just BackRightBuffer
-   | x == gl_FRONT = Just FrontBuffers
-   | x == gl_BACK = Just BackBuffers
-   | x == gl_LEFT = Just LeftBuffers
-   | x == gl_RIGHT = Just RightBuffers
-   | x == gl_FRONT_AND_BACK = Just FrontAndBackBuffers
-   | gl_AUX0 <= x && x <= gl_AUX0 + maxAuxBuffer = Just . AuxBuffer . fromIntegral $ x - gl_AUX0
-   | gl_COLOR_ATTACHMENT0 <= x && x <= gl_COLOR_ATTACHMENT0 + maxColorAttachments
-      = Just . FBOColorAttachment . fromIntegral $ x - gl_COLOR_ATTACHMENT0
+   | x == GL_NONE = Just NoBuffers
+   | x == GL_FRONT_LEFT = Just FrontLeftBuffer
+   | x == GL_FRONT_RIGHT = Just FrontRightBuffer
+   | x == GL_BACK_LEFT = Just BackLeftBuffer
+   | x == GL_BACK_RIGHT = Just BackRightBuffer
+   | x == GL_FRONT = Just FrontBuffers
+   | x == GL_BACK = Just BackBuffers
+   | x == GL_LEFT = Just LeftBuffers
+   | x == GL_RIGHT = Just RightBuffers
+   | x == GL_FRONT_AND_BACK = Just FrontAndBackBuffers
+   | GL_AUX0 <= x && x <= GL_AUX0 + maxAuxBuffer = Just . AuxBuffer . fromIntegral $ x - GL_AUX0
+   | GL_COLOR_ATTACHMENT0 <= x && x <= GL_COLOR_ATTACHMENT0 + maxColorAttachments
+      = Just . FBOColorAttachment . fromIntegral $ x - GL_COLOR_ATTACHMENT0
    | otherwise = Nothing
 
 maxAuxBuffer :: GLenum

@@ -33,10 +33,10 @@ data ConditionalRenderMode =
 
 marshalConditionalRenderMode :: ConditionalRenderMode -> GLenum
 marshalConditionalRenderMode x = case x of
-   QueryWait -> gl_QUERY_WAIT
-   QueryNoWait -> gl_QUERY_NO_WAIT
-   QueryByRegionWait -> gl_QUERY_BY_REGION_WAIT
-   QueryByRegionNoWait -> gl_QUERY_BY_REGION_NO_WAIT
+   QueryWait -> GL_QUERY_WAIT
+   QueryNoWait -> GL_QUERY_NO_WAIT
+   QueryByRegionWait -> GL_QUERY_BY_REGION_WAIT
+   QueryByRegionNoWait -> GL_QUERY_BY_REGION_NO_WAIT
 
 --------------------------------------------------------------------------------
 

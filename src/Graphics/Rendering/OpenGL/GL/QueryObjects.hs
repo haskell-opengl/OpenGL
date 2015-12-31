@@ -63,13 +63,13 @@ data QueryTarget =
 
 marshalQueryTarget :: QueryTarget -> (GLenum, QueryIndex)
 marshalQueryTarget x = case x of
-   SamplesPassed -> (gl_SAMPLES_PASSED, 0)
-   AnySamplesPassed -> (gl_ANY_SAMPLES_PASSED, 0)
-   AnySamplesPassedConservative -> (gl_ANY_SAMPLES_PASSED_CONSERVATIVE, 0)
-   TimeElapsed -> (gl_TIME_ELAPSED, 0)
-   PrimitivesGenerated n -> (gl_PRIMITIVES_GENERATED, n)
+   SamplesPassed -> (GL_SAMPLES_PASSED, 0)
+   AnySamplesPassed -> (GL_ANY_SAMPLES_PASSED, 0)
+   AnySamplesPassedConservative -> (GL_ANY_SAMPLES_PASSED_CONSERVATIVE, 0)
+   TimeElapsed -> (GL_TIME_ELAPSED, 0)
+   PrimitivesGenerated n -> (GL_PRIMITIVES_GENERATED, n)
    TransformFeedbackPrimitivesWritten n ->
-      (gl_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, n)
+      (GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, n)
 
 --------------------------------------------------------------------------------
 
@@ -96,8 +96,8 @@ data GetQueryPName =
 
 marshalGetQueryPName :: GetQueryPName -> GLenum
 marshalGetQueryPName x = case x of
-   QueryCounterBits -> gl_QUERY_COUNTER_BITS
-   CurrentQuery -> gl_CURRENT_QUERY
+   QueryCounterBits -> GL_QUERY_COUNTER_BITS
+   CurrentQuery -> GL_CURRENT_QUERY
 
 --------------------------------------------------------------------------------
 
@@ -129,8 +129,8 @@ data GetQueryObjectPName =
 
 marshalGetQueryObjectPName :: GetQueryObjectPName -> GLenum
 marshalGetQueryObjectPName x = case x of
-   QueryResultAvailable -> gl_QUERY_RESULT_AVAILABLE
-   QueryResult -> gl_QUERY_RESULT
+   QueryResultAvailable -> GL_QUERY_RESULT_AVAILABLE
+   QueryResult -> GL_QUERY_RESULT
 
 --------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ getQueryObject f p q =
 -- state and the framebuffer have been fully realized
 
 timestampQuery :: QueryObject -> IO ()
-timestampQuery q = glQueryCounter (queryID q) gl_TIMESTAMP
+timestampQuery q = glQueryCounter (queryID q) GL_TIMESTAMP
 
 -- | Contains the GL time after all previous commands have reached the GL server
 -- but have not yet necessarily executed.

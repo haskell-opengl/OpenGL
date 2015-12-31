@@ -270,10 +270,10 @@ data ClearBuffer =
 
 marshalClearBuffer :: ClearBuffer -> GLbitfield
 marshalClearBuffer x = case x of
-   ColorBuffer -> gl_COLOR_BUFFER_BIT
-   AccumBuffer -> gl_ACCUM_BUFFER_BIT
-   StencilBuffer -> gl_STENCIL_BUFFER_BIT
-   DepthBuffer -> gl_DEPTH_BUFFER_BIT
+   ColorBuffer -> GL_COLOR_BUFFER_BIT
+   AccumBuffer -> GL_ACCUM_BUFFER_BIT
+   StencilBuffer -> GL_STENCIL_BUFFER_BIT
+   DepthBuffer -> GL_DEPTH_BUFFER_BIT
 
 -- | Set the bitplane area of the window to values previously selected by
 -- 'clearColor', 'clearIndex', 'clearDepth', 'clearStencil', and 'clearAccum'.
@@ -361,34 +361,34 @@ data ClearBufferCommand
 clearBuffer :: ClearBufferCommand -> IO ()
 clearBuffer cmd = case cmd of
    ClearColorBufferInt i c ->
-      with c $ glClearBufferiv gl_COLOR (fromIntegral i) . castPtr
+      with c $ glClearBufferiv GL_COLOR (fromIntegral i) . castPtr
    ClearColorBufferFloat i c ->
-      with c $ glClearBufferfv gl_COLOR (fromIntegral i) . castPtr
+      with c $ glClearBufferfv GL_COLOR (fromIntegral i) . castPtr
    ClearColorBufferUint i c ->
-      with c $ glClearBufferuiv gl_COLOR (fromIntegral i) . castPtr
+      with c $ glClearBufferuiv GL_COLOR (fromIntegral i) . castPtr
    ClearDepthBuffer d ->
-      with d $ glClearBufferfv gl_DEPTH 0
+      with d $ glClearBufferfv GL_DEPTH 0
    ClearStencilBuffer s ->
-      with s $ glClearBufferiv gl_STENCIL 0
+      with s $ glClearBufferiv GL_STENCIL 0
    ClearDepthAndStencilBuffers d s ->
-      glClearBufferfi gl_DEPTH_STENCIL 0 d s
+      glClearBufferfi GL_DEPTH_STENCIL 0 d s
 
 -- | The direct-state-access version of 'clearBuffer'.
 
 clearNamedFramebuffer :: FramebufferObject -> ClearBufferCommand -> IO ()
 clearNamedFramebuffer fbo cmd = case cmd of
    ClearColorBufferInt i c ->
-      with c $ glClearNamedFramebufferiv f gl_COLOR (fromIntegral i) . castPtr
+      with c $ glClearNamedFramebufferiv f GL_COLOR (fromIntegral i) . castPtr
    ClearColorBufferFloat i c ->
-      with c $ glClearNamedFramebufferfv f gl_COLOR (fromIntegral i) . castPtr
+      with c $ glClearNamedFramebufferfv f GL_COLOR (fromIntegral i) . castPtr
    ClearColorBufferUint i c ->
-      with c $ glClearNamedFramebufferuiv f gl_COLOR (fromIntegral i) . castPtr
+      with c $ glClearNamedFramebufferuiv f GL_COLOR (fromIntegral i) . castPtr
    ClearDepthBuffer d ->
-      with d $ glClearNamedFramebufferfv f gl_DEPTH 0
+      with d $ glClearNamedFramebufferfv f GL_DEPTH 0
    ClearStencilBuffer s ->
-      with s $ glClearNamedFramebufferiv f gl_STENCIL 0
+      with s $ glClearNamedFramebufferiv f GL_STENCIL 0
    ClearDepthAndStencilBuffers d s ->
-      glClearNamedFramebufferfi f gl_DEPTH_STENCIL 0 d s
+      glClearNamedFramebufferfi f GL_DEPTH_STENCIL 0 d s
    where f = framebufferID fbo
 
 --------------------------------------------------------------------------------
@@ -519,11 +519,11 @@ data AccumOp =
 
 marshalAccumOp :: AccumOp -> GLenum
 marshalAccumOp x = case x of
-   Accum -> gl_ACCUM
-   Load -> gl_LOAD
-   Return -> gl_RETURN
-   Mult -> gl_MULT
-   Add -> gl_ADD
+   Accum -> GL_ACCUM
+   Load -> GL_LOAD
+   Return -> GL_RETURN
+   Mult -> GL_MULT
+   Add -> GL_ADD
 
 --------------------------------------------------------------------------------
 

@@ -46,4 +46,4 @@ instance GeneratableObjectName RenderbufferObject where
          fmap (map RenderbufferObject) $ peekArray n buf
 
 instance CanBeLabeled RenderbufferObject where
-   objectLabel = objectNameLabel gl_RENDERBUFFER . renderbufferID
+   objectLabel = objectNameLabel GL_RENDERBUFFER . renderbufferID

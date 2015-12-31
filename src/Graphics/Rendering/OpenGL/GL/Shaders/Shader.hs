@@ -34,4 +34,4 @@ instance ObjectName Shader where
    deleteObjectName = liftIO . glDeleteShader . shaderID
 
 instance CanBeLabeled Shader where
-   objectLabel = objectNameLabel gl_SHADER . shaderID
+   objectLabel = objectNameLabel GL_SHADER . shaderID

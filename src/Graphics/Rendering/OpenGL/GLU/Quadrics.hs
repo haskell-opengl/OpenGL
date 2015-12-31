@@ -40,19 +40,19 @@ data QuadricDrawStyle =
 
 marshalQuadricDrawStyle :: QuadricDrawStyle -> GLenum
 marshalQuadricDrawStyle x = case x of
-   PointStyle -> glu_POINT
-   LineStyle -> glu_LINE
-   FillStyle -> glu_FILL
-   SilhouetteStyle -> glu_SILHOUETTE
+   PointStyle -> GLU_POINT
+   LineStyle -> GLU_LINE
+   FillStyle -> GLU_FILL
+   SilhouetteStyle -> GLU_SILHOUETTE
 
 --------------------------------------------------------------------------------
 
 type QuadricNormal = Maybe ShadingModel
 
 marshalQuadricNormal :: QuadricNormal -> GLenum
-marshalQuadricNormal (Just Smooth) = glu_SMOOTH
-marshalQuadricNormal (Just Flat  ) = glu_FLAT
-marshalQuadricNormal Nothing       = glu_NONE
+marshalQuadricNormal (Just Smooth) = GLU_SMOOTH
+marshalQuadricNormal (Just Flat  ) = GLU_FLAT
+marshalQuadricNormal Nothing       = GLU_NONE
 
 --------------------------------------------------------------------------------
 
@@ -63,8 +63,8 @@ data QuadricOrientation =
 
 marshalQuadricOrientation :: QuadricOrientation -> GLenum
 marshalQuadricOrientation x = case x of
-   Outside -> glu_OUTSIDE
-   Inside -> glu_INSIDE
+   Outside -> GLU_OUTSIDE
+   Inside -> GLU_INSIDE
 
 --------------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ safeDeleteQuadric quadricObj =
 withErrorCallback :: QuadricObj -> QuadricCallback -> IO a -> IO a
 withErrorCallback quadricObj callback action =
    bracket (makeQuadricCallback callback) freeHaskellFunPtr $ \callbackPtr -> do
-      gluQuadricCallback quadricObj glu_ERROR callbackPtr
+      gluQuadricCallback quadricObj GLU_ERROR callbackPtr
       action
 
 setStyle :: QuadricObj -> QuadricStyle -> IO ()

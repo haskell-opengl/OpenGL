@@ -49,9 +49,9 @@ data ConvolutionTarget =
 
 marshalConvolutionTarget :: ConvolutionTarget -> GLenum
 marshalConvolutionTarget x = case x of
-   Convolution1D -> gl_CONVOLUTION_1D
-   Convolution2D -> gl_CONVOLUTION_2D
-   Separable2D -> gl_SEPARABLE_2D
+   Convolution1D -> GL_CONVOLUTION_1D
+   Convolution2D -> GL_CONVOLUTION_2D
+   Separable2D -> GL_SEPARABLE_2D
 
 convolutionTargetToEnableCap :: ConvolutionTarget -> EnableCap
 convolutionTargetToEnableCap x = case x of
@@ -152,15 +152,15 @@ data ConvolutionParameter =
 
 marshalConvolutionParameter :: ConvolutionParameter -> GLenum
 marshalConvolutionParameter x = case x of
-   ConvolutionBorderColor -> gl_CONVOLUTION_BORDER_COLOR
-   ConvolutionBorderMode -> gl_CONVOLUTION_BORDER_MODE
-   ConvolutionFilterScale -> gl_CONVOLUTION_FILTER_SCALE
-   ConvolutionFilterBias -> gl_CONVOLUTION_FILTER_BIAS
-   ConvolutionFormat -> gl_CONVOLUTION_FORMAT
-   ConvolutionWidth -> gl_CONVOLUTION_WIDTH
-   ConvolutionHeight -> gl_CONVOLUTION_HEIGHT
-   MaxConvolutionWidth -> gl_MAX_CONVOLUTION_WIDTH
-   MaxConvolutionHeight -> gl_MAX_CONVOLUTION_HEIGHT
+   ConvolutionBorderColor -> GL_CONVOLUTION_BORDER_COLOR
+   ConvolutionBorderMode -> GL_CONVOLUTION_BORDER_MODE
+   ConvolutionFilterScale -> GL_CONVOLUTION_FILTER_SCALE
+   ConvolutionFilterBias -> GL_CONVOLUTION_FILTER_BIAS
+   ConvolutionFormat -> GL_CONVOLUTION_FORMAT
+   ConvolutionWidth -> GL_CONVOLUTION_WIDTH
+   ConvolutionHeight -> GL_CONVOLUTION_HEIGHT
+   MaxConvolutionWidth -> GL_MAX_CONVOLUTION_WIDTH
+   MaxConvolutionHeight -> GL_MAX_CONVOLUTION_HEIGHT
 
 --------------------------------------------------------------------------------
 
@@ -198,15 +198,15 @@ data ConvolutionBorderMode' =
 
 marshalConvolutionBorderMode' :: ConvolutionBorderMode' -> GLint
 marshalConvolutionBorderMode' x = fromIntegral $ case x of
-   Reduce' -> gl_REDUCE
-   ConstantBorder' -> gl_CONSTANT_BORDER
-   ReplicateBorder' -> gl_REPLICATE_BORDER
+   Reduce' -> GL_REDUCE
+   ConstantBorder' -> GL_CONSTANT_BORDER
+   ReplicateBorder' -> GL_REPLICATE_BORDER
 
 unmarshalConvolutionBorderMode' :: GLint -> ConvolutionBorderMode'
 unmarshalConvolutionBorderMode' x
-   | y == gl_REDUCE = Reduce'
-   | y == gl_CONSTANT_BORDER = ConstantBorder'
-   | y == gl_REPLICATE_BORDER = ReplicateBorder'
+   | y == GL_REDUCE = Reduce'
+   | y == GL_CONSTANT_BORDER = ConstantBorder'
+   | y == GL_REPLICATE_BORDER = ReplicateBorder'
    | otherwise = error ("unmarshalConvolutionBorderMode': illegal value " ++ show x)
    where y = fromIntegral x
 

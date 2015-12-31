@@ -49,4 +49,4 @@ instance GeneratableObjectName QueryObject where
         fmap (map QueryObject) $ peekArray n buf
 
 instance CanBeLabeled QueryObject where
-   objectLabel = objectNameLabel gl_QUERY . queryID
+   objectLabel = objectNameLabel GL_QUERY . queryID

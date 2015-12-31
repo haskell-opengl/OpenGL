@@ -43,9 +43,9 @@ data TextureEnvTarget =
 
 marshalTextureEnvTarget :: TextureEnvTarget -> GLenum
 marshalTextureEnvTarget x = case x of
-   TextureEnv -> gl_TEXTURE_ENV
-   TextureFilterControl -> gl_TEXTURE_FILTER_CONTROL
-   PointSprite -> gl_POINT_SPRITE
+   TextureEnv -> GL_TEXTURE_ENV
+   TextureFilterControl -> GL_TEXTURE_FILTER_CONTROL
+   PointSprite -> GL_POINT_SPRITE
 
 --------------------------------------------------------------------------------
 
@@ -76,29 +76,29 @@ data TextureEnvParameter =
 
 marshalTextureEnvParameter :: TextureEnvParameter -> GLenum
 marshalTextureEnvParameter x = case x of
-   TexEnvParamTextureEnvMode -> gl_TEXTURE_ENV_MODE
-   TexEnvParamTextureEnvColor -> gl_TEXTURE_ENV_COLOR
-   TexEnvParamCombineRGB -> gl_COMBINE_RGB
-   TexEnvParamCombineAlpha -> gl_COMBINE_ALPHA
-   TexEnvParamSrc0RGB -> gl_SRC0_RGB
-   TexEnvParamSrc1RGB -> gl_SRC1_RGB
-   TexEnvParamSrc2RGB -> gl_SRC2_RGB
-   TexEnvParamSrc3RGB -> gl_SOURCE3_RGB_NV
-   TexEnvParamSrc0Alpha -> gl_SRC0_ALPHA
-   TexEnvParamSrc1Alpha -> gl_SRC1_ALPHA
-   TexEnvParamSrc2Alpha -> gl_SRC2_ALPHA
-   TexEnvParamSrc3Alpha -> gl_SOURCE3_ALPHA_NV
-   TexEnvParamOperand0RGB -> gl_OPERAND0_RGB
-   TexEnvParamOperand1RGB -> gl_OPERAND1_RGB
-   TexEnvParamOperand2RGB -> gl_OPERAND2_RGB
-   TexEnvParamOperand3RGB -> gl_OPERAND3_RGB_NV
-   TexEnvParamOperand0Alpha -> gl_OPERAND0_ALPHA
-   TexEnvParamOperand1Alpha -> gl_OPERAND1_ALPHA
-   TexEnvParamOperand2Alpha -> gl_OPERAND2_ALPHA
-   TexEnvParamOperand3Alpha -> gl_OPERAND3_ALPHA_NV
-   TexEnvParamRGBScale -> gl_RGB_SCALE
-   TexEnvParamAlphaScale -> gl_ALPHA_SCALE
-   TexEnvParamLODBias -> gl_TEXTURE_LOD_BIAS
+   TexEnvParamTextureEnvMode -> GL_TEXTURE_ENV_MODE
+   TexEnvParamTextureEnvColor -> GL_TEXTURE_ENV_COLOR
+   TexEnvParamCombineRGB -> GL_COMBINE_RGB
+   TexEnvParamCombineAlpha -> GL_COMBINE_ALPHA
+   TexEnvParamSrc0RGB -> GL_SRC0_RGB
+   TexEnvParamSrc1RGB -> GL_SRC1_RGB
+   TexEnvParamSrc2RGB -> GL_SRC2_RGB
+   TexEnvParamSrc3RGB -> GL_SOURCE3_RGB_NV
+   TexEnvParamSrc0Alpha -> GL_SRC0_ALPHA
+   TexEnvParamSrc1Alpha -> GL_SRC1_ALPHA
+   TexEnvParamSrc2Alpha -> GL_SRC2_ALPHA
+   TexEnvParamSrc3Alpha -> GL_SOURCE3_ALPHA_NV
+   TexEnvParamOperand0RGB -> GL_OPERAND0_RGB
+   TexEnvParamOperand1RGB -> GL_OPERAND1_RGB
+   TexEnvParamOperand2RGB -> GL_OPERAND2_RGB
+   TexEnvParamOperand3RGB -> GL_OPERAND3_RGB_NV
+   TexEnvParamOperand0Alpha -> GL_OPERAND0_ALPHA
+   TexEnvParamOperand1Alpha -> GL_OPERAND1_ALPHA
+   TexEnvParamOperand2Alpha -> GL_OPERAND2_ALPHA
+   TexEnvParamOperand3Alpha -> GL_OPERAND3_ALPHA_NV
+   TexEnvParamRGBScale -> GL_RGB_SCALE
+   TexEnvParamAlphaScale -> GL_ALPHA_SCALE
+   TexEnvParamLODBias -> GL_TEXTURE_LOD_BIAS
 
 --------------------------------------------------------------------------------
 
@@ -166,23 +166,23 @@ data TextureFunction =
 
 marshalTextureFunction :: TextureFunction -> GLint
 marshalTextureFunction x = fromIntegral $ case x of
-   Modulate -> gl_MODULATE
-   Decal -> gl_DECAL
-   Blend -> gl_BLEND
-   Replace -> gl_REPLACE
-   AddUnsigned -> gl_ADD
-   Combine -> gl_COMBINE
-   Combine4 -> gl_COMBINE4_NV
+   Modulate -> GL_MODULATE
+   Decal -> GL_DECAL
+   Blend -> GL_BLEND
+   Replace -> GL_REPLACE
+   AddUnsigned -> GL_ADD
+   Combine -> GL_COMBINE
+   Combine4 -> GL_COMBINE4_NV
 
 unmarshalTextureFunction :: GLint -> TextureFunction
 unmarshalTextureFunction x
-   | y == gl_MODULATE = Modulate
-   | y == gl_DECAL = Decal
-   | y == gl_BLEND = Blend
-   | y == gl_REPLACE = Replace
-   | y == gl_ADD = AddUnsigned
-   | y == gl_COMBINE = Combine
-   | y == gl_COMBINE4_NV = Combine4
+   | y == GL_MODULATE = Modulate
+   | y == GL_DECAL = Decal
+   | y == GL_BLEND = Blend
+   | y == GL_REPLACE = Replace
+   | y == GL_ADD = AddUnsigned
+   | y == GL_COMBINE = Combine
+   | y == GL_COMBINE4_NV = Combine4
    | otherwise = error ("unmarshalTextureFunction: illegal value " ++ show x)
    where y = fromIntegral x
 
@@ -207,25 +207,25 @@ data TextureCombineFunction =
 
 marshalTextureCombineFunction :: TextureCombineFunction -> GLint
 marshalTextureCombineFunction x = fromIntegral $ case x of
-   Replace' -> gl_REPLACE
-   Modulate' -> gl_MODULATE
-   AddUnsigned' -> gl_ADD
-   AddSigned -> gl_ADD_SIGNED
-   Interpolate -> gl_INTERPOLATE
-   Subtract -> gl_SUBTRACT
-   Dot3RGB -> gl_DOT3_RGB
-   Dot3RGBA -> gl_DOT3_RGBA
+   Replace' -> GL_REPLACE
+   Modulate' -> GL_MODULATE
+   AddUnsigned' -> GL_ADD
+   AddSigned -> GL_ADD_SIGNED
+   Interpolate -> GL_INTERPOLATE
+   Subtract -> GL_SUBTRACT
+   Dot3RGB -> GL_DOT3_RGB
+   Dot3RGBA -> GL_DOT3_RGBA
 
 unmarshalTextureCombineFunction :: GLint -> TextureCombineFunction
 unmarshalTextureCombineFunction x
-   | y == gl_REPLACE = Replace'
-   | y == gl_MODULATE = Modulate'
-   | y == gl_ADD = AddUnsigned'
-   | y == gl_ADD_SIGNED = AddSigned
-   | y == gl_INTERPOLATE = Interpolate
-   | y == gl_SUBTRACT = Subtract
-   | y == gl_DOT3_RGB = Dot3RGB
-   | y == gl_DOT3_RGBA = Dot3RGBA
+   | y == GL_REPLACE = Replace'
+   | y == GL_MODULATE = Modulate'
+   | y == GL_ADD = AddUnsigned'
+   | y == GL_ADD_SIGNED = AddSigned
+   | y == GL_INTERPOLATE = Interpolate
+   | y == GL_SUBTRACT = Subtract
+   | y == GL_DOT3_RGB = Dot3RGB
+   | y == GL_DOT3_RGBA = Dot3RGBA
    | otherwise = error ("unmarshalTextureCombineFunction: illegal value " ++ show x)
    where y = fromIntegral x
 
@@ -295,18 +295,18 @@ data Src =
 
 marshalSrc :: Src -> GLint
 marshalSrc x = fromIntegral $ case x of
-   CurrentUnit -> gl_TEXTURE
-   Previous -> gl_PREVIOUS
+   CurrentUnit -> GL_TEXTURE
+   Previous -> GL_PREVIOUS
    Crossbar u -> fromIntegral (marshalTextureUnit u)
-   Constant -> gl_CONSTANT
-   PrimaryColor -> gl_PRIMARY_COLOR
+   Constant -> GL_CONSTANT
+   PrimaryColor -> GL_PRIMARY_COLOR
 
 unmarshalSrc :: GLint -> Src
 unmarshalSrc x
-   | y == gl_TEXTURE = CurrentUnit
-   | y == gl_PREVIOUS = Previous
-   | y == gl_CONSTANT = Constant
-   | y == gl_PRIMARY_COLOR = PrimaryColor
+   | y == GL_TEXTURE = CurrentUnit
+   | y == GL_PREVIOUS = Previous
+   | y == GL_CONSTANT = Constant
+   | y == GL_PRIMARY_COLOR = PrimaryColor
    | otherwise = Crossbar (unmarshalTextureUnit (fromIntegral x))
    where y = fromIntegral x
 

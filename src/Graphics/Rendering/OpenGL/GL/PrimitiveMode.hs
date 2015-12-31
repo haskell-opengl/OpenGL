@@ -88,7 +88,7 @@ data PrimitiveMode =
 patchVertices :: StateVar GLsizei
 patchVertices =
   makeStateVar (getSizei1 id GetPatchVertices)
-               (glPatchParameteri gl_PATCH_VERTICES . fromIntegral)
+               (glPatchParameteri GL_PATCH_VERTICES . fromIntegral)
 
 -- | Contains the maximumum number of vertices in a single patch.
 
@@ -104,7 +104,7 @@ patchDefaultOuterLevel =
     (getFloat4 (,,,) GetPatchDefaultOuterLevel)
     (\(l0, l1, l2, l3) -> allocaArray 4 $ \ptr -> do
                             poke4 ptr l0 l1 l2 l3
-                            glPatchParameterfv gl_PATCH_DEFAULT_OUTER_LEVEL ptr)
+                            glPatchParameterfv GL_PATCH_DEFAULT_OUTER_LEVEL ptr)
 
 -- | Contains the two default inner tessellation levels to be used when no
 -- tessellation control shader is present.
@@ -115,7 +115,7 @@ patchDefaultInnerLevel =
     (getFloat2 (,) GetPatchDefaultInnerLevel)
     (\(l0, l1) -> allocaArray 2 $ \ptr -> do
                     poke2 ptr l0 l1
-                    glPatchParameterfv gl_PATCH_DEFAULT_INNER_LEVEL ptr)
+                    glPatchParameterfv GL_PATCH_DEFAULT_INNER_LEVEL ptr)
 
 -- | Contains the maximum allowed tessellation level.
 

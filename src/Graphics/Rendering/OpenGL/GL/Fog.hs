@@ -47,14 +47,14 @@ data FogParameter =
 
 marshalFogParameter :: FogParameter -> GLenum
 marshalFogParameter x = case x of
-   FogIndex -> gl_FOG_INDEX
-   FogDensity -> gl_FOG_DENSITY
-   FogStart -> gl_FOG_START
-   FogEnd -> gl_FOG_END
-   FogMode -> gl_FOG_MODE
-   FogColor -> gl_FOG_COLOR
-   FogCoordSrc -> gl_FOG_COORD_SRC
-   FogDistanceMode -> gl_FOG_DISTANCE_MODE_NV
+   FogIndex -> GL_FOG_INDEX
+   FogDensity -> GL_FOG_DENSITY
+   FogStart -> GL_FOG_START
+   FogEnd -> GL_FOG_END
+   FogMode -> GL_FOG_MODE
+   FogColor -> GL_FOG_COLOR
+   FogCoordSrc -> GL_FOG_COORD_SRC
+   FogDistanceMode -> GL_FOG_DISTANCE_MODE_NV
 
 --------------------------------------------------------------------------------
 
@@ -65,15 +65,15 @@ data FogMode' =
 
 marshalFogMode' :: FogMode' -> GLint
 marshalFogMode' x = fromIntegral $ case x of
-   Linear' -> gl_LINEAR
-   Exp' -> gl_EXP
-   Exp2' -> gl_EXP2
+   Linear' -> GL_LINEAR
+   Exp' -> GL_EXP
+   Exp2' -> GL_EXP2
 
 unmarshalFogMode' :: GLint -> FogMode'
 unmarshalFogMode' x
-   | y == gl_LINEAR = Linear'
-   | y == gl_EXP = Exp'
-   | y == gl_EXP2 = Exp2'
+   | y == GL_LINEAR = Linear'
+   | y == GL_EXP = Exp'
+   | y == GL_EXP2 = Exp2'
    | otherwise = error ("unmarshalFogMode': illegal value " ++ show x)
    where y = fromIntegral x
 
@@ -149,13 +149,13 @@ data FogCoordSrc =
 
 marshalFogCoordSrc :: FogCoordSrc -> GLint
 marshalFogCoordSrc x = fromIntegral $ case x of
-   FogCoord -> gl_FOG_COORD
-   FragmentDepth -> gl_FRAGMENT_DEPTH
+   FogCoord -> GL_FOG_COORD
+   FragmentDepth -> GL_FRAGMENT_DEPTH
 
 unmarshalFogCoordSrc :: GLint -> FogCoordSrc
 unmarshalFogCoordSrc x
-   | y == gl_FOG_COORD = FogCoord
-   | y == gl_FRAGMENT_DEPTH = FragmentDepth
+   | y == GL_FOG_COORD = FogCoord
+   | y == GL_FRAGMENT_DEPTH = FragmentDepth
    | otherwise = error ("unmarshalFogCoordSrc: illegal value " ++ show x)
    where y = fromIntegral x
 
@@ -177,15 +177,15 @@ data FogDistanceMode =
 
 marshalFogDistanceMode :: FogDistanceMode -> GLint
 marshalFogDistanceMode x = fromIntegral $ case x of
-   EyeRadial -> gl_EYE_RADIAL_NV
-   EyePlaneSigned ->gl_EYE_PLANE
-   EyePlaneAbsolute -> gl_EYE_PLANE_ABSOLUTE_NV
+   EyeRadial -> GL_EYE_RADIAL_NV
+   EyePlaneSigned -> GL_EYE_PLANE
+   EyePlaneAbsolute -> GL_EYE_PLANE_ABSOLUTE_NV
 
 unmarshalFogDistanceMode :: GLint -> FogDistanceMode
 unmarshalFogDistanceMode x
-   | y == gl_EYE_RADIAL_NV = EyeRadial
-   | y == gl_EYE_PLANE = EyePlaneSigned
-   | y == gl_EYE_PLANE_ABSOLUTE_NV = EyePlaneAbsolute
+   | y == GL_EYE_RADIAL_NV = EyeRadial
+   | y == GL_EYE_PLANE = EyePlaneSigned
+   | y == GL_EYE_PLANE_ABSOLUTE_NV = EyePlaneAbsolute
    | otherwise = error ("unmarshalFogDistanceMode: illegal value " ++ show x)
    where y = fromIntegral x
 

@@ -61,36 +61,36 @@ data PixelTransfer =
 
 marshalPixelTransfer :: PixelTransfer -> GLenum
 marshalPixelTransfer x = case x of
-   MapColor -> gl_MAP_COLOR
-   MapStencil -> gl_MAP_STENCIL
-   IndexShift -> gl_INDEX_SHIFT
-   IndexOffset -> gl_INDEX_OFFSET
-   RedScale -> gl_RED_SCALE
-   RedBias -> gl_RED_BIAS
-   GreenScale -> gl_GREEN_SCALE
-   GreenBias -> gl_GREEN_BIAS
-   BlueScale -> gl_BLUE_SCALE
-   BlueBias -> gl_BLUE_BIAS
-   AlphaScale -> gl_ALPHA_SCALE
-   AlphaBias -> gl_ALPHA_BIAS
-   DepthScale -> gl_DEPTH_SCALE
-   DepthBias -> gl_DEPTH_BIAS
-   PostConvolutionRedScale -> gl_POST_CONVOLUTION_RED_SCALE
-   PostConvolutionGreenScale -> gl_POST_CONVOLUTION_GREEN_SCALE
-   PostConvolutionBlueScale -> gl_POST_CONVOLUTION_BLUE_SCALE
-   PostConvolutionAlphaScale -> gl_POST_CONVOLUTION_ALPHA_SCALE
-   PostConvolutionRedBias -> gl_POST_CONVOLUTION_RED_BIAS
-   PostConvolutionGreenBias -> gl_POST_CONVOLUTION_GREEN_BIAS
-   PostConvolutionBlueBias -> gl_POST_CONVOLUTION_BLUE_BIAS
-   PostConvolutionAlphaBias -> gl_POST_CONVOLUTION_ALPHA_BIAS
-   PostColorMatrixRedScale -> gl_POST_COLOR_MATRIX_RED_SCALE
-   PostColorMatrixGreenScale -> gl_POST_COLOR_MATRIX_GREEN_SCALE
-   PostColorMatrixBlueScale -> gl_POST_COLOR_MATRIX_BLUE_SCALE
-   PostColorMatrixAlphaScale -> gl_POST_COLOR_MATRIX_ALPHA_SCALE
-   PostColorMatrixRedBias -> gl_POST_COLOR_MATRIX_RED_BIAS
-   PostColorMatrixGreenBias -> gl_POST_COLOR_MATRIX_GREEN_BIAS
-   PostColorMatrixBlueBias -> gl_POST_COLOR_MATRIX_BLUE_BIAS
-   PostColorMatrixAlphaBias -> gl_POST_COLOR_MATRIX_ALPHA_BIAS
+   MapColor -> GL_MAP_COLOR
+   MapStencil -> GL_MAP_STENCIL
+   IndexShift -> GL_INDEX_SHIFT
+   IndexOffset -> GL_INDEX_OFFSET
+   RedScale -> GL_RED_SCALE
+   RedBias -> GL_RED_BIAS
+   GreenScale -> GL_GREEN_SCALE
+   GreenBias -> GL_GREEN_BIAS
+   BlueScale -> GL_BLUE_SCALE
+   BlueBias -> GL_BLUE_BIAS
+   AlphaScale -> GL_ALPHA_SCALE
+   AlphaBias -> GL_ALPHA_BIAS
+   DepthScale -> GL_DEPTH_SCALE
+   DepthBias -> GL_DEPTH_BIAS
+   PostConvolutionRedScale -> GL_POST_CONVOLUTION_RED_SCALE
+   PostConvolutionGreenScale -> GL_POST_CONVOLUTION_GREEN_SCALE
+   PostConvolutionBlueScale -> GL_POST_CONVOLUTION_BLUE_SCALE
+   PostConvolutionAlphaScale -> GL_POST_CONVOLUTION_ALPHA_SCALE
+   PostConvolutionRedBias -> GL_POST_CONVOLUTION_RED_BIAS
+   PostConvolutionGreenBias -> GL_POST_CONVOLUTION_GREEN_BIAS
+   PostConvolutionBlueBias -> GL_POST_CONVOLUTION_BLUE_BIAS
+   PostConvolutionAlphaBias -> GL_POST_CONVOLUTION_ALPHA_BIAS
+   PostColorMatrixRedScale -> GL_POST_COLOR_MATRIX_RED_SCALE
+   PostColorMatrixGreenScale -> GL_POST_COLOR_MATRIX_GREEN_SCALE
+   PostColorMatrixBlueScale -> GL_POST_COLOR_MATRIX_BLUE_SCALE
+   PostColorMatrixAlphaScale -> GL_POST_COLOR_MATRIX_ALPHA_SCALE
+   PostColorMatrixRedBias -> GL_POST_COLOR_MATRIX_RED_BIAS
+   PostColorMatrixGreenBias -> GL_POST_COLOR_MATRIX_GREEN_BIAS
+   PostColorMatrixBlueBias -> GL_POST_COLOR_MATRIX_BLUE_BIAS
+   PostColorMatrixAlphaBias -> GL_POST_COLOR_MATRIX_ALPHA_BIAS
 
 --------------------------------------------------------------------------------
 

@@ -61,14 +61,14 @@ data FramebufferStatus =
 
 unmarshalFramebufferStatus :: GLenum -> FramebufferStatus
 unmarshalFramebufferStatus x
-   | x == gl_FRAMEBUFFER_COMPLETE = Complete
-   | x == gl_FRAMEBUFFER_UNDEFINED = Undefined
-   | x == gl_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT
+   | x == GL_FRAMEBUFFER_COMPLETE = Complete
+   | x == GL_FRAMEBUFFER_UNDEFINED = Undefined
+   | x == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT
       = IncompleteMissingAttachment
-   | x == gl_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER = IncompleteDrawBuffer
-   | x == gl_FRAMEBUFFER_INCOMPLETE_READ_BUFFER = IncompleteReadBuffer
-   | x == gl_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE = IncompleteMultiSample
-   | x == gl_FRAMEBUFFER_UNSUPPORTED = Unsupported
+   | x == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER = IncompleteDrawBuffer
+   | x == GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER = IncompleteReadBuffer
+   | x == GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE = IncompleteMultiSample
+   | x == GL_FRAMEBUFFER_UNSUPPORTED = Unsupported
    | otherwise = error $ "unmarshalFramebufferStatus: unknown value: "
       ++ show x
 

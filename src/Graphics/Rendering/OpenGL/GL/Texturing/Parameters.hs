@@ -61,25 +61,25 @@ data Clamping =
 
 marshalTextureWrapMode :: (Repetition, Clamping) -> GLint
 marshalTextureWrapMode x = fromIntegral $ case x of
-   (Repeated, Clamp) -> gl_CLAMP
-   (Repeated, Repeat) -> gl_REPEAT
-   (Repeated, ClampToEdge) -> gl_CLAMP_TO_EDGE
-   (Repeated, ClampToBorder) -> gl_CLAMP_TO_BORDER
-   (Mirrored, Clamp) -> gl_MIRROR_CLAMP_EXT
-   (Mirrored, Repeat) -> gl_MIRRORED_REPEAT
-   (Mirrored, ClampToEdge) -> gl_MIRROR_CLAMP_TO_EDGE
-   (Mirrored, ClampToBorder) -> gl_MIRROR_CLAMP_TO_BORDER_EXT
+   (Repeated, Clamp) -> GL_CLAMP
+   (Repeated, Repeat) -> GL_REPEAT
+   (Repeated, ClampToEdge) -> GL_CLAMP_TO_EDGE
+   (Repeated, ClampToBorder) -> GL_CLAMP_TO_BORDER
+   (Mirrored, Clamp) -> GL_MIRROR_CLAMP_EXT
+   (Mirrored, Repeat) -> GL_MIRRORED_REPEAT
+   (Mirrored, ClampToEdge) -> GL_MIRROR_CLAMP_TO_EDGE
+   (Mirrored, ClampToBorder) -> GL_MIRROR_CLAMP_TO_BORDER_EXT
 
 unmarshalTextureWrapMode :: GLint -> (Repetition, Clamping)
 unmarshalTextureWrapMode x
-   | y == gl_CLAMP = (Repeated, Clamp)
-   | y == gl_REPEAT = (Repeated, Repeat)
-   | y == gl_CLAMP_TO_EDGE = (Repeated, ClampToEdge)
-   | y == gl_CLAMP_TO_BORDER = (Repeated, ClampToBorder)
-   | y == gl_MIRROR_CLAMP_EXT = (Mirrored, Clamp)
-   | y == gl_MIRRORED_REPEAT = (Mirrored, Repeat)
-   | y == gl_MIRROR_CLAMP_TO_EDGE = (Mirrored, ClampToEdge)
-   | y == gl_MIRROR_CLAMP_TO_BORDER_EXT = (Mirrored, ClampToBorder)
+   | y == GL_CLAMP = (Repeated, Clamp)
+   | y == GL_REPEAT = (Repeated, Repeat)
+   | y == GL_CLAMP_TO_EDGE = (Repeated, ClampToEdge)
+   | y == GL_CLAMP_TO_BORDER = (Repeated, ClampToBorder)
+   | y == GL_MIRROR_CLAMP_EXT = (Mirrored, Clamp)
+   | y == GL_MIRRORED_REPEAT = (Mirrored, Repeat)
+   | y == GL_MIRROR_CLAMP_TO_EDGE = (Mirrored, ClampToEdge)
+   | y == GL_MIRROR_CLAMP_TO_BORDER_EXT = (Mirrored, ClampToBorder)
    | otherwise = error ("unmarshalTextureWrapMode: illegal value " ++ show x)
    where y = fromIntegral x
 
@@ -159,13 +159,13 @@ depthTextureMode =
 
 marshalTextureCompareMode :: Capability -> GLint
 marshalTextureCompareMode x = fromIntegral $ case x of
-   Disabled -> gl_NONE
-   Enabled -> gl_COMPARE_REF_TO_TEXTURE
+   Disabled -> GL_NONE
+   Enabled -> GL_COMPARE_REF_TO_TEXTURE
 
 unmarshalTextureCompareMode :: GLint -> Capability
 unmarshalTextureCompareMode x
-   | y == gl_NONE = Disabled
-   | y == gl_COMPARE_REF_TO_TEXTURE = Enabled
+   | y == GL_NONE = Disabled
+   | y == GL_COMPARE_REF_TO_TEXTURE = Enabled
    | otherwise = error ("unmarshalTextureCompareMode: illegal value " ++ show x)
    where y = fromIntegral x
 
@@ -193,13 +193,13 @@ data TextureCompareOperator =
 
 marshalTextureCompareOperator :: TextureCompareOperator -> GLenum
 marshalTextureCompareOperator x = case x of
-   LequalR -> gl_TEXTURE_LEQUAL_R_SGIX
-   GequalR -> gl_TEXTURE_GEQUAL_R_SGIX
+   LequalR -> GL_TEXTURE_LEQUAL_R_SGIX
+   GequalR -> GL_TEXTURE_GEQUAL_R_SGIX
 
 unmarshalTextureCompareOperator :: GLenum -> TextureCompareOperator
 unmarshalTextureCompareOperator x
-   | x == gl_TEXTURE_LEQUAL_R_SGIX = LequalR
-   | x == gl_TEXTURE_GEQUAL_R_SGIX = GequalR
+   | x == GL_TEXTURE_LEQUAL_R_SGIX = LequalR
+   | x == GL_TEXTURE_GEQUAL_R_SGIX = GequalR
    | otherwise = error ("unmarshalTextureCompareOperator: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

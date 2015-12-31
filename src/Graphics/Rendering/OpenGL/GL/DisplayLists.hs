@@ -45,7 +45,7 @@ instance ObjectName DisplayList where
      liftIO . mapM_ (uncurry glDeleteLists) . combineConsecutive
 
 instance CanBeLabeled DisplayList where
-   objectLabel = objectNameLabel gl_DISPLAY_LIST . displayListID
+   objectLabel = objectNameLabel GL_DISPLAY_LIST . displayListID
 
 combineConsecutive :: [DisplayList] -> [(GLuint, GLsizei)]
 combineConsecutive [] = []
@@ -76,13 +76,13 @@ data ListMode =
 
 marshalListMode :: ListMode -> GLenum
 marshalListMode x = case x of
-   Compile -> gl_COMPILE
-   CompileAndExecute -> gl_COMPILE_AND_EXECUTE
+   Compile -> GL_COMPILE
+   CompileAndExecute -> GL_COMPILE_AND_EXECUTE
 
 unmarshalListMode :: GLenum -> ListMode
 unmarshalListMode x
-   | x == gl_COMPILE = Compile
-   | x == gl_COMPILE_AND_EXECUTE = CompileAndExecute
+   | x == GL_COMPILE = Compile
+   | x == GL_COMPILE_AND_EXECUTE = CompileAndExecute
    | otherwise = error ("unmarshalListMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

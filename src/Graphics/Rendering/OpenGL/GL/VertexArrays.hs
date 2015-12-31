@@ -89,15 +89,15 @@ data ClientArrayType =
 
 marshalClientArrayType :: ClientArrayType -> GLenum
 marshalClientArrayType x = case x of
-   VertexArray -> gl_VERTEX_ARRAY
-   NormalArray -> gl_NORMAL_ARRAY
-   ColorArray -> gl_COLOR_ARRAY
-   IndexArray -> gl_INDEX_ARRAY
-   TextureCoordArray -> gl_TEXTURE_COORD_ARRAY
-   EdgeFlagArray -> gl_EDGE_FLAG_ARRAY
-   FogCoordArray -> gl_FOG_COORD_ARRAY
-   SecondaryColorArray -> gl_SECONDARY_COLOR_ARRAY
-   MatrixIndexArray -> gl_MATRIX_INDEX_ARRAY_ARB
+   VertexArray -> GL_VERTEX_ARRAY
+   NormalArray -> GL_NORMAL_ARRAY
+   ColorArray -> GL_COLOR_ARRAY
+   IndexArray -> GL_INDEX_ARRAY
+   TextureCoordArray -> GL_TEXTURE_COORD_ARRAY
+   EdgeFlagArray -> GL_EDGE_FLAG_ARRAY
+   FogCoordArray -> GL_FOG_COORD_ARRAY
+   SecondaryColorArray -> GL_SECONDARY_COLOR_ARRAY
+   MatrixIndexArray -> GL_MATRIX_INDEX_ARRAY_ARB
 
 -- Hmmm...
 clientArrayTypeToEnableCap :: ClientArrayType -> EnableCap
@@ -285,20 +285,20 @@ data InterleavedArrays =
 
 marshalInterleavedArrays :: InterleavedArrays -> GLenum
 marshalInterleavedArrays x = case x of
-   V2f -> gl_V2F
-   V3f -> gl_V3F
-   C4ubV2f -> gl_C4UB_V2F
-   C4ubV3f -> gl_C4UB_V3F
-   C3fV3f -> gl_C3F_V3F
-   N3fV3f -> gl_N3F_V3F
-   C4fN3fV3f -> gl_C4F_N3F_V3F
-   T2fV3f -> gl_T2F_V3F
-   T4fV4f -> gl_T4F_V4F
-   T2fC4ubV3f -> gl_T2F_C4UB_V3F
-   T2fC3fV3f -> gl_T2F_C3F_V3F
-   T2fN3fV3f -> gl_T2F_N3F_V3F
-   T2fC4fN3fV3f -> gl_T2F_C4F_N3F_V3F
-   T4fC4fN3fV4f -> gl_T4F_C4F_N3F_V4F
+   V2f -> GL_V2F
+   V3f -> GL_V3F
+   C4ubV2f -> GL_C4UB_V2F
+   C4ubV3f -> GL_C4UB_V3F
+   C3fV3f -> GL_C3F_V3F
+   N3fV3f -> GL_N3F_V3F
+   C4fN3fV3f -> GL_C4F_N3F_V3F
+   T2fV3f -> GL_T2F_V3F
+   T4fV4f -> GL_T4F_V4F
+   T2fC4ubV3f -> GL_T2F_C4UB_V3F
+   T2fC3fV3f -> GL_T2F_C3F_V3F
+   T2fN3fV3f -> GL_T2F_N3F_V3F
+   T2fC4fN3fV3f -> GL_T2F_C4F_N3F_V3F
+   T4fC4fN3fV4f -> GL_T4F_C4F_N3F_V4F
 
 --------------------------------------------------------------------------------
 
@@ -439,8 +439,8 @@ getPrimitiveRestartIndexNV = do
 
 setPrimitiveRestartIndexNV :: Maybe ArrayIndex -> IO ()
 setPrimitiveRestartIndexNV maybeIdx = case maybeIdx of
-   Nothing  -> glDisableClientState gl_PRIMITIVE_RESTART_NV
-   Just idx -> do glEnableClientState gl_PRIMITIVE_RESTART_NV
+   Nothing  -> glDisableClientState GL_PRIMITIVE_RESTART_NV
+   Just idx -> do glEnableClientState GL_PRIMITIVE_RESTART_NV
                   glPrimitiveRestartIndexNV (fromIntegral idx)
 
 --------------------------------------------------------------------------------

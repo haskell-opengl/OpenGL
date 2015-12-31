@@ -79,15 +79,15 @@ data ColorTable =
 
 marshalColorTable :: ColorTable -> GLenum
 marshalColorTable x = case x of
-   ColorTable -> gl_COLOR_TABLE
-   PostConvolutionColorTable -> gl_POST_CONVOLUTION_COLOR_TABLE
-   PostColorMatrixColorTable -> gl_POST_COLOR_MATRIX_COLOR_TABLE
-   Texture1DColorTable -> gl_TEXTURE_1D
-   Texture2DColorTable -> gl_TEXTURE_2D
-   Texture3DColorTable -> gl_TEXTURE_3D
-   TextureCubeMapColorTable -> gl_TEXTURE_CUBE_MAP
-   TextureColorTable -> gl_TEXTURE_COLOR_TABLE_SGI
-   SharedTexturePalette -> gl_SHARED_TEXTURE_PALETTE_EXT
+   ColorTable -> GL_COLOR_TABLE
+   PostConvolutionColorTable -> GL_POST_CONVOLUTION_COLOR_TABLE
+   PostColorMatrixColorTable -> GL_POST_COLOR_MATRIX_COLOR_TABLE
+   Texture1DColorTable -> GL_TEXTURE_1D
+   Texture2DColorTable -> GL_TEXTURE_2D
+   Texture3DColorTable -> GL_TEXTURE_3D
+   TextureCubeMapColorTable -> GL_TEXTURE_CUBE_MAP
+   TextureColorTable -> GL_TEXTURE_COLOR_TABLE_SGI
+   SharedTexturePalette -> GL_SHARED_TEXTURE_PALETTE_EXT
 
 --------------------------------------------------------------------------------
 
@@ -101,14 +101,14 @@ data Proxy =
 marshalProxyColorTable :: Proxy -> ColorTable -> Maybe GLenum
 marshalProxyColorTable NoProxy x = Just (marshalColorTable x)
 marshalProxyColorTable Proxy   x = case x of
-   ColorTable -> Just gl_PROXY_COLOR_TABLE
-   PostConvolutionColorTable -> Just gl_PROXY_POST_CONVOLUTION_COLOR_TABLE
-   PostColorMatrixColorTable -> Just gl_PROXY_POST_COLOR_MATRIX_COLOR_TABLE
-   Texture1DColorTable -> Just gl_PROXY_TEXTURE_1D
-   Texture2DColorTable -> Just gl_PROXY_TEXTURE_2D
-   Texture3DColorTable -> Just gl_PROXY_TEXTURE_3D
-   TextureCubeMapColorTable -> Just gl_PROXY_TEXTURE_CUBE_MAP
-   TextureColorTable -> Just gl_TEXTURE_COLOR_TABLE_SGI
+   ColorTable -> Just GL_PROXY_COLOR_TABLE
+   PostConvolutionColorTable -> Just GL_PROXY_POST_CONVOLUTION_COLOR_TABLE
+   PostColorMatrixColorTable -> Just GL_PROXY_POST_COLOR_MATRIX_COLOR_TABLE
+   Texture1DColorTable -> Just GL_PROXY_TEXTURE_1D
+   Texture2DColorTable -> Just GL_PROXY_TEXTURE_2D
+   Texture3DColorTable -> Just GL_PROXY_TEXTURE_3D
+   TextureCubeMapColorTable -> Just GL_PROXY_TEXTURE_CUBE_MAP
+   TextureColorTable -> Just GL_TEXTURE_COLOR_TABLE_SGI
    SharedTexturePalette -> Nothing
 
 --------------------------------------------------------------------------------
@@ -161,16 +161,16 @@ data ColorTablePName =
 
 marshalColorTablePName :: ColorTablePName -> GLenum
 marshalColorTablePName x = case x of
-   ColorTableScale -> gl_COLOR_TABLE_SCALE
-   ColorTableBias -> gl_COLOR_TABLE_BIAS
-   ColorTableFormat -> gl_COLOR_TABLE_FORMAT
-   ColorTableWidth -> gl_COLOR_TABLE_WIDTH
-   ColorTableRedSize -> gl_COLOR_TABLE_RED_SIZE
-   ColorTableGreenSize -> gl_COLOR_TABLE_GREEN_SIZE
-   ColorTableBlueSize -> gl_COLOR_TABLE_BLUE_SIZE
-   ColorTableAlphaSize -> gl_COLOR_TABLE_ALPHA_SIZE
-   ColorTableLuminanceSize -> gl_COLOR_TABLE_LUMINANCE_SIZE
-   ColorTableIntensitySize -> gl_COLOR_TABLE_INTENSITY_SIZE
+   ColorTableScale -> GL_COLOR_TABLE_SCALE
+   ColorTableBias -> GL_COLOR_TABLE_BIAS
+   ColorTableFormat -> GL_COLOR_TABLE_FORMAT
+   ColorTableWidth -> GL_COLOR_TABLE_WIDTH
+   ColorTableRedSize -> GL_COLOR_TABLE_RED_SIZE
+   ColorTableGreenSize -> GL_COLOR_TABLE_GREEN_SIZE
+   ColorTableBlueSize -> GL_COLOR_TABLE_BLUE_SIZE
+   ColorTableAlphaSize -> GL_COLOR_TABLE_ALPHA_SIZE
+   ColorTableLuminanceSize -> GL_COLOR_TABLE_LUMINANCE_SIZE
+   ColorTableIntensitySize -> GL_COLOR_TABLE_INTENSITY_SIZE
 
 --------------------------------------------------------------------------------
 

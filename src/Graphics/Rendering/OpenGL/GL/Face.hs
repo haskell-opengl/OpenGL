@@ -29,13 +29,13 @@ data Face =
 
 marshalFace :: Face -> GLenum
 marshalFace x = case x of
-   Front -> gl_FRONT
-   Back -> gl_BACK
-   FrontAndBack -> gl_FRONT_AND_BACK
+   Front -> GL_FRONT
+   Back -> GL_BACK
+   FrontAndBack -> GL_FRONT_AND_BACK
 
 unmarshalFace :: GLenum -> Face
 unmarshalFace x
-   | x == gl_FRONT = Front
-   | x == gl_BACK = Back
-   | x == gl_FRONT_AND_BACK = FrontAndBack
+   | x == GL_FRONT = Front
+   | x == GL_BACK = Back
+   | x == GL_FRONT_AND_BACK = FrontAndBack
    | otherwise = error ("unmarshalFace: illegal value " ++ show x)

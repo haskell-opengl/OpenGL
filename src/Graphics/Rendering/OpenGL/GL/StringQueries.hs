@@ -34,13 +34,13 @@ import Text.ParserCombinators.ReadP as R
 --------------------------------------------------------------------------------
 
 vendor :: GettableStateVar String
-vendor = makeStringVar gl_VENDOR
+vendor = makeStringVar GL_VENDOR
 
 renderer :: GettableStateVar String
-renderer = makeStringVar gl_RENDERER
+renderer = makeStringVar GL_RENDERER
 
 glVersion :: GettableStateVar String
-glVersion = makeStringVar gl_VERSION
+glVersion = makeStringVar GL_VERSION
 
 glExtensions :: GettableStateVar [String]
 glExtensions = makeGettableStateVar (toList <$> getExtensions)
@@ -50,7 +50,7 @@ extensionSupported ext =
   makeGettableStateVar (getExtensions >>= (return . member ext))
 
 shadingLanguageVersion :: GettableStateVar String
-shadingLanguageVersion = makeStringVar gl_SHADING_LANGUAGE_VERSION
+shadingLanguageVersion = makeStringVar GL_SHADING_LANGUAGE_VERSION
 
 --------------------------------------------------------------------------------
 
@@ -61,8 +61,8 @@ data ContextProfile'
 
 marshalContextProfile' :: ContextProfile' -> GLbitfield
 marshalContextProfile' x = case x of
-   CoreProfile' -> gl_CONTEXT_CORE_PROFILE_BIT
-   CompatibilityProfile' -> gl_CONTEXT_COMPATIBILITY_PROFILE_BIT
+   CoreProfile' -> GL_CONTEXT_CORE_PROFILE_BIT
+   CompatibilityProfile' -> GL_CONTEXT_COMPATIBILITY_PROFILE_BIT
 
 contextProfile :: GettableStateVar [ContextProfile']
 contextProfile = makeGettableStateVar (getInteger1 i2cps GetContextProfileMask)

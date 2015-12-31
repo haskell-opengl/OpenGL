@@ -47,16 +47,16 @@ data PixelMapTarget =
 
 marshalPixelMapTarget :: PixelMapTarget -> GLenum
 marshalPixelMapTarget x = case x of
-   IToI -> gl_PIXEL_MAP_I_TO_I
-   SToS -> gl_PIXEL_MAP_S_TO_S
-   IToR -> gl_PIXEL_MAP_I_TO_R
-   IToG -> gl_PIXEL_MAP_I_TO_G
-   IToB -> gl_PIXEL_MAP_I_TO_B
-   IToA -> gl_PIXEL_MAP_I_TO_A
-   RToR -> gl_PIXEL_MAP_R_TO_R
-   GToG -> gl_PIXEL_MAP_G_TO_G
-   BToB -> gl_PIXEL_MAP_B_TO_B
-   AToA -> gl_PIXEL_MAP_A_TO_A
+   IToI -> GL_PIXEL_MAP_I_TO_I
+   SToS -> GL_PIXEL_MAP_S_TO_S
+   IToR -> GL_PIXEL_MAP_I_TO_R
+   IToG -> GL_PIXEL_MAP_I_TO_G
+   IToB -> GL_PIXEL_MAP_I_TO_B
+   IToA -> GL_PIXEL_MAP_I_TO_A
+   RToR -> GL_PIXEL_MAP_R_TO_R
+   GToG -> GL_PIXEL_MAP_G_TO_G
+   BToB -> GL_PIXEL_MAP_B_TO_B
+   AToA -> GL_PIXEL_MAP_A_TO_A
 
 pixelMapTargetToGetPName :: PixelMapTarget -> PName1I
 pixelMapTargetToGetPName x = case x of

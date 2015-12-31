@@ -123,17 +123,17 @@ data MatrixMode =
 marshalMatrixMode :: MatrixMode -> Maybe GLenum
 marshalMatrixMode x = case x of
    Modelview i -> modelviewIndexToEnum i
-   Projection -> Just gl_PROJECTION
-   Texture -> Just gl_TEXTURE
-   Color -> Just gl_COLOR
-   MatrixPalette -> Just gl_MATRIX_PALETTE_ARB
+   Projection -> Just GL_PROJECTION
+   Texture -> Just GL_TEXTURE
+   Color -> Just GL_COLOR
+   MatrixPalette -> Just GL_MATRIX_PALETTE_ARB
 
 unmarshalMatrixMode :: GLenum -> MatrixMode
 unmarshalMatrixMode x
-   | x == gl_PROJECTION = Projection
-   | x == gl_TEXTURE = Texture
-   | x == gl_COLOR = Color
-   | x == gl_MATRIX_PALETTE_ARB = MatrixPalette
+   | x == GL_PROJECTION = Projection
+   | x == GL_TEXTURE = Texture
+   | x == GL_COLOR = Color
+   | x == GL_MATRIX_PALETTE_ARB = MatrixPalette
    | otherwise =
         case modelviewEnumToIndex x of
            Just i -> Modelview i
@@ -394,10 +394,10 @@ data TextureCoordName =
 
 marshalTextureCoordName :: TextureCoordName -> GLenum
 marshalTextureCoordName x = case x of
-   S -> gl_S
-   T -> gl_T
-   R -> gl_R
-   Q -> gl_Q
+   S -> GL_S
+   T -> GL_T
+   R -> GL_R
+   Q -> GL_Q
 
 --------------------------------------------------------------------------------
 
@@ -408,9 +408,9 @@ data TextureGenParameter =
 
 marshalTextureGenParameter :: TextureGenParameter -> GLenum
 marshalTextureGenParameter x = case x of
-   TextureGenMode -> gl_TEXTURE_GEN_MODE
-   ObjectPlane -> gl_OBJECT_PLANE
-   EyePlane -> gl_EYE_PLANE
+   TextureGenMode -> GL_TEXTURE_GEN_MODE
+   ObjectPlane -> GL_OBJECT_PLANE
+   EyePlane -> GL_EYE_PLANE
 
 --------------------------------------------------------------------------------
 
@@ -423,19 +423,19 @@ data TextureGenMode' =
 
 marshalTextureGenMode' :: TextureGenMode' -> GLint
 marshalTextureGenMode' x = fromIntegral $ case x of
-   EyeLinear' -> gl_EYE_LINEAR
-   ObjectLinear' -> gl_OBJECT_LINEAR
-   SphereMap' -> gl_SPHERE_MAP
-   NormalMap' -> gl_NORMAL_MAP
-   ReflectionMap' -> gl_REFLECTION_MAP
+   EyeLinear' -> GL_EYE_LINEAR
+   ObjectLinear' -> GL_OBJECT_LINEAR
+   SphereMap' -> GL_SPHERE_MAP
+   NormalMap' -> GL_NORMAL_MAP
+   ReflectionMap' -> GL_REFLECTION_MAP
 
 unmarshalTextureGenMode' :: GLint -> TextureGenMode'
 unmarshalTextureGenMode' x
-   | y == gl_EYE_LINEAR = EyeLinear'
-   | y == gl_OBJECT_LINEAR = ObjectLinear'
-   | y == gl_SPHERE_MAP = SphereMap'
-   | y == gl_NORMAL_MAP = NormalMap'
-   | y == gl_REFLECTION_MAP = ReflectionMap'
+   | y == GL_EYE_LINEAR = EyeLinear'
+   | y == GL_OBJECT_LINEAR = ObjectLinear'
+   | y == GL_SPHERE_MAP = SphereMap'
+   | y == GL_NORMAL_MAP = NormalMap'
+   | y == GL_REFLECTION_MAP = ReflectionMap'
    | otherwise = error ("unmarshalTextureGenMode': illegal value " ++ show x)
    where y = fromIntegral x
 

@@ -80,21 +80,21 @@ data DebugSource =
 
 marshalDebugSource :: DebugSource -> GLenum
 marshalDebugSource x = case x of
-  DebugSourceAPI -> gl_DEBUG_SOURCE_API
-  DebugSourceShaderCompiler -> gl_DEBUG_SOURCE_SHADER_COMPILER
-  DebugSourceWindowSystem -> gl_DEBUG_SOURCE_WINDOW_SYSTEM
-  DebugSourceThirdParty -> gl_DEBUG_SOURCE_THIRD_PARTY
-  DebugSourceApplication -> gl_DEBUG_SOURCE_APPLICATION
-  DebugSourceOther -> gl_DEBUG_SOURCE_OTHER
+  DebugSourceAPI -> GL_DEBUG_SOURCE_API
+  DebugSourceShaderCompiler -> GL_DEBUG_SOURCE_SHADER_COMPILER
+  DebugSourceWindowSystem -> GL_DEBUG_SOURCE_WINDOW_SYSTEM
+  DebugSourceThirdParty -> GL_DEBUG_SOURCE_THIRD_PARTY
+  DebugSourceApplication -> GL_DEBUG_SOURCE_APPLICATION
+  DebugSourceOther -> GL_DEBUG_SOURCE_OTHER
 
 unmarshalDebugSource :: GLenum -> DebugSource
 unmarshalDebugSource x
-  | x == gl_DEBUG_SOURCE_API = DebugSourceAPI
-  | x == gl_DEBUG_SOURCE_SHADER_COMPILER = DebugSourceShaderCompiler
-  | x == gl_DEBUG_SOURCE_WINDOW_SYSTEM = DebugSourceWindowSystem
-  | x == gl_DEBUG_SOURCE_THIRD_PARTY = DebugSourceThirdParty
-  | x == gl_DEBUG_SOURCE_APPLICATION = DebugSourceApplication
-  | x == gl_DEBUG_SOURCE_OTHER = DebugSourceOther
+  | x == GL_DEBUG_SOURCE_API = DebugSourceAPI
+  | x == GL_DEBUG_SOURCE_SHADER_COMPILER = DebugSourceShaderCompiler
+  | x == GL_DEBUG_SOURCE_WINDOW_SYSTEM = DebugSourceWindowSystem
+  | x == GL_DEBUG_SOURCE_THIRD_PARTY = DebugSourceThirdParty
+  | x == GL_DEBUG_SOURCE_APPLICATION = DebugSourceApplication
+  | x == GL_DEBUG_SOURCE_OTHER = DebugSourceOther
   | otherwise = error ("unmarshalDebugSource: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -113,27 +113,27 @@ data DebugType =
 
 marshalDebugType :: DebugType -> GLenum
 marshalDebugType x = case x of
-  DebugTypeError -> gl_DEBUG_TYPE_ERROR
-  DebugTypeDeprecatedBehavior -> gl_DEBUG_TYPE_DEPRECATED_BEHAVIOR
-  DebugTypeUndefinedBehavior -> gl_DEBUG_TYPE_UNDEFINED_BEHAVIOR
-  DebugTypePerformance -> gl_DEBUG_TYPE_PERFORMANCE
-  DebugTypePortability -> gl_DEBUG_TYPE_PORTABILITY
-  DebugTypeMarker -> gl_DEBUG_TYPE_MARKER
-  DebugTypePushGroup -> gl_DEBUG_TYPE_PUSH_GROUP
-  DebugTypePopGroup -> gl_DEBUG_TYPE_POP_GROUP
-  DebugTypeOther -> gl_DEBUG_TYPE_OTHER
+  DebugTypeError -> GL_DEBUG_TYPE_ERROR
+  DebugTypeDeprecatedBehavior -> GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR
+  DebugTypeUndefinedBehavior -> GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR
+  DebugTypePerformance -> GL_DEBUG_TYPE_PERFORMANCE
+  DebugTypePortability -> GL_DEBUG_TYPE_PORTABILITY
+  DebugTypeMarker -> GL_DEBUG_TYPE_MARKER
+  DebugTypePushGroup -> GL_DEBUG_TYPE_PUSH_GROUP
+  DebugTypePopGroup -> GL_DEBUG_TYPE_POP_GROUP
+  DebugTypeOther -> GL_DEBUG_TYPE_OTHER
 
 unmarshalDebugType :: GLenum -> DebugType
 unmarshalDebugType x
-  | x == gl_DEBUG_TYPE_ERROR = DebugTypeError
-  | x == gl_DEBUG_TYPE_DEPRECATED_BEHAVIOR = DebugTypeDeprecatedBehavior
-  | x == gl_DEBUG_TYPE_UNDEFINED_BEHAVIOR = DebugTypeUndefinedBehavior
-  | x == gl_DEBUG_TYPE_PERFORMANCE = DebugTypePerformance
-  | x == gl_DEBUG_TYPE_PORTABILITY = DebugTypePortability
-  | x == gl_DEBUG_TYPE_MARKER = DebugTypeMarker
-  | x == gl_DEBUG_TYPE_PUSH_GROUP = DebugTypePushGroup
-  | x == gl_DEBUG_TYPE_POP_GROUP = DebugTypePopGroup
-  | x == gl_DEBUG_TYPE_OTHER = DebugTypeOther
+  | x == GL_DEBUG_TYPE_ERROR = DebugTypeError
+  | x == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR = DebugTypeDeprecatedBehavior
+  | x == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR = DebugTypeUndefinedBehavior
+  | x == GL_DEBUG_TYPE_PERFORMANCE = DebugTypePerformance
+  | x == GL_DEBUG_TYPE_PORTABILITY = DebugTypePortability
+  | x == GL_DEBUG_TYPE_MARKER = DebugTypeMarker
+  | x == GL_DEBUG_TYPE_PUSH_GROUP = DebugTypePushGroup
+  | x == GL_DEBUG_TYPE_POP_GROUP = DebugTypePopGroup
+  | x == GL_DEBUG_TYPE_OTHER = DebugTypeOther
   | otherwise = error ("unmarshalDebugType: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -152,17 +152,17 @@ data DebugSeverity =
 
 marshalDebugSeverity :: DebugSeverity -> GLenum
 marshalDebugSeverity x = case x of
-  DebugSeverityHigh -> gl_DEBUG_SEVERITY_HIGH
-  DebugSeverityMedium -> gl_DEBUG_SEVERITY_MEDIUM
-  DebugSeverityLow -> gl_DEBUG_SEVERITY_LOW
-  DebugSeverityNotification -> gl_DEBUG_SEVERITY_NOTIFICATION
+  DebugSeverityHigh -> GL_DEBUG_SEVERITY_HIGH
+  DebugSeverityMedium -> GL_DEBUG_SEVERITY_MEDIUM
+  DebugSeverityLow -> GL_DEBUG_SEVERITY_LOW
+  DebugSeverityNotification -> GL_DEBUG_SEVERITY_NOTIFICATION
 
 unmarshalDebugSeverity :: GLenum -> DebugSeverity
 unmarshalDebugSeverity x
-  | x == gl_DEBUG_SEVERITY_HIGH = DebugSeverityHigh
-  | x == gl_DEBUG_SEVERITY_MEDIUM = DebugSeverityMedium
-  | x == gl_DEBUG_SEVERITY_LOW = DebugSeverityLow
-  | x == gl_DEBUG_SEVERITY_NOTIFICATION = DebugSeverityNotification
+  | x == GL_DEBUG_SEVERITY_HIGH = DebugSeverityHigh
+  | x == GL_DEBUG_SEVERITY_MEDIUM = DebugSeverityMedium
+  | x == GL_DEBUG_SEVERITY_LOW = DebugSeverityLow
+  | x == GL_DEBUG_SEVERITY_NOTIFICATION = DebugSeverityNotification
   | otherwise = error ("unmarshalDebugSeverity: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -270,9 +270,9 @@ doDebugMessageControl :: Maybe DebugSource
 doDebugMessageControl maybeSource maybeType maybeSeverity messageIDs =
   makeSettableStateVar $ \cap ->
     withArrayLen (map debugMessageID messageIDs) $ \len idsBuf ->
-      glDebugMessageControl (maybe gl_DONT_CARE marshalDebugSource maybeSource)
-                            (maybe gl_DONT_CARE marshalDebugType maybeType)
-                            (maybe gl_DONT_CARE marshalDebugSeverity maybeSeverity)
+      glDebugMessageControl (maybe GL_DONT_CARE marshalDebugSource maybeSource)
+                            (maybe GL_DONT_CARE marshalDebugType maybeType)
+                            (maybe GL_DONT_CARE marshalDebugSeverity maybeSeverity)
                             (fromIntegral len)
                             idsBuf
                             (marshalCapability cap)

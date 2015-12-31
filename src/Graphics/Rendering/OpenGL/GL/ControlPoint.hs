@@ -142,21 +142,21 @@ data MapTarget =
 
 marshalMapTarget :: MapTarget -> GLenum
 marshalMapTarget x = case x of
-   Map1Color4 -> gl_MAP1_COLOR_4
-   Map1Index -> gl_MAP1_INDEX
-   Map1Normal -> gl_MAP1_NORMAL
-   Map1TextureCoord1 -> gl_MAP1_TEXTURE_COORD_1
-   Map1TextureCoord2 -> gl_MAP1_TEXTURE_COORD_2
-   Map1TextureCoord3 -> gl_MAP1_TEXTURE_COORD_3
-   Map1TextureCoord4 -> gl_MAP1_TEXTURE_COORD_4
-   Map1Vertex3 -> gl_MAP1_VERTEX_3
-   Map1Vertex4 -> gl_MAP1_VERTEX_4
-   Map2Color4 -> gl_MAP2_COLOR_4
-   Map2Index -> gl_MAP2_INDEX
-   Map2Normal -> gl_MAP2_NORMAL
-   Map2TextureCoord1 -> gl_MAP2_TEXTURE_COORD_1
-   Map2TextureCoord2 -> gl_MAP2_TEXTURE_COORD_2
-   Map2TextureCoord3 -> gl_MAP2_TEXTURE_COORD_3
-   Map2TextureCoord4 -> gl_MAP2_TEXTURE_COORD_4
-   Map2Vertex3 -> gl_MAP2_VERTEX_3
-   Map2Vertex4 -> gl_MAP2_VERTEX_4
+   Map1Color4 -> GL_MAP1_COLOR_4
+   Map1Index -> GL_MAP1_INDEX
+   Map1Normal -> GL_MAP1_NORMAL
+   Map1TextureCoord1 -> GL_MAP1_TEXTURE_COORD_1
+   Map1TextureCoord2 -> GL_MAP1_TEXTURE_COORD_2
+   Map1TextureCoord3 -> GL_MAP1_TEXTURE_COORD_3
+   Map1TextureCoord4 -> GL_MAP1_TEXTURE_COORD_4
+   Map1Vertex3 -> GL_MAP1_VERTEX_3
+   Map1Vertex4 -> GL_MAP1_VERTEX_4
+   Map2Color4 -> GL_MAP2_COLOR_4
+   Map2Index -> GL_MAP2_INDEX
+   Map2Normal -> GL_MAP2_NORMAL
+   Map2TextureCoord1 -> GL_MAP2_TEXTURE_COORD_1
+   Map2TextureCoord2 -> GL_MAP2_TEXTURE_COORD_2
+   Map2TextureCoord3 -> GL_MAP2_TEXTURE_COORD_3
+   Map2TextureCoord4 -> GL_MAP2_TEXTURE_COORD_4
+   Map2Vertex3 -> GL_MAP2_VERTEX_3
+   Map2Vertex4 -> GL_MAP2_VERTEX_4

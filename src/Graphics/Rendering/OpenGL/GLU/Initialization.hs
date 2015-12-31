@@ -24,10 +24,10 @@ import Graphics.GL
 --------------------------------------------------------------------------------
 
 gluVersion :: GettableStateVar String
-gluVersion = makeGettableStateVar (getString glu_VERSION)
+gluVersion = makeGettableStateVar (getString GLU_VERSION)
 
 gluExtensions :: GettableStateVar [String]
-gluExtensions = makeGettableStateVar (fmap words $ getString glu_EXTENSIONS)
+gluExtensions = makeGettableStateVar (fmap words $ getString GLU_EXTENSIONS)
 
 getString :: GLenum -> IO String
 getString = getStringWith . gluGetString

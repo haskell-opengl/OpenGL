@@ -36,15 +36,15 @@ data HintTarget =
 
 marshalHintTarget :: HintTarget -> GLenum
 marshalHintTarget x = case x of
-   PerspectiveCorrection -> gl_PERSPECTIVE_CORRECTION_HINT
-   PointSmooth -> gl_POINT_SMOOTH_HINT
-   LineSmooth -> gl_LINE_SMOOTH_HINT
-   PolygonSmooth -> gl_POLYGON_SMOOTH_HINT
-   Fog -> gl_FOG_HINT
-   GenerateMipmap -> gl_GENERATE_MIPMAP_HINT
-   TextureCompression -> gl_TEXTURE_COMPRESSION_HINT
-   PackCMYK -> gl_PACK_CMYK_HINT_EXT
-   UnpackCMYK -> gl_UNPACK_CMYK_HINT_EXT
+   PerspectiveCorrection -> GL_PERSPECTIVE_CORRECTION_HINT
+   PointSmooth -> GL_POINT_SMOOTH_HINT
+   LineSmooth -> GL_LINE_SMOOTH_HINT
+   PolygonSmooth -> GL_POLYGON_SMOOTH_HINT
+   Fog -> GL_FOG_HINT
+   GenerateMipmap -> GL_GENERATE_MIPMAP_HINT
+   TextureCompression -> GL_TEXTURE_COMPRESSION_HINT
+   PackCMYK -> GL_PACK_CMYK_HINT_EXT
+   UnpackCMYK -> GL_UNPACK_CMYK_HINT_EXT
 
 hintTargetToGetPName :: HintTarget -> PName1I
 hintTargetToGetPName x = case x of
@@ -68,15 +68,15 @@ data HintMode =
 
 marshalHintMode :: HintMode -> GLenum
 marshalHintMode x = case x of
-   DontCare -> gl_DONT_CARE
-   Fastest -> gl_FASTEST
-   Nicest -> gl_NICEST
+   DontCare -> GL_DONT_CARE
+   Fastest -> GL_FASTEST
+   Nicest -> GL_NICEST
 
 unmarshalHintMode :: GLenum -> HintMode
 unmarshalHintMode x
-   | x == gl_DONT_CARE = DontCare
-   | x == gl_FASTEST = Fastest
-   | x == gl_NICEST = Nicest
+   | x == GL_DONT_CARE = DontCare
+   | x == GL_FASTEST = Fastest
+   | x == GL_NICEST = Nicest
    | otherwise = error ("unmarshalHintMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

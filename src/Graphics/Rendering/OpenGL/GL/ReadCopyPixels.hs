@@ -57,9 +57,9 @@ data PixelCopyType =
 
 marshalPixelCopyType :: PixelCopyType -> GLenum
 marshalPixelCopyType x = case x of
-   CopyColor -> gl_COLOR
-   CopyDepth -> gl_DEPTH
-   CopyStencil -> gl_STENCIL
+   CopyColor -> GL_COLOR
+   CopyDepth -> GL_DEPTH
+   CopyStencil -> GL_STENCIL
 
 --------------------------------------------------------------------------------
 
@@ -79,9 +79,9 @@ data BlitBuffer =
 
 marshalBlitBuffer :: BlitBuffer -> GLbitfield
 marshalBlitBuffer x = case x of
-   ColorBuffer' -> gl_COLOR_BUFFER_BIT
-   StencilBuffer' -> gl_STENCIL_BUFFER_BIT
-   DepthBuffer' -> gl_DEPTH_BUFFER_BIT
+   ColorBuffer' -> GL_COLOR_BUFFER_BIT
+   StencilBuffer' -> GL_STENCIL_BUFFER_BIT
+   DepthBuffer' -> GL_DEPTH_BUFFER_BIT
 
 --------------------------------------------------------------------------------
 

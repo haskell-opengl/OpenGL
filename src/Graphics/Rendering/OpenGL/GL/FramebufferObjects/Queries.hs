@@ -55,19 +55,19 @@ data GetFramebufferAttachmentPName =
 
 marshalGetFBAPName :: GetFramebufferAttachmentPName -> GLenum
 marshalGetFBAPName x = case x of
-   AttachmentObjectType -> gl_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE
-   AttachmentObjectName -> gl_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME
-   AttachmentTextureLevel -> gl_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL
-   AttachmentTextureCubeMapFace -> gl_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE
-   AttachmentTextureLayer -> gl_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER
-   AttachmentComponentType -> gl_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE -- TODO impement usefull function
-   AttachmentColorEncoding -> gl_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING -- TODO impement usefull function
-   AttachmentRedSize -> gl_FRAMEBUFFER_ATTACHMENT_RED_SIZE
-   AttachmentBlueSize -> gl_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
-   AttachmentGreenSize -> gl_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
-   AttachmentAlphaSize -> gl_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
-   AttachmentDepthSize -> gl_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
-   AttachmentStencilSize -> gl_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
+   AttachmentObjectType -> GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE
+   AttachmentObjectName -> GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME
+   AttachmentTextureLevel -> GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL
+   AttachmentTextureCubeMapFace -> GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE
+   AttachmentTextureLayer -> GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER
+   AttachmentComponentType -> GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE -- TODO impement usefull function
+   AttachmentColorEncoding -> GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING -- TODO impement usefull function
+   AttachmentRedSize -> GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE
+   AttachmentBlueSize -> GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
+   AttachmentGreenSize -> GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
+   AttachmentAlphaSize -> GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
+   AttachmentDepthSize -> GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
+   AttachmentStencilSize -> GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
 
 getFBAPName :: FramebufferAttachment fba => FramebufferTarget -> fba
     -> (GLint -> a) -> GetFramebufferAttachmentPName -> IO a
@@ -83,10 +83,10 @@ data AttachmentObjectType =
 
 unmarshalAttachmentObjectType :: GLenum -> Maybe AttachmentObjectType
 unmarshalAttachmentObjectType x
-   | x == gl_FRAMEBUFFER_DEFAULT = Just DefaultFramebufferAttachment
-   | x == gl_TEXTURE = Just TextureAttachment
-   | x == gl_RENDERBUFFER = Just RenderbufferAttachment
-   | x == gl_NONE = Nothing
+   | x == GL_FRAMEBUFFER_DEFAULT = Just DefaultFramebufferAttachment
+   | x == GL_TEXTURE = Just TextureAttachment
+   | x == GL_RENDERBUFFER = Just RenderbufferAttachment
+   | x == GL_NONE = Nothing
    | otherwise = error $ "unmarshalAttachmentObject: unknown value " ++ show x
 
 attachmentObjectType :: FramebufferAttachment fba => FramebufferTarget -> fba
@@ -173,16 +173,16 @@ data GetRenderbufferPName =
 
 marshalGetRBPname :: GetRenderbufferPName -> GLenum
 marshalGetRBPname x = case x of
-    RenderbufferWidth -> gl_RENDERBUFFER_WIDTH
-    RenderbufferHeight -> gl_RENDERBUFFER_HEIGHT
-    RenderbufferInternalFormat -> gl_RENDERBUFFER_INTERNAL_FORMAT
-    RenderbufferSamples -> gl_RENDERBUFFER_SAMPLES
-    RenderbufferRedSize -> gl_RENDERBUFFER_RED_SIZE
-    RenderbufferBlueSize -> gl_RENDERBUFFER_BLUE_SIZE
-    RenderbufferGreenSize -> gl_RENDERBUFFER_GREEN_SIZE
-    RenderbufferAlphaSize -> gl_RENDERBUFFER_ALPHA_SIZE
-    RenderbufferDepthSize -> gl_RENDERBUFFER_DEPTH_SIZE
-    RenderbufferStencilSize -> gl_RENDERBUFFER_STENCIL_SIZE
+    RenderbufferWidth -> GL_RENDERBUFFER_WIDTH
+    RenderbufferHeight -> GL_RENDERBUFFER_HEIGHT
+    RenderbufferInternalFormat -> GL_RENDERBUFFER_INTERNAL_FORMAT
+    RenderbufferSamples -> GL_RENDERBUFFER_SAMPLES
+    RenderbufferRedSize -> GL_RENDERBUFFER_RED_SIZE
+    RenderbufferBlueSize -> GL_RENDERBUFFER_BLUE_SIZE
+    RenderbufferGreenSize -> GL_RENDERBUFFER_GREEN_SIZE
+    RenderbufferAlphaSize -> GL_RENDERBUFFER_ALPHA_SIZE
+    RenderbufferDepthSize -> GL_RENDERBUFFER_DEPTH_SIZE
+    RenderbufferStencilSize -> GL_RENDERBUFFER_STENCIL_SIZE
 
 getRBPName :: RenderbufferTarget -> (GLint -> a) ->
    GetRenderbufferPName -> IO a

@@ -42,24 +42,24 @@ minToMag minFilter = error ("minToMag: illegal value " ++ show minFilter)
 
 marshalMinificationFilter :: MinificationFilter -> GLint
 marshalMinificationFilter x = fromIntegral $ case x of
-   (Nearest, Nothing     ) -> gl_NEAREST
-   (Linear', Nothing     ) -> gl_LINEAR
-   (Nearest, Just Nearest) -> gl_NEAREST_MIPMAP_NEAREST
-   (Linear', Just Nearest) -> gl_LINEAR_MIPMAP_NEAREST
-   (Nearest, Just Linear') -> gl_NEAREST_MIPMAP_LINEAR
-   (Linear', Just Linear') -> gl_LINEAR_MIPMAP_LINEAR
+   (Nearest, Nothing     ) -> GL_NEAREST
+   (Linear', Nothing     ) -> GL_LINEAR
+   (Nearest, Just Nearest) -> GL_NEAREST_MIPMAP_NEAREST
+   (Linear', Just Nearest) -> GL_LINEAR_MIPMAP_NEAREST
+   (Nearest, Just Linear') -> GL_NEAREST_MIPMAP_LINEAR
+   (Linear', Just Linear') -> GL_LINEAR_MIPMAP_LINEAR
 
 marshalMagnificationFilter :: MagnificationFilter -> GLint
 marshalMagnificationFilter = marshalMinificationFilter . magToMin
 
 unmarshalMinificationFilter :: GLint -> MinificationFilter
 unmarshalMinificationFilter x
-   | y ==  gl_NEAREST = (Nearest, Nothing)
-   | y ==  gl_LINEAR = (Linear', Nothing)
-   | y ==  gl_NEAREST_MIPMAP_NEAREST = (Nearest, Just Nearest)
-   | y ==  gl_LINEAR_MIPMAP_NEAREST = (Linear', Just Nearest)
-   | y ==  gl_NEAREST_MIPMAP_LINEAR = (Nearest, Just Linear')
-   | y ==  gl_LINEAR_MIPMAP_LINEAR = (Linear', Just Linear')
+   | y == GL_NEAREST = (Nearest, Nothing)
+   | y == GL_LINEAR = (Linear', Nothing)
+   | y == GL_NEAREST_MIPMAP_NEAREST = (Nearest, Just Nearest)
+   | y == GL_LINEAR_MIPMAP_NEAREST = (Linear', Just Nearest)
+   | y == GL_NEAREST_MIPMAP_LINEAR = (Nearest, Just Linear')
+   | y == GL_LINEAR_MIPMAP_LINEAR = (Linear', Just Linear')
    | otherwise = error ("unmarshalMinificationFilter: illegal value " ++ show x)
    where y = fromIntegral x
 

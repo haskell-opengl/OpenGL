@@ -38,8 +38,8 @@ data HistogramTarget =
 
 marshalHistogramTarget :: HistogramTarget -> GLenum
 marshalHistogramTarget x = case x of
-   Histogram -> gl_HISTOGRAM
-   ProxyHistogram -> gl_PROXY_HISTOGRAM
+   Histogram -> GL_HISTOGRAM
+   ProxyHistogram -> GL_PROXY_HISTOGRAM
 
 proxyToHistogramTarget :: Proxy -> HistogramTarget
 proxyToHistogramTarget x = case x of
@@ -106,14 +106,14 @@ data GetHistogramParameterPName =
 
 marshalGetHistogramParameterPName :: GetHistogramParameterPName -> GLenum
 marshalGetHistogramParameterPName x = case x of
-   HistogramWidth -> gl_HISTOGRAM_WIDTH
-   HistogramFormat -> gl_HISTOGRAM_FORMAT
-   HistogramRedSize -> gl_HISTOGRAM_RED_SIZE
-   HistogramGreenSize -> gl_HISTOGRAM_GREEN_SIZE
-   HistogramBlueSize -> gl_HISTOGRAM_BLUE_SIZE
-   HistogramAlphaSize -> gl_HISTOGRAM_ALPHA_SIZE
-   HistogramLuminanceSize -> gl_HISTOGRAM_LUMINANCE_SIZE
-   HistogramSink -> gl_HISTOGRAM_SINK
+   HistogramWidth -> GL_HISTOGRAM_WIDTH
+   HistogramFormat -> GL_HISTOGRAM_FORMAT
+   HistogramRedSize -> GL_HISTOGRAM_RED_SIZE
+   HistogramGreenSize -> GL_HISTOGRAM_GREEN_SIZE
+   HistogramBlueSize -> GL_HISTOGRAM_BLUE_SIZE
+   HistogramAlphaSize -> GL_HISTOGRAM_ALPHA_SIZE
+   HistogramLuminanceSize -> GL_HISTOGRAM_LUMINANCE_SIZE
+   HistogramSink -> GL_HISTOGRAM_SINK
 
 --------------------------------------------------------------------------------
 

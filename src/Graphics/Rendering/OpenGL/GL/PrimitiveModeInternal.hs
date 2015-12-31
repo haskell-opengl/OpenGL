@@ -24,29 +24,29 @@ import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 
 marshalPrimitiveMode :: PrimitiveMode -> GLenum
 marshalPrimitiveMode x = case x of
-   Points -> gl_POINTS
-   Lines -> gl_LINES
-   LineLoop -> gl_LINE_LOOP
-   LineStrip -> gl_LINE_STRIP
-   Triangles -> gl_TRIANGLES
-   TriangleStrip -> gl_TRIANGLE_STRIP
-   TriangleFan -> gl_TRIANGLE_FAN
-   Quads -> gl_QUADS
-   QuadStrip -> gl_QUAD_STRIP
-   Polygon -> gl_POLYGON
-   Patches -> gl_PATCHES
+   Points -> GL_POINTS
+   Lines -> GL_LINES
+   LineLoop -> GL_LINE_LOOP
+   LineStrip -> GL_LINE_STRIP
+   Triangles -> GL_TRIANGLES
+   TriangleStrip -> GL_TRIANGLE_STRIP
+   TriangleFan -> GL_TRIANGLE_FAN
+   Quads -> GL_QUADS
+   QuadStrip -> GL_QUAD_STRIP
+   Polygon -> GL_POLYGON
+   Patches -> GL_PATCHES
 
 unmarshalPrimitiveMode :: GLenum -> PrimitiveMode
 unmarshalPrimitiveMode x
-   | x == gl_POINTS = Points
-   | x == gl_LINES = Lines
-   | x == gl_LINE_LOOP = LineLoop
-   | x == gl_LINE_STRIP = LineStrip
-   | x == gl_TRIANGLES = Triangles
-   | x == gl_TRIANGLE_STRIP = TriangleStrip
-   | x == gl_TRIANGLE_FAN = TriangleFan
-   | x == gl_QUADS = Quads
-   | x == gl_QUAD_STRIP = QuadStrip
-   | x == gl_POLYGON = Polygon
-   | x == gl_PATCHES = Patches
+   | x == GL_POINTS = Points
+   | x == GL_LINES = Lines
+   | x == GL_LINE_LOOP = LineLoop
+   | x == GL_LINE_STRIP = LineStrip
+   | x == GL_TRIANGLES = Triangles
+   | x == GL_TRIANGLE_STRIP = TriangleStrip
+   | x == GL_TRIANGLE_FAN = TriangleFan
+   | x == GL_QUADS = Quads
+   | x == GL_QUAD_STRIP = QuadStrip
+   | x == GL_POLYGON = Polygon
+   | x == GL_PATCHES = Patches
    | otherwise = error ("unmarshalPrimitiveMode: illegal value " ++ show x)

@@ -59,21 +59,21 @@ data ShaderType =
 
 marshalShaderType :: ShaderType -> GLenum
 marshalShaderType x = case x of
-   VertexShader -> gl_VERTEX_SHADER
-   TessControlShader -> gl_TESS_CONTROL_SHADER
-   TessEvaluationShader -> gl_TESS_EVALUATION_SHADER
-   GeometryShader -> gl_GEOMETRY_SHADER
-   FragmentShader -> gl_FRAGMENT_SHADER
-   ComputeShader -> gl_COMPUTE_SHADER
+   VertexShader -> GL_VERTEX_SHADER
+   TessControlShader -> GL_TESS_CONTROL_SHADER
+   TessEvaluationShader -> GL_TESS_EVALUATION_SHADER
+   GeometryShader -> GL_GEOMETRY_SHADER
+   FragmentShader -> GL_FRAGMENT_SHADER
+   ComputeShader -> GL_COMPUTE_SHADER
 
 unmarshalShaderType :: GLenum -> ShaderType
 unmarshalShaderType x
-   | x == gl_VERTEX_SHADER = VertexShader
-   | x == gl_TESS_CONTROL_SHADER = TessControlShader
-   | x == gl_TESS_EVALUATION_SHADER = TessEvaluationShader
-   | x == gl_GEOMETRY_SHADER = GeometryShader
-   | x == gl_FRAGMENT_SHADER = FragmentShader
-   | x == gl_COMPUTE_SHADER = ComputeShader
+   | x == GL_VERTEX_SHADER = VertexShader
+   | x == GL_TESS_CONTROL_SHADER = TessControlShader
+   | x == GL_TESS_EVALUATION_SHADER = TessEvaluationShader
+   | x == GL_GEOMETRY_SHADER = GeometryShader
+   | x == GL_FRAGMENT_SHADER = FragmentShader
+   | x == GL_COMPUTE_SHADER = ComputeShader
    | otherwise = error ("unmarshalShaderType: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -147,11 +147,11 @@ data GetShaderPName =
 
 marshalGetShaderPName :: GetShaderPName -> GLenum
 marshalGetShaderPName x = case x of
-   ShaderDeleteStatus -> gl_DELETE_STATUS
-   CompileStatus -> gl_COMPILE_STATUS
-   ShaderInfoLogLength -> gl_INFO_LOG_LENGTH
-   ShaderSourceLength -> gl_SHADER_SOURCE_LENGTH
-   ShaderType -> gl_SHADER_TYPE
+   ShaderDeleteStatus -> GL_DELETE_STATUS
+   CompileStatus -> GL_COMPILE_STATUS
+   ShaderInfoLogLength -> GL_INFO_LOG_LENGTH
+   ShaderSourceLength -> GL_SHADER_SOURCE_LENGTH
+   ShaderType -> GL_SHADER_TYPE
 
 shaderVar :: (GLint -> a) -> GetShaderPName -> Shader -> GettableStateVar a
 shaderVar f p shader =
@@ -173,12 +173,12 @@ data PrecisionType =
 
 marshalPrecisionType :: PrecisionType -> GLenum
 marshalPrecisionType x = case x of
-   LowFloat -> gl_LOW_FLOAT
-   MediumFloat -> gl_MEDIUM_FLOAT
-   HighFloat -> gl_HIGH_FLOAT
-   LowInt -> gl_LOW_INT
-   MediumInt -> gl_MEDIUM_INT
-   HighInt -> gl_HIGH_INT
+   LowFloat -> GL_LOW_FLOAT
+   MediumFloat -> GL_MEDIUM_FLOAT
+   HighFloat -> GL_HIGH_FLOAT
+   LowInt -> GL_LOW_INT
+   MediumInt -> GL_MEDIUM_INT
+   HighInt -> GL_HIGH_INT
 
 --------------------------------------------------------------------------------
 

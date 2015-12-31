@@ -32,15 +32,15 @@ data RenderMode =
 
 marshalRenderMode :: RenderMode -> GLenum
 marshalRenderMode x = case x of
-   Render -> gl_RENDER
-   Feedback -> gl_FEEDBACK
-   Select -> gl_SELECT
+   Render -> GL_RENDER
+   Feedback -> GL_FEEDBACK
+   Select -> GL_SELECT
 
 unmarshalRenderMode :: GLenum -> RenderMode
 unmarshalRenderMode x
-   | x == gl_RENDER = Render
-   | x == gl_FEEDBACK = Feedback
-   | x == gl_SELECT = Select
+   | x == GL_RENDER = Render
+   | x == GL_FEEDBACK = Feedback
+   | x == GL_SELECT = Select
    | otherwise = error ("unmarshalRenderMode: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------

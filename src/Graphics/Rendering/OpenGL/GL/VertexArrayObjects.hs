@@ -43,7 +43,7 @@ instance GeneratableObjectName VertexArrayObject where
       fmap (map VertexArrayObject) $ peekArray n buf
 
 instance CanBeLabeled VertexArrayObject where
-   objectLabel = objectNameLabel gl_VERTEX_ARRAY . vertexArrayID
+   objectLabel = objectNameLabel GL_VERTEX_ARRAY . vertexArrayID
 
 bindVertexArrayObject :: StateVar (Maybe VertexArrayObject)
 bindVertexArrayObject = makeStateVar getVAO bindVAO

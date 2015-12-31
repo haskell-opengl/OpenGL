@@ -52,22 +52,22 @@ data PixelStore =
 
 marshalPixelStore :: PixelStore -> GLenum
 marshalPixelStore x = case x of
-   UnpackSwapBytes -> gl_UNPACK_SWAP_BYTES
-   UnpackLSBFirst -> gl_UNPACK_LSB_FIRST
-   UnpackRowLength -> gl_UNPACK_ROW_LENGTH
-   UnpackSkipRows -> gl_UNPACK_SKIP_ROWS
-   UnpackSkipPixels -> gl_UNPACK_SKIP_PIXELS
-   UnpackAlignment -> gl_UNPACK_ALIGNMENT
-   PackSwapBytes -> gl_PACK_SWAP_BYTES
-   PackLSBFirst -> gl_PACK_LSB_FIRST
-   PackRowLength -> gl_PACK_ROW_LENGTH
-   PackSkipRows -> gl_PACK_SKIP_ROWS
-   PackSkipPixels -> gl_PACK_SKIP_PIXELS
-   PackAlignment -> gl_PACK_ALIGNMENT
-   PackSkipImages -> gl_PACK_SKIP_IMAGES
-   PackImageHeight -> gl_PACK_IMAGE_HEIGHT
-   UnpackSkipImages -> gl_UNPACK_SKIP_IMAGES
-   UnpackImageHeight -> gl_UNPACK_IMAGE_HEIGHT
+   UnpackSwapBytes -> GL_UNPACK_SWAP_BYTES
+   UnpackLSBFirst -> GL_UNPACK_LSB_FIRST
+   UnpackRowLength -> GL_UNPACK_ROW_LENGTH
+   UnpackSkipRows -> GL_UNPACK_SKIP_ROWS
+   UnpackSkipPixels -> GL_UNPACK_SKIP_PIXELS
+   UnpackAlignment -> GL_UNPACK_ALIGNMENT
+   PackSwapBytes -> GL_PACK_SWAP_BYTES
+   PackLSBFirst -> GL_PACK_LSB_FIRST
+   PackRowLength -> GL_PACK_ROW_LENGTH
+   PackSkipRows -> GL_PACK_SKIP_ROWS
+   PackSkipPixels -> GL_PACK_SKIP_PIXELS
+   PackAlignment -> GL_PACK_ALIGNMENT
+   PackSkipImages -> GL_PACK_SKIP_IMAGES
+   PackImageHeight -> GL_PACK_IMAGE_HEIGHT
+   UnpackSkipImages -> GL_UNPACK_SKIP_IMAGES
+   UnpackImageHeight -> GL_UNPACK_IMAGE_HEIGHT
 
 --------------------------------------------------------------------------------
 

@@ -43,30 +43,30 @@ marshalFramebufferObjectAttachment :: FramebufferObjectAttachment -> Maybe GLenu
 marshalFramebufferObjectAttachment x = case x of
    ColorAttachment c -> let ec = fromIntegral c in if ec >= maxColorAttachments
       then Nothing
-      else Just $ gl_COLOR_ATTACHMENT0 + ec
-   DepthAttachment -> Just gl_DEPTH_ATTACHMENT
-   StencilAttachment -> Just gl_STENCIL_ATTACHMENT
-   DepthStencilAttachment -> Just gl_DEPTH_STENCIL_ATTACHMENT
+      else Just $ GL_COLOR_ATTACHMENT0 + ec
+   DepthAttachment -> Just GL_DEPTH_ATTACHMENT
+   StencilAttachment -> Just GL_STENCIL_ATTACHMENT
+   DepthStencilAttachment -> Just GL_DEPTH_STENCIL_ATTACHMENT
 
 unmarshalFramebufferObjectAttachment :: GLenum -> FramebufferObjectAttachment
 unmarshalFramebufferObjectAttachment x = maybe
    (error $ "unmarshalFramebufferObjectAttachment: unknown enum value " ++ show x) id $
       unmarshalFramebufferObjectAttachmentSafe x
 --unmarshalFramebufferObjectAttachment x
---   | x == gl_DEPTH_ATTACHMENT = DepthAttachment
---   | x == gl_STENCIL_ATTACHMENT = StencilAttachment
---   | x == gl_DEPTH_STENCIL_ATTACHMENT = DepthStencilAttachment
+--   | x == GL_DEPTH_ATTACHMENT = DepthAttachment
+--   | x == GL_STENCIL_ATTACHMENT = StencilAttachment
+--   | x == GL_DEPTH_STENCIL_ATTACHMENT = DepthStencilAttachment
 --   | x >= gl_COLOR_ATTACHMENT0 && x <= gl_COLOR_ATTACHMENT15
 --      = ColorAttachment . fromIntegral $ x - gl_COLOR_ATTACHMENT0
 --   | otherwise = error $ "unmarshalFramebufferObjectAttachment: unknown enum value " ++ show x
 
 unmarshalFramebufferObjectAttachmentSafe :: GLenum -> Maybe FramebufferObjectAttachment
 unmarshalFramebufferObjectAttachmentSafe x
-   | x == gl_DEPTH_ATTACHMENT = Just DepthAttachment
-   | x == gl_STENCIL_ATTACHMENT = Just StencilAttachment
-   | x == gl_DEPTH_STENCIL_ATTACHMENT = Just DepthStencilAttachment
-   | x >= gl_COLOR_ATTACHMENT0 && x <= gl_COLOR_ATTACHMENT0 + maxColorAttachments
-      = Just . ColorAttachment . fromIntegral $ x - gl_COLOR_ATTACHMENT0
+   | x == GL_DEPTH_ATTACHMENT = Just DepthAttachment
+   | x == GL_STENCIL_ATTACHMENT = Just StencilAttachment
+   | x == GL_DEPTH_STENCIL_ATTACHMENT = Just DepthStencilAttachment
+   | x >= GL_COLOR_ATTACHMENT0 && x <= GL_COLOR_ATTACHMENT0 + maxColorAttachments
+      = Just . ColorAttachment . fromIntegral $ x - GL_COLOR_ATTACHMENT0
    | otherwise = Nothing
 
 fboaToBufferMode :: FramebufferObjectAttachment -> Maybe BufferMode

@@ -53,22 +53,22 @@ data TexLevelParameter =
 
 marshalTexLevelParameter :: TexLevelParameter -> GLenum
 marshalTexLevelParameter x = case x of
-   TextureInternalFormat -> gl_TEXTURE_INTERNAL_FORMAT
-   TextureWidth -> gl_TEXTURE_WIDTH
-   TextureHeight -> gl_TEXTURE_HEIGHT
-   TextureDepth -> gl_TEXTURE_DEPTH
-   TextureBorder -> gl_TEXTURE_BORDER
-   TextureRedSize -> gl_TEXTURE_RED_SIZE
-   TextureGreenSize -> gl_TEXTURE_GREEN_SIZE
-   TextureBlueSize -> gl_TEXTURE_BLUE_SIZE
-   TextureAlphaSize -> gl_TEXTURE_ALPHA_SIZE
-   TextureIntensitySize -> gl_TEXTURE_INTENSITY_SIZE
-   TextureLuminanceSize -> gl_TEXTURE_LUMINANCE_SIZE
-   TextureIndexSize -> gl_TEXTURE_INDEX_SIZE_EXT
-   DepthBits -> gl_DEPTH_BITS
-   TextureCompressedImageSize -> gl_TEXTURE_COMPRESSED_IMAGE_SIZE
-   TextureCompressed -> gl_TEXTURE_COMPRESSED
-   TextureSharedSize -> gl_TEXTURE_SHARED_SIZE
+   TextureInternalFormat -> GL_TEXTURE_INTERNAL_FORMAT
+   TextureWidth -> GL_TEXTURE_WIDTH
+   TextureHeight -> GL_TEXTURE_HEIGHT
+   TextureDepth -> GL_TEXTURE_DEPTH
+   TextureBorder -> GL_TEXTURE_BORDER
+   TextureRedSize -> GL_TEXTURE_RED_SIZE
+   TextureGreenSize -> GL_TEXTURE_GREEN_SIZE
+   TextureBlueSize -> GL_TEXTURE_BLUE_SIZE
+   TextureAlphaSize -> GL_TEXTURE_ALPHA_SIZE
+   TextureIntensitySize -> GL_TEXTURE_INTENSITY_SIZE
+   TextureLuminanceSize -> GL_TEXTURE_LUMINANCE_SIZE
+   TextureIndexSize -> GL_TEXTURE_INDEX_SIZE_EXT
+   DepthBits -> GL_DEPTH_BITS
+   TextureCompressedImageSize -> GL_TEXTURE_COMPRESSED_IMAGE_SIZE
+   TextureCompressed -> GL_TEXTURE_COMPRESSED
+   TextureSharedSize -> GL_TEXTURE_SHARED_SIZE
 
 --------------------------------------------------------------------------------
 

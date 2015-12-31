@@ -28,7 +28,7 @@ data RenderbufferTarget = Renderbuffer
 
 marshalRenderbufferTarget :: RenderbufferTarget -> GLenum
 marshalRenderbufferTarget x = case x of
-    Renderbuffer -> gl_RENDERBUFFER
+    Renderbuffer -> GL_RENDERBUFFER
 
 -----------------------------------------------------------------------------
 

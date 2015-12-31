@@ -54,27 +54,27 @@ data TexParameter =
 
 marshalTexParameter :: TexParameter -> GLenum
 marshalTexParameter x = case x of
-   TextureMinFilter -> gl_TEXTURE_MIN_FILTER
-   TextureMagFilter -> gl_TEXTURE_MAG_FILTER
-   TextureWrapS -> gl_TEXTURE_WRAP_S
-   TextureWrapT -> gl_TEXTURE_WRAP_T
-   TextureWrapR -> gl_TEXTURE_WRAP_R
-   TextureBorderColor -> gl_TEXTURE_BORDER_COLOR
-   TextureMinLOD -> gl_TEXTURE_MIN_LOD
-   TextureMaxLOD -> gl_TEXTURE_MAX_LOD
-   TextureBaseLevel -> gl_TEXTURE_BASE_LEVEL
-   TextureMaxLevel -> gl_TEXTURE_MAX_LEVEL
-   TexturePriority -> gl_TEXTURE_PRIORITY
-   TextureMaxAnisotropy -> gl_TEXTURE_MAX_ANISOTROPY_EXT
-   TextureCompare -> gl_TEXTURE_COMPARE_SGIX
-   TextureCompareOperator -> gl_TEXTURE_COMPARE_OPERATOR_SGIX
-   TextureCompareFailValue -> gl_TEXTURE_COMPARE_FAIL_VALUE_ARB
-   GenerateMipmap -> gl_GENERATE_MIPMAP
-   TextureCompareMode -> gl_TEXTURE_COMPARE_MODE
-   TextureCompareFunc -> gl_TEXTURE_COMPARE_FUNC
-   DepthTextureMode -> gl_DEPTH_TEXTURE_MODE
-   TextureLODBias -> gl_TEXTURE_LOD_BIAS
-   TextureResident -> gl_TEXTURE_RESIDENT
+   TextureMinFilter -> GL_TEXTURE_MIN_FILTER
+   TextureMagFilter -> GL_TEXTURE_MAG_FILTER
+   TextureWrapS -> GL_TEXTURE_WRAP_S
+   TextureWrapT -> GL_TEXTURE_WRAP_T
+   TextureWrapR -> GL_TEXTURE_WRAP_R
+   TextureBorderColor -> GL_TEXTURE_BORDER_COLOR
+   TextureMinLOD -> GL_TEXTURE_MIN_LOD
+   TextureMaxLOD -> GL_TEXTURE_MAX_LOD
+   TextureBaseLevel -> GL_TEXTURE_BASE_LEVEL
+   TextureMaxLevel -> GL_TEXTURE_MAX_LEVEL
+   TexturePriority -> GL_TEXTURE_PRIORITY
+   TextureMaxAnisotropy -> GL_TEXTURE_MAX_ANISOTROPY_EXT
+   TextureCompare -> GL_TEXTURE_COMPARE_SGIX
+   TextureCompareOperator -> GL_TEXTURE_COMPARE_OPERATOR_SGIX
+   TextureCompareFailValue -> GL_TEXTURE_COMPARE_FAIL_VALUE_ARB
+   GenerateMipmap -> GL_GENERATE_MIPMAP
+   TextureCompareMode -> GL_TEXTURE_COMPARE_MODE
+   TextureCompareFunc -> GL_TEXTURE_COMPARE_FUNC
+   DepthTextureMode -> GL_DEPTH_TEXTURE_MODE
+   TextureLODBias -> GL_TEXTURE_LOD_BIAS
+   TextureResident -> GL_TEXTURE_RESIDENT
 
 --------------------------------------------------------------------------------
 

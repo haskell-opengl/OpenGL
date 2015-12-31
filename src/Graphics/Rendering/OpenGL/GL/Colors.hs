@@ -89,13 +89,13 @@ data FrontFaceDirection =
 
 marshalFrontFaceDirection :: FrontFaceDirection -> GLenum
 marshalFrontFaceDirection x = case x of
-   CW -> gl_CW
-   CCW -> gl_CCW
+   CW -> GL_CW
+   CCW -> GL_CCW
 
 unmarshalFrontFaceDirection :: GLenum -> FrontFaceDirection
 unmarshalFrontFaceDirection x
-   | x == gl_CW = CW
-   | x == gl_CCW = CCW
+   | x == GL_CW = CW
+   | x == GL_CCW = CCW
    | otherwise = error ("unmarshalFrontFaceDirection: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -119,13 +119,13 @@ data MaterialParameter =
 
 marshalMaterialParameter :: MaterialParameter -> GLenum
 marshalMaterialParameter x = case x of
-   MaterialEmission -> gl_EMISSION
-   MaterialShininess -> gl_SHININESS
-   MaterialAmbientAndDiffuse -> gl_AMBIENT_AND_DIFFUSE
-   MaterialColorIndexes -> gl_COLOR_INDEXES
-   MaterialAmbient -> gl_AMBIENT
-   MaterialDiffuse -> gl_DIFFUSE
-   MaterialSpecular -> gl_SPECULAR
+   MaterialEmission -> GL_EMISSION
+   MaterialShininess -> GL_SHININESS
+   MaterialAmbientAndDiffuse -> GL_AMBIENT_AND_DIFFUSE
+   MaterialColorIndexes -> GL_COLOR_INDEXES
+   MaterialAmbient -> GL_AMBIENT
+   MaterialDiffuse -> GL_DIFFUSE
+   MaterialSpecular -> GL_SPECULAR
 
 --------------------------------------------------------------------------------
 
@@ -221,16 +221,16 @@ data LightParameter =
 
 marshalLightParameter :: LightParameter -> GLenum
 marshalLightParameter x = case x of
-   Ambient' -> gl_AMBIENT
-   Diffuse' -> gl_DIFFUSE
-   Specular' -> gl_SPECULAR
-   Position -> gl_POSITION
-   SpotDirection -> gl_SPOT_DIRECTION
-   SpotExponent -> gl_SPOT_EXPONENT
-   SpotCutoff -> gl_SPOT_CUTOFF
-   ConstantAttenuation -> gl_CONSTANT_ATTENUATION
-   LinearAttenuation -> gl_LINEAR_ATTENUATION
-   QuadraticAttenuation -> gl_QUADRATIC_ATTENUATION
+   Ambient' -> GL_AMBIENT
+   Diffuse' -> GL_DIFFUSE
+   Specular' -> GL_SPECULAR
+   Position -> GL_POSITION
+   SpotDirection -> GL_SPOT_DIRECTION
+   SpotExponent -> GL_SPOT_EXPONENT
+   SpotCutoff -> GL_SPOT_CUTOFF
+   ConstantAttenuation -> GL_CONSTANT_ATTENUATION
+   LinearAttenuation -> GL_LINEAR_ATTENUATION
+   QuadraticAttenuation -> GL_QUADRATIC_ATTENUATION
 
 --------------------------------------------------------------------------------
 
@@ -333,10 +333,10 @@ data LightModelParameter =
 
 marshalLightModelParameter :: LightModelParameter -> GLenum
 marshalLightModelParameter x = case x of
-   LightModelAmbient -> gl_LIGHT_MODEL_AMBIENT
-   LightModelLocalViewer -> gl_LIGHT_MODEL_LOCAL_VIEWER
-   LightModelTwoSide -> gl_LIGHT_MODEL_TWO_SIDE
-   LightModelColorControl -> gl_LIGHT_MODEL_COLOR_CONTROL
+   LightModelAmbient -> GL_LIGHT_MODEL_AMBIENT
+   LightModelLocalViewer -> GL_LIGHT_MODEL_LOCAL_VIEWER
+   LightModelTwoSide -> GL_LIGHT_MODEL_TWO_SIDE
+   LightModelColorControl -> GL_LIGHT_MODEL_COLOR_CONTROL
 
 --------------------------------------------------------------------------------
 
@@ -377,13 +377,13 @@ data LightModelColorControl =
 
 marshalLightModelColorControl :: LightModelColorControl -> GLenum
 marshalLightModelColorControl x = case x of
-   SingleColor -> gl_SINGLE_COLOR
-   SeparateSpecularColor -> gl_SEPARATE_SPECULAR_COLOR
+   SingleColor -> GL_SINGLE_COLOR
+   SeparateSpecularColor -> GL_SEPARATE_SPECULAR_COLOR
 
 unmarshalLightModelColorControl :: GLenum -> LightModelColorControl
 unmarshalLightModelColorControl x
-   | x == gl_SINGLE_COLOR = SingleColor
-   | x == gl_SEPARATE_SPECULAR_COLOR = SeparateSpecularColor
+   | x == GL_SINGLE_COLOR = SingleColor
+   | x == GL_SEPARATE_SPECULAR_COLOR = SeparateSpecularColor
    | otherwise = error ("unmarshalLightModelColorControl: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -407,19 +407,19 @@ data ColorMaterialParameter =
 
 marshalColorMaterialParameter :: ColorMaterialParameter -> GLenum
 marshalColorMaterialParameter x = case x of
-   Ambient -> gl_AMBIENT
-   Diffuse -> gl_DIFFUSE
-   Specular -> gl_SPECULAR
-   Emission -> gl_EMISSION
-   AmbientAndDiffuse -> gl_AMBIENT_AND_DIFFUSE
+   Ambient -> GL_AMBIENT
+   Diffuse -> GL_DIFFUSE
+   Specular -> GL_SPECULAR
+   Emission -> GL_EMISSION
+   AmbientAndDiffuse -> GL_AMBIENT_AND_DIFFUSE
 
 unmarshalColorMaterialParameter :: GLenum -> ColorMaterialParameter
 unmarshalColorMaterialParameter x
-   | x == gl_AMBIENT = Ambient
-   | x == gl_DIFFUSE = Diffuse
-   | x == gl_SPECULAR = Specular
-   | x == gl_EMISSION = Emission
-   | x == gl_AMBIENT_AND_DIFFUSE = AmbientAndDiffuse
+   | x == GL_AMBIENT = Ambient
+   | x == GL_DIFFUSE = Diffuse
+   | x == GL_SPECULAR = Specular
+   | x == GL_EMISSION = Emission
+   | x == GL_AMBIENT_AND_DIFFUSE = AmbientAndDiffuse
    | otherwise = error ("unmarshalColorMaterialParameter: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -444,13 +444,13 @@ data ShadingModel =
 
 marshalShadingModel :: ShadingModel -> GLenum
 marshalShadingModel x = case x of
-   Flat -> gl_FLAT
-   Smooth -> gl_SMOOTH
+   Flat -> GL_FLAT
+   Smooth -> GL_SMOOTH
 
 unmarshalShadingModel :: GLenum -> ShadingModel
 unmarshalShadingModel x
-   | x == gl_FLAT = Flat
-   | x == gl_SMOOTH = Smooth
+   | x == GL_FLAT = Flat
+   | x == GL_SMOOTH = Smooth
    | otherwise = error ("unmarshalShadingModel: illegal value " ++ show x)
 
 --------------------------------------------------------------------------------
@@ -471,9 +471,9 @@ data ClampTarget =
 
 marshalClampTarget :: ClampTarget -> GLenum
 marshalClampTarget x = case x of
-   ClampVertexColor -> gl_CLAMP_VERTEX_COLOR
-   ClampFragmentColor -> gl_CLAMP_FRAGMENT_COLOR
-   ClampReadColor -> gl_CLAMP_READ_COLOR
+   ClampVertexColor -> GL_CLAMP_VERTEX_COLOR
+   ClampFragmentColor -> GL_CLAMP_FRAGMENT_COLOR
+   ClampReadColor -> GL_CLAMP_READ_COLOR
 
 marshalClampTargetToPName :: ClampTarget -> PName1I
 marshalClampTargetToPName x = case x of
@@ -491,15 +491,15 @@ data ClampMode =
 
 marshalClampMode :: ClampMode -> GLenum
 marshalClampMode x = case x of
-   ClampOn -> gl_TRUE
-   FixedOnly -> gl_FIXED_ONLY
-   ClampOff -> gl_FALSE
+   ClampOn -> GL_TRUE
+   FixedOnly -> GL_FIXED_ONLY
+   ClampOff -> GL_FALSE
 
 unmarshalClampMode :: GLenum -> ClampMode
 unmarshalClampMode x
-   | x == gl_TRUE = ClampOn
-   | x == gl_FIXED_ONLY = FixedOnly
-   | x == gl_FALSE = ClampOff
+   | x == GL_TRUE = ClampOn
+   | x == GL_FIXED_ONLY = FixedOnly
+   | x == GL_FALSE = ClampOff
    | otherwise = error $ "unmarshalClampMode: unknown enum value " ++ show x
 
 --------------------------------------------------------------------------------

@@ -44,14 +44,14 @@ data GetVertexAttribPName =
 
 marshalGetVertexAttribPName :: GetVertexAttribPName -> GLenum
 marshalGetVertexAttribPName x = case x of
-   GetVertexAttribArrayEnabled -> gl_VERTEX_ATTRIB_ARRAY_ENABLED
-   GetVertexAttribArraySize -> gl_VERTEX_ATTRIB_ARRAY_SIZE
-   GetVertexAttribArrayStride -> gl_VERTEX_ATTRIB_ARRAY_STRIDE
-   GetVertexAttribArrayType -> gl_VERTEX_ATTRIB_ARRAY_TYPE
-   GetVertexAttribArrayNormalized -> gl_VERTEX_ATTRIB_ARRAY_NORMALIZED
-   GetCurrentVertexAttrib -> gl_CURRENT_VERTEX_ATTRIB
-   GetVertexAttribArrayBufferBinding -> gl_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING
-   GetVertexAttribArrayInteger -> gl_VERTEX_ATTRIB_ARRAY_INTEGER
+   GetVertexAttribArrayEnabled -> GL_VERTEX_ATTRIB_ARRAY_ENABLED
+   GetVertexAttribArraySize -> GL_VERTEX_ATTRIB_ARRAY_SIZE
+   GetVertexAttribArrayStride -> GL_VERTEX_ATTRIB_ARRAY_STRIDE
+   GetVertexAttribArrayType -> GL_VERTEX_ATTRIB_ARRAY_TYPE
+   GetVertexAttribArrayNormalized -> GL_VERTEX_ATTRIB_ARRAY_NORMALIZED
+   GetCurrentVertexAttrib -> GL_CURRENT_VERTEX_ATTRIB
+   GetVertexAttribArrayBufferBinding -> GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING
+   GetVertexAttribArrayInteger -> GL_VERTEX_ATTRIB_ARRAY_INTEGER
 
 --------------------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ data GetVertexAttribPointerPName =
 
 marshalGetVertexAttribPointerPName :: GetVertexAttribPointerPName -> GLenum
 marshalGetVertexAttribPointerPName x = case x of
-   VertexAttribArrayPointer -> gl_VERTEX_ATTRIB_ARRAY_POINTER
+   VertexAttribArrayPointer -> GL_VERTEX_ATTRIB_ARRAY_POINTER
 
 --------------------------------------------------------------------------------
 

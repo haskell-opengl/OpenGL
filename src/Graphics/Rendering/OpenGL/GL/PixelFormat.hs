@@ -58,71 +58,71 @@ data PixelFormat =
 
 marshalPixelFormat :: PixelFormat -> GLenum
 marshalPixelFormat x = case x of
-   ColorIndex -> gl_COLOR_INDEX
-   StencilIndex -> gl_STENCIL_INDEX
-   DepthComponent -> gl_DEPTH_COMPONENT
-   Red -> gl_RED
-   Green -> gl_GREEN
-   Blue -> gl_BLUE
-   Alpha -> gl_ALPHA
-   RG -> gl_RG
-   RGB -> gl_RGB
-   RGBA -> gl_RGBA
-   Luminance -> gl_LUMINANCE
-   LuminanceAlpha -> gl_LUMINANCE_ALPHA
-   RedInteger -> gl_RED_INTEGER
-   GreenInteger -> gl_GREEN_INTEGER
-   BlueInteger -> gl_BLUE_INTEGER
-   AlphaInteger -> gl_ALPHA_INTEGER
-   RGInteger -> gl_RG_INTEGER
-   RGBInteger -> gl_RGB_INTEGER
-   RGBAInteger -> gl_RGBA_INTEGER
-   BGRInteger -> gl_BGR_INTEGER
-   BGRAInteger -> gl_BGRA_INTEGER
-   ABGR -> gl_ABGR_EXT
-   BGR -> gl_BGR
-   BGRA -> gl_BGRA
-   CMYK -> gl_CMYK_EXT
-   CMYKA -> gl_CMYKA_EXT
-   FourTwoTwo -> gl_422_EXT
-   FourTwoTwoRev -> gl_422_REV_EXT
-   FourTwoTwoAverage -> gl_422_AVERAGE_EXT
-   FourTwoTwoRevAverage -> gl_422_REV_AVERAGE_EXT
-   YCBCR422 -> gl_YCBCR_422_APPLE
-   DepthStencil -> gl_DEPTH_STENCIL
+   ColorIndex -> GL_COLOR_INDEX
+   StencilIndex -> GL_STENCIL_INDEX
+   DepthComponent -> GL_DEPTH_COMPONENT
+   Red -> GL_RED
+   Green -> GL_GREEN
+   Blue -> GL_BLUE
+   Alpha -> GL_ALPHA
+   RG -> GL_RG
+   RGB -> GL_RGB
+   RGBA -> GL_RGBA
+   Luminance -> GL_LUMINANCE
+   LuminanceAlpha -> GL_LUMINANCE_ALPHA
+   RedInteger -> GL_RED_INTEGER
+   GreenInteger -> GL_GREEN_INTEGER
+   BlueInteger -> GL_BLUE_INTEGER
+   AlphaInteger -> GL_ALPHA_INTEGER
+   RGInteger -> GL_RG_INTEGER
+   RGBInteger -> GL_RGB_INTEGER
+   RGBAInteger -> GL_RGBA_INTEGER
+   BGRInteger -> GL_BGR_INTEGER
+   BGRAInteger -> GL_BGRA_INTEGER
+   ABGR -> GL_ABGR_EXT
+   BGR -> GL_BGR
+   BGRA -> GL_BGRA
+   CMYK -> GL_CMYK_EXT
+   CMYKA -> GL_CMYKA_EXT
+   FourTwoTwo -> GL_422_EXT
+   FourTwoTwoRev -> GL_422_REV_EXT
+   FourTwoTwoAverage -> GL_422_AVERAGE_EXT
+   FourTwoTwoRevAverage -> GL_422_REV_AVERAGE_EXT
+   YCBCR422 -> GL_YCBCR_422_APPLE
+   DepthStencil -> GL_DEPTH_STENCIL
 
 unmarshalPixelFormat :: GLenum -> PixelFormat
 unmarshalPixelFormat x
-   | x == gl_COLOR_INDEX = ColorIndex
-   | x == gl_STENCIL_INDEX = StencilIndex
-   | x == gl_DEPTH_COMPONENT = DepthComponent
-   | x == gl_RED = Red
-   | x == gl_GREEN = Green
-   | x == gl_BLUE = Blue
-   | x == gl_ALPHA = Alpha
-   | x == gl_RG = RG
-   | x == gl_RGB = RGB
-   | x == gl_RGBA = RGBA
-   | x == gl_LUMINANCE = Luminance
-   | x == gl_LUMINANCE_ALPHA = LuminanceAlpha
-   | x == gl_RED_INTEGER = RedInteger
-   | x == gl_GREEN_INTEGER = GreenInteger
-   | x == gl_BLUE_INTEGER = BlueInteger
-   | x == gl_ALPHA_INTEGER = AlphaInteger
-   | x == gl_RG_INTEGER = RGInteger
-   | x == gl_RGB_INTEGER = RGBInteger
-   | x == gl_RGBA_INTEGER = RGBAInteger
-   | x == gl_BGR_INTEGER = BGRInteger
-   | x == gl_BGRA_INTEGER = BGRAInteger
-   | x == gl_ABGR_EXT = ABGR
-   | x == gl_BGR = BGR
-   | x == gl_BGRA = BGRA
-   | x == gl_CMYK_EXT = CMYK
-   | x == gl_CMYKA_EXT = CMYKA
-   | x == gl_422_EXT = FourTwoTwo
-   | x == gl_422_REV_EXT = FourTwoTwoRev
-   | x == gl_422_AVERAGE_EXT = FourTwoTwoAverage
-   | x == gl_422_REV_AVERAGE_EXT = FourTwoTwoRevAverage
-   | x == gl_YCBCR_422_APPLE = YCBCR422
-   | x == gl_DEPTH_STENCIL = DepthStencil
+   | x == GL_COLOR_INDEX = ColorIndex
+   | x == GL_STENCIL_INDEX = StencilIndex
+   | x == GL_DEPTH_COMPONENT = DepthComponent
+   | x == GL_RED = Red
+   | x == GL_GREEN = Green
+   | x == GL_BLUE = Blue
+   | x == GL_ALPHA = Alpha
+   | x == GL_RG = RG
+   | x == GL_RGB = RGB
+   | x == GL_RGBA = RGBA
+   | x == GL_LUMINANCE = Luminance
+   | x == GL_LUMINANCE_ALPHA = LuminanceAlpha
+   | x == GL_RED_INTEGER = RedInteger
+   | x == GL_GREEN_INTEGER = GreenInteger
+   | x == GL_BLUE_INTEGER = BlueInteger
+   | x == GL_ALPHA_INTEGER = AlphaInteger
+   | x == GL_RG_INTEGER = RGInteger
+   | x == GL_RGB_INTEGER = RGBInteger
+   | x == GL_RGBA_INTEGER = RGBAInteger
+   | x == GL_BGR_INTEGER = BGRInteger
+   | x == GL_BGRA_INTEGER = BGRAInteger
+   | x == GL_ABGR_EXT = ABGR
+   | x == GL_BGR = BGR
+   | x == GL_BGRA = BGRA
+   | x == GL_CMYK_EXT = CMYK
+   | x == GL_CMYKA_EXT = CMYKA
+   | x == GL_422_EXT = FourTwoTwo
+   | x == GL_422_REV_EXT = FourTwoTwoRev
+   | x == GL_422_AVERAGE_EXT = FourTwoTwoAverage
+   | x == GL_422_REV_AVERAGE_EXT = FourTwoTwoRevAverage
+   | x == GL_YCBCR_422_APPLE = YCBCR422
+   | x == GL_DEPTH_STENCIL = DepthStencil
    | otherwise = error ("unmarshalPixelFormat: illegal value " ++ show x)
