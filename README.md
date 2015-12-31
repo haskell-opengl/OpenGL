@@ -1,1 +1,1 @@
-[![Hackage](https://img.shields.io/hackage/v/OpenGL.svg)](https://hackage.haskell.org/package/OpenGL) [![Build Status](https://travis-ci.org/haskell-opengl/OpenGL.png)](https://travis-ci.org/haskell-opengl/OpenGL)
+[![Hackage](https://img.shields.io/hackage/v/OpenGL.svg)](https://hackage.haskell.org/package/OpenGL) [![Build Status](https://travis-ci.org/haskell-opengl/OpenGL.png?branch=classic)](https://travis-ci.org/haskell-opengl/OpenGL/branches)
