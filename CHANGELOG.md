@@ -1,5 +1,6 @@
 3.0.0.0
 -------
+* Depend on new `OpenGLRaw` and `GLURaw` packages.
 
 2.13.2.1
 --------
