@@ -23,7 +23,7 @@ module Graphics.Rendering.OpenGL.GL.ByteString (
 import Data.StateVar
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Internal as BI
 import qualified Data.ByteString.Unsafe as BU

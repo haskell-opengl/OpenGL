@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.FlushFinish (
    flush, finish      
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

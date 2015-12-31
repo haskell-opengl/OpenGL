@@ -44,7 +44,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget (
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable
 import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

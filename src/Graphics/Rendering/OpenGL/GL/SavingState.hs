@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.SavingState (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket_ )
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

@@ -21,13 +21,13 @@ module Graphics.Rendering.OpenGL.GLU.Quadrics (
 
 import Control.Monad ( unless )
 import Foreign.Ptr ( Ptr, nullPtr, freeHaskellFunPtr )
-import Graphics.Rendering.GLU.Raw
+import Graphics.GLU
 import Graphics.Rendering.OpenGL.GL.Colors ( ShadingModel(Smooth,Flat) )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
 import Graphics.Rendering.OpenGL.GL.GLboolean ( marshalGLboolean )
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
    recordErrorCode, recordOutOfMemory )
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

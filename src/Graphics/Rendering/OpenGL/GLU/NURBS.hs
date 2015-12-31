@@ -34,7 +34,7 @@ import Control.Monad
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.GLU.Raw hiding (
+import Graphics.GLU hiding (
    NURBSBeginCallback, NURBSVertexCallback, NURBSNormalCallback,
    NURBSColorCallback, NURBSEndCallback )
 import Graphics.Rendering.OpenGL.GL.Tensor
@@ -47,7 +47,7 @@ import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 import Graphics.Rendering.OpenGL.GL.PrimitiveModeInternal
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 -- chapter 7.1: The NURBS Object

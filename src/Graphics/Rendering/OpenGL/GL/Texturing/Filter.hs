@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Filter (
    MagnificationFilter, marshalMagnificationFilter, unmarshalMagnificationFilter
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

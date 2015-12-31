@@ -28,7 +28,7 @@ import Graphics.Rendering.OpenGL.GL.PixelRectangles.Reset
 import Graphics.Rendering.OpenGL.GL.PixelRectangles.Sink
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
 import Graphics.Rendering.OpenGL.GL.VertexSpec
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

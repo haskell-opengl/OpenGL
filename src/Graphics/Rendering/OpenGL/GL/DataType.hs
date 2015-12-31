@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.DataType (
    DataTypeType(..), marshalDataTypeType, unmarshalDataTypeType
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

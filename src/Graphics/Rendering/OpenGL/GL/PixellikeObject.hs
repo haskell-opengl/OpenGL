@@ -23,7 +23,7 @@ import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.Texturing.Specification
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureTarget
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 -----------------------------------------------------------------------------
 

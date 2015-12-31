@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.ConditionalRendering (
 
 import Graphics.Rendering.OpenGL.GL.Exception
 import Graphics.Rendering.OpenGL.GL.QueryObject
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

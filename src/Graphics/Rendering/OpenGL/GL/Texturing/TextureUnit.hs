@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit (
 
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

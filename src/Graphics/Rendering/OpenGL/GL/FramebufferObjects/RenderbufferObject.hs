@@ -24,7 +24,7 @@ import Foreign.Marshal ( allocaArray, peekArray, withArrayLen )
 import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
        
 --------------------------------------------------------------------------------
 

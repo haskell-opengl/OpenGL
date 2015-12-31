@@ -28,7 +28,7 @@ import Data.Set ( member, toList )
 import Data.StateVar as S
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 import Text.ParserCombinators.ReadP as R
 
 --------------------------------------------------------------------------------

@@ -22,8 +22,8 @@ module Graphics.Rendering.OpenGL.GLU.ErrorsInternal (
 ) where
 
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
-import Graphics.Rendering.GLU.Raw
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GLU
+import Graphics.GL
 import System.IO.Unsafe ( unsafePerformIO )
 
 --------------------------------------------------------------------------------

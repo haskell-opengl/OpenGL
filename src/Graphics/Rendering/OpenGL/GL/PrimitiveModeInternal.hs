@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PrimitiveModeInternal (
    marshalPrimitiveMode, unmarshalPrimitiveMode
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 import Graphics.Rendering.OpenGL.GL.PrimitiveMode
 
 --------------------------------------------------------------------------------

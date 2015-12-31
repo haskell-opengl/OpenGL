@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.Bitmaps (
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GL.Tensor
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

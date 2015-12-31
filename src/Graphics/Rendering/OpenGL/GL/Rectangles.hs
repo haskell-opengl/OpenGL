@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.Rectangles (
 
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.Tensor
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

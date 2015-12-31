@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.PixelData (
 import Foreign.Ptr
 import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.PixelFormat
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

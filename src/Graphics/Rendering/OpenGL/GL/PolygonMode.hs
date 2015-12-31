@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PolygonMode (
    PolygonMode(..), marshalPolygonMode, unmarshalPolygonMode
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

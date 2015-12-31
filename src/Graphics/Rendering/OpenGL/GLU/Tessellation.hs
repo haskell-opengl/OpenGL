@@ -43,7 +43,7 @@ import Foreign.Marshal.Array ( peekArray, pokeArray )
 import Foreign.Marshal.Pool ( Pool, withPool, pooledNew )
 import Foreign.Ptr ( Ptr, nullPtr, plusPtr, castPtr, freeHaskellFunPtr )
 import Foreign.Storable ( Storable(..) )
-import Graphics.Rendering.GLU.Raw
+import Graphics.GLU
 import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.EdgeFlag ( unmarshalEdgeFlag )
 import Graphics.Rendering.OpenGL.GL.Exception ( bracket )
@@ -54,7 +54,7 @@ import Graphics.Rendering.OpenGL.GL.BeginEnd ( EdgeFlag(BeginsInteriorEdge) )
 import Graphics.Rendering.OpenGL.GL.VertexSpec
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GLU.ErrorsInternal
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.BufferMode (
    maxColorAttachments,
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

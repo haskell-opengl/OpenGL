@@ -26,7 +26,7 @@ import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferObject
 import Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 -----------------------------------------------------------------------------
 

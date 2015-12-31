@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Texturing.PixelInternalFormat (
    marshalPixelInternalFormat', unmarshalPixelInternalFormat,
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

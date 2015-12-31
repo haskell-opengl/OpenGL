@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.PointParameter (
 ) where
 
 import Foreign.Ptr
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

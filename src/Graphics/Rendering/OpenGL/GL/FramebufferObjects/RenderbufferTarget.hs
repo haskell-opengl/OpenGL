@@ -19,7 +19,7 @@ module Graphics.Rendering.OpenGL.GL.FramebufferObjects.RenderbufferTarget (
 
 import Foreign.Marshal
 import Graphics.Rendering.OpenGL.GL.PeekPoke
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

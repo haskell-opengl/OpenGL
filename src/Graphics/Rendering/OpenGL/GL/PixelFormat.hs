@@ -17,7 +17,7 @@ module Graphics.Rendering.OpenGL.GL.PixelFormat (
    PixelFormat(..), marshalPixelFormat, unmarshalPixelFormat
 ) where
 
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

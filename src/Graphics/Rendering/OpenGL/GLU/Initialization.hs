@@ -17,9 +17,9 @@ module Graphics.Rendering.OpenGL.GLU.Initialization (
 ) where
 
 import Data.StateVar
-import Graphics.Rendering.GLU.Raw
+import Graphics.GLU
 import Graphics.Rendering.OpenGL.GL.ByteString
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

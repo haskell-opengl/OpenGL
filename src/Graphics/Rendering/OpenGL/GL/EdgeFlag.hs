@@ -18,7 +18,7 @@ module Graphics.Rendering.OpenGL.GL.EdgeFlag (
 ) where
 
 import Graphics.Rendering.OpenGL.GL.GLboolean
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

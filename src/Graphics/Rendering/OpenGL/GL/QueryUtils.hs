@@ -33,7 +33,7 @@ import Foreign.Marshal.Array ( allocaArray )
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils.PName
 import Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 --------------------------------------------------------------------------------
 

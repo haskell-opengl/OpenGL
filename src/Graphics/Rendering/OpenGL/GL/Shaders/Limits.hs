@@ -20,7 +20,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.Limits (
 
 import Data.StateVar
 import Graphics.Rendering.OpenGL.GL.QueryUtils
-import Graphics.Rendering.OpenGL.Raw
+import Graphics.GL
 
 -----------------------------------------------------------------------------
 

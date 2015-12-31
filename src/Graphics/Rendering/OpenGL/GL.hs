@@ -74,7 +74,7 @@ module Graphics.Rendering.OpenGL.GL (
    module Graphics.Rendering.OpenGL.GL.SavingState
 ) where
 
-import Graphics.Rendering.OpenGL.Raw.Types
+import Graphics.GL.Types
 import Graphics.Rendering.OpenGL.GL.FlushFinish
 import Data.ObjectName
 import Data.StateVar
