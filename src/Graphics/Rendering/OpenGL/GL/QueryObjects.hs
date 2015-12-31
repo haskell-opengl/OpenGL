@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.QueryObjects
--- Copyright   :  (c) Sven Panne, Lars Corbijn 2004-2013
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2004-2016
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>

@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.VertexArrayObjects
--- Copyright   :  (c) Sven Panne, Lars Corbijn 2011-2013
+-- Copyright   :  (c) Sven Panne, Lars Corbijn 2011-2016
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>

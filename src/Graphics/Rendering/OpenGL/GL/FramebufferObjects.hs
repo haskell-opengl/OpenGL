@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 -- |
--- Copyright   :  (c) Sven Panne 2013
+-- Copyright   :  (c) Sven Panne 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>
