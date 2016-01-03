@@ -45,7 +45,6 @@ module Graphics.Rendering.OpenGL.GL.DebugOutput (
 import Control.Monad ( unless, replicateM )
 import Data.StateVar
 import Foreign.C.String ( peekCStringLen, withCStringLen )
-import Foreign.C.Types
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Marshal.Array ( allocaArray, withArrayLen )
 import Foreign.Ptr (
