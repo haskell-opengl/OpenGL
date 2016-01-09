@@ -491,15 +491,15 @@ data ClampMode =
 
 marshalClampMode :: ClampMode -> GLenum
 marshalClampMode x = case x of
-   ClampOn -> GL_TRUE
+   ClampOn -> fromIntegral GL_TRUE
    FixedOnly -> GL_FIXED_ONLY
-   ClampOff -> GL_FALSE
+   ClampOff -> fromIntegral GL_FALSE
 
 unmarshalClampMode :: GLenum -> ClampMode
 unmarshalClampMode x
-   | x == GL_TRUE = ClampOn
+   | x == fromIntegral GL_TRUE = ClampOn
    | x == GL_FIXED_ONLY = FixedOnly
-   | x == GL_FALSE = ClampOff
+   | x == fromIntegral GL_FALSE = ClampOff
    | otherwise = error $ "unmarshalClampMode: unknown enum value " ++ show x
 
 --------------------------------------------------------------------------------

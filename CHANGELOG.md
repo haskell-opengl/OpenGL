@@ -1,3 +1,7 @@
+3.0.0.1
+-------
+* Relaxed upper version bound for `OpenGLRaw`.
+
 3.0.0.0
 -------
 * Depend on new `OpenGLRaw` and `GLURaw` packages.
