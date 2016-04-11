@@ -78,7 +78,7 @@ totalComponents1 :: MapDescriptor d -> Int
 totalComponents1 (MapDescriptor _ stride order numComp) =
    fromIntegral stride * (fromIntegral order - 1) + fromIntegral numComp
 
-totalComponents2 :: Domain d => MapDescriptor d -> MapDescriptor d -> Int
+totalComponents2 :: MapDescriptor d -> MapDescriptor d -> Int
 totalComponents2 uDescriptor vDescriptor@(MapDescriptor _ _ _ numComp) =
    totalComponents1 uDescriptor + totalComponents1 vDescriptor - fromIntegral numComp
 
