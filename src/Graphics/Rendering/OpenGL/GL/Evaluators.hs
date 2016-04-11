@@ -74,7 +74,7 @@ data MapDescriptor d =
    MapDescriptor (d, d) Stride Order NumComponents
    deriving ( Eq, Ord, Show )
 
-totalComponents1 :: Domain d => MapDescriptor d -> Int
+totalComponents1 :: MapDescriptor d -> Int
 totalComponents1 (MapDescriptor _ stride order numComp) =
    fromIntegral stride * (fromIntegral order - 1) + fromIntegral numComp
 

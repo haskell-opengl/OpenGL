@@ -157,7 +157,7 @@ makeUniformVar setter location = makeStateVar getter (setter location)
                         getUniform program location buf
                         peek buf
 
-getSimpleUniform :: Storable a => Program -> UniformLocation -> Ptr a -> IO ()
+getSimpleUniform :: Program -> UniformLocation -> Ptr a -> IO ()
 getSimpleUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
 
 makeSimpleUniformVar :: (UniformComponent a)

@@ -212,8 +212,7 @@ textureCompareOperator =
 
 --------------------------------------------------------------------------------
 
-combineTexParams :: ParameterizedTextureTarget t
-                 => (t -> StateVar a)
+combineTexParams :: (t -> StateVar a)
                  -> (t -> StateVar b)
                  -> (t -> StateVar (a,b))
 combineTexParams v w t =
@@ -221,8 +220,7 @@ combineTexParams v w t =
       (liftM2 (,) (get (v t)) (get (w t)))
       (\(x,y) -> do v t $= x; w t $= y)
 
-combineTexParamsMaybe :: ParameterizedTextureTarget t
-                      => (t -> StateVar Capability)
+combineTexParamsMaybe :: (t -> StateVar Capability)
                       -> (t -> StateVar a)
                       -> (t -> StateVar (Maybe a))
 combineTexParamsMaybe enab val t =

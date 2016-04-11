@@ -113,7 +113,7 @@ class GetPName p => GetPName1F p where
     getClampd1 = get1 getDoublev
 
 -- | Helper function for the get*1 functions.
-get1 :: (Storable b, Storable c, GetPName p)
+get1 :: (Storable b, Storable c)
     => (p -> Ptr c -> IO ())
     -> (b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
@@ -138,7 +138,7 @@ class GetPName p => GetIPName1I p where
     getInteger641i = get1i getInteger64iv
 
 -- Indexed helper
-get1i :: (Storable b, Storable c, GetPName p)
+get1i :: (Storable b, Storable c)
     => (p -> GLuint -> Ptr c -> IO ())
     -> (b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> GLuint -> IO a
@@ -175,7 +175,7 @@ class GetPName p => GetPName2F p where
     getClampd2 = get2 getDoublev
 
 -- | Helper function for the get*2 functions.
-get2 :: (Storable b, Storable c, GetPName p)
+get2 :: (Storable b, Storable c)
     => (p -> Ptr c -> IO ())
     -> (b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
@@ -212,7 +212,7 @@ class GetPName p => GetPName3F p where
     getClampd3 = get3 getDoublev
 
 -- | Helper function for the get*3 functions.
-get3 :: (Storable b, Storable c, GetPName p)
+get3 :: (Storable b, Storable c)
     => (p -> Ptr c -> IO ())
     -> (b -> b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
@@ -249,7 +249,7 @@ class GetPName p => GetPName4F p where
     getClampd4 = get4 getDoublev
 
 -- | Helper function for the get*4 functions.
-get4 :: (Storable b, Storable c, GetPName p)
+get4 :: (Storable b, Storable c)
     => (p -> Ptr c -> IO ())
     -> (b -> b -> b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> IO a
@@ -271,7 +271,7 @@ class GetPName p => GetIPName4I p where
     getSizei4i = get4i getIntegeriv
 
 -- | Helper function for the get*4 functions.
-get4i :: (Storable b, Storable c, GetPName p)
+get4i :: (Storable b, Storable c)
     => (p -> GLuint -> Ptr c -> IO ())
     -> (b -> b -> b -> b -> a) -- ^ Conversion from the casted value to the return value
     -> p -> GLuint -> IO a
