@@ -1,3 +1,7 @@
+3.0.1.0
+-------
+* Added Uniform instance for `GLmatrix`.
+
 3.0.0.2
 -------
 * Removed redundant constraints.

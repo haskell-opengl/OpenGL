@@ -13,8 +13,6 @@
 --
 --------------------------------------------------------------------------------
 
-{-# LANGUAGE TypeSynonymInstances #-}
-
 module Graphics.Rendering.OpenGL.GL.CoordTrans (
    -- * Controlling the Viewport
    depthRange,
@@ -43,9 +41,9 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
-import Graphics.Rendering.OpenGL.GL.Tensor
 import Graphics.Rendering.OpenGL.GL.Capability
 import Graphics.Rendering.OpenGL.GL.Exception
+import Graphics.Rendering.OpenGL.GL.MatrixComponent
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.Rendering.OpenGL.GL.Texturing.TextureUnit
@@ -177,38 +175,6 @@ matrixMode =
 
 data MatrixOrder = ColumnMajor | RowMajor
    deriving ( Eq, Ord, Show )
-
---------------------------------------------------------------------------------
-
-class Storable c => MatrixComponent c where
-   getMatrix :: GetPNameMatrix p => p -> Ptr c -> IO ()
-   loadMatrix :: Ptr c -> IO ()
-   loadTransposeMatrix :: Ptr c -> IO ()
-   multMatrix_ :: Ptr c -> IO ()
-   multTransposeMatrix :: Ptr c -> IO ()
-   rotate :: c -> Vector3 c -> IO ()
-   translate :: Vector3 c -> IO ()
-   scale :: c -> c -> c -> IO ()
-
-instance MatrixComponent GLfloat where
-   getMatrix = getMatrixf
-   loadMatrix = glLoadMatrixf
-   loadTransposeMatrix = glLoadTransposeMatrixf
-   multMatrix_ = glMultMatrixf
-   multTransposeMatrix = glMultTransposeMatrixf
-   rotate a (Vector3 x y z) = glRotatef a x y z
-   translate (Vector3 x y z) = glTranslatef x y z
-   scale = glScalef
-
-instance MatrixComponent GLdouble where
-   getMatrix = getMatrixd
-   loadMatrix = glLoadMatrixd
-   loadTransposeMatrix = glLoadTransposeMatrixd
-   multMatrix_ = glMultMatrixd
-   multTransposeMatrix = glMultTransposeMatrixd
-   rotate a (Vector3 x y z) = glRotated a x y z
-   translate (Vector3 x y z) = glTranslated x y z
-   scale = glScaled
 
 --------------------------------------------------------------------------------
 

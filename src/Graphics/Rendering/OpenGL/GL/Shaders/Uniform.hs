@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeSynonymInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Uniform
@@ -13,8 +14,6 @@
 --
 -----------------------------------------------------------------------------
 
-{-# LANGUAGE TypeSynonymInstances #-}
-
 module Graphics.Rendering.OpenGL.GL.Shaders.Uniform (
    -- * Uniform variables
    UniformLocation(..), uniformLocation, activeUniforms, Uniform(..),
@@ -29,6 +28,9 @@ import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.ByteString
+import Graphics.Rendering.OpenGL.GL.CoordTrans
+import Graphics.Rendering.OpenGL.GL.GLboolean
+import Graphics.Rendering.OpenGL.GL.MatrixComponent
 import Graphics.Rendering.OpenGL.GL.Shaders.Program
 import Graphics.Rendering.OpenGL.GL.Shaders.ProgramObjects
 import Graphics.Rendering.OpenGL.GL.Shaders.Variables
@@ -236,13 +238,28 @@ instance UniformComponent a => Uniform (Index1 a) where
 -- getUniform. Even worse is that it requires the `GLint` uniforms while it is an enum or
 -- uint.
 instance Uniform TextureUnit where
-    uniform loc@(UniformLocation ul)  = makeStateVar getter setter
-        where setter (TextureUnit tu) = uniform1 loc (fromIntegral tu :: GLint)
-              getter = do program <- fmap fromJust $ get currentProgram
-                          allocaBytes (sizeOf (undefined :: GLint))  $ \buf -> do
-                             glGetUniformiv (programID program) ul buf
-                             tuID <- peek buf
-                             return . TextureUnit $ fromIntegral tuID
+    uniform loc = makeStateVar getter setter
+        where getter = allocaBytes (sizeOf (undefined :: GLint))  $ \buf -> do
+                          getUniformWith glGetUniformiv loc buf
+                          fmap (TextureUnit . fromIntegral) $ peek buf
+              setter (TextureUnit tu) = uniform1 loc (fromIntegral tu :: GLint)
     uniformv location count = uniform1v location count . (castPtr :: Ptr TextureUnit -> Ptr GLint)
+
+-- | Note: 'uniformv' expects all matrices to be in 'ColumnMajor' form.
+instance MatrixComponent a => Uniform (GLmatrix a) where
+   uniform loc@(UniformLocation ul) = makeStateVar getter setter
+      where getter = withNewMatrix ColumnMajor $ getUniformWith getUniformv loc
+            setter m = withMatrix m $ uniformMatrix4v ul 1 . isRowMajor
+   uniformv (UniformLocation ul) count buf =
+      uniformMatrix4v ul count (marshalGLboolean False) (castPtr buf `asTypeOf` elemType buf)
+      where elemType = undefined :: MatrixComponent c => Ptr (GLmatrix c) -> Ptr c
+
+isRowMajor :: MatrixOrder -> GLboolean
+isRowMajor = marshalGLboolean . (RowMajor ==)
+
+getUniformWith :: (GLuint -> GLint -> Ptr a -> IO ()) -> UniformLocation -> Ptr a -> IO ()
+getUniformWith getter (UniformLocation ul) buf = do
+   program <- fmap (programID . fromJust) $ get currentProgram
+   getter program ul buf
 
 --------------------------------------------------------------------------------
