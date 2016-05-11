@@ -76,7 +76,7 @@ class Storable a => UniformComponent a where
    uniform3 :: UniformLocation -> a -> a -> a -> IO ()
    uniform4 :: UniformLocation -> a -> a -> a -> a -> IO ()
 
-   getUniform :: Storable (b a) => Program -> UniformLocation -> Ptr (b a) -> IO ()
+   getUniform :: Storable (b a) => GLuint -> GLint -> Ptr (b a) -> IO ()
 
    uniform1v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
    uniform2v :: UniformLocation -> GLsizei -> Ptr a -> IO ()
@@ -89,7 +89,7 @@ instance UniformComponent GLint where
    uniform3 (UniformLocation ul) = glUniform3i ul
    uniform4 (UniformLocation ul) = glUniform4i ul
 
-   getUniform (Program p) (UniformLocation ul) = glGetUniformiv p ul . castPtr
+   getUniform p ul = glGetUniformiv p ul . castPtr
 
    uniform1v (UniformLocation ul) = glUniform1iv ul
    uniform2v (UniformLocation ul) = glUniform2iv ul
@@ -102,7 +102,7 @@ instance UniformComponent GLuint where
    uniform3 (UniformLocation ul) = glUniform3ui ul
    uniform4 (UniformLocation ul) = glUniform4ui ul
 
-   getUniform (Program p) (UniformLocation ul) = glGetUniformuiv p ul . castPtr
+   getUniform p ul = glGetUniformuiv p ul . castPtr
 
    uniform1v (UniformLocation ul) = glUniform1uiv ul
    uniform2v (UniformLocation ul) = glUniform2uiv ul
@@ -115,7 +115,7 @@ instance UniformComponent GLfloat where
    uniform3 (UniformLocation ul) = glUniform3f ul
    uniform4 (UniformLocation ul) = glUniform4f ul
 
-   getUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
+   getUniform p ul = glGetUniformfv p ul . castPtr
 
    uniform1v (UniformLocation ul) = glUniform1fv ul
    uniform2v (UniformLocation ul) = glUniform2fv ul
@@ -128,7 +128,7 @@ instance UniformComponent GLdouble where
    uniform3 (UniformLocation ul) = glUniform3d ul
    uniform4 (UniformLocation ul) = glUniform4d ul
 
-   getUniform (Program p) (UniformLocation ul) = glGetUniformdv p ul . castPtr
+   getUniform p ul = glGetUniformdv p ul . castPtr
 
    uniform1v (UniformLocation ul) = glUniform1dv ul
    uniform2v (UniformLocation ul) = glUniform2dv ul
@@ -154,37 +154,34 @@ makeUniformVar :: (UniformComponent a, Storable (b a))
                => (UniformLocation -> b a -> IO ())
                -> UniformLocation -> StateVar (b a)
 makeUniformVar setter location = makeStateVar getter (setter location)
-   where getter = do program <- fmap fromJust $ get currentProgram
-                     allocaBytes maxUniformBufferSize $ \buf -> do
-                        getUniform program location buf
-                        peek buf
+   where getter = allocaBytes maxUniformBufferSize $ \buf -> do
+                     getUniformWith getUniform location buf
+                     peek buf
 
-getSimpleUniform :: Program -> UniformLocation -> Ptr a -> IO ()
-getSimpleUniform (Program p) (UniformLocation ul) = glGetUniformfv p ul . castPtr
-
-makeSimpleUniformVar :: (UniformComponent a)
-               => UniformLocation -> StateVar a
-makeSimpleUniformVar location = makeStateVar getter (uniform1 location)
-   where getter = do program <- fmap fromJust $ get currentProgram
-                     allocaBytes maxUniformBufferSize $ \buf -> do
-                        getSimpleUniform program location buf
-                        peek buf
+single :: (UniformLocation -> StateVar (Vertex1 a))
+       -> (UniformLocation -> StateVar a)
+single var location = makeStateVar (do Vertex1 x <- get (var location); return x)
+                                   (\x -> var location $= Vertex1 x)
 
 instance Uniform GLfloat where
-   uniform = makeSimpleUniformVar
+   uniform = single uniform
    uniformv = uniform1v
 
 instance Uniform GLint where
-   uniform = makeSimpleUniformVar
+   uniform = single uniform
    uniformv = uniform1v
 
 instance Uniform GLuint where
-   uniform = makeSimpleUniformVar
+   uniform = single uniform
    uniformv = uniform1v
 
 instance Uniform GLdouble where
-   uniform = makeSimpleUniformVar
+   uniform = single uniform
    uniformv = uniform1v
+
+instance UniformComponent a => Uniform (Vertex1 a) where
+   uniform = makeUniformVar $ \location (Vertex1 x) -> uniform1 location x
+   uniformv location count = uniform1v location count . (castPtr :: Ptr (Vertex1 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (Vertex2 a) where
    uniform = makeUniformVar $ \location (Vertex2 x y) -> uniform2 location x y
@@ -197,6 +194,22 @@ instance UniformComponent a => Uniform (Vertex3 a) where
 instance UniformComponent a => Uniform (Vertex4 a) where
    uniform = makeUniformVar $ \location (Vertex4 x y z w) -> uniform4 location x y z w
    uniformv location count = uniform4v location count . (castPtr :: Ptr (Vertex4 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Vector1 a) where
+   uniform = makeUniformVar $ \location (Vector1 x) -> uniform1 location x
+   uniformv location count = uniform1v location count . (castPtr :: Ptr (Vector1 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Vector2 a) where
+   uniform = makeUniformVar $ \location (Vector2 x y) -> uniform2 location x y
+   uniformv location count = uniform2v location count . (castPtr :: Ptr (Vector2 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Vector3 a) where
+   uniform = makeUniformVar $ \location (Vector3 x y z) -> uniform3 location x y z
+   uniformv location count = uniform3v location count . (castPtr :: Ptr (Vector3 b) -> Ptr b)
+
+instance UniformComponent a => Uniform (Vector4 a) where
+   uniform = makeUniformVar $ \location (Vector4 x y z w) -> uniform4 location x y z w
+   uniformv location count = uniform4v location count . (castPtr :: Ptr (Vector4 b) -> Ptr b)
 
 instance UniformComponent a => Uniform (TexCoord1 a) where
    uniform = makeUniformVar $ \location (TexCoord1 s) -> uniform1 location s

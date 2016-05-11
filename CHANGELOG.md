@@ -1,6 +1,8 @@
 3.0.1.0
 -------
-* Added Uniform instance for `GLmatrix`.
+* Added `Uniform` instances for `GLmatrix`, `Vertex1`, `Vector1`, `Vector2`, `Vector3`, and `Vector4`.
+* Unbreak `Uniform` instances for `GLint`, `GLuint` and `Gldouble`.
+* Relaxed upper version bound for `OpenGLRaw`.
 
 3.0.0.2
 -------
