@@ -133,6 +133,12 @@ data PixelInternalFormat =
    | StencilIndex4
    | StencilIndex8
    | StencilIndex16
+   | RGBS3TC
+   | RGB4S3TC
+   | RGBAS3TC
+   | RGBA4S3TC
+   | RGBADXT5S3TC
+   | RGBA4DXT5S3TC
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
@@ -247,6 +253,12 @@ marshalPixelInternalFormat x = fromIntegral $ case x of
    StencilIndex4 -> GL_STENCIL_INDEX4
    StencilIndex8 -> GL_STENCIL_INDEX8
    StencilIndex16 -> GL_STENCIL_INDEX16
+   RGBS3TC -> GL_RGB_S3TC
+   RGB4S3TC -> GL_RGB4_S3TC
+   RGBAS3TC -> GL_RGBA_S3TC
+   RGBA4S3TC -> GL_RGBA4_S3TC
+   RGBADXT5S3TC -> GL_RGBA_DXT5_S3TC
+   RGBA4DXT5S3TC -> GL_RGBA4_DXT5_S3TC
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -359,6 +371,12 @@ unmarshalPixelInternalFormat x
    | y == GL_STENCIL_INDEX4 = StencilIndex4
    | y == GL_STENCIL_INDEX8 = StencilIndex8
    | y == GL_STENCIL_INDEX16 = StencilIndex16
+   | y == GL_RGB_S3TC = RGBS3TC
+   | y == GL_RGB4_S3TC = RGB4S3TC
+   | y == GL_RGBA_S3TC = RGBAS3TC
+   | y == GL_RGBA4_S3TC = RGBA4S3TC
+   | y == GL_RGBA_DXT5_S3TC = RGBADXT5S3TC
+   | y == GL_RGBA4_DXT5_S3TC = RGBA4DXT5S3TC
    -- legacy values
    | y == 1 = Luminance'
    | y == 2 = LuminanceAlpha'

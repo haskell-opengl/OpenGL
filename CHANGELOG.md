@@ -1,3 +1,7 @@
+3.0.2.0
+-------
+* Added `PixelInternalFormat` constructors for S3_s3tc extension.
+
 3.0.1.0
 -------
 * Added `Uniform` instances for `GLmatrix`, `Vertex1`, `Vector1`, `Vector2`, `Vector3`, and `Vector4`.
