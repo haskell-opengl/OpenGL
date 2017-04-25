@@ -15,7 +15,7 @@
 
 module Graphics.Rendering.OpenGL.GL.DataType (
    DataType(..), marshalDataType, unmarshalDataType,
-   DataTypeType(..), marshalDataTypeType, unmarshalDataTypeType
+   DataRepresentation(..), unmarshalDataRepresentation
 ) where
 
 import Graphics.GL
@@ -126,29 +126,20 @@ unmarshalDataType x
    | x == GL_4_BYTES = FourBytes
    | otherwise = error ("unmarshalDataType: illegal value " ++ show x)
 
-data DataTypeType
-   = TNone
-   | TSignedNormalized
-   | TUnsignedNormalized
-   | TFloat
-   | TInt
-   | TUnsignedInt
+data DataRepresentation
+   = SignedNormalizedRepresentation
+   | UnsignedNormalizedRepresentation
+   | FloatRepresentation
+   | IntRepresentation
+   | UnsignedIntRepresentation
+   deriving ( Eq, Ord, Show )
 
-marshalDataTypeType :: DataTypeType -> GLenum
-marshalDataTypeType x = case x of
-   TNone -> GL_NONE
-   TSignedNormalized -> GL_SIGNED_NORMALIZED
-   TUnsignedNormalized -> GL_UNSIGNED_NORMALIZED
-   TFloat -> GL_FLOAT
-   TInt -> GL_INT
-   TUnsignedInt -> GL_UNSIGNED_INT
-
-unmarshalDataTypeType :: GLenum -> DataTypeType
-unmarshalDataTypeType x
-   | x == GL_NONE = TNone
-   | x == GL_SIGNED_NORMALIZED = TSignedNormalized
-   | x == GL_UNSIGNED_NORMALIZED = TUnsignedNormalized
-   | x == GL_FLOAT = TFloat
-   | x == GL_INT = TInt
-   | x == GL_UNSIGNED_INT = TUnsignedInt
-   | otherwise = error $ "unmarshalDataTypeType: illegal value " ++ show x
+unmarshalDataRepresentation :: GLenum -> Maybe DataRepresentation
+unmarshalDataRepresentation x
+   | x == GL_SIGNED_NORMALIZED = Just SignedNormalizedRepresentation
+   | x == GL_UNSIGNED_NORMALIZED = Just UnsignedNormalizedRepresentation
+   | x == GL_FLOAT = Just FloatRepresentation
+   | x == GL_INT = Just IntRepresentation
+   | x == GL_UNSIGNED_INT = Just UnsignedIntRepresentation
+   | x == GL_NONE = Nothing
+   | otherwise = error $ "unmarshalDataRepresentation: illegal value " ++ show x

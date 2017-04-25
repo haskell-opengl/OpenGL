@@ -16,12 +16,14 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
    TextureQuery, textureInternalFormat, textureSize1D, textureSize2D,
    textureSize3D, textureBorder, textureRGBASizes, textureSharedSize,
    textureIntensitySize, textureLuminanceSize, textureIndexSize,
-   textureDepthBits, textureCompressedImageSize, textureProxyOK
+   textureDepthBits, textureCompressedImageSize, textureProxyOK,
+   textureRGBATypes, textureIntensityType, textureLuminanceType, textureDepthType
 ) where
 
 import Control.Monad
 import Data.StateVar
 import Foreign.Marshal.Utils
+import Graphics.Rendering.OpenGL.GL.DataType
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.PeekPoke
 import Graphics.Rendering.OpenGL.GL.PixelRectangles
@@ -50,6 +52,13 @@ data TexLevelParameter =
    | TextureCompressedImageSize
    | TextureCompressed
    | TextureSharedSize
+   | TextureRedType
+   | TextureGreenType
+   | TextureBlueType
+   | TextureAlphaType
+   | TextureLuminanceType
+   | TextureIntensityType
+   | TextureDepthType
 
 marshalTexLevelParameter :: TexLevelParameter -> GLenum
 marshalTexLevelParameter x = case x of
@@ -69,6 +78,13 @@ marshalTexLevelParameter x = case x of
    TextureCompressedImageSize -> GL_TEXTURE_COMPRESSED_IMAGE_SIZE
    TextureCompressed -> GL_TEXTURE_COMPRESSED
    TextureSharedSize -> GL_TEXTURE_SHARED_SIZE
+   TextureRedType -> GL_TEXTURE_RED_TYPE_ARB
+   TextureGreenType -> GL_TEXTURE_GREEN_TYPE_ARB
+   TextureBlueType -> GL_TEXTURE_BLUE_TYPE_ARB
+   TextureAlphaType -> GL_TEXTURE_ALPHA_TYPE_ARB
+   TextureLuminanceType -> GL_TEXTURE_LUMINANCE_TYPE_ARB
+   TextureIntensityType -> GL_TEXTURE_INTENSITY_TYPE_ARB
+   TextureDepthType -> GL_TEXTURE_DEPTH_TYPE_ARB
 
 --------------------------------------------------------------------------------
 
@@ -151,6 +167,27 @@ textureProxyOK :: ParameterizedTextureTarget t => TextureQuery t Bool
 textureProxyOK t level =
    makeGettableStateVar $
       getTexLevelParameteri unmarshalGLboolean (marshalParameterizedTextureTargetProxy t) level TextureWidth
+
+textureRGBATypes :: QueryableTextureTarget t =>  TextureQuery t (Color4 (Maybe DataRepresentation))
+textureRGBATypes t level =
+   makeGettableStateVar $
+      liftM4 Color4
+             (getDataRepr t level TextureRedType  )
+             (getDataRepr t level TextureGreenType)
+             (getDataRepr t level TextureBlueType )
+             (getDataRepr t level TextureAlphaType)
+
+getDataRepr :: QueryableTextureTarget t => t -> Level -> TexLevelParameter -> IO (Maybe DataRepresentation)
+getDataRepr = getTexLevelParameteriNoProxy (unmarshalDataRepresentation . fromIntegral)
+
+textureIntensityType :: QueryableTextureTarget t => TextureQuery t (Maybe DataRepresentation)
+textureIntensityType t level = makeGettableStateVar $ getDataRepr t level TextureIntensityType
+
+textureLuminanceType :: QueryableTextureTarget t =>  TextureQuery t (Maybe DataRepresentation)
+textureLuminanceType t level = makeGettableStateVar $ getDataRepr t level TextureLuminanceType
+
+textureDepthType :: QueryableTextureTarget t =>  TextureQuery t (Maybe DataRepresentation)
+textureDepthType t level = makeGettableStateVar $ getDataRepr t level TextureDepthType
 
 getTexLevelParameteriNoProxy :: QueryableTextureTarget t => (GLint -> a) -> t -> Level -> TexLevelParameter -> IO a
 getTexLevelParameteriNoProxy f = getTexLevelParameteri f . marshalQueryableTextureTarget
