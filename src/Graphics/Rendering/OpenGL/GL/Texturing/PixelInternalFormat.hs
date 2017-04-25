@@ -151,6 +151,7 @@ data PixelInternalFormat =
    | Intensity16F
    | Luminance16F
    | LuminanceAlpha16F
+   | Depth24Stencil8
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
@@ -283,6 +284,7 @@ marshalPixelInternalFormat x = fromIntegral $ case x of
    Intensity16F -> GL_INTENSITY16F_ARB
    Luminance16F -> GL_LUMINANCE16F_ARB
    LuminanceAlpha16F -> GL_LUMINANCE_ALPHA16F_ARB
+   Depth24Stencil8 -> GL_DEPTH24_STENCIL8_EXT
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -413,6 +415,7 @@ unmarshalPixelInternalFormat x
    | y == GL_INTENSITY16F_ARB = Intensity16F
    | y == GL_LUMINANCE16F_ARB = Luminance16F
    | y == GL_LUMINANCE_ALPHA16F_ARB = LuminanceAlpha16F
+   | y == GL_DEPTH24_STENCIL8_EXT = Depth24Stencil8
    -- legacy values
    | y == 1 = Luminance'
    | y == 2 = LuminanceAlpha'
