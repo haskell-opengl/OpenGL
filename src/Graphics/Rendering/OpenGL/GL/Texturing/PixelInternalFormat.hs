@@ -139,6 +139,10 @@ data PixelInternalFormat =
    | RGBA4S3TC
    | RGBADXT5S3TC
    | RGBA4DXT5S3TC
+   | CompressedRGBAS3TCDXT1
+   | CompressedRGBAS3TCDXT3
+   | CompressedRGBAS3TCDXT5
+   | CompressedRGBS3TCDXT1
    deriving ( Eq, Ord, Show )
 
 marshalPixelInternalFormat :: PixelInternalFormat -> GLint
@@ -259,6 +263,10 @@ marshalPixelInternalFormat x = fromIntegral $ case x of
    RGBA4S3TC -> GL_RGBA4_S3TC
    RGBADXT5S3TC -> GL_RGBA_DXT5_S3TC
    RGBA4DXT5S3TC -> GL_RGBA4_DXT5_S3TC
+   CompressedRGBAS3TCDXT1 -> GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+   CompressedRGBAS3TCDXT3 -> GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+   CompressedRGBAS3TCDXT5 -> GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+   CompressedRGBS3TCDXT1 -> GL_COMPRESSED_RGB_S3TC_DXT1_EXT
 
 -- *sigh* The OpenGL API is sometimes a bit creative in its usage of types...
 marshalPixelInternalFormat' :: PixelInternalFormat -> GLenum
@@ -377,6 +385,10 @@ unmarshalPixelInternalFormat x
    | y == GL_RGBA4_S3TC = RGBA4S3TC
    | y == GL_RGBA_DXT5_S3TC = RGBADXT5S3TC
    | y == GL_RGBA4_DXT5_S3TC = RGBA4DXT5S3TC
+   | y == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = CompressedRGBAS3TCDXT1
+   | y == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = CompressedRGBAS3TCDXT3
+   | y == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT = CompressedRGBAS3TCDXT5
+   | y == GL_COMPRESSED_RGB_S3TC_DXT1_EXT = CompressedRGBS3TCDXT1
    -- legacy values
    | y == 1 = Luminance'
    | y == 2 = LuminanceAlpha'

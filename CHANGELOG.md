@@ -1,6 +1,6 @@
 3.0.2.0
 -------
-* Added `PixelInternalFormat` constructors for S3_s3tc extension.
+* Added `PixelInternalFormat` constructors for S3_s3tc and EXT_texture_compression_s3tc extensions.
 
 3.0.1.0
 -------
