@@ -17,7 +17,8 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Queries (
    textureSize3D, textureBorder, textureRGBASizes, textureSharedSize,
    textureIntensitySize, textureLuminanceSize, textureIndexSize,
    textureDepthBits, textureCompressedImageSize, textureProxyOK,
-   textureRGBATypes, textureIntensityType, textureLuminanceType, textureDepthType
+   DataRepresentation(..), textureRGBATypes, textureIntensityType,
+   textureLuminanceType, textureDepthType
 ) where
 
 import Control.Monad
