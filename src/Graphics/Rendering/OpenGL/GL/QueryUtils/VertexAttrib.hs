@@ -41,6 +41,7 @@ data GetVertexAttribPName =
    | GetCurrentVertexAttrib
    | GetVertexAttribArrayBufferBinding
    | GetVertexAttribArrayInteger
+   | GetVertexAttribArrayDivisor
 
 marshalGetVertexAttribPName :: GetVertexAttribPName -> GLenum
 marshalGetVertexAttribPName x = case x of
@@ -52,6 +53,7 @@ marshalGetVertexAttribPName x = case x of
    GetCurrentVertexAttrib -> GL_CURRENT_VERTEX_ATTRIB
    GetVertexAttribArrayBufferBinding -> GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING
    GetVertexAttribArrayInteger -> GL_VERTEX_ATTRIB_ARRAY_INTEGER
+   GetVertexAttribArrayDivisor -> GL_VERTEX_ATTRIB_ARRAY_DIVISOR
 
 --------------------------------------------------------------------------------
 
