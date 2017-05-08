@@ -44,7 +44,7 @@ module Graphics.Rendering.OpenGL.GL.VertexArrays (
    primitiveRestartIndex, primitiveRestartIndexNV,
 
    -- * Generic Vertex Attribute Arrays
-   vertexAttribPointer, vertexAttribArray,
+   vertexAttribPointer, vertexAttribArray, vertexAttribDivisor
 ) where
 
 import Data.StateVar
@@ -482,3 +482,9 @@ getVertexAttribArray location =
 setVertexAttribArray :: Capability -> AttribLocation -> IO ()
 setVertexAttribArray Disabled (AttribLocation location) = glDisableVertexAttribArray location
 setVertexAttribArray Enabled (AttribLocation location) = glEnableVertexAttribArray location
+
+--------------------------------------------------------------------------------
+
+vertexAttribDivisor :: AttribLocation -> StateVar GLuint
+vertexAttribDivisor attribLocation @ (AttribLocation location) =
+   makeStateVar (getVertexAttribEnum1 fromIntegral attribLocation GetVertexAttribArrayDivisor) (glVertexAttribDivisor location)
