@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.QueryUtils.VertexAttrib
--- Copyright   :  (c) Sven Panne, Lars Corbijn 2009-2016
+-- Copyright   :  (c) Sven Panne 2009-2018, Lars Corbijn 2009-2016
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>, Jason Dagit <dagitj@gmail.com>

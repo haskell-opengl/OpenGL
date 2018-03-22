@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.Shaders.Uniform
--- Copyright   :  (c) Sven Panne 2006-2016
+-- Copyright   :  (c) Sven Panne 2006-2018
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>

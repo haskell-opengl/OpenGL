@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.QueryUtils.PName
--- Copyright   :  (c) Sven Panne 2002-2016, Lars Corbijn 2013
+-- Copyright   :  (c) Sven Panne 2002-2018, Lars Corbijn 2013
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>, Jason Dagit <dagitj@gmail.com>

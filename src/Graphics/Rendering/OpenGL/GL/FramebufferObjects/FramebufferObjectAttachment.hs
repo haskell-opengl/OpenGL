@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.Rendering.OpenGL.GL.FramebufferObjects.FramebufferObjectAttachment
--- Copyright   :  (c) Sven Panne 2013-2016
+-- Copyright   :  (c) Sven Panne 2013-2018
 -- License     :  BSD3
 --
 -- Maintainer  :  Sven Panne <svenpanne@gmail.com>
