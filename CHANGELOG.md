@@ -1,3 +1,7 @@
+3.0.2.1
+-------
+* Relaxed upper version bound for `OpenGLRaw`.
+
 3.0.2.0
 -------
 * Added support for S3_s3tc, EXT_texture_compression_s3tc, ARB_texture_float, and EXT_packed_depth_stencil extensions.

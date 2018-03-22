@@ -1,5 +1,5 @@
 name: OpenGL
-version: 3.0.2.0
+version: 3.0.2.1
 synopsis: A binding for the OpenGL graphics system
 description:
   A Haskell binding for the OpenGL graphics system (GL, version 4.5) and its
@@ -165,7 +165,7 @@ library
     transformers >= 0.2 && < 0.6,
     ObjectName   >= 1.1 && < 1.2,
     StateVar     >= 1.1 && < 1.2,
-    OpenGLRaw    >= 3.0 && < 3.3,
+    OpenGLRaw    >= 3.0 && < 3.4,
     GLURaw       >= 2.0 && < 2.1
   default-language: Haskell2010
   other-extensions:
