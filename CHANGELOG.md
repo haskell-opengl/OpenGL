@@ -1,3 +1,7 @@
+3.0.2.2
+-------
+* Relaxed upper version bound for `containers`.
+
 3.0.2.1
 -------
 * Relaxed upper version bound for `OpenGLRaw`.
