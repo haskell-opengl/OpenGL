@@ -26,8 +26,8 @@ tested-with:
   GHC == 8.0.2
   GHC == 8.2.2
   GHC == 8.4.3
-  GHC == 8.6.3
-  GHC == 8.7.*
+  GHC == 8.6.5
+  GHC == 8.8.1
 cabal-version: >= 1.10
 extra-source-files:
    CHANGELOG.md
