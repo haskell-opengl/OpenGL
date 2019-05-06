@@ -1,5 +1,5 @@
 name: OpenGL
-version: 3.0.2.2
+version: 3.0.3.0
 synopsis: A binding for the OpenGL graphics system
 description:
   A Haskell binding for the OpenGL graphics system (GL, version 4.6) and its
@@ -11,9 +11,9 @@ description:
   functions. For more information about OpenGL and its various extensions,
   please see <http://www.opengl.org/>
   and <http://www.opengl.org/registry/>.
-homepage: http://www.haskell.org/haskellwiki/Opengl
+homepage: https://wiki.haskell.org/OpenGL
 bug-reports: https://github.com/haskell-opengl/OpenGL/issues
-copyright: Copyright (C) 2002-2018 Sven Panne
+copyright: Copyright (C) 2002-2019 Sven Panne
 license: BSD3
 license-file: LICENSE
 author: Sven Panne

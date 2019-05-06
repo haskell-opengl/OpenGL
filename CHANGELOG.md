@@ -1,3 +1,7 @@
+3.0.3.0
+-------
+* Handle MonadFail proposal.
+
 3.0.2.2
 -------
 * Relaxed upper version bound for `containers`.
