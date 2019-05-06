@@ -40,6 +40,9 @@ instance Functor (IOState s) where
 instance Monad (IOState s) where
    return a = IOState $ \s -> return (a, s)
    m >>= k  = IOState $ \s -> do (a, s') <- runIOState m s ; runIOState (k a) s'
+#if MIN_VERSION_base(4,13,0)
+instance MonadFail (IOState s) where
+#endif
    fail str = IOState $ \_ -> fail str
 
 getIOState :: IOState s (Ptr s)
