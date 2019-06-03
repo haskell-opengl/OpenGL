@@ -165,7 +165,7 @@ library
     text         >= 0.1 && < 1.3,
     transformers >= 0.2 && < 0.6,
     ObjectName   >= 1.1 && < 1.2,
-    StateVar     >= 1.1 && < 1.2,
+    StateVar     >= 1.1 && < 1.3,
     OpenGLRaw    >= 3.0 && < 3.4,
     GLURaw       >= 2.0 && < 2.1
   default-language: Haskell2010
