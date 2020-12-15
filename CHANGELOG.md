@@ -1,3 +1,7 @@
+3.0.3.1
+-------
+* Relaxed upper version bound for `bytestring`.
+
 3.0.3.0
 -------
 * Handle MonadFail proposal.
