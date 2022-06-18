@@ -18,6 +18,7 @@ module Graphics.Rendering.OpenGL.GL.Shaders.ShaderObjects (
    shaderCompiler,
    ShaderType(..), Shader, createShader,
    shaderSourceBS, shaderSource, compileShader, releaseShaderCompiler,
+   shaderSpecialization,
 
    -- * Shader Queries
    shaderType, shaderDeleteStatus, compileStatus, shaderInfoLog,
@@ -32,6 +33,7 @@ import Data.StateVar
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
+import Foreign.Ptr
 import Foreign.Storable
 import Graphics.Rendering.OpenGL.GL.ByteString
 import Graphics.Rendering.OpenGL.GL.GLboolean
@@ -115,6 +117,14 @@ compileShader = glCompileShader . shaderID
 
 releaseShaderCompiler :: IO ()
 releaseShaderCompiler = glReleaseShaderCompiler
+
+--------------------------------------------------------------------------------
+
+shaderSpecialization :: Shader -> SettableStateVar (String, GLuint, Ptr GLuint, Ptr GLuint)
+shaderSpecialization (Shader shader) =
+    makeSettableStateVar $ \(entrypoint, numConsts, constantIDs, constantVals) -> do
+        entry <- withGLstring entrypoint return
+        glSpecializeShader shader entry numConsts constantIDs constantVals
 
 --------------------------------------------------------------------------------
 
