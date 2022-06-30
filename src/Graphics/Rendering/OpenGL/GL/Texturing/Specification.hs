@@ -66,6 +66,9 @@ module Graphics.Rendering.OpenGL.GL.Texturing.Specification (
    -- * Multisample Texture Images
    SampleLocations(..), texImage2DMultisample, texImage3DMultisample,
 
+   -- * Immutable-Format Texture Images
+   texStorage2D, texStorage3D,
+
    -- * Implementation-Dependent Limits
    maxTextureSize, maxCubeMapTextureSize, maxRectangleTextureSize,
    max3DTextureSize, maxArrayTextureLayers, maxSampleMaskWords,
@@ -318,6 +321,34 @@ texImage3DMultisample target proxy (Samples s) int (TextureSize3D w h d) loc =
    glTexImage3DMultisample
       (marshalMultisample proxy target) s (fromIntegral (marshalPixelInternalFormat int))
       w h d (marshalSampleLocations loc)
+
+--------------------------------------------------------------------------------
+
+texStorage2D
+    :: TwoDimensionalTextureTarget t
+    => t
+    -> Proxy
+    -> Level
+    -> PixelInternalFormat
+    -> TextureSize2D
+    -> IO ()
+texStorage2D target proxy levels int (TextureSize2D w h) =
+    glTexStorage2D
+        (marshalTwoDimensionalTextureTarget proxy target)
+        levels (fromIntegral (marshalPixelInternalFormat int)) w h
+
+texStorage3D
+    :: ThreeDimensionalTextureTarget t
+    => t
+    -> Proxy
+    -> Level
+    -> PixelInternalFormat
+    -> TextureSize3D
+    -> IO ()
+texStorage3D target proxy levels int (TextureSize3D w h d) =
+    glTexStorage3D
+        (marshalThreeDimensionalTextureTarget proxy target)
+        levels (fromIntegral (marshalPixelInternalFormat int)) w h d
 
 --------------------------------------------------------------------------------
 
