@@ -9,9 +9,9 @@
 -- Portability :  portable
 --
 -----------------------------------------------------------------------------
-
+{-# LANGUAGE DeriveGeneric #-}
 module Graphics.Rendering.OpenGL.GL.VertexArrayObjects (
-   VertexArrayObject,
+   VertexArrayObject (..),
    bindVertexArrayObject
 ) where
 
@@ -23,11 +23,12 @@ import Graphics.Rendering.OpenGL.GL.DebugOutput
 import Graphics.Rendering.OpenGL.GL.GLboolean
 import Graphics.Rendering.OpenGL.GL.QueryUtils
 import Graphics.GL
-
+import GHC.Generics
+  
 -----------------------------------------------------------------------------
 
 newtype VertexArrayObject = VertexArrayObject { vertexArrayID :: GLuint }
-   deriving( Eq, Ord, Show )
+   deriving( Eq, Ord, Show, Generic )
 
 instance ObjectName VertexArrayObject where
    isObjectName =
