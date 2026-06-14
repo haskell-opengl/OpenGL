@@ -31,14 +31,13 @@ import Foreign.Storable ( Storable(sizeOf,peek) )
 newtype IOState s a = IOState { runIOState :: Ptr s -> IO (a, Ptr s) }
 
 instance Applicative (IOState s) where
-   pure  = return
+   pure a = IOState $ \s -> return (a, s)
    (<*>) = ap
 
 instance Functor (IOState s) where
    fmap = liftM
 
 instance Monad (IOState s) where
-   return a = IOState $ \s -> return (a, s)
    m >>= k  = IOState $ \s -> do (a, s') <- runIOState m s ; runIOState (k a) s'
 #if MIN_VERSION_base(4,13,0)
 instance MonadFail (IOState s) where
